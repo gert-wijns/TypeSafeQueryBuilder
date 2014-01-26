@@ -1,7 +1,6 @@
 package be.shad.tsqb.proxy;
 
 import java.lang.reflect.Method;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,7 +8,6 @@ import javassist.util.proxy.MethodFilter;
 import javassist.util.proxy.MethodHandler;
 import javassist.util.proxy.ProxyFactory;
 import javassist.util.proxy.ProxyObject;
-import be.shad.tsqb.TypeSafeQuery;
 import be.shad.tsqb.TypeSafeQueryHelper;
 
 public final class TypeSafeQueryProxyFactory {
@@ -58,7 +56,7 @@ public final class TypeSafeQueryProxyFactory {
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T> T getMethodChainingExceptionProxy(Class<T> fromClass) {
+	public <T> T getMethodChainingExceptionProxy(Class<T> fromClass) {
 		synchronized( methodChainingExceptionProxies ) {
 			ProxyObject methodChainingExceptionProxy = methodChainingExceptionProxies.get(fromClass);
 			// will not be null often ...
@@ -88,72 +86,4 @@ public final class TypeSafeQueryProxyFactory {
 		}
 	}
 	
-	/**
-	 * Sets the method handler on the proxy to create new proxies when 
-	 * hibernate entities are traversed via the getter/setters.
-	 */
-	public void setMethodListener(final TypeSafeQueryProxyData data, final TypeSafeQuery query) {
-		((ProxyObject) data.getProxy()).setHandler(new MethodHandler() {
-			public Object invoke(Object self, Method m, Method proceed, Object[] args) throws Throwable {
-				if( m.getReturnType().equals(TypeSafeQueryProxyData.class) ) {
-					return data;
-				}
-				
-				String method2Name = method2PropertyName(m);
-				TypeSafeQueryProxyData child = query.getData(data.getProxy(), method2Name);
-				if( child == null ) {
-					Class<?> targetClass = helper.getTargetEntityClass(data.getPropertyType(), method2Name);
-					if( helper.isEntity(targetClass) ) {
-						TypeSafeQueryProxy proxy = (TypeSafeQueryProxy) getProxyInstance(targetClass);
-						child = new TypeSafeQueryProxyData(data, method2Name, targetClass, 
-								proxy, query.createEntityAlias());
-						setMethodListener(child, query);
-					} else {
-						child = new TypeSafeQueryProxyData(data, method2Name, targetClass);
-					}
-					query.add(data, child);
-				}
-				// remember the method invocation, to be used later...
-				query.invocationWasMade(child);
-				if( child.getProxy() != null && !Collection.class.isAssignableFrom(m.getReturnType())) {
-					// return null to make sure no method chaining occurs. 
-					// joining must be done explicitly by query.join, this will return a proxy)
-					return getMethodChainingExceptionProxy(child.getPropertyType()); 
-				}
-				return proceed.invoke(self, args);
-			}
-		});
-	}
-	
-	public void setSelectIntoMethodListener(Object proxy, final TypeSafeQuery query) {
-		((ProxyObject) proxy).setHandler(new MethodHandler() {
-			public Object invoke(Object self, Method m, Method proceed, Object[] args) throws Throwable {
-				if( m.getName().startsWith("set") ) {
-					String propertyName = m.getName().substring(3, 4).toLowerCase() + m.getName().substring(4);
-					query.getProjections().project(args[0], propertyName);
-				}
-				return null;
-			}
-		});
-	}
-
-	/**
-	 * Simple conversion to the property path to be used in the query building phase.
-	 */
-	private String method2PropertyName(Method m) {
-		String name = m.getName();
-		int start;
-		if (name.startsWith("get") ) {
-			start = 3;
-		} else if ( name.startsWith("is") ) {
-			start = 2;
-		} else {
-			return name;
-		}
-		String ret = name.substring(start, ++start).toLowerCase();
-		if (name.length() > start)
-			ret += name.substring(start);
-		return ret;
-	}
-
 }

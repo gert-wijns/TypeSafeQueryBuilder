@@ -1,17 +1,20 @@
 package be.shad.tsqb;
 
 import be.shad.tsqb.proxy.TypeSafeQueryProxyFactory;
+import be.shad.tsqb.query.TypeSafeQueryInternal;
+import be.shad.tsqb.query.TypeSafeRootQuery;
+import be.shad.tsqb.query.TypeSafeRootQueryInternal;
 
 public interface TypeSafeQueryHelper {
 	
-	TypeSafeQuery createQuery();
+	TypeSafeRootQuery createQuery();
 	
-	boolean isEntity(Class<?> clazz);
-
-	Class<?> getTargetEntityClass(Class<?> fromClass, String property);
-
 	TypeSafeQueryProxyFactory getTypeSafeProxyFactory();
 	
 	String getEntityName(Class<?> entityClass);
+	
+	<T> T createTypeSafeFromProxy(TypeSafeQueryInternal query, Class<T> clazz);
+	
+	<T> T createTypeSafeSelectProxy(TypeSafeRootQueryInternal query, Class<T> clazz);
 	
 }

@@ -5,18 +5,18 @@ import java.util.List;
 
 import be.shad.tsqb.HqlQuery;
 import be.shad.tsqb.HqlQueryBuilder;
-import be.shad.tsqb.TypeSafeQuery;
-import be.shad.tsqb.TypeSafeQuery;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
 import be.shad.tsqb.proxy.TypeSafeQueryProxyData;
+import be.shad.tsqb.query.TypeSafeQueryInternal;
+import be.shad.tsqb.query.TypeSafeSubQuery;
 import be.shad.tsqb.values.TypeSafeValue;
 
 public class TypeSafeQueryProjections implements HqlQueryBuilder {
-	private final TypeSafeQuery query;
+	private final TypeSafeQueryInternal query;
 	private final LinkedList<TypeSafeProjection> projections = new LinkedList<>();
 	private Class<?> resultClass;
 
-	public TypeSafeQueryProjections(TypeSafeQuery query) {
+	public TypeSafeQueryProjections(TypeSafeQueryInternal query) {
 		this.query = query;
 	}
 
@@ -40,7 +40,7 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
 		TypeSafeProjection projection = null;
 		if( invocations.isEmpty() ) {
 			if( select instanceof TypeSafeValue<?> ) {
-				projection = new SubQueryTypeSafeProjection((TypeSafeQuery) select, propertyName);
+				projection = new SubQueryTypeSafeProjection((TypeSafeSubQuery<?>) select, propertyName);
 			} else if( select instanceof TypeSafeQueryProxy ) {
 				projection = new DirectTypeSafeProjection(((TypeSafeQueryProxy) select).
 						getTypeSafeProxyData(), propertyName);

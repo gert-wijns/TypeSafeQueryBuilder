@@ -1,7 +1,8 @@
 package be.shad.tsqb.restrictions;
 
 import be.shad.tsqb.HqlQuery;
-import be.shad.tsqb.TypeSafeQuery;
+import be.shad.tsqb.query.TypeSafeQueryInternal;
+import be.shad.tsqb.query.TypeSafeSubQuery;
 import be.shad.tsqb.values.HqlQueryValue;
 import be.shad.tsqb.values.HqlQueryValueImpl;
 import be.shad.tsqb.values.TypeSafeValue;
@@ -12,12 +13,12 @@ public class RestrictionBase implements Restriction, RestrictionChainable {
 	public final static String NOT_IN = "in";
 	public final static String NOT_EQUAL = "<>";
 	
-	private final TypeSafeQuery query;
+	private final TypeSafeQueryInternal query;
 	private TypeSafeValue<?> left;
 	private String operator;
 	private TypeSafeValue<?> right;
 	
-	public RestrictionBase(TypeSafeQuery query) {
+	public RestrictionBase(TypeSafeQueryInternal query) {
 		this.query = query;
 		this.query.getRestrictions().addRestriction(this);
 	}
@@ -33,6 +34,11 @@ public class RestrictionBase implements Restriction, RestrictionChainable {
 	}
 
 	@Override
+	public OnGoingSubQueryTextRestriction andt(TypeSafeSubQuery<String> value) {
+		return new OnGoingSubQueryTextRestriction(new RestrictionBase(query), value);
+	}
+
+	@Override
 	public OnGoingNumberRestriction and(Number value) {
 		return new OnGoingNumberRestriction(new RestrictionBase(query), value);
 	}
@@ -42,7 +48,12 @@ public class RestrictionBase implements Restriction, RestrictionChainable {
 		return new OnGoingNumberRestriction(new RestrictionBase(query), value);
 	}
 	
-	public TypeSafeQuery getQuery() {
+	@Override
+	public OnGoingSubQueryNumberRestriction andn(TypeSafeSubQuery<Number> value) {
+		return new OnGoingSubQueryNumberRestriction(new RestrictionBase(query), value);
+	}
+	
+	public TypeSafeQueryInternal getQuery() {
 		return query;
 	}
 
@@ -50,8 +61,16 @@ public class RestrictionBase implements Restriction, RestrictionChainable {
 		this.operator = operator;
 	}
 	
+	public TypeSafeValue<?> getLeft() {
+		return left;
+	}
+	
 	public void setLeft(TypeSafeValue<?> left) {
 		this.left = left;
+	}
+	
+	public TypeSafeValue<?> getRight() {
+		return right;
 	}
 	
 	public void setRight(TypeSafeValue<?> right) {
@@ -67,7 +86,10 @@ public class RestrictionBase implements Restriction, RestrictionChainable {
 			value.addParams(hqlQueryValue.getParams());
 		}
 		if( operator != null ) {
-			value.appendHql(" " + operator + " ");
+			if( left != null ) {
+				value.appendHql(" ");
+			}
+			value.appendHql(operator + " ");
 		}
 		if( right != null ) {
 			HqlQueryValue hqlQueryValue = right.toHqlQueryValue();

@@ -1,20 +1,20 @@
 package be.shad.tsqb.selection;
 
 import be.shad.tsqb.HqlQuery;
-import be.shad.tsqb.TypeSafeQuery;
+import be.shad.tsqb.query.TypeSafeSubQuery;
 
 public class SubQueryTypeSafeProjection implements TypeSafeProjection {
-	private final TypeSafeQuery subQuery;
+	private final TypeSafeSubQuery<?> subQuery;
 	private final String propertyName;
 
 	public SubQueryTypeSafeProjection(
-			TypeSafeQuery subQuery,
+			TypeSafeSubQuery<?> subQuery,
 			String propertyName) {
 		this.subQuery = subQuery;
 		this.propertyName = propertyName;
 	}
 
-	public TypeSafeQuery getSubQuery() {
+	public TypeSafeSubQuery<?> getSubQuery() {
 		return subQuery;
 	}
 	
