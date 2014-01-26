@@ -8,12 +8,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import be.shad.tsqb.HqlQuery;
-import be.shad.tsqb.JoinType;
-import be.shad.tsqb.TypeSafeQueryHelper;
 import be.shad.tsqb.grouping.GroupByBase;
 import be.shad.tsqb.grouping.OnGoingGroupBy;
 import be.shad.tsqb.grouping.TypeSafeQueryGroupBys;
+import be.shad.tsqb.helper.TypeSafeQueryHelper;
+import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.ordering.OnGoingOrderBy;
 import be.shad.tsqb.ordering.OrderByBase;
 import be.shad.tsqb.ordering.TypeSafeQueryOrderBys;

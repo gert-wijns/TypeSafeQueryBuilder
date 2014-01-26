@@ -2,7 +2,7 @@ package be.shad.tsqb.grouping;
 
 import java.util.List;
 
-import be.shad.tsqb.HqlQuery;
+import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.proxy.TypeSafeQueryProxyData;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.values.ReferenceTypeSafeValue;

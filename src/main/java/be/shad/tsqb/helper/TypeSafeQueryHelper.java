@@ -1,4 +1,4 @@
-package be.shad.tsqb;
+package be.shad.tsqb.helper;
 
 import be.shad.tsqb.proxy.TypeSafeQueryProxyFactory;
 import be.shad.tsqb.query.TypeSafeQueryInternal;

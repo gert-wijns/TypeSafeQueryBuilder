@@ -3,8 +3,8 @@ package be.shad.tsqb.restrictions;
 import java.util.LinkedList;
 import java.util.List;
 
-import be.shad.tsqb.HqlQuery;
-import be.shad.tsqb.HqlQueryBuilder;
+import be.shad.tsqb.hql.HqlQuery;
+import be.shad.tsqb.hql.HqlQueryBuilder;
 
 public class TypeSafeQueryRestrictions implements HqlQueryBuilder {
 	private List<Restriction> restrictions = new LinkedList<>();

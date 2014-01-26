@@ -1,4 +1,4 @@
-package be.shad.tsqb;
+package be.shad.tsqb.hql;
 
 public interface HqlQueryBuilder {
 

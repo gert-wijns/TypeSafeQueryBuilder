@@ -3,7 +3,7 @@ package be.shad.tsqb.query;
 import java.util.LinkedList;
 import java.util.List;
 
-import be.shad.tsqb.TypeSafeQueryHelper;
+import be.shad.tsqb.helper.TypeSafeQueryHelper;
 import be.shad.tsqb.proxy.TypeSafeQueryProxyData;
 
 public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements TypeSafeRootQuery, TypeSafeRootQueryInternal {

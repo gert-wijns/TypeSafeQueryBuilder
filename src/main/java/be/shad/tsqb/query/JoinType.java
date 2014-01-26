@@ -1,4 +1,4 @@
-package be.shad.tsqb;
+package be.shad.tsqb.query;
 
 public enum JoinType {
 	/**

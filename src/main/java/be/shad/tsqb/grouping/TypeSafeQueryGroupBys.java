@@ -3,8 +3,8 @@ package be.shad.tsqb.grouping;
 import java.util.LinkedList;
 import java.util.List;
 
-import be.shad.tsqb.HqlQuery;
-import be.shad.tsqb.HqlQueryBuilder;
+import be.shad.tsqb.hql.HqlQuery;
+import be.shad.tsqb.hql.HqlQueryBuilder;
 
 public class TypeSafeQueryGroupBys implements HqlQueryBuilder {
 	private List<GroupBy> groupBys = new LinkedList<>();

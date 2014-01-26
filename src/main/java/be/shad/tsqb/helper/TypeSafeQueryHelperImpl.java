@@ -1,4 +1,4 @@
-package be.shad.tsqb;
+package be.shad.tsqb.helper;
 
 import java.lang.reflect.Method;
 import java.util.Collection;

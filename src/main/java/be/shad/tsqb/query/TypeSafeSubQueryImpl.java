@@ -2,8 +2,8 @@ package be.shad.tsqb.query;
 
 import java.util.List;
 
-import be.shad.tsqb.HqlQuery;
-import be.shad.tsqb.TypeSafeQueryHelper;
+import be.shad.tsqb.helper.TypeSafeQueryHelper;
+import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.proxy.TypeSafeQueryProxyData;
 import be.shad.tsqb.values.HqlQueryValue;
 import be.shad.tsqb.values.HqlQueryValueImpl;

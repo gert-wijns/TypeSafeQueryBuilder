@@ -2,9 +2,8 @@ package be.shad.tsqb.query;
 
 import java.util.Collection;
 
-import be.shad.tsqb.HqlQuery;
-import be.shad.tsqb.JoinType;
 import be.shad.tsqb.grouping.OnGoingGroupBy;
+import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.ordering.OnGoingOrderBy;
 import be.shad.tsqb.restrictions.OnGoingNumberRestriction;
 import be.shad.tsqb.restrictions.OnGoingTextRestriction;

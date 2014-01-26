@@ -1,6 +1,6 @@
 package be.shad.tsqb.proxy;
 
-import be.shad.tsqb.JoinType;
+import be.shad.tsqb.query.JoinType;
 
 public class TypeSafeQueryProxyData {
 

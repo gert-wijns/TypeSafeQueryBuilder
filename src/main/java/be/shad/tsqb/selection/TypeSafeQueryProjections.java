@@ -3,8 +3,8 @@ package be.shad.tsqb.selection;
 import java.util.LinkedList;
 import java.util.List;
 
-import be.shad.tsqb.HqlQuery;
-import be.shad.tsqb.HqlQueryBuilder;
+import be.shad.tsqb.hql.HqlQuery;
+import be.shad.tsqb.hql.HqlQueryBuilder;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
 import be.shad.tsqb.proxy.TypeSafeQueryProxyData;
 import be.shad.tsqb.query.TypeSafeQueryInternal;

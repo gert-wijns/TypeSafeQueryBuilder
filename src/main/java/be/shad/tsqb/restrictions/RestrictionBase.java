@@ -1,6 +1,6 @@
 package be.shad.tsqb.restrictions;
 
-import be.shad.tsqb.HqlQuery;
+import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.query.TypeSafeSubQuery;
 import be.shad.tsqb.values.HqlQueryValue;
