@@ -2,9 +2,9 @@ package be.shad.tsqb.query;
 
 import java.util.List;
 
+import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.helper.TypeSafeQueryHelper;
 import be.shad.tsqb.hql.HqlQuery;
-import be.shad.tsqb.proxy.TypeSafeQueryProxyData;
 import be.shad.tsqb.values.HqlQueryValue;
 import be.shad.tsqb.values.HqlQueryValueImpl;
 
@@ -31,11 +31,11 @@ public class TypeSafeSubQueryImpl<T extends Object> extends AbstractTypeSafeQuer
 	 * In scope if it is in this query's scope or in its parents' scope.
 	 */
 	@Override
-	public boolean isInScope(TypeSafeQueryProxyData data) {
-		if( super.isInScope(data) ) {
+	public boolean isInScope(TypeSafeQueryProxyData data, TypeSafeQueryProxyData join) {
+		if( super.isInScope(data, join) ) {
 			return true;
 		}
-		return parentQuery.isInScope(data);
+		return parentQuery.isInScope(data, join);
 	}
 	
 	/**

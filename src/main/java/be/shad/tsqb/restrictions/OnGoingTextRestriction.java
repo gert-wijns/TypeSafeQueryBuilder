@@ -1,102 +1,102 @@
 package be.shad.tsqb.restrictions;
 
-import static be.shad.tsqb.restrictions.RestrictionBase.EQUAL;
-import static be.shad.tsqb.restrictions.RestrictionBase.IN;
-import static be.shad.tsqb.restrictions.RestrictionBase.NOT_EQUAL;
-import static be.shad.tsqb.restrictions.RestrictionBase.NOT_IN;
+import static be.shad.tsqb.restrictions.RestrictionImpl.EQUAL;
+import static be.shad.tsqb.restrictions.RestrictionImpl.IN;
+import static be.shad.tsqb.restrictions.RestrictionImpl.NOT_EQUAL;
+import static be.shad.tsqb.restrictions.RestrictionImpl.NOT_IN;
 
 import java.util.Collection;
 import java.util.List;
 
-import be.shad.tsqb.proxy.TypeSafeQueryProxyData;
+import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.values.CollectionTypeSafeValue;
 import be.shad.tsqb.values.DirectTypeSafeValue;
 import be.shad.tsqb.values.ReferenceTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
 
 public class OnGoingTextRestriction {
-	private final RestrictionBase restriction;
+	private final RestrictionImpl restriction;
 	private final static String WILDCARD = "%";
 	private final static String EMPTY = "";
 	private final static String LIKE = "like";
 
-	public OnGoingTextRestriction(RestrictionBase restriction, String argument) {
+	public OnGoingTextRestriction(RestrictionImpl restriction, String argument) {
 		this.restriction = restriction;
 		restriction.setLeft(toValue(EMPTY, argument, EMPTY));
 	}
 	
-	public OnGoingTextRestriction(RestrictionBase restriction, TypeSafeValue<String> argument) {
+	public OnGoingTextRestriction(RestrictionImpl restriction, TypeSafeValue<String> argument) {
 		this.restriction = restriction;
 		restriction.setLeft(argument);
 	}
 
-	public RestrictionChainable in(TypeSafeValue<String> value) {
+	public Restriction in(TypeSafeValue<String> value) {
 		restriction.setOperator(IN);
 		restriction.setRight(value);
 		return restriction;
 	}
 	
-	public RestrictionChainable in(Collection<String> values) {
+	public Restriction in(Collection<String> values) {
 		return in(new CollectionTypeSafeValue<>(values));
 	}
 
-	public RestrictionChainable notIn(TypeSafeValue<String> value) {
+	public Restriction notIn(TypeSafeValue<String> value) {
 		restriction.setOperator(NOT_IN);
 		restriction.setRight(value);
 		return restriction;
 	}
 	
-	public RestrictionChainable notIn(Collection<String> values) {
+	public Restriction notIn(Collection<String> values) {
 		return notIn(new CollectionTypeSafeValue<>(values));
 	}
 
-	public RestrictionChainable eq(TypeSafeValue<String> value) {
+	public Restriction eq(TypeSafeValue<String> value) {
 		restriction.setOperator(EQUAL);
 		restriction.setRight(value);
 		return restriction;
 	}
 	
-	public RestrictionChainable eq(String value) {
+	public Restriction eq(String value) {
 		return eq(toValue(EMPTY, value, EMPTY));
 	}
 
-	public RestrictionChainable not(TypeSafeValue<String> value) {
+	public Restriction not(TypeSafeValue<String> value) {
 		restriction.setOperator(NOT_EQUAL);
 		restriction.setRight(value);
 		return restriction;
 	}
 	
-	public RestrictionChainable not(String value) {
+	public Restriction not(String value) {
 		return not(toValue(EMPTY, value, EMPTY));
 	}
 
-	public RestrictionChainable contains(TypeSafeValue<String> value) {
+	public Restriction contains(TypeSafeValue<String> value) {
 		restriction.setOperator(LIKE);
 		restriction.setRight(value);
 		return restriction;
 	}
 	
-	public RestrictionChainable contains(String value) {
+	public Restriction contains(String value) {
 		return contains(toValue(WILDCARD, value, WILDCARD));
 	}
 	
-	public RestrictionChainable startsWith(TypeSafeValue<String> value) {
+	public Restriction startsWith(TypeSafeValue<String> value) {
 		restriction.setOperator(LIKE);
 		restriction.setRight(value);
 		return restriction;
 	}
 	
-	public RestrictionChainable startsWith(String value) {
+	public Restriction startsWith(String value) {
 		return startsWith(toValue(WILDCARD, value, EMPTY));
 	}
 
-	public RestrictionChainable endsWith(TypeSafeValue<String> value) {
+	public Restriction endsWith(TypeSafeValue<String> value) {
 		restriction.setOperator(LIKE);
 		restriction.setRight(value);
 		return restriction;
 	}
 	
-	public RestrictionChainable endsWith(String value) {
+	public Restriction endsWith(String value) {
 		return endsWith(toValue(EMPTY, value, WILDCARD));
 	}
 	

@@ -1,7 +1,7 @@
 package be.shad.tsqb.selection;
 
+import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.hql.HqlQuery;
-import be.shad.tsqb.proxy.TypeSafeQueryProxyData;
 
 public class DirectTypeSafeProjection implements TypeSafeProjection {
 	private final TypeSafeQueryProxyData selection;

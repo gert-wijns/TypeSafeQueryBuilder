@@ -4,15 +4,15 @@ import be.shad.tsqb.values.TypeSafeValue;
 
 public class OnGoingSubQueryNumberRestriction extends OnGoingNumberRestriction {
 	private final static String EXISTS = "exists";
-	private final RestrictionBase restriction;
+	private final RestrictionImpl restriction;
 
-	public OnGoingSubQueryNumberRestriction(RestrictionBase restriction,
+	public OnGoingSubQueryNumberRestriction(RestrictionImpl restriction,
 			TypeSafeValue<Number> argument) {
 		super(restriction, argument);
 		this.restriction = restriction;
 	}
 
-	public RestrictionChainable exists() {
+	public Restriction exists() {
 		restriction.setRight(restriction.getLeft());
 		restriction.setLeft(null);
 		restriction.setOperator(EXISTS);

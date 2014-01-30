@@ -1,56 +1,54 @@
 package be.shad.tsqb.restrictions;
 
-import be.shad.tsqb.hql.HqlQuery;
+import static java.lang.String.format;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
-import be.shad.tsqb.query.TypeSafeSubQuery;
 import be.shad.tsqb.values.HqlQueryValue;
 import be.shad.tsqb.values.HqlQueryValueImpl;
+import be.shad.tsqb.values.ReferenceTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
 
-public class RestrictionBase implements Restriction, RestrictionChainable {
+public class RestrictionImpl extends RestrictionChainableImpl implements Restriction {
 	public final static String EQUAL = "=";
 	public final static String IN = "in";
-	public final static String NOT_IN = "in";
+	public final static String NOT_IN = "not in";
 	public final static String NOT_EQUAL = "<>";
 	
+	private final RestrictionsGroup group;
 	private final TypeSafeQueryInternal query;
+	
 	private TypeSafeValue<?> left;
 	private String operator;
 	private TypeSafeValue<?> right;
 	
-	public RestrictionBase(TypeSafeQueryInternal query) {
+	public RestrictionImpl(TypeSafeQueryInternal query, 
+			RestrictionsGroup restrictions) {
+		this.group = restrictions;
 		this.query = query;
-		this.query.getRestrictions().addRestriction(this);
 	}
 
 	@Override
-	public OnGoingTextRestriction and(String value) {
-		return new OnGoingTextRestriction(new RestrictionBase(query), value);
+	public RestrictionsGroup getRestrictionsGroup() {
+		return group;
 	}
 
 	@Override
-	public OnGoingTextRestriction andt(TypeSafeValue<String> value) {
-		return new OnGoingTextRestriction(new RestrictionBase(query), value);
-	}
-
-	@Override
-	public OnGoingSubQueryTextRestriction andt(TypeSafeSubQuery<String> value) {
-		return new OnGoingSubQueryTextRestriction(new RestrictionBase(query), value);
-	}
-
-	@Override
-	public OnGoingNumberRestriction and(Number value) {
-		return new OnGoingNumberRestriction(new RestrictionBase(query), value);
+	public Restriction and(Restriction restriction) {
+		return group.and(restriction);
 	}
 	
 	@Override
-	public OnGoingNumberRestriction andn(TypeSafeValue<Number> value) {
-		return new OnGoingNumberRestriction(new RestrictionBase(query), value);
+	public Restriction or(Restriction restriction) {
+		return group.or(restriction);
+	}
+
+	@Override
+	public RestrictionImpl and() {
+		return group.and();
 	}
 	
 	@Override
-	public OnGoingSubQueryNumberRestriction andn(TypeSafeSubQuery<Number> value) {
-		return new OnGoingSubQueryNumberRestriction(new RestrictionBase(query), value);
+	public RestrictionImpl or() {
+		return group.or();
 	}
 	
 	public TypeSafeQueryInternal getQuery() {
@@ -67,6 +65,7 @@ public class RestrictionBase implements Restriction, RestrictionChainable {
 	
 	public void setLeft(TypeSafeValue<?> left) {
 		this.left = left;
+		validateInScope(left);
 	}
 	
 	public TypeSafeValue<?> getRight() {
@@ -75,10 +74,19 @@ public class RestrictionBase implements Restriction, RestrictionChainable {
 	
 	public void setRight(TypeSafeValue<?> right) {
 		this.right = right;
+		validateInScope(right);
+	}
+	
+	private void validateInScope(TypeSafeValue<?> value) {
+		if( value instanceof ReferenceTypeSafeValue<?> ) {
+			if(!query.isInScope(((ReferenceTypeSafeValue<?>) value).getData(), group.getJoin())) {
+				throw new IllegalArgumentException(format("Attempting to restrict with data which is not in scope. The data: [%s].", value));
+			}
+		}
 	}
 	
 	@Override
-	public void appendTo(HqlQuery query) {
+	public HqlQueryValue toHqlQueryValue() {
 		HqlQueryValueImpl value = new HqlQueryValueImpl();
 		if( left != null ) {
 			HqlQueryValue hqlQueryValue = left.toHqlQueryValue();
@@ -96,8 +104,7 @@ public class RestrictionBase implements Restriction, RestrictionChainable {
 			value.appendHql(hqlQueryValue.getHql());
 			value.addParams(hqlQueryValue.getParams());
 		}
-		query.appendWhere(value.getHql());
-		query.addParams(value.getParams());
+		return value;
 	}
 
 }

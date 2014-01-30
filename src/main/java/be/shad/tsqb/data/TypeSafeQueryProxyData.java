@@ -1,9 +1,14 @@
-package be.shad.tsqb.proxy;
+package be.shad.tsqb.data;
 
+import java.util.Collection;
+import java.util.LinkedHashMap;
+
+import be.shad.tsqb.proxy.TypeSafeQueryProxy;
 import be.shad.tsqb.query.JoinType;
 
 public class TypeSafeQueryProxyData {
 
+	private final LinkedHashMap<String, TypeSafeQueryProxyData> children = new LinkedHashMap<>();
 	private final TypeSafeQueryProxyData parent;
 	private final TypeSafeQueryProxy proxy;
 	private final String propertyPath;
@@ -11,17 +16,40 @@ public class TypeSafeQueryProxyData {
 	private final String alias;
 	private JoinType joinType;
 	
-	public TypeSafeQueryProxyData(TypeSafeQueryProxyData parent, String propertyPath, Class<?> propertyType) {
+	/**
+	 * Package protected so that the data is correctly add to the data tree.
+	 */
+	TypeSafeQueryProxyData(TypeSafeQueryProxyData parent, String propertyPath, Class<?> propertyType) {
 		this(parent, propertyPath, propertyType, null, null);
 	}
 	
-	public TypeSafeQueryProxyData(TypeSafeQueryProxyData parent, String propertyPath, 
+	/**
+	 * 
+	 * Package protected so that the data is correctly add to the data tree.
+	 */
+	TypeSafeQueryProxyData(TypeSafeQueryProxyData parent, String propertyPath, 
 			Class<?> propertyType, TypeSafeQueryProxy proxy, String alias) {
 		this.propertyPath = propertyPath;
 		this.propertyType = propertyType;
 		this.parent = parent;
 		this.proxy = proxy;
 		this.alias = alias;
+	}
+	
+	public TypeSafeQueryProxyData getParent() {
+		return parent;
+	}
+	
+	public Collection<TypeSafeQueryProxyData> getChildren() {
+		return children.values();
+	}
+	
+	public TypeSafeQueryProxyData getChild(String name) {
+		return children.get(name);
+	}
+	
+	public void putChild(TypeSafeQueryProxyData child) {
+		children.put(child.propertyPath, child);
 	}
 	
 	public String getAlias() {

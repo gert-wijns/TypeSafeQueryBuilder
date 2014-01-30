@@ -8,7 +8,6 @@ import javassist.util.proxy.MethodFilter;
 import javassist.util.proxy.MethodHandler;
 import javassist.util.proxy.ProxyFactory;
 import javassist.util.proxy.ProxyObject;
-import be.shad.tsqb.helper.TypeSafeQueryHelper;
 
 public final class TypeSafeQueryProxyFactory {
 	private static final MethodFilter METHOD_FILTER = new MethodFilter() {
@@ -25,11 +24,6 @@ public final class TypeSafeQueryProxyFactory {
 	};
 	private final Map<Class<?>, Class<?>> proxyClasses = new HashMap<>();
 	private final Map<Class<?>, ProxyObject> methodChainingExceptionProxies = new HashMap<>();
-	private final TypeSafeQueryHelper helper;
-	
-	public TypeSafeQueryProxyFactory(TypeSafeQueryHelper helper) {
-		this.helper = helper;
-	}
 
 	public <T> T getProxyInstance(Class<T> fromClass) {
 		try {

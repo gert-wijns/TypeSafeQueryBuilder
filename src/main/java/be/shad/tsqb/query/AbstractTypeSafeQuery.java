@@ -1,46 +1,50 @@
 package be.shad.tsqb.query;
 
-import static java.lang.String.format;
-
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+import be.shad.tsqb.data.TypeSafeQueryProxyData;
+import be.shad.tsqb.data.TypeSafeQueryProxyDataTree;
 import be.shad.tsqb.grouping.GroupByBase;
 import be.shad.tsqb.grouping.OnGoingGroupBy;
 import be.shad.tsqb.grouping.TypeSafeQueryGroupBys;
 import be.shad.tsqb.helper.TypeSafeQueryHelper;
 import be.shad.tsqb.hql.HqlQuery;
+import be.shad.tsqb.joins.TypeSafeQueryJoin;
 import be.shad.tsqb.ordering.OnGoingOrderBy;
 import be.shad.tsqb.ordering.OrderByBase;
 import be.shad.tsqb.ordering.TypeSafeQueryOrderBys;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
-import be.shad.tsqb.proxy.TypeSafeQueryProxyData;
 import be.shad.tsqb.restrictions.OnGoingNumberRestriction;
+import be.shad.tsqb.restrictions.OnGoingSubQueryNumberRestriction;
+import be.shad.tsqb.restrictions.OnGoingSubQueryTextRestriction;
 import be.shad.tsqb.restrictions.OnGoingTextRestriction;
-import be.shad.tsqb.restrictions.RestrictionBase;
-import be.shad.tsqb.restrictions.TypeSafeQueryRestrictions;
+import be.shad.tsqb.restrictions.RestrictionChainable;
+import be.shad.tsqb.restrictions.RestrictionsGroup;
 import be.shad.tsqb.selection.TypeSafeQueryProjections;
+import be.shad.tsqb.values.HqlQueryValue;
 import be.shad.tsqb.values.TypeSafeValue;
 
 public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQueryInternal {
 	protected final TypeSafeQueryHelper helper;
 	private TypeSafeRootQueryInternal rootQuery;
 
-	private final Map<TypeSafeQueryProxyData, Map<String, TypeSafeQueryProxyData>> tree = new HashMap<>();
-
+	private final TypeSafeQueryProxyDataTree dataTree;
 	private final TypeSafeQueryProjections projections = new TypeSafeQueryProjections(this); 
-	private final TypeSafeQueryRestrictions restrictions = new TypeSafeQueryRestrictions(); 
+	private final RestrictionsGroup restrictions = new RestrictionsGroup(this, null); 
 	private final TypeSafeQueryGroupBys groupBys = new TypeSafeQueryGroupBys();
 	private final TypeSafeQueryOrderBys orderBys = new TypeSafeQueryOrderBys();
 	
 	public AbstractTypeSafeQuery(TypeSafeQueryHelper helper) {
-		this.tree.put(null, new HashMap<String, TypeSafeQueryProxyData>());
 		this.helper = helper;
+		this.dataTree = new TypeSafeQueryProxyDataTree(helper, this);
 	}
 
+	@Override
+	public TypeSafeQueryProxyDataTree getDataTree() {
+		return dataTree;
+	}
+	
 	@Override
 	public TypeSafeRootQueryInternal getRootQuery() {
 		return rootQuery;
@@ -72,6 +76,14 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
 	public <T> T join(T anyObject, JoinType joinType) {
 		return (T) join(joinType);
 	}
+	
+	@Override
+	public <T> TypeSafeQueryJoin<T> getJoin(T obj) {
+		if(!(obj instanceof TypeSafeQueryProxy)) {
+			throw new IllegalArgumentException("Can only get the join using a TypeSafeQueryProxy instance.");
+		}
+		return dataTree.getJoin(((TypeSafeQueryProxy) obj).getTypeSafeProxyData());
+	}
 
 	private TypeSafeQueryProxy join(JoinType joinType) {
 		List<TypeSafeQueryProxyData> invocations = rootQuery.dequeueInvocations();
@@ -84,34 +96,60 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
 		return data.getProxy();
 	}
 
-	/**
-	 * Start restricting a text value.
-	 */
-	public OnGoingTextRestriction restrict(String value) {
-		return new OnGoingTextRestriction(new RestrictionBase(this), value);
-	}
-
-	/**
-	 * Start restricting a text value.
-	 */
-	public OnGoingTextRestriction restrictt(TypeSafeValue<String> value) {
-		return new OnGoingTextRestriction(new RestrictionBase(this), value);
+	@Override
+	public RestrictionChainable where() {
+		return restrictions;
 	}
 	
 	/**
-	 * Start restricting a number value.
+	 * Delegate to restrictions.
 	 */
-	public OnGoingNumberRestriction restrict(Number value) {
-		return new OnGoingNumberRestriction(new RestrictionBase(this), value);
-	}
-	
-	/**
-	 * Start restricting a number value.
-	 */
-	public OnGoingNumberRestriction restrictn(TypeSafeValue<Number> value) {
-		return new OnGoingNumberRestriction(new RestrictionBase(this), value);
+	@Override
+	public OnGoingNumberRestriction where(Number value) {
+		return restrictions.and(value);
 	}
 
+	/**
+	 * Delegate to restrictions.
+	 */
+	@Override
+	public OnGoingTextRestriction where(String value) {
+		return restrictions.and(value);
+	}
+
+	/**
+	 * Delegate to restrictions.
+	 */
+	@Override
+	public OnGoingSubQueryNumberRestriction wheren(
+			TypeSafeSubQuery<Number> value) {
+		return restrictions.andn(value);
+	}
+
+	/**
+	 * Delegate to restrictions.
+	 */
+	@Override
+	public OnGoingNumberRestriction wheren(TypeSafeValue<Number> value) {
+		return restrictions.andn(value);
+	}
+
+	/**
+	 * Delegate to restrictions.
+	 */
+	@Override
+	public OnGoingSubQueryTextRestriction wheret(TypeSafeSubQuery<String> value) {
+		return restrictions.andt(value);
+	}
+
+	/**
+	 * Delegate to restrictions.
+	 */
+	@Override
+	public OnGoingTextRestriction wheret(TypeSafeValue<String> value) {
+		return restrictions.andt(value);
+	}
+	
 	/**
 	 * Kicks off order by's. Use desc/asc afterwards to order by something.
 	 */
@@ -123,11 +161,8 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
 		return new GroupByBase(this, value);
 	}
 
-	public boolean isInScope(TypeSafeQueryProxyData data) {
-		if( tree.containsKey(data) ) {
-			return true;
-		}
-		return false;
+	public boolean isInScope(TypeSafeQueryProxyData data, TypeSafeQueryProxyData join) {
+		return dataTree.isInScope(data, join);
 	}
 	
 	public TypeSafeQueryProjections getProjections() {
@@ -135,7 +170,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
 	}
 
 	@Override
-	public TypeSafeQueryRestrictions getRestrictions() {
+	public RestrictionsGroup getRestrictions() {
 		return restrictions;
 	}
 	
@@ -164,13 +199,12 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
 		projections.appendTo(query);
 		
 		// append from part + their joins:
-		Collection<TypeSafeQueryProxyData> root = tree.get(null).values();
-		for(TypeSafeQueryProxyData data: root) {
-			query.appendFrom(createFrom(data));
-		}
+		dataTree.appendTo(query);
 		
 		// append where part:
-		restrictions.appendTo(query);
+		HqlQueryValue hqlRestrictions = restrictions.toHqlQueryValue();
+		query.appendWhere(hqlRestrictions.getHql());
+		query.addParams(hqlRestrictions.getParams());
 		
 		// append group part:
 		groupBys.appendTo(query);
@@ -179,74 +213,6 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
 		orderBys.appendTo(query);
 		
 		return query;
-	}
-	
-	/**
-	 * @return entityName + joins
-	 */
-	private String createFrom(TypeSafeQueryProxyData data) {
-		StringBuilder from = new StringBuilder();
-		from.append(helper.getEntityName(data.getPropertyType()));
-		from.append(" ").append(data.getAlias()).append(" ");
-		appendJoins(from, data);
-		return from.toString();
-	}
-	
-	/**
-	 * Appends the joins with the correct join type/aliases to the from builder.
-	 */
-	private void appendJoins(StringBuilder from, TypeSafeQueryProxyData parent) {
-		Collection<TypeSafeQueryProxyData> children = getChildren(parent);
-		for(TypeSafeQueryProxyData child: children) {
-			if( child.getProxy() != null && child.getJoinType() != JoinType.None ) {
-				if( child.getJoinType() == null ) {
-					throw new IllegalArgumentException("The getter for [" + child.getProxy() + "] was called, "
-							+ "but it was not passed to query.join(object, jointype).");
-				}
-				// example: 'left join fetch' 'hobj1'.'propertyPath' 'hobj2' 
-				from.append(format("%s %s.%s %s ", getJoinTypeString(child.getJoinType()), 
-						parent.getAlias(), child.getPropertyPath(), child.getAlias()));
-				appendJoins(from, child); // recursive append sub joins
-			}
-		}
-	}
-
-	public Collection<TypeSafeQueryProxyData> getChildren(TypeSafeQueryProxyData parent) {
-		Map<String, TypeSafeQueryProxyData> map = tree.get(parent);
-		if( map == null ) {
-			return Collections.emptyList();
-		} else {
-			return map.values();
-		}
-	}
-
-	private String getJoinTypeString(JoinType joinType) {
-		switch (joinType) {
-			case Fetch: return "join fetch";
-			case Inner: return "join";
-			case Left: return "left join";
-			case LeftFetch: return "left join fetch";
-			case Right: return "right join";
-			default:
-		}
-		throw new IllegalArgumentException("JoinType " + joinType + " is no allowed.");
-	}
-
-	@Override
-	public TypeSafeQueryProxyData getData(TypeSafeQueryProxy parent, String propertyPath) {
-		Map<String, TypeSafeQueryProxyData> map = tree.get(parent);
-		if( map == null ) {
-			return null;
-		}
-		return map.get(propertyPath);
-	}
-
-	@Override
-	public void addData(TypeSafeQueryProxyData parent, TypeSafeQueryProxyData data) {
-		tree.get(parent).put(data.getPropertyPath(), data);
-		if( !tree.containsKey(data) ) {
-			tree.put(data, new HashMap<String, TypeSafeQueryProxyData>());
-		}
 	}
 	
 }

@@ -12,8 +12,8 @@ import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.type.CollectionType;
 import org.hibernate.type.Type;
 
+import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
-import be.shad.tsqb.proxy.TypeSafeQueryProxyData;
 import be.shad.tsqb.proxy.TypeSafeQueryProxyFactory;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.query.TypeSafeRootQuery;
@@ -26,7 +26,7 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
 
 	public TypeSafeQueryHelperImpl(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
-		this.proxyFactory = new TypeSafeQueryProxyFactory(this);
+		this.proxyFactory = new TypeSafeQueryProxyFactory();
 	}
 	
 	private boolean isEntity(Class<?> clazz) {
@@ -80,11 +80,9 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
 	@Override
 	public <T> T createTypeSafeFromProxy(TypeSafeQueryInternal query, Class<T> clazz) {
 		T proxy = proxyFactory.getProxyInstance(clazz);
-		final TypeSafeQueryProxyData data = new TypeSafeQueryProxyData(null,
-				null, clazz, (TypeSafeQueryProxy) proxy, 
-				query.createEntityAlias());
+		TypeSafeQueryProxyData data = query.getDataTree().createData(
+				null, null, clazz, (TypeSafeQueryProxy) proxy);
 		setMethodListener(query, data);
-		query.addData(null, data);
 		return proxy;
 	}
 
@@ -100,18 +98,16 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
 				}
 				
 				String method2Name = method2PropertyName(m);
-				TypeSafeQueryProxyData child = query.getData(data.getProxy(), method2Name);
+				TypeSafeQueryProxyData child = data.getChild(method2Name);
 				if( child == null ) {
 					Class<?> targetClass = getTargetEntityClass(data.getPropertyType(), method2Name);
 					if( isEntity(targetClass) ) {
 						TypeSafeQueryProxy proxy = (TypeSafeQueryProxy) proxyFactory.getProxyInstance(targetClass);
-						child = new TypeSafeQueryProxyData(data, method2Name, targetClass, 
-								proxy, query.createEntityAlias());
+						child = query.getDataTree().createData(data, method2Name, targetClass, proxy);
 						setMethodListener(query, child);
 					} else {
-						child = new TypeSafeQueryProxyData(data, method2Name, targetClass);
+						child = query.getDataTree().createData(data, method2Name, targetClass); 
 					}
-					query.addData(data, child);
 				}
 				// remember the method invocation, to be used later...
 				query.invocationWasMade(child);

@@ -3,10 +3,10 @@ package be.shad.tsqb.selection;
 import java.util.LinkedList;
 import java.util.List;
 
+import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.hql.HqlQueryBuilder;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
-import be.shad.tsqb.proxy.TypeSafeQueryProxyData;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.query.TypeSafeSubQuery;
 import be.shad.tsqb.values.TypeSafeValue;
@@ -48,7 +48,7 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
 		} else {
 			TypeSafeQueryProxyData data = invocations.get(0);
 			projection = new DirectTypeSafeProjection(data, propertyName);
-			if( !query.isInScope(data) ) {
+			if( !query.isInScope(data, null) ) {
 				throw new IllegalArgumentException("Attempting to use data which is not in scope. " + data);
 			}
 		}
