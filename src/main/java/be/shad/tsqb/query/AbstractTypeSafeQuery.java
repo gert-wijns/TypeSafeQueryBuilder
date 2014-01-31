@@ -39,7 +39,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
 		this.helper = helper;
 		this.dataTree = new TypeSafeQueryProxyDataTree(helper, this);
 	}
-
+	
 	@Override
 	public TypeSafeQueryProxyDataTree getDataTree() {
 		return dataTree;
@@ -52,6 +52,11 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
 	
 	public void setRootQuery(TypeSafeRootQueryInternal rootQuery) {
 		this.rootQuery = rootQuery;
+	}
+	
+	@Override
+	public void selectValue(Object value) {
+		projections.project(value, null);
 	}
 
 	public <T> T from(Class<T> fromClass) {

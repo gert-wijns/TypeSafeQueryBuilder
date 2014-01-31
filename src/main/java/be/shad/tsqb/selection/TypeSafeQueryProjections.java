@@ -9,6 +9,7 @@ import be.shad.tsqb.hql.HqlQueryBuilder;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.query.TypeSafeSubQuery;
+import be.shad.tsqb.values.ReferenceTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
 
 public class TypeSafeQueryProjections implements HqlQueryBuilder {
@@ -40,14 +41,16 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
 		TypeSafeProjection projection = null;
 		if( invocations.isEmpty() ) {
 			if( select instanceof TypeSafeValue<?> ) {
-				projection = new SubQueryTypeSafeProjection((TypeSafeSubQuery<?>) select, propertyName);
+				projection = new TypeSafeValueProjection((TypeSafeSubQuery<?>) select, propertyName);
 			} else if( select instanceof TypeSafeQueryProxy ) {
-				projection = new DirectTypeSafeProjection(((TypeSafeQueryProxy) select).
-						getTypeSafeProxyData(), propertyName);
+				TypeSafeQueryProxyData data = ((TypeSafeQueryProxy) select).getTypeSafeProxyData();
+				TypeSafeValue<?> value = new ReferenceTypeSafeValue<>(data);
+				projection = new TypeSafeValueProjection(value, propertyName);
 			}
 		} else {
 			TypeSafeQueryProxyData data = invocations.get(0);
-			projection = new DirectTypeSafeProjection(data, propertyName);
+			TypeSafeValue<?> value = new ReferenceTypeSafeValue<>(data);
+			projection = new TypeSafeValueProjection(value, propertyName);
 			if( !query.isInScope(data, null) ) {
 				throw new IllegalArgumentException("Attempting to use data which is not in scope. " + data);
 			}

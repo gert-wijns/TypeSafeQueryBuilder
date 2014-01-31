@@ -14,7 +14,18 @@ import be.shad.tsqb.restrictions.RestrictionChainable;
 import be.shad.tsqb.values.TypeSafeValue;
 
 public interface TypeSafeQuery {
-
+	
+	/**
+	 * Can be used when not selecting into a result type,
+	 * or when selecting a single value in a subquery.
+	 * <p>
+	 * This is not the preferred way to select when
+	 * working with a root query.
+	 * <p>
+	 * The selects will not receive an alias.
+	 */
+	void selectValue(Object value);
+	
 	<T> T from(Class<T> fromClass);
 
 	<T> T join(Collection<T> anyCollection);
