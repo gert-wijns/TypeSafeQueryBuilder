@@ -10,6 +10,7 @@ import be.shad.tsqb.domain.House;
 import be.shad.tsqb.domain.Town;
 import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.query.TypeSafeRootQuery;
+import be.shad.tsqb.query.TypeSafeSubQuery;
 
 
 public class SelectTests extends TypeSafeQueryTest {
@@ -89,5 +90,66 @@ public class SelectTests extends TypeSafeQueryTest {
 		assertTrue("buildings should be hobj2, it was joined second", hql.getFrom().contains(".buildings hobj2 "));
 		assertTrue("the id of buildings should be selected", hql.getSelect().equals("select hobj2.id"));
 	}
-	
+
+	@Test
+	public void selectSubQueryValue() {
+		TypeSafeRootQuery query = createQuery();
+		House house = query.from(House.class);
+		
+		TypeSafeSubQuery<String> nameSubQuery = query.subquery(String.class);
+		House houseSub = nameSubQuery.from(House.class);
+		nameSubQuery.where(house.getId()).eq(houseSub.getId());
+		
+		nameSubQuery.select(houseSub.getName());
+
+		query.selectValue(nameSubQuery);
+		
+		HqlQuery hql = doQuery(query);
+		assertTrue("the house was selected from in the subquery", hql.getSelect().contains("from House hobj2"));
+		assertTrue("the name should be selected in the subselect", hql.getSelect().contains("(select hobj2.name"));
+	}
+
+	@Test
+	public void selectSubQueryValueAndProperty() {
+		TypeSafeRootQuery query = createQuery();
+		House house = query.from(House.class);
+		
+		TypeSafeSubQuery<String> nameSubQuery = query.subquery(String.class);
+		House houseSub = nameSubQuery.from(House.class);
+		nameSubQuery.where(house.getId()).eq(houseSub.getId());
+		
+		nameSubQuery.select(houseSub.getName());
+
+		@SuppressWarnings("unchecked")
+		MutablePair<Integer, String> result = query.select(MutablePair.class);
+		result.setLeft(house.getFloors());
+		result.setRight(nameSubQuery.getValue());
+
+		HqlQuery hql = doQuery(query);
+		hql.toString();
+		assertTrue("the house was selected from in the subquery", hql.getSelect().contains("from House hobj2"));
+		assertTrue("the name should be selected in the subselect", hql.getSelect().contains("(select hobj2.name"));
+	}
+
+	/**
+	 * Selecting into a primitive setter should not fail.
+	 */
+	@Test
+	public void selectPrimitiveSubQueryValue() {
+		TypeSafeRootQuery query = createQuery();
+		House house = query.from(House.class);
+		
+		TypeSafeSubQuery<Integer> nameSubQuery = query.subquery(Integer.class);
+		House houseSub = nameSubQuery.from(House.class);
+		nameSubQuery.where(house.getId()).eq(houseSub.getId());
+		
+		nameSubQuery.select(houseSub.getFloors());
+		
+		House houseResult = query.select(House.class);
+		houseResult.setFloors(nameSubQuery.getValue());
+
+		HqlQuery hql = doQuery(query);
+		assertTrue("the house was selected from in the subquery", hql.getSelect().contains("from House hobj2"));
+		assertTrue("the floors should be selected in the subselect", hql.getSelect().contains("(select hobj2.floors"));
+	}
 }
