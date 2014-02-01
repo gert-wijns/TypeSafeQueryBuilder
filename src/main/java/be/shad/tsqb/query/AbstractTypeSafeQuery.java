@@ -53,11 +53,6 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
 	public void setRootQuery(TypeSafeRootQueryInternal rootQuery) {
 		this.rootQuery = rootQuery;
 	}
-	
-	@Override
-	public void selectValue(Object value) {
-		projections.project(value, null);
-	}
 
 	public <T> T from(Class<T> fromClass) {
 		return helper.createTypeSafeFromProxy(this, fromClass);
@@ -191,7 +186,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
 	
 	@Override
 	public <T> TypeSafeSubQuery<T> subquery(Class<T> clazz) {
-		return new TypeSafeSubQueryImpl<>(helper, this);
+		return new TypeSafeSubQueryImpl<>(clazz, helper, this);
 	}
 
 	/**

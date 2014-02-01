@@ -8,6 +8,7 @@ import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.hql.HqlQueryBuilder;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
+import be.shad.tsqb.query.TypeSafeRootQueryInternal;
 import be.shad.tsqb.query.TypeSafeSubQuery;
 import be.shad.tsqb.values.ReferenceTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
@@ -37,8 +38,18 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
 	 * 
 	 */
 	public void project(Object select, String propertyName) {
-		List<TypeSafeQueryProxyData> invocations = query.dequeueInvocations();
 		TypeSafeProjection projection = null;
+		if( query instanceof TypeSafeRootQueryInternal ) {
+			TypeSafeValue<?> value = ((TypeSafeRootQueryInternal) query).dequeueSubqueryValueRetrieval();
+			if( value != null ) {
+				projection = new TypeSafeValueProjection(value, propertyName);
+				projections.add(projection);
+				return;
+			}
+		}
+		
+		// No subquery was selected, check the queue or direct selections:
+		List<TypeSafeQueryProxyData> invocations = query.dequeueInvocations();
 		if( invocations.isEmpty() ) {
 			if( select instanceof TypeSafeValue<?> ) {
 				projection = new TypeSafeValueProjection((TypeSafeSubQuery<?>) select, propertyName);

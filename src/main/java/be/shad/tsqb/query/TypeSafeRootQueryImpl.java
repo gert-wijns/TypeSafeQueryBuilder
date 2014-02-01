@@ -9,6 +9,7 @@ import be.shad.tsqb.helper.TypeSafeQueryHelper;
 public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements TypeSafeRootQuery, TypeSafeRootQueryInternal {
 	
 	private List<TypeSafeQueryProxyData> invocationQueue = new LinkedList<>();
+	private TypeSafeSubQuery<?> lastSelectedSubQueryValue;
 	private int entityAliasCount = 1;
 
 	public TypeSafeRootQueryImpl(TypeSafeQueryHelper helper) {
@@ -52,8 +53,24 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
 	}
 
 	@Override
+	public void selectValue(Object value) {
+		getProjections().project(value, null);
+	}
+	
+	@Override
 	public <T> T select(Class<T> resultClass) {
 		return helper.createTypeSafeSelectProxy(this, resultClass);
 	}
 
+	@Override
+	public void queueSubqueryValueRetrieved(TypeSafeSubQuery<?> value) {
+		lastSelectedSubQueryValue = value;
+	}
+	
+	@Override
+	public TypeSafeSubQuery<?> dequeueSubqueryValueRetrieval() {
+		TypeSafeSubQuery<?> value = lastSelectedSubQueryValue;
+		lastSelectedSubQueryValue = null;
+		return value;
+	}
 }
