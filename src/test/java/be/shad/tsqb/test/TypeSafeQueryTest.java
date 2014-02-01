@@ -16,12 +16,24 @@ public class TypeSafeQueryTest {
     private SessionFactory sessionFactory;
     private TypeSafeQueryHelperImpl helper;
 
+    /**
+     * Initialize the sessionFactory and helper.
+     * The helper has an override to generate shorter entity names 
+     * for readability (and it also works in hibernate...)
+     */
 	@Before
 	public void initialize() {
 		Configuration config = new Configuration();
 		config.configure("be/shad/tsqb/tests/hibernate.cfg.xml");
 		sessionFactory = config.buildSessionFactory();
-		helper = new TypeSafeQueryHelperImpl(sessionFactory);
+		helper = new TypeSafeQueryHelperImpl(sessionFactory) {
+			// trim package for readability:
+			@Override
+			public String getEntityName(Class<?> entityClass) {
+				String entityName = super.getEntityName(entityClass);
+				return entityName.substring(entityName.lastIndexOf(".")+1);
+			}
+		};
 	}
 
 	protected TypeSafeRootQuery createQuery() {
@@ -48,7 +60,8 @@ public class TypeSafeQueryTest {
 		String dirty = Thread.currentThread().getStackTrace()[2].toString();
 		dirty = dirty.substring(0, dirty.indexOf('('));
 		dirty = dirty.substring(dirty.substring(0, dirty.lastIndexOf('.')).lastIndexOf('.') + 1);
-		System.out.println("\n\n" + dirty + ":\n" + hqlQuery.getHql() + "\n--- params: " + Arrays.toString(hqlQuery.getParams()));
+		System.out.println("\n\n" + dirty + ":\n" + hqlQuery.getHql() + 
+				"\n--- params: " + Arrays.toString(hqlQuery.getParams()));
 		
 		// call the list, this is the moment of truth:
 		query.list();
