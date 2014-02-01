@@ -99,7 +99,31 @@ public class HqlQuery implements HqlQueryValue {
 
 	@Override
 	public String toString() {
-		return getHql() + " with params " + params;
+		String str = getHql().
+				replace("select", "\nselect").
+				replace("from", "\nfrom").
+				replace("join hobj", "\n  join hobj").
+				replace("where", "\n  where").
+				replace(" and ", "\n    and ").
+				replace(" or ", "\n   or ").
+				replace("order by","\norder by").
+				replace("group by","\ngroup by");
+		
+		StringBuilder format = new StringBuilder();
+		int depth = 0;
+		for(int i=0; i < str.length(); i++) {
+			format.append(str.charAt(i));
+			if( str.charAt(i) == '\n' ) {
+				for(int d=0; d < depth; d++) {
+					format.append("  ");
+				}
+			} else if ( str.charAt(i) == '(' ) {
+				depth++;
+			} else if ( str.charAt(i) == ')' ) {
+				depth--;
+			}
+		}
+		return format + "\n --- with params: " + params;
 	}
 	
 }
