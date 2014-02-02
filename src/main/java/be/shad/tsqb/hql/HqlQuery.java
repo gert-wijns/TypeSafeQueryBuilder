@@ -39,7 +39,7 @@ public class HqlQuery implements HqlQueryValue {
 
 	public String getWhere() {
 		if( where.length() > 0 ) {
-			return "where " + where.toString();
+			return " where " + where.toString();
 		}
 		return "";
 	}

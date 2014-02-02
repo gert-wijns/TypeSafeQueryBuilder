@@ -41,7 +41,7 @@ public class TypeSafeQueryFrom implements HqlQueryBuilder {
 	public void appendTo(HqlQuery query) {
 		HqlQueryValueImpl from = new HqlQueryValueImpl();
 		from.appendHql(helper.getEntityName(root.getPropertyType()));
-		from.appendHql(" ").append(root.getAlias()).append(" ");
+		from.appendHql(" ").append(root.getAlias());
 		for(TypeSafeQueryJoin<?> join: joins) {
 			TypeSafeQueryProxyData data = join.getData();
 			if( data.getProxy() == null ) {
@@ -53,7 +53,7 @@ public class TypeSafeQueryFrom implements HqlQueryBuilder {
 			}
 			if( data.getJoinType() != JoinType.None ) {
 				// example: 'left join fetch' 'hobj1'.'propertyPath' 'hobj2' 
-				from.appendHql(format("%s %s.%s %s ", getJoinTypeString(data.getJoinType()), 
+				from.appendHql(format(" %s %s.%s %s ", getJoinTypeString(data.getJoinType()), 
 						data.getParent().getAlias(), data.getPropertyPath(), data.getAlias()));
 				HqlQueryValue hqlQueryValue = join.getRestrictions().toHqlQueryValue();
 				String withHql = hqlQueryValue.getHql();
