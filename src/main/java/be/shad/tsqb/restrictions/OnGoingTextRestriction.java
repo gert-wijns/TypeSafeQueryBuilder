@@ -50,22 +50,23 @@ public class OnGoingTextRestriction extends OnGoingRestriction<String> {
 		return endsWith(toValue(EMPTY, value, WILDCARD));
 	}
 	
+	/**
+	 * Adds wildcards to the value in case it is a direct value.
+	 * Validates no wildcards are used otherwise.
+	 */
 	private TypeSafeValue<String> toValue(String left, String value, String right) {
-		List<TypeSafeQueryProxyData> invocations = restriction.getQuery().dequeueInvocations();
-		if( invocations.isEmpty() ) {
-			// direct selection
-			return new DirectTypeSafeValue<>(left + value + right);
-		} else if( invocations.size() == 1 ) {
-			if( left.length() != 0 || right.length() != 0 ) {
-				throw new UnsupportedOperationException("Like not supported for "
-						+ "referenced value [" + invocations.get(0) + "].");
-			}
-			// invoked with proxy
-			return new ReferenceTypeSafeValue<String>(invocations.get(0));
-		} else {
-			// invalid call, only expected one invocation
-			throw new IllegalStateException();
+		if( value instanceof String ) {
+			return toValue(left + value + right);
 		}
+		if( left.length() != 0 || right.length() != 0 ) {
+			List<TypeSafeQueryProxyData> dequeued = restriction.getQuery().dequeueInvocations();
+			if( !dequeued.isEmpty() ) {
+				throw new UnsupportedOperationException("Like not supported for "
+						+ "referenced value [" + dequeued.get(0) + "].");
+			}
+		}
+		TypeSafeValue<String> toValue = toValue(value);
+		return toValue;
 	}
 
 }
