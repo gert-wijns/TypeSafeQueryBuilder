@@ -40,6 +40,16 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable, 
 	}
 
 	@Override
+	public OnGoingBooleanRestriction and(Boolean value) {
+		return new OnGoingBooleanRestriction(and(), value);
+	}
+	
+	@Override
+	public OnGoingBooleanRestriction andb(TypeSafeValue<Boolean> value) {
+		return new OnGoingBooleanRestriction(and(), value);
+	}
+	
+	@Override
 	public OnGoingNumberRestriction and(Number value) {
 		return new OnGoingNumberRestriction(and(), value);
 	}

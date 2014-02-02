@@ -51,6 +51,18 @@ public interface TypeSafeQuery {
 	<E extends Enum<E>> OnGoingEnumRestriction<E> where(E value);
 	
 	/**
+	 * The general restrict by boolean method. Anything which represents a boolean
+	 * can be used with this method.
+	 */
+	OnGoingBooleanRestriction whereb(TypeSafeValue<Boolean> value);
+
+	/**
+	 * Restrict a boolean value. This can be a direct value (an actual boolean),
+	 * or a value of a TypeSafeQueryProxy getter. 
+	 */
+	OnGoingBooleanRestriction where(Boolean value);
+
+	/**
 	 * The general restrict by number method. Anything which represents a number
 	 * can be used with this method.
 	 */

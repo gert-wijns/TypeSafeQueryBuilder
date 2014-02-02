@@ -75,5 +75,17 @@ public class WhereTests extends TypeSafeQueryTest {
 		HqlQuery hql = doQuery(query);
 		assertTrue("style is null check", hql.getWhere().contains("hobj1.style is null"));
 	}
+
+	@Test
+	public void whereReferencedIsFalse() {
+		TypeSafeRootQuery query = createQuery();
+		House house = query.from(House.class);
+		
+		query.where(house.isOccupied()).isFalse();
+
+		HqlQuery hql = doQuery(query);
+		assertTrue("occupied false", hql.getWhere().contains("hobj1.occupied = ?"));
+		assertTrue("filtering false", Arrays.asList(hql.getParams()).contains(Boolean.FALSE));
+	}
 	
 }

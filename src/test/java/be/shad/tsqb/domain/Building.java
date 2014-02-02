@@ -26,6 +26,9 @@ public class Building extends DomainObject {
 	
 	@Column
 	private Style style;
+
+	@Column
+	private boolean occupied;
 	
 	@Type(type="be.shad.tsqb.domain.usertype.Address")
 	private Address address;
@@ -36,6 +39,14 @@ public class Building extends DomainObject {
 	
 	public void setStyle(Style style) {
 		this.style = style;
+	}
+	
+	public boolean isOccupied() {
+		return occupied;
+	}
+	
+	public void setOccupied(boolean occupied) {
+		this.occupied = occupied;
 	}
 	
 	public Address getAddress() {

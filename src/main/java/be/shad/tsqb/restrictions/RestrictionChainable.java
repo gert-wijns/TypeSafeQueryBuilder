@@ -39,6 +39,18 @@ public interface RestrictionChainable {
 	 * The general restrict by number method. Anything which represents a number
 	 * can be used with this method.
 	 */
+	OnGoingBooleanRestriction andb(TypeSafeValue<Boolean> value);
+
+	/**
+	 * Restrict a number value. This can be a direct value (an actual string),
+	 * or a value of a TypeSafeQueryProxy getter. 
+	 */
+	OnGoingBooleanRestriction and(Boolean value);
+
+	/**
+	 * The general restrict by number method. Anything which represents a number
+	 * can be used with this method.
+	 */
 	OnGoingNumberRestriction andn(TypeSafeValue<Number> value);
 
 	/**
