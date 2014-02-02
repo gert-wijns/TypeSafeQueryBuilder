@@ -2,8 +2,10 @@ package be.shad.tsqb.restrictions;
 
 import static be.shad.tsqb.restrictions.RestrictionImpl.EQUAL;
 import static be.shad.tsqb.restrictions.RestrictionImpl.IN;
+import static be.shad.tsqb.restrictions.RestrictionImpl.IS_NULL;
 import static be.shad.tsqb.restrictions.RestrictionImpl.NOT_EQUAL;
 import static be.shad.tsqb.restrictions.RestrictionImpl.NOT_IN;
+import static be.shad.tsqb.restrictions.RestrictionImpl.IS_NOT_NULL;
 
 import java.util.Collection;
 import java.util.List;
@@ -26,6 +28,16 @@ public class OnGoingRestriction<VAL> {
 	public OnGoingRestriction(RestrictionImpl restriction, TypeSafeValue<VAL> argument) {
 		this.restriction = restriction;
 		restriction.setLeft(argument);
+	}
+	
+	public Restriction isNull() {
+		restriction.setOperator(IS_NULL);
+		return restriction;
+	}
+	
+	public Restriction isNotNull() {
+		restriction.setOperator(IS_NOT_NULL);
+		return restriction;
 	}
 	
 	public Restriction in(TypeSafeValue<VAL> value) {
