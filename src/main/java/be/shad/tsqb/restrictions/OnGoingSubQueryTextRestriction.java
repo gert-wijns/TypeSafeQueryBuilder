@@ -1,9 +1,9 @@
 package be.shad.tsqb.restrictions;
 
+import static be.shad.tsqb.restrictions.RestrictionImpl.EXISTS;
 import be.shad.tsqb.query.TypeSafeSubQuery;
 
 public class OnGoingSubQueryTextRestriction extends OnGoingTextRestriction {
-	private final static String EXISTS = "exists";
 	private final RestrictionImpl restriction;
 
 	public OnGoingSubQueryTextRestriction(RestrictionImpl restriction,

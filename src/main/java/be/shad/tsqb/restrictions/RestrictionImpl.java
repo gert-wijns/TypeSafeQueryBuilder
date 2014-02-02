@@ -14,6 +14,7 @@ public class RestrictionImpl extends RestrictionChainableImpl implements Restric
 	public final static String NOT_EQUAL = "<>";
 	public final static String IS_NULL = "is null";
 	public final static String IS_NOT_NULL = "is not null";
+	public final static String EXISTS = "exists";
 	
 	private final RestrictionsGroup group;
 	private final TypeSafeQueryInternal query;
