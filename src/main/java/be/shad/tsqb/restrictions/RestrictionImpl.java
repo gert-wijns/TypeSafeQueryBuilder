@@ -7,6 +7,20 @@ import be.shad.tsqb.values.HqlQueryValueImpl;
 import be.shad.tsqb.values.ReferenceTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
 
+/**
+ * The restriction exists of three parts.
+ * <ul>
+ * <li>Left: the part left of an operator
+ * <li>Operator: the operator
+ * <li>Right: the part right of an operator
+ * </ul>
+ * Depending on the used operator, either left, right, or both parts
+ * must not be null to get a valid restriction.
+ * <p>
+ * The <b>exists</b> can be used without a left part.<br>
+ * The <b>is_null</b>, <b>is_not_null</b> can be used without a right part.<br>
+ * The rest requires both parts.
+ */
 public class RestrictionImpl extends RestrictionChainableImpl implements Restriction {
 	public final static String EQUAL = "=";
 	public final static String IN = "in";

@@ -3,10 +3,13 @@ package be.shad.tsqb.restrictions;
 import java.util.List;
 
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
-import be.shad.tsqb.values.DirectTypeSafeValue;
-import be.shad.tsqb.values.ReferenceTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
 
+/**
+ * Restrictions for text. Text specific restrictions are added here.
+ * 
+ * @see OnGoingRestriction
+ */
 public class OnGoingTextRestriction extends OnGoingRestriction<String> {
 	private final static String WILDCARD = "%";
 	private final static String EMPTY = "";
@@ -20,34 +23,34 @@ public class OnGoingTextRestriction extends OnGoingRestriction<String> {
 		super(restriction, argument);
 	}
 
-	public Restriction contains(TypeSafeValue<String> value) {
+	/**
+	 * Generates: left like stringRepresentative
+	 */
+	public Restriction like(TypeSafeValue<String> value) {
 		restriction.setOperator(LIKE);
 		restriction.setRight(value);
 		return restriction;
 	}
 	
+	/**
+	 * Generates: left like ? with (? = '%value%')
+	 */
 	public Restriction contains(String value) {
-		return contains(toValue(WILDCARD, value, WILDCARD));
-	}
-	
-	public Restriction startsWith(TypeSafeValue<String> value) {
-		restriction.setOperator(LIKE);
-		restriction.setRight(value);
-		return restriction;
-	}
-	
-	public Restriction startsWith(String value) {
-		return startsWith(toValue(WILDCARD, value, EMPTY));
+		return like(toValue(WILDCARD, value, WILDCARD));
 	}
 
-	public Restriction endsWith(TypeSafeValue<String> value) {
-		restriction.setOperator(LIKE);
-		restriction.setRight(value);
-		return restriction;
+	/**
+	 * Generates: left like ? with (? = 'value%')
+	 */
+	public Restriction startsWith(String value) {
+		return like(toValue(WILDCARD, value, EMPTY));
 	}
-	
+
+	/**
+	 * Generates: left like ? with (? = '%value')
+	 */
 	public Restriction endsWith(String value) {
-		return endsWith(toValue(EMPTY, value, WILDCARD));
+		return like(toValue(EMPTY, value, WILDCARD));
 	}
 	
 	/**

@@ -15,7 +15,9 @@ public interface TypeSafeSubQuery<T extends Object> extends TypeSafeValue<T>, Ty
 	void select(TypeSafeValue<T> value);
 
 	/**
-	 * Get the value to select into a result dto.@return
+	 * Get the value to select into a result dto.
+	 * <p>
+	 * See {@link TypeSafeRootQuery#select(Class)} for an example
 	 */
 	T getValue();
 	
