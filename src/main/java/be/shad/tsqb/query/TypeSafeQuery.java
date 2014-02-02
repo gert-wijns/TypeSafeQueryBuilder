@@ -6,7 +6,9 @@ import be.shad.tsqb.grouping.OnGoingGroupBy;
 import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.joins.TypeSafeQueryJoin;
 import be.shad.tsqb.ordering.OnGoingOrderBy;
+import be.shad.tsqb.restrictions.OnGoingEnumRestriction;
 import be.shad.tsqb.restrictions.OnGoingNumberRestriction;
+import be.shad.tsqb.restrictions.OnGoingSubQueryEnumRestriction;
 import be.shad.tsqb.restrictions.OnGoingSubQueryNumberRestriction;
 import be.shad.tsqb.restrictions.OnGoingSubQueryTextRestriction;
 import be.shad.tsqb.restrictions.OnGoingTextRestriction;
@@ -30,6 +32,24 @@ public interface TypeSafeQuery {
 	
 	RestrictionChainable where();
 
+	/**
+	 * The general restrict by enum method. Anything which represents a number
+	 * can be used with this method.
+	 */
+	<E extends Enum<E>> OnGoingEnumRestriction<E> wheree(TypeSafeValue<E> value);
+
+	/**
+	 * The general restrict by enum method. Anything which represents a number
+	 * can be used with this method.
+	 */
+	<E extends Enum<E>> OnGoingSubQueryEnumRestriction<E> wheree(TypeSafeSubQuery<E> value);
+
+	/**
+	 * Restrict an enum value. This can be a direct value (an actual enum value),
+	 * or a value of a TypeSafeQueryProxy getter.
+	 */
+	<E extends Enum<E>> OnGoingEnumRestriction<E> where(E value);
+	
 	/**
 	 * The general restrict by number method. Anything which represents a number
 	 * can be used with this method.

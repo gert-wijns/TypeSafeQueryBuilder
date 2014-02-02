@@ -2,12 +2,12 @@ package be.shad.tsqb.restrictions;
 
 import be.shad.tsqb.query.TypeSafeSubQuery;
 
-public class OnGoingSubQueryTextRestriction extends OnGoingTextRestriction {
+public class OnGoingSubQueryEnumRestriction<E extends Enum<E>> extends OnGoingEnumRestriction<E> {
 	private final static String EXISTS = "exists";
 	private final RestrictionImpl restriction;
 
-	public OnGoingSubQueryTextRestriction(RestrictionImpl restriction,
-			TypeSafeSubQuery<String> argument) {
+	public OnGoingSubQueryEnumRestriction(RestrictionImpl restriction,
+			TypeSafeSubQuery<E> argument) {
 		super(restriction, argument);
 		this.restriction = restriction;
 	}
@@ -18,4 +18,5 @@ public class OnGoingSubQueryTextRestriction extends OnGoingTextRestriction {
 		restriction.setOperator(EXISTS);
 		return restriction;
 	}
+	
 }

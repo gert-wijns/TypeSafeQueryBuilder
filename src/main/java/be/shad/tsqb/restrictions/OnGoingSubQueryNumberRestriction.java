@@ -1,13 +1,13 @@
 package be.shad.tsqb.restrictions;
 
-import be.shad.tsqb.values.TypeSafeValue;
+import be.shad.tsqb.query.TypeSafeSubQuery;
 
 public class OnGoingSubQueryNumberRestriction extends OnGoingNumberRestriction {
 	private final static String EXISTS = "exists";
 	private final RestrictionImpl restriction;
 
 	public OnGoingSubQueryNumberRestriction(RestrictionImpl restriction,
-			TypeSafeValue<Number> argument) {
+			TypeSafeSubQuery<Number> argument) {
 		super(restriction, argument);
 		this.restriction = restriction;
 	}

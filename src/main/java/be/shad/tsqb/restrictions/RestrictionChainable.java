@@ -18,6 +18,24 @@ public interface RestrictionChainable {
 	Restriction or(Restriction restriction);
 
 	/**
+	 * The general restrict by enum method. Anything which represents a number
+	 * can be used with this method.
+	 */
+	<E extends Enum<E>> OnGoingEnumRestriction<E> ande(TypeSafeValue<E> value);
+
+	/**
+	 * The general restrict by enum method. Anything which represents a number
+	 * can be used with this method.
+	 */
+	<E extends Enum<E>> OnGoingSubQueryEnumRestriction<E> ande(TypeSafeSubQuery<E> value);
+
+	/**
+	 * Restrict an enum value. This can be a direct value (an actual enum value),
+	 * or a value of a TypeSafeQueryProxy getter.
+	 */
+	<E extends Enum<E>> OnGoingEnumRestriction<E> and(E value);
+	
+	/**
 	 * The general restrict by number method. Anything which represents a number
 	 * can be used with this method.
 	 */

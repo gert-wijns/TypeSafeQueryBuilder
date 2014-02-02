@@ -10,6 +10,21 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable, 
 	public abstract RestrictionImpl or();
 	
 	@Override
+	public <E extends Enum<E>> OnGoingEnumRestriction<E> and(E value) {
+		return new OnGoingEnumRestriction<E>(and(), value);
+	}
+	
+	@Override
+	public <E extends Enum<E>> OnGoingSubQueryEnumRestriction<E> ande(TypeSafeSubQuery<E> value) {
+		return new OnGoingSubQueryEnumRestriction<E>(and(), value);
+	}
+	
+	@Override
+	public <E extends Enum<E>> OnGoingEnumRestriction<E> ande(TypeSafeValue<E> value) {
+		return new OnGoingEnumRestriction<E>(and(), value);
+	}
+	
+	@Override
 	public OnGoingTextRestriction and(String value) {
 		return new OnGoingTextRestriction(and(), value);
 	}

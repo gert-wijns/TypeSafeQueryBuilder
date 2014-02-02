@@ -15,7 +15,9 @@ import be.shad.tsqb.ordering.OnGoingOrderBy;
 import be.shad.tsqb.ordering.OrderByBase;
 import be.shad.tsqb.ordering.TypeSafeQueryOrderBys;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
+import be.shad.tsqb.restrictions.OnGoingEnumRestriction;
 import be.shad.tsqb.restrictions.OnGoingNumberRestriction;
+import be.shad.tsqb.restrictions.OnGoingSubQueryEnumRestriction;
 import be.shad.tsqb.restrictions.OnGoingSubQueryNumberRestriction;
 import be.shad.tsqb.restrictions.OnGoingSubQueryTextRestriction;
 import be.shad.tsqb.restrictions.OnGoingTextRestriction;
@@ -99,6 +101,30 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
 	@Override
 	public RestrictionChainable where() {
 		return restrictions;
+	}
+	
+	/**
+	 * Delegate to restrictions.
+	 */
+	@Override
+	public <E extends Enum<E>> OnGoingEnumRestriction<E> where(E value) {
+		return restrictions.and(value);
+	}
+
+	/**
+	 * Delegate to restrictions.
+	 */
+	@Override
+	public <E extends Enum<E>> OnGoingSubQueryEnumRestriction<E> wheree(TypeSafeSubQuery<E> value) {
+		return restrictions.ande(value);
+	}
+
+	/**
+	 * Delegate to restrictions.
+	 */
+	@Override
+	public <E extends Enum<E>> OnGoingEnumRestriction<E> wheree(TypeSafeValue<E> value) {
+		return restrictions.ande(value);
 	}
 	
 	/**
