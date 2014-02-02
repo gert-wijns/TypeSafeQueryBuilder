@@ -3,6 +3,7 @@ package be.shad.tsqb.test;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.Date;
 
 import org.junit.Test;
 
@@ -76,6 +77,9 @@ public class WhereTests extends TypeSafeQueryTest {
 		assertTrue("style is null check", hql.getWhere().contains("hobj1.style is null"));
 	}
 
+	/**
+	 * 
+	 */
 	@Test
 	public void whereReferencedIsFalse() {
 		TypeSafeRootQuery query = createQuery();
@@ -87,5 +91,20 @@ public class WhereTests extends TypeSafeQueryTest {
 		assertTrue("occupied false", hql.getWhere().contains("hobj1.occupied = ?"));
 		assertTrue("filtering false", Arrays.asList(hql.getParams()).contains(Boolean.FALSE));
 	}
-	
+
+	/**
+	 * 
+	 */
+	@Test
+	public void whereReferencedDateAfter() {
+		TypeSafeRootQuery query = createQuery();
+		House house = query.from(House.class);
+		
+		Date yearBeforeNow = new Date(System.currentTimeMillis() - 31556952000L);
+		query.where(house.getConstructionDate()).after(yearBeforeNow);
+		
+		HqlQuery hql = doQuery(query);
+		assertTrue("date aftere", hql.getWhere().contains("hobj1.constructionDate > ?"));
+		assertTrue("filtering date", Arrays.asList(hql.getParams()).contains(yearBeforeNow));
+	}
 }

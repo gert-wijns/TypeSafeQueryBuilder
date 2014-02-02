@@ -1,6 +1,7 @@
 package be.shad.tsqb.query;
 
 import java.util.Collection;
+import java.util.Date;
 
 import be.shad.tsqb.grouping.OnGoingGroupBy;
 import be.shad.tsqb.helper.TypeSafeQueryHelper;
@@ -8,8 +9,10 @@ import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.joins.TypeSafeQueryJoin;
 import be.shad.tsqb.ordering.OnGoingOrderBy;
 import be.shad.tsqb.restrictions.OnGoingBooleanRestriction;
+import be.shad.tsqb.restrictions.OnGoingDateRestriction;
 import be.shad.tsqb.restrictions.OnGoingEnumRestriction;
 import be.shad.tsqb.restrictions.OnGoingNumberRestriction;
+import be.shad.tsqb.restrictions.OnGoingSubQueryDateRestriction;
 import be.shad.tsqb.restrictions.OnGoingSubQueryEnumRestriction;
 import be.shad.tsqb.restrictions.OnGoingSubQueryNumberRestriction;
 import be.shad.tsqb.restrictions.OnGoingSubQueryTextRestriction;
@@ -90,7 +93,7 @@ public interface TypeSafeQuery {
 	OnGoingBooleanRestriction where(Boolean value);
 
 	/**
-	 * The general restrict by number method. Anything which represents a boolean
+	 * The general restrict by number method. Anything which represents a number
 	 * can be used with this method.
 	 */
 	OnGoingNumberRestriction wheren(TypeSafeValue<Number> value);
@@ -108,7 +111,25 @@ public interface TypeSafeQuery {
 	OnGoingNumberRestriction where(Number value);
 
 	/**
-	 * The general restrict by number method. Anything which represents a number
+	 * The general restrict by date method. Anything which represents a date
+	 * can be used with this method.
+	 */
+	OnGoingDateRestriction whered(TypeSafeValue<Date> value);
+
+	/**
+	 * Restrict starting with a subquery, more specific than {@link #restrictd(TypeSafeValue)},
+	 * it has additional restrictions only available when subquerying.
+	 */
+	OnGoingSubQueryDateRestriction whered(TypeSafeSubQuery<Date> value);
+
+	/**
+	 * Restrict a number value. This can be a direct value (an actual date),
+	 * or a value of a TypeSafeQueryProxy getter. 
+	 */
+	OnGoingDateRestriction where(Date value);
+
+	/**
+	 * The general restrict by string method. Anything which represents a string
 	 * can be used with this method.
 	 */
 	OnGoingTextRestriction wheret(TypeSafeValue<String> value);

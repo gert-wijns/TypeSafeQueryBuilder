@@ -1,6 +1,7 @@
 package be.shad.tsqb.query;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
@@ -16,8 +17,10 @@ import be.shad.tsqb.ordering.OrderByBase;
 import be.shad.tsqb.ordering.TypeSafeQueryOrderBys;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
 import be.shad.tsqb.restrictions.OnGoingBooleanRestriction;
+import be.shad.tsqb.restrictions.OnGoingDateRestriction;
 import be.shad.tsqb.restrictions.OnGoingEnumRestriction;
 import be.shad.tsqb.restrictions.OnGoingNumberRestriction;
+import be.shad.tsqb.restrictions.OnGoingSubQueryDateRestriction;
 import be.shad.tsqb.restrictions.OnGoingSubQueryEnumRestriction;
 import be.shad.tsqb.restrictions.OnGoingSubQueryNumberRestriction;
 import be.shad.tsqb.restrictions.OnGoingSubQueryTextRestriction;
@@ -191,6 +194,31 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
 	@Override
 	public OnGoingTextRestriction wheret(TypeSafeValue<String> value) {
 		return restrictions.andt(value);
+	}
+	
+	/**
+	 * Delegate to restrictions.
+	 */
+	@Override
+	public OnGoingDateRestriction where(Date value) {
+		return restrictions.and(value);
+	}
+
+	/**
+	 * Delegate to restrictions.
+	 */
+	@Override
+	public OnGoingSubQueryDateRestriction whered(
+			TypeSafeSubQuery<Date> value) {
+		return restrictions.andd(value);
+	}
+
+	/**
+	 * Delegate to restrictions.
+	 */
+	@Override
+	public OnGoingDateRestriction whered(TypeSafeValue<Date> value) {
+		return restrictions.andd(value);
 	}
 	
 	/**

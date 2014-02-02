@@ -1,5 +1,7 @@
 package be.shad.tsqb.restrictions;
 
+import java.util.Date;
+
 import be.shad.tsqb.query.TypeSafeSubQuery;
 import be.shad.tsqb.values.TypeSafeValue;
 
@@ -62,6 +64,21 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable, 
 	@Override
 	public OnGoingSubQueryNumberRestriction andn(TypeSafeSubQuery<Number> value) {
 		return new OnGoingSubQueryNumberRestriction(and(), value);
+	}
+	
+	@Override
+	public OnGoingDateRestriction and(Date value) {
+		return new OnGoingDateRestriction(and(), value);
+	}
+	
+	@Override
+	public OnGoingDateRestriction andd(TypeSafeValue<Date> value) {
+		return new OnGoingDateRestriction(and(), value);
+	}
+	
+	@Override
+	public OnGoingSubQueryDateRestriction andd(TypeSafeSubQuery<Date> value) {
+		return new OnGoingSubQueryDateRestriction(and(), value);
 	}
 
 	@Override

@@ -2,6 +2,8 @@ package be.shad.tsqb.domain;
 
 import static javax.persistence.FetchType.LAZY;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Inheritance;
@@ -29,6 +31,9 @@ public class Building extends DomainObject {
 
 	@Column
 	private boolean occupied;
+
+	@Column
+	private Date constructionDate;
 	
 	@Type(type="be.shad.tsqb.domain.usertype.Address")
 	private Address address;
@@ -55,6 +60,14 @@ public class Building extends DomainObject {
 	
 	public void setAddress(Address address) {
 		this.address = address;
+	}
+	
+	public Date getConstructionDate() {
+		return constructionDate;
+	}
+	
+	public void setConstructionDate(Date constructionDate) {
+		this.constructionDate = constructionDate;
 	}
 	
 }

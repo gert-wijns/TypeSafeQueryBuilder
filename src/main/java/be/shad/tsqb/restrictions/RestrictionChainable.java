@@ -1,5 +1,7 @@
 package be.shad.tsqb.restrictions;
 
+import java.util.Date;
+
 import be.shad.tsqb.query.TypeSafeSubQuery;
 import be.shad.tsqb.values.TypeSafeValue;
 
@@ -65,6 +67,24 @@ public interface RestrictionChainable {
 	 */
 	OnGoingNumberRestriction and(Number value);
 
+	/**
+	 * The general restrict by date method. Anything which represents a number
+	 * can be used with this method.
+	 */
+	OnGoingDateRestriction andd(TypeSafeValue<Date> value);
+
+	/**
+	 * Restrict starting with a subquery, more specific than {@link #andd(TypeSafeValue)},
+	 * it has additional restrictions only available when subquerying.
+	 */
+	OnGoingSubQueryDateRestriction andd(TypeSafeSubQuery<Date> value);
+
+	/**
+	 * Restrict a number value. This can be a direct value (an actual string),
+	 * or a value of a TypeSafeQueryProxy getter. 
+	 */
+	OnGoingDateRestriction and(Date value);
+	
 	/**
 	 * The general restrict by number method. Anything which represents a number
 	 * can be used with this method.
