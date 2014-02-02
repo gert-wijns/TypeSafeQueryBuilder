@@ -71,6 +71,7 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
 
 	@Override
 	public void appendTo(HqlQuery query) {
+		query.setResultClass(resultClass);
 		for(TypeSafeProjection projection: projections) {
 			projection.appendTo(query);
 		}

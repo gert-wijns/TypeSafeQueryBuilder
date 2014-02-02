@@ -11,6 +11,19 @@ public class HqlQuery implements HqlQueryValue {
 	private StringBuilder groupBy = new StringBuilder();
 	private StringBuilder orderBy = new StringBuilder();
 	private LinkedList<Object> params = new LinkedList<>();
+	private Class<?> resultClass;
+	
+	/**
+	 * Use with {@link org.hibernate.transform.Transformers#aliasToBean(Class) aliasToBean} 
+	 * to select the aliased values into a dto.
+	 */
+	public Class<?> getResultClass() {
+		return resultClass;
+	}
+	
+	public void setResultClass(Class<?> resultClass) {
+		this.resultClass = resultClass;
+	}
 
 	public String getSelect() {
 		if( select.length() > 0 ) {
