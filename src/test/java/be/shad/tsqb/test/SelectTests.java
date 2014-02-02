@@ -42,6 +42,21 @@ public class SelectTests extends TypeSafeQueryTest {
 	}
 
 	/**
+	 * Select an enum property of the from entity.
+	 */
+	@Test
+	public void selectEnumProperty() {
+		TypeSafeRootQuery query = createQuery();
+		House house = query.from(House.class);
+		
+		House result = query.select(House.class);
+		result.setStyle(house.getStyle());
+		
+		HqlQuery hql = doQuery(query);
+		assertTrue("style should be selected into property 'style'.", hql.getSelect().equals("select hobj1.style as style"));
+	}
+
+	/**
 	 * Select the entity and a property of the entity
 	 */
 	@Test
@@ -75,6 +90,25 @@ public class SelectTests extends TypeSafeQueryTest {
 		assertTrue("select building", hql.getSelect().equals("select hobj2"));
 	}
 
+	/**
+	 * Noone would ever select this... but, 
+	 * check if from 2 entities selects properly:
+	 */
+	@Test
+	public void selectDoubleJoinedEntityValue() {
+		TypeSafeRootQuery query = createQuery();
+		House house1 = query.from(House.class);
+		House house2 = query.from(House.class);
+
+		House select = query.select(House.class);
+		select.setFloors(house1.getFloors());
+		select.setStyle(house2.getStyle());
+
+		HqlQuery hql = doQuery(query);
+		assertTrue("select floors from the first house", hql.getSelect().contains("hobj1.floors as floors"));
+		assertTrue("select style from the second house", hql.getSelect().contains("hobj2.style as style"));
+	}
+	
 	/**
 	 * Select a value of a joined entity
 	 */
