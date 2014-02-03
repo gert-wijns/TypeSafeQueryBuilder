@@ -43,14 +43,14 @@ public class OnGoingTextRestriction extends OnGoingRestriction<String> {
 	 * Generates: left like ? with (? = 'value%')
 	 */
 	public Restriction startsWith(String value) {
-		return like(toValue(WILDCARD, value, EMPTY));
+		return like(toValue(EMPTY, value, WILDCARD));
 	}
 
 	/**
 	 * Generates: left like ? with (? = '%value')
 	 */
 	public Restriction endsWith(String value) {
-		return like(toValue(EMPTY, value, WILDCARD));
+		return like(toValue(WILDCARD, value, EMPTY));
 	}
 	
 	/**
