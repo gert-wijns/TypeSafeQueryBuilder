@@ -26,6 +26,8 @@
 		<mapping class="be.shad.tsqb.domain.Building" />
 		<mapping class="be.shad.tsqb.domain.House" />
 		<mapping class="be.shad.tsqb.domain.School" />
+		<mapping class="be.shad.tsqb.domain.people.Person" />
+		<mapping class="be.shad.tsqb.domain.people.Relation" />
 		
 	</session-factory>
 </hibernate-configuration>

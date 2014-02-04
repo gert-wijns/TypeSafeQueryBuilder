@@ -121,7 +121,7 @@ public class SelectTests extends TypeSafeQueryTest {
 		query.selectValue(building.getId());
 
 		HqlQuery hql = doQuery(query);
-		assertTrue("buildings should be hobj2, it was joined second", hql.getFrom().contains(".buildings hobj2 "));
+		assertTrue("buildings should be hobj2, it was joined second", hql.getFrom().contains(".buildings hobj2"));
 		assertTrue("the id of buildings should be selected", hql.getSelect().equals("select hobj2.id"));
 	}
 
