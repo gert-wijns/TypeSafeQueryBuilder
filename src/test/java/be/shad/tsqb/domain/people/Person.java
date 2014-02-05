@@ -27,6 +27,9 @@ public class Person extends DomainObject {
 	
 	@OneToMany(fetch = LAZY, mappedBy = "parent", targetEntity = Relation.class)
 	private Set<Relation> parentRelations;
+
+	@OneToMany(fetch = LAZY, mappedBy = "person", targetEntity = PersonProperty.class)
+	private Set<PersonProperty> properties;
 	
 	@Column
 	private String name;
@@ -86,6 +89,14 @@ public class Person extends DomainObject {
 
 	public void setParentRelations(Set<Relation> parentRelations) {
 		this.parentRelations = parentRelations;
+	}
+	
+	public Set<PersonProperty> getProperties() {
+		return properties;
+	}
+	
+	public void setProperties(Set<PersonProperty> properties) {
+		this.properties = properties;
 	}
 	
 }

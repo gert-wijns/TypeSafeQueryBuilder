@@ -7,6 +7,7 @@ import be.shad.tsqb.data.TypeSafeQueryProxyDataTree;
 import be.shad.tsqb.grouping.TypeSafeQueryGroupBys;
 import be.shad.tsqb.ordering.TypeSafeQueryOrderBys;
 import be.shad.tsqb.restrictions.RestrictionsGroup;
+import be.shad.tsqb.values.TypeSafeValue;
 
 public interface TypeSafeQueryInternal {
 
@@ -25,6 +26,15 @@ public interface TypeSafeQueryInternal {
 	 * that there are no or only one pending invocations.
 	 */
 	TypeSafeQueryProxyData dequeueInvocation();
+
+	/**
+	 * Calls dequeueInvocation().
+	 * If there was exactly one, then this invocations data is used as referenced value.
+	 * If there was no invocation, the value is used as a direct value.
+	 * 
+	 * @throws IllegalStateException if more than one invocation was on the queue.
+	 */
+	<VAL> TypeSafeValue<VAL> toValue(VAL val);
 
 	/**
 	 * Enqueues an invocation.

@@ -3,8 +3,18 @@ package be.shad.tsqb.values;
 import java.util.LinkedList;
 import java.util.List;
 
-public class CoalesceTypeSafeValue<T extends Object> implements TypeSafeValue<T> {
+import be.shad.tsqb.query.TypeSafeQueryInternal;
+
+public class CoalesceTypeSafeValue<T> extends TypeSafeValueImpl<T> {
 	private List<TypeSafeValue<T>> values = new LinkedList<>();
+	
+	public CoalesceTypeSafeValue(TypeSafeQueryInternal query, Class<T> valueType) {
+		super(query, valueType);
+	}
+
+	public void addValue(T value) {
+		this.values.add(query.toValue(value));
+	}
 	
 	public void addValue(TypeSafeValue<T> value) {
 		this.values.add(value);

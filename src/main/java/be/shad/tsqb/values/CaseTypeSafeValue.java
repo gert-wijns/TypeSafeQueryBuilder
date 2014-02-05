@@ -1,6 +1,12 @@
 package be.shad.tsqb.values;
 
-public class CaseTypeSafeValue<T extends Object> implements TypeSafeValue<T> {
+import be.shad.tsqb.query.TypeSafeQueryInternal;
+
+public class CaseTypeSafeValue<T> extends TypeSafeValueImpl<T> {
+
+	protected CaseTypeSafeValue(TypeSafeQueryInternal query, Class<T> valueType) {
+		super(query, valueType);
+	}
 
 	@Override
 	public HqlQueryValue toHqlQueryValue() {

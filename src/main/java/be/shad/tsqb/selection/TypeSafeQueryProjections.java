@@ -40,7 +40,7 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
 	public void project(Object select, String propertyName) {
 		TypeSafeProjection projection = null;
 		if( query instanceof TypeSafeRootQueryInternal ) {
-			TypeSafeValue<?> value = ((TypeSafeRootQueryInternal) query).dequeueSubqueryValueRetrieval();
+			TypeSafeValue<?> value = ((TypeSafeRootQueryInternal) query).dequeueSelectedValue();
 			if( value != null ) {
 				projection = new TypeSafeValueProjection(value, propertyName);
 				projections.add(projection);
@@ -55,12 +55,12 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
 				projection = new TypeSafeValueProjection((TypeSafeSubQuery<?>) select, propertyName);
 			} else if( select instanceof TypeSafeQueryProxy ) {
 				TypeSafeQueryProxyData data = ((TypeSafeQueryProxy) select).getTypeSafeProxyData();
-				TypeSafeValue<?> value = new ReferenceTypeSafeValue<>(data);
+				TypeSafeValue<?> value = new ReferenceTypeSafeValue<>(query, data);
 				projection = new TypeSafeValueProjection(value, propertyName);
 			}
 		} else {
 			TypeSafeQueryProxyData data = invocations.get(0);
-			TypeSafeValue<?> value = new ReferenceTypeSafeValue<>(data);
+			TypeSafeValue<?> value = new ReferenceTypeSafeValue<>(query, data);
 			projection = new TypeSafeValueProjection(value, propertyName);
 			if( !query.isInScope(data, null) ) {
 				throw new IllegalArgumentException("Attempting to use data which is not in scope. " + data);

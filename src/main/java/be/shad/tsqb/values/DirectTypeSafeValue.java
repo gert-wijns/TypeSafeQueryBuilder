@@ -1,10 +1,14 @@
 package be.shad.tsqb.values;
 
+import be.shad.tsqb.query.TypeSafeQueryInternal;
 
-public class DirectTypeSafeValue<T> implements TypeSafeValue<T> {
+
+public class DirectTypeSafeValue<T> extends TypeSafeValueImpl<T> {
 	private T value;
 	
-	public DirectTypeSafeValue(T value) {
+	@SuppressWarnings("unchecked")
+	public DirectTypeSafeValue(TypeSafeQueryInternal query, T value) {
+		super(query, (Class<T>) value.getClass());
 		this.value = value;
 	}
 

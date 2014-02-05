@@ -2,10 +2,13 @@ package be.shad.tsqb.values;
 
 import java.util.Collection;
 
-public class CollectionTypeSafeValue<T> implements TypeSafeValue<T> {
+import be.shad.tsqb.query.TypeSafeQueryInternal;
+
+public class CollectionTypeSafeValue<T extends Object> extends TypeSafeValueImpl<T> {
 	private Collection<T> value;
 	
-	public CollectionTypeSafeValue(Collection<T> value) {
+	public CollectionTypeSafeValue(TypeSafeQueryInternal query, Collection<T> value) {
+		super(query, null);
 		this.value = value;
 	}
 

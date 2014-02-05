@@ -19,7 +19,7 @@ public class GroupByBase implements GroupBy, OnGoingGroupBy {
 			this.value = (TypeSafeValue<?>) value;
 		} else {
 			List<TypeSafeQueryProxyData> invocations = query.dequeueInvocations();
-			this.value = new ReferenceTypeSafeValue<>(invocations.get(0));
+			this.value = new ReferenceTypeSafeValue<>(query, invocations.get(0));
 		}
 		this.query.getGroupBys().addGroupBy(this);
 	}

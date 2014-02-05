@@ -8,6 +8,7 @@ import org.junit.Test;
 import be.shad.tsqb.domain.Building;
 import be.shad.tsqb.domain.House;
 import be.shad.tsqb.domain.Town;
+import be.shad.tsqb.dto.FunctionsDto;
 import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.query.TypeSafeRootQuery;
 import be.shad.tsqb.query.TypeSafeSubQuery;
@@ -157,7 +158,7 @@ public class SelectTests extends TypeSafeQueryTest {
 		@SuppressWarnings("unchecked")
 		MutablePair<Integer, String> result = query.select(MutablePair.class);
 		result.setLeft(house.getFloors());
-		result.setRight(nameSubQuery.getValue());
+		result.setRight(nameSubQuery.select());
 
 		HqlQuery hql = doQuery(query);
 		hql.toString();
@@ -180,10 +181,43 @@ public class SelectTests extends TypeSafeQueryTest {
 		nameSubQuery.select(houseSub.getFloors());
 		
 		House houseResult = query.select(House.class);
-		houseResult.setFloors(nameSubQuery.getValue());
+		houseResult.setFloors(nameSubQuery.select());
 
 		HqlQuery hql = doQuery(query);
 		assertTrue("the house was selected from in the subquery", hql.getSelect().contains("from House hobj2"));
 		assertTrue("the floors should be selected in the subselect", hql.getSelect().contains("(select hobj2.floors"));
+	}
+
+	/**
+	 * Test max function
+	 */
+	@Test
+	public void selectMax() {
+		TypeSafeRootQuery query = createQuery();
+		House house = query.from(House.class);
+
+		House houseResult = query.select(House.class);
+		houseResult.setFloors(query.function().max(house.getFloors()).select());
+
+		HqlQuery hql = doQuery(query);
+		assertTrue("check if max(floors) was selected", hql.getSelect().equals("select max(hobj1.floors) as floors"));
+		
+	}
+
+	/**
+	 * Test count function
+	 */
+	@Test
+	@SuppressWarnings("unused")
+	public void selectCount() {
+		TypeSafeRootQuery query = createQuery();
+		House house = query.from(House.class);
+
+		FunctionsDto dto = query.select(FunctionsDto.class);
+		dto.setTestCount(query.function().count().select());
+
+		HqlQuery hql = doQuery(query);
+		assertTrue("check if the count was selected", hql.getSelect().equals("select count(*) as testCount"));
+		
 	}
 }

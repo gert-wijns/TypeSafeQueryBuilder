@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import be.shad.tsqb.domain.people.Person;
 import be.shad.tsqb.domain.people.Person.Sex;
+import be.shad.tsqb.domain.people.PersonProperty;
 import be.shad.tsqb.domain.people.Relation;
 import be.shad.tsqb.dto.PersonDto;
 import be.shad.tsqb.hql.HqlQuery;
@@ -105,10 +106,10 @@ public class ExamplesTest extends TypeSafeQueryTest {
 		
 		TypeSafeSubQuery<String> personSQ = query.subquery(String.class);
 		Person personSub = personSQ.from(Person.class);
-		query.where(person.getId()).eq(personSub.getId());
+		personSQ.where(person.getId()).eq(personSub.getId());
 		personSQ.select(personSub.getName());
 
-		query.selectValue(personSQ.getValue());
+		query.selectValue(personSQ);
 		query.selectValue(person.isMarried());
 
 		HqlQuery hql = doQuery(query);
@@ -182,4 +183,58 @@ public class ExamplesTest extends TypeSafeQueryTest {
 		assertTrue(hql.getHql().equals(" from Person hobj1 where hobj1.age < ? and hobj1.name like ?"));
 		assertTrue(Arrays.asList(hql.getParams()).equals(Arrays.asList(20, "Alex%")));
 	}
+
+	@Test
+	public void testSelectWithSubQuery() {
+		TypeSafeRootQuery query = createQuery();
+		Person person = query.from(Person.class);
+
+		TypeSafeSubQuery<String> favoriteColorSQ = query.subquery(String.class);
+		PersonProperty favColor = favoriteColorSQ.from(PersonProperty.class);
+		Person personSQ = favoriteColorSQ.join(favColor.getPerson(), JoinType.None); // see comment above code block
+
+		favoriteColorSQ.select(favColor.getPropertyValue());
+		favoriteColorSQ.where(person.getId()).eq(personSQ.getId()).
+		                  and(favColor.getPropertyKey()).eq("FavColorKey");
+
+		query.selectValue(person);
+		query.selectValue(favoriteColorSQ);
+
+		HqlQuery hql = doQuery(query);
+		assertTrue(hql.getHql().equals("select hobj1, (select hobj2.propertyValue from PersonProperty hobj2 where hobj1.id = hobj2.person.id and hobj2.propertyKey = ?) from Person hobj1"));
+		assertTrue(Arrays.asList(hql.getParams()).equals(Arrays.asList("FavColorKey")));
+	}
+
+	@Test
+	public void testRestrictWithSubQuery() {
+		TypeSafeRootQuery query = createQuery();
+		Person person = query.from(Person.class);
+
+		TypeSafeSubQuery<String> favoriteColorSQ = query.subquery(String.class);
+		PersonProperty favColor = favoriteColorSQ.from(PersonProperty.class);
+		Person personSQ = favoriteColorSQ.join(favColor.getPerson(), JoinType.None); // see comment above code block
+
+		favoriteColorSQ.select(favColor.getPropertyValue());
+		favoriteColorSQ.where(person.getId()).eq(personSQ.getId()).
+		                  and(favColor.getPropertyKey()).eq("FavColorKey");
+
+		query.wheret(favoriteColorSQ).eq("Blue");
+		
+		HqlQuery hql = doQuery(query);
+		assertTrue(hql.getHql().equals(" from Person hobj1 where (select hobj2.propertyValue from PersonProperty hobj2 where hobj1.id = hobj2.person.id and hobj2.propertyKey = ?) = ?"));
+		assertTrue(Arrays.asList(hql.getParams()).equals(Arrays.asList("FavColorKey", "Blue")));
+	}
+	
+	@Test
+	public void testJoinTypeNone() {
+		TypeSafeRootQuery query = createQuery();
+		Relation relation = query.from(Relation.class);
+		Person parent = query.join(relation.getParent(), JoinType.None);
+		query.where(parent.getId()).eq(1L);
+		
+		HqlQuery hql = doQuery(query);
+		assertTrue(hql.getHql().equals(" from Relation hobj1 where hobj1.parent.id = ?"));
+		assertTrue(Arrays.asList(hql.getParams()).equals(Arrays.asList(1L)));
+	}
+	
 }

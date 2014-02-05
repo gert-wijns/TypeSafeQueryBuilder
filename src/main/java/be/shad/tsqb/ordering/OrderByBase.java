@@ -59,7 +59,7 @@ public class OrderByBase implements OrderBy, OnGoingOrderBy {
 			return (TypeSafeValue<?>) value;
 		} else {
 			List<TypeSafeQueryProxyData> invocations = query.dequeueInvocations();
-			return new ReferenceTypeSafeValue<>(invocations.get(0));
+			return new ReferenceTypeSafeValue<>(query, invocations.get(0));
 		}
 	}
 

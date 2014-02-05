@@ -1,21 +1,23 @@
 package be.shad.tsqb.query;
 
 import be.shad.tsqb.selection.TypeSafeQueryProjections;
+import be.shad.tsqb.values.TypeSafeValue;
 
 public interface TypeSafeRootQueryInternal extends TypeSafeRootQuery, TypeSafeQueryInternal {
 
 	TypeSafeQueryProjections getProjections();
 
 	/**
-	 * Lets the root query know a value of a subquery was selected 
-	 * using the getValue on the subquery. This can only be used
-	 * when selecting the value into a resultDto.
+	 * Queues the value as a selected value, this value will
+	 * take precedence over everything else when a proxy call to
+	 * a resultDto setter handled.
 	 */
-	void queueSubqueryValueRetrieved(TypeSafeSubQuery<?> selected);
+	<T> T queueValueSelected(TypeSafeValue<T> selected);
 	
 	/**
-	 * Return the last subquery value retrieval and clear the value.
+	 * Sets the queued value back to null and returns the value
+	 * if there was any.
 	 */
-	TypeSafeSubQuery<?> dequeueSubqueryValueRetrieval();
-	
+	TypeSafeValue<?> dequeueSelectedValue();
+
 }

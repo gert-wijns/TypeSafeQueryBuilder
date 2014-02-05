@@ -19,6 +19,7 @@ import be.shad.tsqb.restrictions.OnGoingSubQueryTextRestriction;
 import be.shad.tsqb.restrictions.OnGoingTextRestriction;
 import be.shad.tsqb.restrictions.RestrictionChainable;
 import be.shad.tsqb.values.TypeSafeValue;
+import be.shad.tsqb.values.TypeSafeValueFunctions;
 
 /**
  * TypeSafeQuery aims to be a type safe alternative to build hql queries.
@@ -151,6 +152,11 @@ public interface TypeSafeQuery {
 	OnGoingGroupBy groupBy(Object value);
 	
 	<T> TypeSafeSubQuery<T> subquery(Class<T> resultClass);
+
+	/**
+	 * Build a value using a function. Use this method to create TypeSafeValue objects fluently.
+	 */
+	TypeSafeValueFunctions function();
 	
 	HqlQuery toHqlQuery();
 	

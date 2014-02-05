@@ -8,12 +8,9 @@ import static be.shad.tsqb.restrictions.RestrictionImpl.NOT_EQUAL;
 import static be.shad.tsqb.restrictions.RestrictionImpl.NOT_IN;
 
 import java.util.Collection;
-import java.util.List;
 
-import be.shad.tsqb.data.TypeSafeQueryProxyData;
+import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.values.CollectionTypeSafeValue;
-import be.shad.tsqb.values.DirectTypeSafeValue;
-import be.shad.tsqb.values.ReferenceTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
 
 /**
@@ -68,7 +65,7 @@ public class OnGoingRestriction<VAL> {
 	 * Generates: left not in ( actualValues )
 	 */
 	public Restriction in(Collection<VAL> values) {
-		return in(new CollectionTypeSafeValue<>(values));
+		return in(new CollectionTypeSafeValue<>(restriction.getQuery(), values));
 	}
 
 	/**
@@ -87,7 +84,7 @@ public class OnGoingRestriction<VAL> {
 	 * Generates: left not in ( actualValues )
 	 */
 	public Restriction notIn(Collection<VAL> values) {
-		return notIn(new CollectionTypeSafeValue<>(values));
+		return notIn(new CollectionTypeSafeValue<>(restriction.getQuery(), values));
 	}
 
 	/**
@@ -123,21 +120,9 @@ public class OnGoingRestriction<VAL> {
 	}
 
 	/**
-	 * Gets the queued invocations. 
-	 * If there was exactly one, then this invocations data is used as referenced value.
-	 * If there was no invocation, the value is used as a direct value.
+	 * Delegates to {@link TypeSafeQueryInternal#toValue(Object)}
 	 */
 	protected TypeSafeValue<VAL> toValue(VAL value) {
-		List<TypeSafeQueryProxyData> invocations = restriction.getQuery().dequeueInvocations();
-		if( invocations.isEmpty() ) {
-			// direct selection
-			return new DirectTypeSafeValue<VAL>(value);
-		} else if( invocations.size() == 1 ) {
-			// invoked with proxy
-			return new ReferenceTypeSafeValue<VAL>(invocations.get(0));
-		} else {
-			// invalid call, only expected one invocation
-			throw new IllegalStateException();
-		}
+		return restriction.getQuery().toValue(value);
 	}
 }

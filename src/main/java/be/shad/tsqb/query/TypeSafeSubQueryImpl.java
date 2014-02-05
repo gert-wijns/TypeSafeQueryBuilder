@@ -21,6 +21,11 @@ public class TypeSafeSubQueryImpl<T extends Object> extends AbstractTypeSafeQuer
 		this.parentQuery = parentQuery;
 		setRootQuery(parentQuery.getRootQuery());
 	}
+	
+	@Override
+	public Class<T> getValueClass() {
+		return valueClass;
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -90,72 +95,9 @@ public class TypeSafeSubQueryImpl<T extends Object> extends AbstractTypeSafeQuer
 		return getRootQuery().createEntityAlias();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * Return null or a default primitive value.
-	 */
 	@Override
-	@SuppressWarnings("unchecked")
-	public T getValue() {
-		// set on rootquery, so it can take this into account
-		// when the setter of the selectDto is called.
-		getRootQuery().queueSubqueryValueRetrieved(this);
-		
-		// return a random value, (but take primitives into account to prevent NPEs)
-		Class<?> primitiveClass = getPrimitiveClass(this.valueClass);
-		if( primitiveClass != null ) {
-			return (T) defaultPrimitiveValue(primitiveClass);
-		}
-		return null;
+	public T select() {
+		return getRootQuery().queueValueSelected(this);
 	}
 	
-	/**
-	 * @return the primitive class if the class could be a primitive.
-	 */
-	private Class<?> getPrimitiveClass(Class<T> valueClass) {
-		if( Boolean.class.equals(valueClass) ) {
-			return Boolean.TYPE;
-		} else if ( Integer.class.equals(valueClass) ) {
-			return Integer.TYPE;
-		} else if ( Long.class.equals(valueClass) ) {
-			return Long.TYPE;
-		} else if ( Double.class.equals(valueClass) ) {
-			return Double.TYPE;
-		} else if ( Byte.class.equals(valueClass) ) {
-			return Byte.TYPE;
-		} else if ( Short.class.equals(valueClass) ) {
-			return Short.TYPE;
-		} else if ( Float.class.equals(valueClass) ) {
-			return Float.TYPE;
-		} else if ( Character.class.equals(valueClass) ) {
-			return Character.TYPE;
-		}
-		return null;
-	}
-
-	/**
-	 * @return a default value for each primitive class.
-	 */
-	private Object defaultPrimitiveValue(Class<?> primitiveClass) {
-		if( primitiveClass == Boolean.TYPE ) {
-			return Boolean.FALSE;
-		} else if( primitiveClass == Integer.TYPE ) {
-			return Integer.valueOf(0);
-		} else if ( primitiveClass == Long.TYPE ) {
-			return Long.valueOf(0);
-		} else if ( primitiveClass == Double.TYPE ) {
-			return Double.valueOf(0);
-		} else if( primitiveClass == Byte.TYPE) {
-			return Byte.valueOf((byte) 0);
-		} else if( primitiveClass == Short.TYPE ) {
-			return Short.valueOf((short) 0);
-		} else if ( primitiveClass == Float.TYPE ) {
-			return Float.valueOf(0);
-		} else if ( primitiveClass == Character.TYPE ) {
-			return Character.valueOf('a');
-		}
-		throw new IllegalArgumentException("Didn't take a primtiive class into account: " + primitiveClass);
-	}
-
 }

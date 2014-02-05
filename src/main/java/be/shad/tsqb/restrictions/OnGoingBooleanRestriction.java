@@ -24,7 +24,7 @@ public class OnGoingBooleanRestriction extends OnGoingRestriction<Boolean> {
 	 */
 	public Restriction isFalse() {
 		restriction.setOperator(EQUAL);
-		restriction.setRight(new DirectTypeSafeValue<>(Boolean.FALSE));
+		restriction.setRight(new DirectTypeSafeValue<>(restriction.getQuery(), Boolean.FALSE));
 		return restriction;
 	}
 
@@ -33,7 +33,7 @@ public class OnGoingBooleanRestriction extends OnGoingRestriction<Boolean> {
 	 */
 	public Restriction isTrue() {
 		restriction.setOperator(EQUAL);
-		restriction.setRight(new DirectTypeSafeValue<>(Boolean.TRUE));
+		restriction.setRight(new DirectTypeSafeValue<>(restriction.getQuery(), Boolean.TRUE));
 		return restriction;
 	}
 	

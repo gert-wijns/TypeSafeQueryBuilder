@@ -28,8 +28,11 @@ import be.shad.tsqb.restrictions.OnGoingTextRestriction;
 import be.shad.tsqb.restrictions.RestrictionChainable;
 import be.shad.tsqb.restrictions.RestrictionsGroup;
 import be.shad.tsqb.selection.TypeSafeQueryProjections;
+import be.shad.tsqb.values.DirectTypeSafeValue;
 import be.shad.tsqb.values.HqlQueryValue;
+import be.shad.tsqb.values.ReferenceTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
+import be.shad.tsqb.values.TypeSafeValueFunctions;
 
 public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQueryInternal {
 	protected final TypeSafeQueryHelper helper;
@@ -231,6 +234,24 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
 	public OnGoingGroupBy groupBy(Object value) {
 		return new GroupByBase(this, value);
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public <VAL> TypeSafeValue<VAL> toValue(VAL value) {
+		List<TypeSafeQueryProxyData> invocations = dequeueInvocations();
+		if( invocations.isEmpty() ) {
+			// direct selection
+			return new DirectTypeSafeValue<VAL>(this, value);
+		} else if( invocations.size() == 1 ) {
+			// invoked with proxy
+			return new ReferenceTypeSafeValue<VAL>(this, invocations.get(0));
+		} else {
+			// invalid call, only expected one invocation
+			throw new IllegalStateException();
+		}
+	}
 
 	public boolean isInScope(TypeSafeQueryProxyData data, TypeSafeQueryProxyData join) {
 		return dataTree.isInScope(data, join);
@@ -259,6 +280,11 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
 	public <T> TypeSafeSubQuery<T> subquery(Class<T> clazz) {
 		return new TypeSafeSubQueryImpl<>(clazz, helper, this);
 	}
+	
+	@Override
+	public TypeSafeValueFunctions function() {
+		return new TypeSafeValueFunctions(this);
+	}
 
 	/**
 	 * Compose a query object with the selections, from, wheres, group bys and order bys.
@@ -285,5 +311,6 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
 		
 		return query;
 	}
+	
 	
 }
