@@ -12,12 +12,13 @@ public class CoalesceTypeSafeValue<T> extends TypeSafeValueImpl<T> {
 		super(query, valueType);
 	}
 
-	public void addValue(T value) {
-		this.values.add(query.toValue(value));
+	public CoalesceTypeSafeValue<T> or(T value) {
+		return or(query.toValue(value));
 	}
 	
-	public void addValue(TypeSafeValue<T> value) {
+	public CoalesceTypeSafeValue<T> or(TypeSafeValue<T> value) {
 		this.values.add(value);
+		return this;
 	}
 
 	@Override

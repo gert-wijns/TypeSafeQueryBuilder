@@ -28,7 +28,7 @@ public class TypeSafeValueFunctions {
 	
 	public <VAL> CoalesceTypeSafeValue<VAL> coalesce(TypeSafeValue<VAL> val) {
 		CoalesceTypeSafeValue<VAL> coalesce = new CoalesceTypeSafeValue<>(query, val.getValueClass());
-		coalesce.addValue(val);
+		coalesce.or(val);
 		return coalesce;
 	}
 	

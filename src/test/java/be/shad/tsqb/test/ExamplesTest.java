@@ -236,5 +236,28 @@ public class ExamplesTest extends TypeSafeQueryTest {
 		assertTrue(hql.getHql().equals(" from Relation hobj1 where hobj1.parent.id = ?"));
 		assertTrue(Arrays.asList(hql.getParams()).equals(Arrays.asList(1L)));
 	}
-	
+
+	@Test
+	public void testSelectMaxAge() {
+		TypeSafeRootQuery query = createQuery();
+		Person person = query.from(Person.class);
+		
+		PersonDto dto = query.select(PersonDto.class);
+		dto.setPersonAge(query.function().max(person.getAge()).select());
+
+		HqlQuery hql = doQuery(query);
+		assertTrue(hql.getHql().equals("select max(hobj1.age) as personAge from Person hobj1"));
+	}
+
+	@Test
+	public void testSelectCoalesce() {
+		TypeSafeRootQuery query = createQuery();
+		Person person = query.from(Person.class);
+		
+		PersonDto dto = query.select(PersonDto.class);
+		dto.setThePersonsName(query.function().coalesce(person.getName()).or("Bert").select());
+
+		HqlQuery hql = doQuery(query);
+		assertTrue(hql.getHql().equals("select coalesce (hobj1.name,?) as thePersonsName from Person hobj1"));
+	}
 }
