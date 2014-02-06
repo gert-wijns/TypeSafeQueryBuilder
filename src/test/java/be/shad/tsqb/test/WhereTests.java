@@ -10,7 +10,6 @@ import org.junit.Test;
 import be.shad.tsqb.domain.House;
 import be.shad.tsqb.domain.Style;
 import be.shad.tsqb.hql.HqlQuery;
-import be.shad.tsqb.query.TypeSafeRootQuery;
 import be.shad.tsqb.query.TypeSafeSubQuery;
 
 public class WhereTests extends TypeSafeQueryTest {
@@ -20,7 +19,6 @@ public class WhereTests extends TypeSafeQueryTest {
      */
     @Test
     public void whereEnumValueEquals() {
-        TypeSafeRootQuery query = createQuery();
         House house = query.from(House.class);
         
         query.where(house.getStyle()).eq(Style.the1980s);
@@ -35,7 +33,6 @@ public class WhereTests extends TypeSafeQueryTest {
      */
     @Test
     public void whereByReference() {
-        TypeSafeRootQuery query = createQuery();
         House house1 = query.from(House.class);
         House house2 = query.from(House.class);
         
@@ -50,7 +47,6 @@ public class WhereTests extends TypeSafeQueryTest {
      */
     @Test
     public void whereBySubquery() {
-        TypeSafeRootQuery query = createQuery();
         House house = query.from(House.class);
         
         TypeSafeSubQuery<Style> houseSQ = query.subquery(Style.class);
@@ -68,7 +64,6 @@ public class WhereTests extends TypeSafeQueryTest {
      */
     @Test
     public void whereReferencedIsNull() {
-        TypeSafeRootQuery query = createQuery();
         House house = query.from(House.class);
         
         query.where(house.getStyle()).isNull();
@@ -82,7 +77,6 @@ public class WhereTests extends TypeSafeQueryTest {
      */
     @Test
     public void whereReferencedIsFalse() {
-        TypeSafeRootQuery query = createQuery();
         House house = query.from(House.class);
         
         query.where(house.isOccupied()).isFalse();
@@ -97,7 +91,6 @@ public class WhereTests extends TypeSafeQueryTest {
      */
     @Test
     public void whereReferencedDateAfter() {
-        TypeSafeRootQuery query = createQuery();
         House house = query.from(House.class);
         
         Date yearBeforeNow = new Date(System.currentTimeMillis() - 31556952000L);

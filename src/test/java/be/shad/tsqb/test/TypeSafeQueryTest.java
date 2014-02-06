@@ -22,6 +22,7 @@ public class TypeSafeQueryTest {
     
     private SessionFactory sessionFactory;
     private TypeSafeQueryHelperImpl helper;
+    protected TypeSafeRootQuery query;
 
     /**
      * Initialize the sessionFactory and helper.
@@ -41,6 +42,7 @@ public class TypeSafeQueryTest {
                 return entityName.substring(entityName.lastIndexOf(".")+1);
             }
         };
+        query = helper.createQuery();
     }
 
     protected TypeSafeRootQuery createQuery() {
@@ -63,7 +65,7 @@ public class TypeSafeQueryTest {
             query.setParameter(i, params[i]);
         }
         
-        logger.debug(String.format("%s:\n %s\n--- params: %s\n", name.getMethodName(), 
+        logger.debug(String.format("%s:\n%s\n--- params: %s\n", name.getMethodName(), 
                 hqlQuery.getHql(), Arrays.toString(hqlQuery.getParams())));
         
         // call the list, this is the moment of truth:

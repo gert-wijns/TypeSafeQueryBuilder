@@ -1,27 +1,65 @@
 package be.shad.tsqb.grouping;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
 import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.hql.HqlQueryBuilder;
+import be.shad.tsqb.query.TypeSafeQueryInternal;
+import be.shad.tsqb.values.HqlQueryValue;
+import be.shad.tsqb.values.TypeSafeValue;
 
-public class TypeSafeQueryGroupBys implements HqlQueryBuilder {
-    private List<GroupBy> groupBys = new LinkedList<>();
+public class TypeSafeQueryGroupBys implements HqlQueryBuilder, OnGoingGroupBy {
+    private final List<TypeSafeValue<?>> values = new LinkedList<>();
+    private final TypeSafeQueryInternal query;
     
-    public List<GroupBy> getGroupBys() {
-        return groupBys;
+    public TypeSafeQueryGroupBys(TypeSafeQueryInternal query) {
+        this.query = query;
     }
-    
-    public void addGroupBy(GroupBy groupBy) {
-        groupBys.add(groupBy);
+
+    @Override
+    public void appendTo(HqlQuery query) {
+        for(TypeSafeValue<?> value: values) {
+            HqlQueryValue hqlQueryValue = value.toHqlQueryValue();
+            query.appendGroupBy(hqlQueryValue.getHql());
+            query.addParams(hqlQueryValue.getParams());
+        }
+    }
+
+    @Override
+    public OnGoingGroupBy and(Number val) {
+        return add(val);
+    }
+
+    @Override
+    public OnGoingGroupBy and(String val) {
+        return add(val);
+    }
+
+    @Override
+    public OnGoingGroupBy and(Enum<?> val) {
+        return add(val);
     }
     
     @Override
-    public void appendTo(HqlQuery query) {
-        for(GroupBy groupBy: groupBys) {
-            groupBy.appendTo(query);
-        }
+    public OnGoingGroupBy and(Boolean val) {
+        return add(val);
+    }
+
+    @Override
+    public OnGoingGroupBy and(Date val) {
+        return add(val);
+    }
+    
+    @Override
+    public OnGoingGroupBy and(TypeSafeValue<?> val) {
+        return add(val);
+    }
+    
+    private OnGoingGroupBy add(Object val) {
+        values.add(query.toValue(val));
+        return this;
     }
 
 }

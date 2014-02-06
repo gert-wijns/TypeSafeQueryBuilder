@@ -14,7 +14,6 @@ import be.shad.tsqb.dto.PersonDto;
 import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.joins.TypeSafeQueryJoin;
 import be.shad.tsqb.query.JoinType;
-import be.shad.tsqb.query.TypeSafeRootQuery;
 import be.shad.tsqb.query.TypeSafeSubQuery;
 import be.shad.tsqb.restrictions.RestrictionsGroup;
 
@@ -26,7 +25,6 @@ public class ExamplesTest extends TypeSafeQueryTest {
     @Test
     @SuppressWarnings("unused")
     public void testObtainQuery() {
-        TypeSafeRootQuery query = createQuery();
         Person person = query.from(Person.class);
         
         HqlQuery hql = doQuery(query);
@@ -38,7 +36,6 @@ public class ExamplesTest extends TypeSafeQueryTest {
      */
     @Test
     public void testFiltering() {
-        TypeSafeRootQuery query = createQuery();
         Person person = query.from(Person.class);
         
         query.where(person.getAge()).gt(50);
@@ -53,7 +50,6 @@ public class ExamplesTest extends TypeSafeQueryTest {
      */
     @Test
     public void testFilteringMore() {
-        TypeSafeRootQuery query = createQuery();
         Person person = query.from(Person.class);
         
         query.where(person.isMarried()).isTrue().  // type based checks available
@@ -69,7 +65,6 @@ public class ExamplesTest extends TypeSafeQueryTest {
      */
     @Test
     public void testFilteringGroup() {
-        TypeSafeRootQuery query = createQuery();
         Person person = query.from(Person.class);
         
         query.where(person.isMarried()).isTrue().
@@ -88,7 +83,6 @@ public class ExamplesTest extends TypeSafeQueryTest {
      */
     @Test
     public void testSelectFieldsIntoDto() {
-        TypeSafeRootQuery query = createQuery();
         Person person = query.from(Person.class);
         
         PersonDto personDto = query.select(PersonDto.class); // proxy instance of dto class
@@ -101,7 +95,6 @@ public class ExamplesTest extends TypeSafeQueryTest {
 
     @Test
     public void testSelectValues() {
-        TypeSafeRootQuery query = createQuery();
         Person person = query.from(Person.class);
         
         TypeSafeSubQuery<String> personSQ = query.subquery(String.class);
@@ -119,7 +112,6 @@ public class ExamplesTest extends TypeSafeQueryTest {
     @Test
     @SuppressWarnings("unused")
     public void testJoin() {
-        TypeSafeRootQuery query = createQuery();
         Person parent = query.from(Person.class);
         
         Relation childRelation = query.join(parent.getChildRelations());
@@ -132,7 +124,6 @@ public class ExamplesTest extends TypeSafeQueryTest {
     @Test
     @SuppressWarnings("unused")
     public void testJoinLeftFetch() {
-        TypeSafeRootQuery query = createQuery();
         Person parent = query.from(Person.class);
         
         Relation childRelation = query.join(parent.getChildRelations(), JoinType.LeftFetch);
@@ -143,7 +134,6 @@ public class ExamplesTest extends TypeSafeQueryTest {
     
     @Test
     public void testJoinWith() {
-        TypeSafeRootQuery query = createQuery();
         Person parent = query.from(Person.class);
         
         Relation childRelation = query.join(parent.getChildRelations());
@@ -159,7 +149,6 @@ public class ExamplesTest extends TypeSafeQueryTest {
 
     @Test
     public void testMultiFrom() {
-        TypeSafeRootQuery query = createQuery();
         Person parent = query.from(Person.class);
         
         Relation childRelation = query.join(parent.getChildRelations());
@@ -173,7 +162,6 @@ public class ExamplesTest extends TypeSafeQueryTest {
 
     @Test
     public void testRestrictionChaining() {
-        TypeSafeRootQuery query = createQuery();
         Person person = query.from(Person.class);
 
         query.where(person.getAge()).lt(20).
@@ -186,7 +174,6 @@ public class ExamplesTest extends TypeSafeQueryTest {
 
     @Test
     public void testSelectWithSubQuery() {
-        TypeSafeRootQuery query = createQuery();
         Person person = query.from(Person.class);
 
         TypeSafeSubQuery<String> favoriteColorSQ = query.subquery(String.class);
@@ -207,7 +194,6 @@ public class ExamplesTest extends TypeSafeQueryTest {
 
     @Test
     public void testRestrictWithSubQuery() {
-        TypeSafeRootQuery query = createQuery();
         Person person = query.from(Person.class);
 
         TypeSafeSubQuery<String> favoriteColorSQ = query.subquery(String.class);
@@ -227,7 +213,6 @@ public class ExamplesTest extends TypeSafeQueryTest {
     
     @Test
     public void testJoinTypeNone() {
-        TypeSafeRootQuery query = createQuery();
         Relation relation = query.from(Relation.class);
         Person parent = query.join(relation.getParent(), JoinType.None);
         query.where(parent.getId()).eq(1L);
@@ -239,7 +224,6 @@ public class ExamplesTest extends TypeSafeQueryTest {
 
     @Test
     public void testSelectMaxAge() {
-        TypeSafeRootQuery query = createQuery();
         Person person = query.from(Person.class);
         
         PersonDto dto = query.select(PersonDto.class);
@@ -251,7 +235,6 @@ public class ExamplesTest extends TypeSafeQueryTest {
 
     @Test
     public void testSelectCoalesce() {
-        TypeSafeRootQuery query = createQuery();
         Person person = query.from(Person.class);
         
         PersonDto dto = query.select(PersonDto.class);

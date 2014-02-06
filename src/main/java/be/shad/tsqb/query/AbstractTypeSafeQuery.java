@@ -6,14 +6,12 @@ import java.util.List;
 
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.data.TypeSafeQueryProxyDataTree;
-import be.shad.tsqb.grouping.GroupByBase;
 import be.shad.tsqb.grouping.OnGoingGroupBy;
 import be.shad.tsqb.grouping.TypeSafeQueryGroupBys;
 import be.shad.tsqb.helper.TypeSafeQueryHelper;
 import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.joins.TypeSafeQueryJoin;
 import be.shad.tsqb.ordering.OnGoingOrderBy;
-import be.shad.tsqb.ordering.OrderByBase;
 import be.shad.tsqb.ordering.TypeSafeQueryOrderBys;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
 import be.shad.tsqb.restrictions.OnGoingBooleanRestriction;
@@ -41,8 +39,8 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
     private final TypeSafeQueryProxyDataTree dataTree;
     private final TypeSafeQueryProjections projections = new TypeSafeQueryProjections(this); 
     private final RestrictionsGroup restrictions = new RestrictionsGroup(this, null); 
-    private final TypeSafeQueryGroupBys groupBys = new TypeSafeQueryGroupBys();
-    private final TypeSafeQueryOrderBys orderBys = new TypeSafeQueryOrderBys();
+    private final TypeSafeQueryGroupBys groupBys = new TypeSafeQueryGroupBys(this);
+    private final TypeSafeQueryOrderBys orderBys = new TypeSafeQueryOrderBys(this);
     
     public AbstractTypeSafeQuery(TypeSafeQueryHelper helper) {
         this.helper = helper;
@@ -227,12 +225,38 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
     /**
      * Kicks off order by's. Use desc/asc afterwards to order by something.
      */
-    public OnGoingOrderBy order() {
-        return new OrderByBase(this);
+    public OnGoingOrderBy orderBy() {
+        return orderBys;
+    }
+
+    @Override
+    public OnGoingGroupBy groupBy(Number val) {
+        return groupBys.and(val);
+    }
+
+    @Override
+    public OnGoingGroupBy groupBy(String val) {
+        return groupBys.and(val);
+    }
+
+    @Override
+    public OnGoingGroupBy groupBy(Enum<?> val) {
+        return groupBys.and(val);
+    }
+
+    @Override
+    public OnGoingGroupBy groupBy(Boolean val) {
+        return groupBys.and(val);
     }
     
-    public OnGoingGroupBy groupBy(Object value) {
-        return new GroupByBase(this, value);
+    @Override
+    public OnGoingGroupBy groupBy(Date val) {
+        return groupBys.and(val);
+    }
+
+    @Override
+    public OnGoingGroupBy groupBy(TypeSafeValue<?> val) {
+        return groupBys.and(val);
     }
     
     /**
@@ -270,7 +294,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
     public TypeSafeQueryGroupBys getGroupBys() {
         return groupBys;
     }
-    
+
     @Override
     public TypeSafeQueryOrderBys getOrderBys() {
         return orderBys;

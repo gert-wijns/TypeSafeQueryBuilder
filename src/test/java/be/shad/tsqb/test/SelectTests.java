@@ -10,7 +10,6 @@ import be.shad.tsqb.domain.House;
 import be.shad.tsqb.domain.Town;
 import be.shad.tsqb.dto.FunctionsDto;
 import be.shad.tsqb.hql.HqlQuery;
-import be.shad.tsqb.query.TypeSafeRootQuery;
 import be.shad.tsqb.query.TypeSafeSubQuery;
 
 
@@ -21,7 +20,6 @@ public class SelectTests extends TypeSafeQueryTest {
      */
     @Test
     public void selectEntity() {
-        TypeSafeRootQuery query = createQuery();
         query.from(House.class);
         
         HqlQuery hql = doQuery(query);
@@ -33,7 +31,6 @@ public class SelectTests extends TypeSafeQueryTest {
      */
     @Test
     public void selectProperty() {
-        TypeSafeRootQuery query = createQuery();
         House house = query.from(House.class);
         House result = query.select(House.class);
         result.setFloors(house.getFloors());
@@ -47,7 +44,6 @@ public class SelectTests extends TypeSafeQueryTest {
      */
     @Test
     public void selectEnumProperty() {
-        TypeSafeRootQuery query = createQuery();
         House house = query.from(House.class);
         
         House result = query.select(House.class);
@@ -62,7 +58,6 @@ public class SelectTests extends TypeSafeQueryTest {
      */
     @Test
     public void selectEntityAndPropertyOfEntity() {
-        TypeSafeRootQuery query = createQuery();
         House house = query.from(House.class);
 
         @SuppressWarnings("unchecked")
@@ -80,7 +75,6 @@ public class SelectTests extends TypeSafeQueryTest {
      */
     @Test
     public void selectJoinedEntity() {
-        TypeSafeRootQuery query = createQuery();
         Town town = query.from(Town.class);
         Building building = query.join(town.getBuildings());
         
@@ -97,7 +91,6 @@ public class SelectTests extends TypeSafeQueryTest {
      */
     @Test
     public void selectDoubleJoinedEntityValue() {
-        TypeSafeRootQuery query = createQuery();
         House house1 = query.from(House.class);
         House house2 = query.from(House.class);
 
@@ -115,7 +108,6 @@ public class SelectTests extends TypeSafeQueryTest {
      */
     @Test
     public void selectJoinedEntityProperty() {
-        TypeSafeRootQuery query = createQuery();
         Town town = query.from(Town.class);
         Building building = query.join(town.getBuildings());
         
@@ -128,7 +120,6 @@ public class SelectTests extends TypeSafeQueryTest {
 
     @Test
     public void selectSubQueryValue() {
-        TypeSafeRootQuery query = createQuery();
         House house = query.from(House.class);
         
         TypeSafeSubQuery<String> nameSubQuery = query.subquery(String.class);
@@ -146,7 +137,6 @@ public class SelectTests extends TypeSafeQueryTest {
 
     @Test
     public void selectSubQueryValueAndProperty() {
-        TypeSafeRootQuery query = createQuery();
         House house = query.from(House.class);
         
         TypeSafeSubQuery<String> nameSubQuery = query.subquery(String.class);
@@ -171,7 +161,6 @@ public class SelectTests extends TypeSafeQueryTest {
      */
     @Test
     public void selectPrimitiveSubQueryValue() {
-        TypeSafeRootQuery query = createQuery();
         House house = query.from(House.class);
         
         TypeSafeSubQuery<Integer> nameSubQuery = query.subquery(Integer.class);
@@ -193,7 +182,6 @@ public class SelectTests extends TypeSafeQueryTest {
      */
     @Test
     public void selectMax() {
-        TypeSafeRootQuery query = createQuery();
         House house = query.from(House.class);
 
         House houseResult = query.select(House.class);
@@ -210,7 +198,6 @@ public class SelectTests extends TypeSafeQueryTest {
     @Test
     @SuppressWarnings("unused")
     public void selectCount() {
-        TypeSafeRootQuery query = createQuery();
         House house = query.from(House.class);
 
         FunctionsDto dto = query.select(FunctionsDto.class);

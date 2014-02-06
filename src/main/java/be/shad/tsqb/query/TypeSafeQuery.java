@@ -147,10 +147,26 @@ public interface TypeSafeQuery {
      */
     OnGoingTextRestriction where(String value);
     
-    OnGoingOrderBy order();
+    /**
+     * Get the orderBy, allowing to add descending and ascending order bys.
+     */
+    OnGoingOrderBy orderBy();
+
+    OnGoingGroupBy groupBy(Number val);
+
+    OnGoingGroupBy groupBy(String val);
     
-    OnGoingGroupBy groupBy(Object value);
+    OnGoingGroupBy groupBy(Enum<?> val);
+
+    OnGoingGroupBy groupBy(Boolean val);
     
+    OnGoingGroupBy groupBy(Date val);
+
+    OnGoingGroupBy groupBy(TypeSafeValue<?> val);
+    
+    /**
+     * Creates a subquery which will select a value of the <code>resultClass</code>.
+     */
     <T> TypeSafeSubQuery<T> subquery(Class<T> resultClass);
 
     /**
@@ -158,6 +174,12 @@ public interface TypeSafeQuery {
      */
     TypeSafeValueFunctions function();
     
+    /**
+     * Converts this query to an hqlQuery. 
+     * <p>
+     * The hqlQuery can be used to get the hql and the 
+     * params to create a hibernate query object.
+     */
     HqlQuery toHqlQuery();
     
 }
