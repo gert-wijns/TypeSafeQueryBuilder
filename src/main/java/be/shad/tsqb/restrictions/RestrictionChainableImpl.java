@@ -1,5 +1,7 @@
 package be.shad.tsqb.restrictions;
 
+import static be.shad.tsqb.restrictions.RestrictionImpl.EXISTS;
+
 import java.util.Date;
 
 import be.shad.tsqb.query.TypeSafeSubQuery;
@@ -11,14 +13,26 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable, 
 
     public abstract RestrictionImpl or();
     
-    @Override
-    public <E extends Enum<E>> OnGoingEnumRestriction<E> and(E value) {
-        return new OnGoingEnumRestriction<E>(and(), value);
+    private RestrictionChainable exists(RestrictionImpl restriction, TypeSafeSubQuery<?> subquery) {
+        restriction.setRight(subquery);
+        restriction.setLeft(null);
+        restriction.setOperator(EXISTS);
+        return restriction;
     }
     
     @Override
-    public <E extends Enum<E>> OnGoingSubQueryEnumRestriction<E> ande(TypeSafeSubQuery<E> value) {
-        return new OnGoingSubQueryEnumRestriction<E>(and(), value);
+    public RestrictionChainable andExists(TypeSafeSubQuery<?> subquery) {
+        return exists(and(), subquery);
+    }
+    
+    @Override
+    public RestrictionChainable orExists(TypeSafeSubQuery<?> subquery) {
+        return exists(or(), subquery);
+    }
+    
+    @Override
+    public <E extends Enum<E>> OnGoingEnumRestriction<E> and(E value) {
+        return new OnGoingEnumRestriction<E>(and(), value);
     }
     
     @Override
@@ -34,11 +48,6 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable, 
     @Override
     public OnGoingTextRestriction andt(TypeSafeValue<String> value) {
         return new OnGoingTextRestriction(and(), value);
-    }
-
-    @Override
-    public OnGoingSubQueryTextRestriction andt(TypeSafeSubQuery<String> value) {
-        return new OnGoingSubQueryTextRestriction(and(), value);
     }
 
     @Override
@@ -62,11 +71,6 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable, 
     }
     
     @Override
-    public OnGoingSubQueryNumberRestriction andn(TypeSafeSubQuery<Number> value) {
-        return new OnGoingSubQueryNumberRestriction(and(), value);
-    }
-    
-    @Override
     public OnGoingDateRestriction and(Date value) {
         return new OnGoingDateRestriction(and(), value);
     }
@@ -74,11 +78,6 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable, 
     @Override
     public OnGoingDateRestriction andd(TypeSafeValue<Date> value) {
         return new OnGoingDateRestriction(and(), value);
-    }
-    
-    @Override
-    public OnGoingSubQueryDateRestriction andd(TypeSafeSubQuery<Date> value) {
-        return new OnGoingSubQueryDateRestriction(and(), value);
     }
 
     @Override
@@ -92,11 +91,6 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable, 
     }
 
     @Override
-    public OnGoingSubQueryTextRestriction ort(TypeSafeSubQuery<String> value) {
-        return new OnGoingSubQueryTextRestriction(or(), value);
-    }
-
-    @Override
     public OnGoingNumberRestriction or(Number value) {
         return new OnGoingNumberRestriction(or(), value);
     }
@@ -104,11 +98,6 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable, 
     @Override
     public OnGoingNumberRestriction orn(TypeSafeValue<Number> value) {
         return new OnGoingNumberRestriction(or(), value);
-    }
-    
-    @Override
-    public OnGoingSubQueryNumberRestriction orn(TypeSafeSubQuery<Number> value) {
-        return new OnGoingSubQueryNumberRestriction(or(), value);
     }
     
 }

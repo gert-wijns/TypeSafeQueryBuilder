@@ -2,10 +2,7 @@ package be.shad.tsqb.joins;
 
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
-import be.shad.tsqb.query.TypeSafeSubQuery;
 import be.shad.tsqb.restrictions.OnGoingNumberRestriction;
-import be.shad.tsqb.restrictions.OnGoingSubQueryNumberRestriction;
-import be.shad.tsqb.restrictions.OnGoingSubQueryTextRestriction;
 import be.shad.tsqb.restrictions.OnGoingTextRestriction;
 import be.shad.tsqb.restrictions.RestrictionChainable;
 import be.shad.tsqb.restrictions.RestrictionsGroup;
@@ -57,23 +54,8 @@ public class TypeSafeQueryJoin<T> {
     /**
      * Delegate to restrictions.
      */
-    public OnGoingSubQueryNumberRestriction withn(
-            TypeSafeSubQuery<Number> value) {
-        return restrictions.andn(value);
-    }
-
-    /**
-     * Delegate to restrictions.
-     */
     public OnGoingNumberRestriction withn(TypeSafeValue<Number> value) {
         return restrictions.andn(value);
-    }
-
-    /**
-     * Delegate to restrictions.
-     */
-    public OnGoingSubQueryTextRestriction witht(TypeSafeSubQuery<String> value) {
-        return restrictions.andt(value);
     }
 
     /**

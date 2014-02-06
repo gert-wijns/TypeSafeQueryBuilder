@@ -18,10 +18,6 @@ import be.shad.tsqb.restrictions.OnGoingBooleanRestriction;
 import be.shad.tsqb.restrictions.OnGoingDateRestriction;
 import be.shad.tsqb.restrictions.OnGoingEnumRestriction;
 import be.shad.tsqb.restrictions.OnGoingNumberRestriction;
-import be.shad.tsqb.restrictions.OnGoingSubQueryDateRestriction;
-import be.shad.tsqb.restrictions.OnGoingSubQueryEnumRestriction;
-import be.shad.tsqb.restrictions.OnGoingSubQueryNumberRestriction;
-import be.shad.tsqb.restrictions.OnGoingSubQueryTextRestriction;
 import be.shad.tsqb.restrictions.OnGoingTextRestriction;
 import be.shad.tsqb.restrictions.RestrictionChainable;
 import be.shad.tsqb.restrictions.RestrictionsGroup;
@@ -108,20 +104,17 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
         return restrictions;
     }
     
+    @Override
+    public RestrictionChainable whereExists(TypeSafeSubQuery<?> subquery) {
+        return restrictions.andExists(subquery);
+    }
+    
     /**
      * Delegate to restrictions.
      */
     @Override
     public <E extends Enum<E>> OnGoingEnumRestriction<E> where(E value) {
         return restrictions.and(value);
-    }
-
-    /**
-     * Delegate to restrictions.
-     */
-    @Override
-    public <E extends Enum<E>> OnGoingSubQueryEnumRestriction<E> wheree(TypeSafeSubQuery<E> value) {
-        return restrictions.ande(value);
     }
 
     /**
@@ -168,25 +161,8 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      * Delegate to restrictions.
      */
     @Override
-    public OnGoingSubQueryNumberRestriction wheren(
-            TypeSafeSubQuery<Number> value) {
-        return restrictions.andn(value);
-    }
-
-    /**
-     * Delegate to restrictions.
-     */
-    @Override
     public OnGoingNumberRestriction wheren(TypeSafeValue<Number> value) {
         return restrictions.andn(value);
-    }
-
-    /**
-     * Delegate to restrictions.
-     */
-    @Override
-    public OnGoingSubQueryTextRestriction wheret(TypeSafeSubQuery<String> value) {
-        return restrictions.andt(value);
     }
 
     /**
@@ -203,15 +179,6 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
     @Override
     public OnGoingDateRestriction where(Date value) {
         return restrictions.and(value);
-    }
-
-    /**
-     * Delegate to restrictions.
-     */
-    @Override
-    public OnGoingSubQueryDateRestriction whered(
-            TypeSafeSubQuery<Date> value) {
-        return restrictions.andd(value);
     }
 
     /**

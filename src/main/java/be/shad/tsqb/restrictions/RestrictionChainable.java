@@ -7,6 +7,10 @@ import be.shad.tsqb.values.TypeSafeValue;
 
 public interface RestrictionChainable {
     
+    RestrictionChainable andExists(TypeSafeSubQuery<?> subquery);
+
+    RestrictionChainable orExists(TypeSafeSubQuery<?> subquery);
+    
     /**
      * Add a restriction, the restriction is returned to continue chaining.
      * Use this to add groups of restrictions (useful when using ´or´s in a query).
@@ -24,12 +28,6 @@ public interface RestrictionChainable {
      * can be used with this method.
      */
     <E extends Enum<E>> OnGoingEnumRestriction<E> ande(TypeSafeValue<E> value);
-
-    /**
-     * The general restrict by enum method. Anything which represents a number
-     * can be used with this method.
-     */
-    <E extends Enum<E>> OnGoingSubQueryEnumRestriction<E> ande(TypeSafeSubQuery<E> value);
 
     /**
      * Restrict an enum value. This can be a direct value (an actual enum value),
@@ -56,12 +54,6 @@ public interface RestrictionChainable {
     OnGoingNumberRestriction andn(TypeSafeValue<Number> value);
 
     /**
-     * Restrict starting with a subquery, more specific than {@link #restrictn(TypeSafeValue)},
-     * it has additional restrictions only available when subquerying.
-     */
-    OnGoingSubQueryNumberRestriction andn(TypeSafeSubQuery<Number> value);
-
-    /**
      * Restrict a number value. This can be a direct value (an actual string),
      * or a value of a TypeSafeQueryProxy getter. 
      */
@@ -72,12 +64,6 @@ public interface RestrictionChainable {
      * can be used with this method.
      */
     OnGoingDateRestriction andd(TypeSafeValue<Date> value);
-
-    /**
-     * Restrict starting with a subquery, more specific than {@link #andd(TypeSafeValue)},
-     * it has additional restrictions only available when subquerying.
-     */
-    OnGoingSubQueryDateRestriction andd(TypeSafeSubQuery<Date> value);
 
     /**
      * Restrict a number value. This can be a direct value (an actual string),
@@ -92,12 +78,6 @@ public interface RestrictionChainable {
     OnGoingTextRestriction andt(TypeSafeValue<String> value);
 
     /**
-     * Restrict starting with a subquery, more specific than {@link #restrictt(TypeSafeValue)},
-     * it has additional restrictions only available when subquerying.
-     */
-    OnGoingSubQueryTextRestriction andt(TypeSafeSubQuery<String> value);
-
-    /**
      * Restrict a string value. This can be a direct value (an actual string),
      * or a value of a TypeSafeQueryProxy getter. 
      */
@@ -110,12 +90,6 @@ public interface RestrictionChainable {
     OnGoingNumberRestriction orn(TypeSafeValue<Number> value);
 
     /**
-     * Restrict starting with a subquery, more specific than {@link #restrictn(TypeSafeValue)},
-     * it has additional restrictions only available when subquerying.
-     */
-    OnGoingSubQueryNumberRestriction orn(TypeSafeSubQuery<Number> value);
-
-    /**
      * Restrict a number value. This can be a direct value (an actual string),
      * or a value of a TypeSafeQueryProxy getter. 
      */
@@ -126,12 +100,6 @@ public interface RestrictionChainable {
      * can be used with this method.
      */
     OnGoingTextRestriction ort(TypeSafeValue<String> value);
-
-    /**
-     * Restrict starting with a subquery, more specific than {@link #restrictt(TypeSafeValue)},
-     * it has additional restrictions only available when subquerying.
-     */
-    OnGoingSubQueryTextRestriction ort(TypeSafeSubQuery<String> value);
 
     /**
      * Restrict a string value. This can be a direct value (an actual string),

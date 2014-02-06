@@ -12,10 +12,6 @@ import be.shad.tsqb.restrictions.OnGoingBooleanRestriction;
 import be.shad.tsqb.restrictions.OnGoingDateRestriction;
 import be.shad.tsqb.restrictions.OnGoingEnumRestriction;
 import be.shad.tsqb.restrictions.OnGoingNumberRestriction;
-import be.shad.tsqb.restrictions.OnGoingSubQueryDateRestriction;
-import be.shad.tsqb.restrictions.OnGoingSubQueryEnumRestriction;
-import be.shad.tsqb.restrictions.OnGoingSubQueryNumberRestriction;
-import be.shad.tsqb.restrictions.OnGoingSubQueryTextRestriction;
 import be.shad.tsqb.restrictions.OnGoingTextRestriction;
 import be.shad.tsqb.restrictions.RestrictionChainable;
 import be.shad.tsqb.values.TypeSafeValue;
@@ -70,12 +66,6 @@ public interface TypeSafeQuery {
     <E extends Enum<E>> OnGoingEnumRestriction<E> wheree(TypeSafeValue<E> value);
 
     /**
-     * The general restrict by enum method. Anything which represents a number
-     * can be used with this method.
-     */
-    <E extends Enum<E>> OnGoingSubQueryEnumRestriction<E> wheree(TypeSafeSubQuery<E> value);
-
-    /**
      * Restrict an enum value. This can be a direct value (an actual enum value),
      * or a value of a TypeSafeQueryProxy getter.
      */
@@ -100,12 +90,6 @@ public interface TypeSafeQuery {
     OnGoingNumberRestriction wheren(TypeSafeValue<Number> value);
 
     /**
-     * Restrict starting with a subquery, more specific than {@link #restrictn(TypeSafeValue)},
-     * it has additional restrictions only available when subquerying.
-     */
-    OnGoingSubQueryNumberRestriction wheren(TypeSafeSubQuery<Number> value);
-
-    /**
      * Restrict a number value. This can be a direct value (an actual number),
      * or a value of a TypeSafeQueryProxy getter. 
      */
@@ -116,12 +100,6 @@ public interface TypeSafeQuery {
      * can be used with this method.
      */
     OnGoingDateRestriction whered(TypeSafeValue<Date> value);
-
-    /**
-     * Restrict starting with a subquery, more specific than {@link #restrictd(TypeSafeValue)},
-     * it has additional restrictions only available when subquerying.
-     */
-    OnGoingSubQueryDateRestriction whered(TypeSafeSubQuery<Date> value);
 
     /**
      * Restrict a number value. This can be a direct value (an actual date),
@@ -136,16 +114,15 @@ public interface TypeSafeQuery {
     OnGoingTextRestriction wheret(TypeSafeValue<String> value);
 
     /**
-     * Restrict starting with a subquery, more specific than {@link #restrictt(TypeSafeValue)},
-     * it has additional restrictions only available when subquerying.
-     */
-    OnGoingSubQueryTextRestriction wheret(TypeSafeSubQuery<String> value);
-
-    /**
      * Restrict a string value. This can be a direct value (an actual string),
      * or a value of a TypeSafeQueryProxy getter. 
      */
     OnGoingTextRestriction where(String value);
+
+    /**
+     * Adds an exists restriction.
+     */
+    RestrictionChainable whereExists(TypeSafeSubQuery<?> subquery);
     
     /**
      * Get the orderBy, allowing to add descending and ascending order bys.

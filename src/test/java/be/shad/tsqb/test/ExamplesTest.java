@@ -243,4 +243,31 @@ public class ExamplesTest extends TypeSafeQueryTest {
         HqlQuery hql = doQuery(query);
         assertTrue(hql.getHql().equals("select coalesce (hobj1.name,?) as thePersonsName from Person hobj1"));
     }
+
+    @Test
+    public void testGroupBy() {
+        Person person = query.from(Person.class);
+        query.selectValue(person.getName());
+        query.selectValue(person.getAge());
+        
+        query.groupBy(person.getName()).
+              and(person.getAge());
+
+        HqlQuery hql = doQuery(query);
+        assertTrue(hql.getHql().equals("select hobj1.name, hobj1.age from Person hobj1 group by hobj1.name, hobj1.age"));
+    }
+
+    @Test
+    public void testOrderBy() {
+        Person person = query.from(Person.class);
+        query.selectValue(person.getName());
+        query.selectValue(person.getAge());
+        
+        query.orderBy().desc(person.getName()).
+                         asc(person.getAge());
+
+        HqlQuery hql = doQuery(query);
+        assertTrue(hql.getHql().equals("select hobj1.name, hobj1.age from Person hobj1 order by hobj1.name desc, hobj1.age"));
+    }
+    
 }

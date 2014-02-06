@@ -100,4 +100,22 @@ public class WhereTests extends TypeSafeQueryTest {
         assertTrue("date aftere", hql.getWhere().contains("hobj1.constructionDate > ?"));
         assertTrue("filtering date", Arrays.asList(hql.getParams()).contains(yearBeforeNow));
     }
+
+    /**
+     * 
+     */
+    @Test
+    public void whereExists() {
+        House house = query.from(House.class);
+        
+        TypeSafeSubQuery<Style> houseSQ = query.subquery(Style.class);
+        House houseSQV = houseSQ.from(House.class);
+        houseSQ.where(houseSQV.getName()).eq(house.getName()).
+                  and(houseSQV.getId()).not(house.getId());
+        
+        query.whereExists(houseSQ);
+
+        HqlQuery hql = doQuery(query);
+        assertTrue("date aftere", hql.getHql().equals(" from House hobj1 where exists ( from House hobj2 where hobj2.name = hobj1.name and hobj2.id <> hobj1.id)"));
+    }
 }
