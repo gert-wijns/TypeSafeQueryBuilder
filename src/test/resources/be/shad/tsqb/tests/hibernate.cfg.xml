@@ -2,7 +2,7 @@
 <!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
                                          "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
 <hibernate-configuration>
-	<session-factory name="">
+    <session-factory name="">
         <!-- Database connection settings -->
         <property name="connection.driver_class">org.hsqldb.jdbcDriver</property>
         <property name="connection.url">jdbc:hsqldb:mem:testdb;shutdown=false</property>
@@ -19,16 +19,16 @@
         <!-- Echo all executed SQL to stdout useful for debugging if set to true-->
         <property name="show_sql">false</property>
         <property name="hbm2ddl.auto">create</property>
-		
-    	<mapping resource="be/shad/tsqb/tests/customTypes.hbm.xml" />
-		<mapping class="be.shad.tsqb.domain.DomainObject" />
-		<mapping class="be.shad.tsqb.domain.Town" />
-		<mapping class="be.shad.tsqb.domain.Building" />
-		<mapping class="be.shad.tsqb.domain.House" />
-		<mapping class="be.shad.tsqb.domain.School" />
-		<mapping class="be.shad.tsqb.domain.people.Person" />
-		<mapping class="be.shad.tsqb.domain.people.PersonProperty" />
-		<mapping class="be.shad.tsqb.domain.people.Relation" />
-		
-	</session-factory>
+        
+        <mapping resource="be/shad/tsqb/tests/customTypes.hbm.xml" />
+        <mapping class="be.shad.tsqb.domain.DomainObject" />
+        <mapping class="be.shad.tsqb.domain.Town" />
+        <mapping class="be.shad.tsqb.domain.Building" />
+        <mapping class="be.shad.tsqb.domain.House" />
+        <mapping class="be.shad.tsqb.domain.School" />
+        <mapping class="be.shad.tsqb.domain.people.Person" />
+        <mapping class="be.shad.tsqb.domain.people.PersonProperty" />
+        <mapping class="be.shad.tsqb.domain.people.Relation" />
+        
+    </session-factory>
 </hibernate-configuration>
