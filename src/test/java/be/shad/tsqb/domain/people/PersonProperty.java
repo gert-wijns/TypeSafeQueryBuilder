@@ -13,40 +13,40 @@ import be.shad.tsqb.domain.DomainObject;
 @Entity
 @Table(name = "PersonProperty")
 public class PersonProperty extends DomainObject {
-	private static final long serialVersionUID = 3104165712544802569L;
+    private static final long serialVersionUID = 3104165712544802569L;
 
-	@ManyToOne(fetch = LAZY)
-	@JoinColumn(name = "PersonId", nullable = false)
-	private Person person;
-	
-	@Column(nullable = false)
-	private String propertyKey;
-	
-	@Column
-	private String propertyValue;
-	
-	public Person getPerson() {
-		return person;
-	}
-	
-	public void setPerson(Person person) {
-		this.person = person;
-	}
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "PersonId", nullable = false)
+    private Person person;
+    
+    @Column(nullable = false)
+    private String propertyKey;
+    
+    @Column
+    private String propertyValue;
+    
+    public Person getPerson() {
+        return person;
+    }
+    
+    public void setPerson(Person person) {
+        this.person = person;
+    }
 
-	public String getPropertyKey() {
-		return propertyKey;
-	}
+    public String getPropertyKey() {
+        return propertyKey;
+    }
 
-	public void setPropertyKey(String propertyKey) {
-		this.propertyKey = propertyKey;
-	}
+    public void setPropertyKey(String propertyKey) {
+        this.propertyKey = propertyKey;
+    }
 
-	public String getPropertyValue() {
-		return propertyValue;
-	}
+    public String getPropertyValue() {
+        return propertyValue;
+    }
 
-	public void setPropertyValue(String propertyValue) {
-		this.propertyValue = propertyValue;
-	}
-	
+    public void setPropertyValue(String propertyValue) {
+        this.propertyValue = propertyValue;
+    }
+    
 }

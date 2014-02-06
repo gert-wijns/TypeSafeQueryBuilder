@@ -47,117 +47,117 @@ import be.shad.tsqb.values.TypeSafeValueFunctions;
  * For an example, see {@link TypeSafeRootQuery}.
  */
 public interface TypeSafeQuery {
-	
-	<T> T from(Class<T> fromClass);
+    
+    <T> T from(Class<T> fromClass);
 
-	<T> T join(Collection<T> anyCollection);
-	<T> T join(T anyObject);
-	<T> T join(Collection<T> anyCollection, JoinType joinType);
-	<T> T join(T anyObject, JoinType joinType);
-	
-	/**
-	 * The object must be a TypeSafeQueryProxy, this will be validated at runtime.
-	 * @return TypeSafeQueryJoin which can be configured further for join specific configuration
-	 */
-	<T> TypeSafeQueryJoin<T> getJoin(T obj);
-	
-	RestrictionChainable where();
+    <T> T join(Collection<T> anyCollection);
+    <T> T join(T anyObject);
+    <T> T join(Collection<T> anyCollection, JoinType joinType);
+    <T> T join(T anyObject, JoinType joinType);
+    
+    /**
+     * The object must be a TypeSafeQueryProxy, this will be validated at runtime.
+     * @return TypeSafeQueryJoin which can be configured further for join specific configuration
+     */
+    <T> TypeSafeQueryJoin<T> getJoin(T obj);
+    
+    RestrictionChainable where();
 
-	/**
-	 * The general restrict by enum method. Anything which represents a number
-	 * can be used with this method.
-	 */
-	<E extends Enum<E>> OnGoingEnumRestriction<E> wheree(TypeSafeValue<E> value);
+    /**
+     * The general restrict by enum method. Anything which represents a number
+     * can be used with this method.
+     */
+    <E extends Enum<E>> OnGoingEnumRestriction<E> wheree(TypeSafeValue<E> value);
 
-	/**
-	 * The general restrict by enum method. Anything which represents a number
-	 * can be used with this method.
-	 */
-	<E extends Enum<E>> OnGoingSubQueryEnumRestriction<E> wheree(TypeSafeSubQuery<E> value);
+    /**
+     * The general restrict by enum method. Anything which represents a number
+     * can be used with this method.
+     */
+    <E extends Enum<E>> OnGoingSubQueryEnumRestriction<E> wheree(TypeSafeSubQuery<E> value);
 
-	/**
-	 * Restrict an enum value. This can be a direct value (an actual enum value),
-	 * or a value of a TypeSafeQueryProxy getter.
-	 */
-	<E extends Enum<E>> OnGoingEnumRestriction<E> where(E value);
-	
-	/**
-	 * The general restrict by boolean method. Anything which represents a boolean
-	 * can be used with this method.
-	 */
-	OnGoingBooleanRestriction whereb(TypeSafeValue<Boolean> value);
+    /**
+     * Restrict an enum value. This can be a direct value (an actual enum value),
+     * or a value of a TypeSafeQueryProxy getter.
+     */
+    <E extends Enum<E>> OnGoingEnumRestriction<E> where(E value);
+    
+    /**
+     * The general restrict by boolean method. Anything which represents a boolean
+     * can be used with this method.
+     */
+    OnGoingBooleanRestriction whereb(TypeSafeValue<Boolean> value);
 
-	/**
-	 * Restrict a boolean value. This can be a direct value (an actual boolean),
-	 * or a value of a TypeSafeQueryProxy getter. 
-	 */
-	OnGoingBooleanRestriction where(Boolean value);
+    /**
+     * Restrict a boolean value. This can be a direct value (an actual boolean),
+     * or a value of a TypeSafeQueryProxy getter. 
+     */
+    OnGoingBooleanRestriction where(Boolean value);
 
-	/**
-	 * The general restrict by number method. Anything which represents a number
-	 * can be used with this method.
-	 */
-	OnGoingNumberRestriction wheren(TypeSafeValue<Number> value);
+    /**
+     * The general restrict by number method. Anything which represents a number
+     * can be used with this method.
+     */
+    OnGoingNumberRestriction wheren(TypeSafeValue<Number> value);
 
-	/**
-	 * Restrict starting with a subquery, more specific than {@link #restrictn(TypeSafeValue)},
-	 * it has additional restrictions only available when subquerying.
-	 */
-	OnGoingSubQueryNumberRestriction wheren(TypeSafeSubQuery<Number> value);
+    /**
+     * Restrict starting with a subquery, more specific than {@link #restrictn(TypeSafeValue)},
+     * it has additional restrictions only available when subquerying.
+     */
+    OnGoingSubQueryNumberRestriction wheren(TypeSafeSubQuery<Number> value);
 
-	/**
-	 * Restrict a number value. This can be a direct value (an actual number),
-	 * or a value of a TypeSafeQueryProxy getter. 
-	 */
-	OnGoingNumberRestriction where(Number value);
+    /**
+     * Restrict a number value. This can be a direct value (an actual number),
+     * or a value of a TypeSafeQueryProxy getter. 
+     */
+    OnGoingNumberRestriction where(Number value);
 
-	/**
-	 * The general restrict by date method. Anything which represents a date
-	 * can be used with this method.
-	 */
-	OnGoingDateRestriction whered(TypeSafeValue<Date> value);
+    /**
+     * The general restrict by date method. Anything which represents a date
+     * can be used with this method.
+     */
+    OnGoingDateRestriction whered(TypeSafeValue<Date> value);
 
-	/**
-	 * Restrict starting with a subquery, more specific than {@link #restrictd(TypeSafeValue)},
-	 * it has additional restrictions only available when subquerying.
-	 */
-	OnGoingSubQueryDateRestriction whered(TypeSafeSubQuery<Date> value);
+    /**
+     * Restrict starting with a subquery, more specific than {@link #restrictd(TypeSafeValue)},
+     * it has additional restrictions only available when subquerying.
+     */
+    OnGoingSubQueryDateRestriction whered(TypeSafeSubQuery<Date> value);
 
-	/**
-	 * Restrict a number value. This can be a direct value (an actual date),
-	 * or a value of a TypeSafeQueryProxy getter. 
-	 */
-	OnGoingDateRestriction where(Date value);
+    /**
+     * Restrict a number value. This can be a direct value (an actual date),
+     * or a value of a TypeSafeQueryProxy getter. 
+     */
+    OnGoingDateRestriction where(Date value);
 
-	/**
-	 * The general restrict by string method. Anything which represents a string
-	 * can be used with this method.
-	 */
-	OnGoingTextRestriction wheret(TypeSafeValue<String> value);
+    /**
+     * The general restrict by string method. Anything which represents a string
+     * can be used with this method.
+     */
+    OnGoingTextRestriction wheret(TypeSafeValue<String> value);
 
-	/**
-	 * Restrict starting with a subquery, more specific than {@link #restrictt(TypeSafeValue)},
-	 * it has additional restrictions only available when subquerying.
-	 */
-	OnGoingSubQueryTextRestriction wheret(TypeSafeSubQuery<String> value);
+    /**
+     * Restrict starting with a subquery, more specific than {@link #restrictt(TypeSafeValue)},
+     * it has additional restrictions only available when subquerying.
+     */
+    OnGoingSubQueryTextRestriction wheret(TypeSafeSubQuery<String> value);
 
-	/**
-	 * Restrict a string value. This can be a direct value (an actual string),
-	 * or a value of a TypeSafeQueryProxy getter. 
-	 */
-	OnGoingTextRestriction where(String value);
-	
-	OnGoingOrderBy order();
-	
-	OnGoingGroupBy groupBy(Object value);
-	
-	<T> TypeSafeSubQuery<T> subquery(Class<T> resultClass);
+    /**
+     * Restrict a string value. This can be a direct value (an actual string),
+     * or a value of a TypeSafeQueryProxy getter. 
+     */
+    OnGoingTextRestriction where(String value);
+    
+    OnGoingOrderBy order();
+    
+    OnGoingGroupBy groupBy(Object value);
+    
+    <T> TypeSafeSubQuery<T> subquery(Class<T> resultClass);
 
-	/**
-	 * Build a value using a function. Use this method to create TypeSafeValue objects fluently.
-	 */
-	TypeSafeValueFunctions function();
-	
-	HqlQuery toHqlQuery();
-	
+    /**
+     * Build a value using a function. Use this method to create TypeSafeValue objects fluently.
+     */
+    TypeSafeValueFunctions function();
+    
+    HqlQuery toHqlQuery();
+    
 }

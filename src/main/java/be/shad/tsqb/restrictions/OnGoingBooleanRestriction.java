@@ -11,30 +11,30 @@ import be.shad.tsqb.values.TypeSafeValue;
  */
 public class OnGoingBooleanRestriction extends OnGoingRestriction<Boolean> {
 
-	public OnGoingBooleanRestriction(RestrictionImpl restriction, Boolean argument) {
-		super(restriction, argument);
-	}
+    public OnGoingBooleanRestriction(RestrictionImpl restriction, Boolean argument) {
+        super(restriction, argument);
+    }
 
-	public OnGoingBooleanRestriction(RestrictionImpl restriction, TypeSafeValue<Boolean> argument) {
-		super(restriction, argument);
-	}
+    public OnGoingBooleanRestriction(RestrictionImpl restriction, TypeSafeValue<Boolean> argument) {
+        super(restriction, argument);
+    }
 
-	/**
-	 * Generates: left = false
-	 */
-	public Restriction isFalse() {
-		restriction.setOperator(EQUAL);
-		restriction.setRight(new DirectTypeSafeValue<>(restriction.getQuery(), Boolean.FALSE));
-		return restriction;
-	}
+    /**
+     * Generates: left = false
+     */
+    public Restriction isFalse() {
+        restriction.setOperator(EQUAL);
+        restriction.setRight(new DirectTypeSafeValue<>(restriction.getQuery(), Boolean.FALSE));
+        return restriction;
+    }
 
-	/**
-	 * Generates: left = true
-	 */
-	public Restriction isTrue() {
-		restriction.setOperator(EQUAL);
-		restriction.setRight(new DirectTypeSafeValue<>(restriction.getQuery(), Boolean.TRUE));
-		return restriction;
-	}
-	
+    /**
+     * Generates: left = true
+     */
+    public Restriction isTrue() {
+        restriction.setOperator(EQUAL);
+        restriction.setRight(new DirectTypeSafeValue<>(restriction.getQuery(), Boolean.TRUE));
+        return restriction;
+    }
+    
 }

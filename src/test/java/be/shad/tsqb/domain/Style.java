@@ -1,5 +1,5 @@
 package be.shad.tsqb.domain;
 
 public enum Style {
-	the1980s
+    the1980s
 }

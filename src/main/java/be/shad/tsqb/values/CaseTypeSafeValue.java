@@ -4,13 +4,13 @@ import be.shad.tsqb.query.TypeSafeQueryInternal;
 
 public class CaseTypeSafeValue<T> extends TypeSafeValueImpl<T> {
 
-	protected CaseTypeSafeValue(TypeSafeQueryInternal query, Class<T> valueType) {
-		super(query, valueType);
-	}
+    protected CaseTypeSafeValue(TypeSafeQueryInternal query, Class<T> valueType) {
+        super(query, valueType);
+    }
 
-	@Override
-	public HqlQueryValue toHqlQueryValue() {
-		return null;
-	}
+    @Override
+    public HqlQueryValue toHqlQueryValue() {
+        return null;
+    }
 
 }

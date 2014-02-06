@@ -14,89 +14,89 @@ import be.shad.tsqb.domain.DomainObject;
 @Entity
 @Table(name = "Person")
 public class Person extends DomainObject {
-	private static final long serialVersionUID = -3748330536304370152L;
+    private static final long serialVersionUID = -3748330536304370152L;
 
-	public enum Sex {
-		Male,
-		Female,
-		Other
-	}
+    public enum Sex {
+        Male,
+        Female,
+        Other
+    }
 
-	@OneToMany(fetch = LAZY, mappedBy = "child", targetEntity = Relation.class)
-	private Set<Relation> childRelations;
-	
-	@OneToMany(fetch = LAZY, mappedBy = "parent", targetEntity = Relation.class)
-	private Set<Relation> parentRelations;
+    @OneToMany(fetch = LAZY, mappedBy = "child", targetEntity = Relation.class)
+    private Set<Relation> childRelations;
+    
+    @OneToMany(fetch = LAZY, mappedBy = "parent", targetEntity = Relation.class)
+    private Set<Relation> parentRelations;
 
-	@OneToMany(fetch = LAZY, mappedBy = "person", targetEntity = PersonProperty.class)
-	private Set<PersonProperty> properties;
-	
-	@Column
-	private String name;
-	
-	@Column
-	private int age;
-	
-	@Column
-	private Sex sex;
-	
-	@Column
-	private boolean married;
+    @OneToMany(fetch = LAZY, mappedBy = "person", targetEntity = PersonProperty.class)
+    private Set<PersonProperty> properties;
+    
+    @Column
+    private String name;
+    
+    @Column
+    private int age;
+    
+    @Column
+    private Sex sex;
+    
+    @Column
+    private boolean married;
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public int getAge() {
-		return age;
-	}
+    public int getAge() {
+        return age;
+    }
 
-	public void setAge(int age) {
-		this.age = age;
-	}
+    public void setAge(int age) {
+        this.age = age;
+    }
 
-	public Sex getSex() {
-		return sex;
-	}
+    public Sex getSex() {
+        return sex;
+    }
 
-	public void setSex(Sex sex) {
-		this.sex = sex;
-	}
-	
-	public boolean isMarried() {
-		return married;
-	}
-	
-	public void setMarried(boolean married) {
-		this.married = married;
-	}
+    public void setSex(Sex sex) {
+        this.sex = sex;
+    }
+    
+    public boolean isMarried() {
+        return married;
+    }
+    
+    public void setMarried(boolean married) {
+        this.married = married;
+    }
 
-	public Set<Relation> getChildRelations() {
-		return childRelations;
-	}
+    public Set<Relation> getChildRelations() {
+        return childRelations;
+    }
 
-	public void setChildRelations(Set<Relation> childRelations) {
-		this.childRelations = childRelations;
-	}
+    public void setChildRelations(Set<Relation> childRelations) {
+        this.childRelations = childRelations;
+    }
 
-	public Set<Relation> getParentRelations() {
-		return parentRelations;
-	}
+    public Set<Relation> getParentRelations() {
+        return parentRelations;
+    }
 
-	public void setParentRelations(Set<Relation> parentRelations) {
-		this.parentRelations = parentRelations;
-	}
-	
-	public Set<PersonProperty> getProperties() {
-		return properties;
-	}
-	
-	public void setProperties(Set<PersonProperty> properties) {
-		this.properties = properties;
-	}
-	
+    public void setParentRelations(Set<Relation> parentRelations) {
+        this.parentRelations = parentRelations;
+    }
+    
+    public Set<PersonProperty> getProperties() {
+        return properties;
+    }
+    
+    public void setProperties(Set<PersonProperty> properties) {
+        this.properties = properties;
+    }
+    
 }
