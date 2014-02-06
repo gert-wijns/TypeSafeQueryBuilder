@@ -269,5 +269,15 @@ public class ExamplesTest extends TypeSafeQueryTest {
         HqlQuery hql = doQuery(query);
         assertTrue(hql.getHql().equals("select hobj1.name, hobj1.age from Person hobj1 order by hobj1.name desc, hobj1.age"));
     }
-    
+
+    @Test
+    public void testUpperFunction() {
+        Person person = query.from(Person.class);
+        
+        query.wheret(query.function().upper(person.getName())).eq("TOM");
+
+        HqlQuery hql = doQuery(query);
+        assertTrue(hql.getHql().equals(" from Person hobj1 where upper(hobj1.name) = ?"));
+        
+    }
 }

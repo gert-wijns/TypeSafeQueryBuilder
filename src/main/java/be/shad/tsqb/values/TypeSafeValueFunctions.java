@@ -19,7 +19,7 @@ public class TypeSafeValueFunctions {
 
 
     public TypeSafeValue<Long> count() {
-        return new WrappedTypeSafeValue<>(query, "count", new CustomTypeSafeValue<>(query, Long.class, "*", null));
+        return new CustomTypeSafeValue<>(query, Long.class, "count(*)", null);
     }
     
     public <VAL> CoalesceTypeSafeValue<VAL> coalesce(VAL val) {
@@ -30,6 +30,22 @@ public class TypeSafeValueFunctions {
         CoalesceTypeSafeValue<VAL> coalesce = new CoalesceTypeSafeValue<>(query, val.getValueClass());
         coalesce.or(val);
         return coalesce;
+    }
+
+    public TypeSafeValue<String> upper(String val) {
+        return upper(query.toValue(val));
+    }
+
+    public TypeSafeValue<String> upper(TypeSafeValue<String> val) {
+        return new WrappedTypeSafeValue<>(query, "upper", val);
+    }
+    
+    public TypeSafeValue<String> lower(String val) {
+        return upper(query.toValue(val));
+    }
+
+    public TypeSafeValue<String> lower(TypeSafeValue<String> val) {
+        return new WrappedTypeSafeValue<>(query, "lower", val);
     }
     
     public <N extends Number> TypeSafeValue<N> min(N n) {
