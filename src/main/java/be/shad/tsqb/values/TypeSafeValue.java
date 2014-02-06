@@ -1,6 +1,15 @@
 package be.shad.tsqb.values;
 
-public interface TypeSafeValue<V extends Object> extends HqlQueryValueBuilder {
+/**
+ * The TypeSafeValue is a wrapper which represents a generic value type.
+ * <p>
+ * Most method calls which accept Strings/Numbers/basic types convert the
+ * input data and pass it on to a method which accepts a TypeSafeValue.
+ * <p>
+ * This wrapper extends the HqlQueryValueBuilder to be able to convert 
+ * it and add it to the HqlQuery when the query is converted.
+ */
+public interface TypeSafeValue<V> extends HqlQueryValueBuilder {
     
     /**
      * @return the type represented by this type safe value.

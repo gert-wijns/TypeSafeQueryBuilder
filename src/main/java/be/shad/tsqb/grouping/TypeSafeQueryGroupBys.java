@@ -27,36 +27,57 @@ public class TypeSafeQueryGroupBys implements HqlQueryBuilder, OnGoingGroupBy {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public OnGoingGroupBy and(Number val) {
         return add(val);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public OnGoingGroupBy and(String val) {
         return add(val);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public OnGoingGroupBy and(Enum<?> val) {
         return add(val);
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public OnGoingGroupBy and(Boolean val) {
         return add(val);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public OnGoingGroupBy and(Date val) {
         return add(val);
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public OnGoingGroupBy and(TypeSafeValue<?> val) {
         return add(val);
     }
     
+    /**
+     * Adds to the list and returns this to support method chaining.
+     */
     private OnGoingGroupBy add(Object val) {
         values.add(query.toValue(val));
         return this;

@@ -9,6 +9,12 @@ import javassist.util.proxy.MethodHandler;
 import javassist.util.proxy.ProxyFactory;
 import javassist.util.proxy.ProxyObject;
 
+/**
+ * Provides the proxies using javaassist.
+ * <p>
+ * the proxied classes are cached for faster proxy creation and
+ * to prevent extra class creations everytime a proxy is requested.
+ */
 public final class TypeSafeQueryProxyFactory {
     private static final MethodFilter METHOD_FILTER = new MethodFilter() {
         public boolean isHandled(Method m) {

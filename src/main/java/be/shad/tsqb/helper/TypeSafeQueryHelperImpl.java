@@ -28,12 +28,17 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
         this.sessionFactory = sessionFactory;
         this.proxyFactory = new TypeSafeQueryProxyFactory();
     }
-    
+    /**
+     * Checks in hibernate to see if the clazz is an entity.
+     */
     private boolean isEntity(Class<?> clazz) {
         ClassMetadata meta = sessionFactory.getClassMetadata(clazz);
         return meta != null;
     }
 
+    /**
+     * Retrieves the type information from hibernate.
+     */
     private Class<?> getTargetEntityClass(Class<?> fromClass, String property) {
         ClassMetadata meta = sessionFactory.getClassMetadata(fromClass);
         Type propertyType = meta.getPropertyType(property);
@@ -46,21 +51,25 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
         return propertyType.getReturnedClass();
     }
     
-    @Override
-    public TypeSafeQueryProxyFactory getTypeSafeProxyFactory() {
-        return proxyFactory;
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getEntityName(Class<?> entityClass) {
         return sessionFactory.getClassMetadata(entityClass).getEntityName();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public TypeSafeRootQuery createQuery() {
         return new TypeSafeRootQueryImpl(this);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public <T> T createTypeSafeSelectProxy(final TypeSafeRootQueryInternal query, Class<T> clazz) {
         T proxy = proxyFactory.getProxyInstance(clazz);
@@ -76,7 +85,10 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
         query.getProjections().setResultClass(clazz);
         return proxy;
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public <T> T createTypeSafeFromProxy(TypeSafeQueryInternal query, Class<T> clazz) {
         T proxy = proxyFactory.getProxyInstance(clazz);

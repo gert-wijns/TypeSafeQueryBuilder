@@ -6,9 +6,15 @@ import be.shad.tsqb.query.TypeSafeSubQuery;
 import be.shad.tsqb.values.TypeSafeValue;
 
 public interface RestrictionChainable {
-    
+
+    /**
+     * Adds the 'and exists(subquery)' to the chain.
+     */
     RestrictionChainable andExists(TypeSafeSubQuery<?> subquery);
 
+    /**
+     * Adds the 'or exists(subquery)' to the chain.
+     */
     RestrictionChainable orExists(TypeSafeSubQuery<?> subquery);
     
     /**

@@ -4,7 +4,11 @@ import java.util.Collection;
 
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 
-public class CollectionTypeSafeValue<T extends Object> extends TypeSafeValueImpl<T> {
+/**
+ * The value is a collection of actual values, not proxies or property paths.
+ * These values are added to the query as params.
+ */
+public class CollectionTypeSafeValue<T> extends TypeSafeValueImpl<T> {
     private Collection<T> value;
     
     public CollectionTypeSafeValue(TypeSafeQueryInternal query, Collection<T> value) {

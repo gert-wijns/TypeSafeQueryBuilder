@@ -8,6 +8,9 @@ import be.shad.tsqb.restrictions.RestrictionChainable;
 import be.shad.tsqb.restrictions.RestrictionsGroup;
 import be.shad.tsqb.values.TypeSafeValue;
 
+/**
+ * Links a proxy data with its restrictions.
+ */
 public class TypeSafeQueryJoin<T> {
     private final TypeSafeQueryProxyData data;
     private final RestrictionsGroup restrictions;
@@ -31,7 +34,10 @@ public class TypeSafeQueryJoin<T> {
     }
     
     /**
-     * 
+     * Kickoff for the restriction chainable.
+     * <p>
+     * It is probably preferrable to use one of the other with(...)
+     * methods, but the result would be the same as calling with().and(...).
      */
     public RestrictionChainable with() {
         return restrictions;
@@ -64,7 +70,5 @@ public class TypeSafeQueryJoin<T> {
     public OnGoingTextRestriction witht(TypeSafeValue<String> value) {
         return restrictions.andt(value);
     }
-    
-    
-    
+
 }

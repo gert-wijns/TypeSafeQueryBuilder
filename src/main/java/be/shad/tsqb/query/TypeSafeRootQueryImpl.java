@@ -7,6 +7,9 @@ import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.helper.TypeSafeQueryHelper;
 import be.shad.tsqb.values.TypeSafeValue;
 
+/**
+ * Maintains the invocationQueue, provides the entity aliases and buffers the last selected value.
+ */
 public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements TypeSafeRootQuery, TypeSafeRootQueryInternal {
     
     private List<TypeSafeQueryProxyData> invocationQueue = new LinkedList<>();
@@ -19,22 +22,24 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     }
 
     /**
-     * Track calls on the created proxies.
+     * {@inheritDoc}
      */
     public void invocationWasMade(TypeSafeQueryProxyData data) {
         invocationQueue.add(data);
     }
 
     /**
-     * Dequeue all proxy calls and use them to append
-     * items to the query.
+     * {@inheritDoc}
      */
     public List<TypeSafeQueryProxyData> dequeueInvocations() {
         List<TypeSafeQueryProxyData> old = invocationQueue;
         invocationQueue = new LinkedList<>();
         return old;
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public TypeSafeQueryProxyData dequeueInvocation() {
         List<TypeSafeQueryProxyData> invocations = dequeueInvocations();
@@ -48,16 +53,25 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
         return invocations.get(0);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String createEntityAlias() {
         return "hobj"+ entityAliasCount++;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void selectValue(Object value) {
         getProjections().project(value, null);
     }
     
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public <T> T select(Class<T> resultClass) {
         return helper.createTypeSafeSelectProxy(this, resultClass);
@@ -79,6 +93,9 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
         return null;
     }
     
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public TypeSafeValue<?> dequeueSelectedValue() {
         TypeSafeValue<?> value = lastSelectedValue;

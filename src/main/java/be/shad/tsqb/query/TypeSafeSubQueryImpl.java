@@ -9,7 +9,14 @@ import be.shad.tsqb.values.HqlQueryValue;
 import be.shad.tsqb.values.HqlQueryValueImpl;
 import be.shad.tsqb.values.TypeSafeValue;
 
-public class TypeSafeSubQueryImpl<T extends Object> extends AbstractTypeSafeQuery implements TypeSafeSubQuery<T> {
+/**
+ * Mostly delegates methods to the root query.
+ * <p>
+ * Overrides the isInScope method to also check parent queries.
+ * 
+ * @see TypeSafeSubQuery
+ */
+public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements TypeSafeSubQuery<T> {
     private TypeSafeQueryInternal parentQuery;
     private final Class<T> valueClass;
 

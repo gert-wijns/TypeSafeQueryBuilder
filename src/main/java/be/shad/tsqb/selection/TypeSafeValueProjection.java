@@ -4,6 +4,13 @@ import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.values.HqlQueryValue;
 import be.shad.tsqb.values.TypeSafeValue;
 
+/**
+ * Couples a value to a selection alias.
+ * <p>
+ * The value can be anything, created by a function, a custom value, a subquery, a referenced value and so on.
+ * <p>
+ * The propertyName represents the alias of this value in the select clause.
+ */
 public class TypeSafeValueProjection implements TypeSafeProjection {
     private final TypeSafeValue<?> value;
     private final String propertyName;

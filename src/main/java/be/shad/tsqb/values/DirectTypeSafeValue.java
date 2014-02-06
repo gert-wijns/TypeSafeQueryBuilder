@@ -2,7 +2,10 @@ package be.shad.tsqb.values;
 
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 
-
+/**
+ * The value is an actual value, not a proxy or property path.
+ * This value is added as param to the query.
+ */
 public class DirectTypeSafeValue<T> extends TypeSafeValueImpl<T> {
     private T value;
     

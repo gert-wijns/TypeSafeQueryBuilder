@@ -18,65 +18,101 @@ public class TypeSafeQueryOrderBys implements OnGoingOrderBy, HqlQueryBuilder {
     }
 
     private OnGoingOrderBy orderBy(Object val, boolean desc) {
-        orderBys.add(new OrderByBase(query.toValue(val), desc));
+        orderBys.add(new OrderByImpl(query.toValue(val), desc));
         return this;
     }
     
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public OnGoingOrderBy desc(Number val) {
         return orderBy(val, true);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public OnGoingOrderBy desc(String val) {
         return orderBy(val, true);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public OnGoingOrderBy desc(Enum<?> val) {
         return orderBy(val, true);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public OnGoingOrderBy desc(Boolean val) {
         return orderBy(val, true);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public OnGoingOrderBy desc(Date val) {
         return orderBy(val, true);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public OnGoingOrderBy desc(TypeSafeValue<?> val) {
         return orderBy(val, true);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public OnGoingOrderBy asc(Number val) {
         return orderBy(val, false);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public OnGoingOrderBy asc(String val) {
         return orderBy(val, false);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public OnGoingOrderBy asc(Enum<?> val) {
         return orderBy(val, false);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public OnGoingOrderBy asc(Boolean val) {
         return orderBy(val, false);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public OnGoingOrderBy asc(Date val) {
         return orderBy(val, false);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public OnGoingOrderBy asc(TypeSafeValue<?> val) {
         return orderBy(val, false);

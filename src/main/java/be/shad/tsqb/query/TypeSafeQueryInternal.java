@@ -37,7 +37,8 @@ public interface TypeSafeQueryInternal {
     <VAL> TypeSafeValue<VAL> toValue(VAL val);
 
     /**
-     * Enqueues an invocation.
+     * Enqueues an invocation. The queue tracks all invocations made on the entity proxies 
+     * created for this query or one of its subqueries.
      */
     void invocationWasMade(TypeSafeQueryProxyData data);
     

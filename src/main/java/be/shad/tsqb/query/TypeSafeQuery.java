@@ -44,16 +44,46 @@ import be.shad.tsqb.values.TypeSafeValueFunctions;
  */
 public interface TypeSafeQuery {
     
+    /**
+     * Creates a proxy for the given fromClass.
+     * <p>
+     * Multiple calls are allowed to create from clauses with multiple entities.
+     * This may be useful when the queries have no direct relation in hibernate,
+     * but the relation can be expressed in the restrictions afterwards.
+     */
     <T> T from(Class<T> fromClass);
 
+    /**
+     * Delegates to {@link #join(Collection, JoinType)} with {@link JoinType#Inner}
+     */
     <T> T join(Collection<T> anyCollection);
+    
+    /**
+     * Delegates to {@link #join(Object, JoinType)} with {@link JoinType#Inner}
+     */
     <T> T join(T anyObject);
+    
+    /**
+     * Joins an entity collection, returns a proxy of the joined entity type.
+     * The method calls of the proxy will be captured to assist with the query building.
+     * <p>
+     * The type is fetched from hibernate.
+     */
     <T> T join(Collection<T> anyCollection, JoinType joinType);
+    
+    /**
+     * Joins an entity, returns a proxy of the joined entity type.
+     * The method calls of the proxy will be captured to assist with the query building.
+     * <p>
+     * The type is fetched from hibernate.
+     */
     <T> T join(T anyObject, JoinType joinType);
     
     /**
      * The object must be a TypeSafeQueryProxy, this will be validated at runtime.
+     * 
      * @return TypeSafeQueryJoin which can be configured further for join specific configuration
+     * @throws IllegalArgumentException if the object is not an entity proxy.
      */
     <T> TypeSafeQueryJoin<T> getJoin(T obj);
     
@@ -129,16 +159,34 @@ public interface TypeSafeQuery {
      */
     OnGoingOrderBy orderBy();
 
+    /**
+     * Converts to a TypeSafeValue and delegates to {@link #groupBy(TypeSafeValue)}.
+     */
     OnGoingGroupBy groupBy(Number val);
 
+    /**
+     * Converts to a TypeSafeValue and delegates to {@link #groupBy(TypeSafeValue)}.
+     */
     OnGoingGroupBy groupBy(String val);
-    
+
+    /**
+     * Converts to a TypeSafeValue and delegates to {@link #groupBy(TypeSafeValue)}.
+     */
     OnGoingGroupBy groupBy(Enum<?> val);
 
+    /**
+     * Converts to a TypeSafeValue and delegates to {@link #groupBy(TypeSafeValue)}.
+     */
     OnGoingGroupBy groupBy(Boolean val);
-    
+
+    /**
+     * Converts to a TypeSafeValue and delegates to {@link #groupBy(TypeSafeValue)}.
+     */
     OnGoingGroupBy groupBy(Date val);
 
+    /**
+     * Adds the value to the list of values to group by.
+     */
     OnGoingGroupBy groupBy(TypeSafeValue<?> val);
     
     /**

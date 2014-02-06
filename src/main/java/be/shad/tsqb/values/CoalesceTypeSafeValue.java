@@ -5,6 +5,10 @@ import java.util.List;
 
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 
+/**
+ * Represents a coalesce function. A coalesce is a fallback where the first 
+ * value in the list which is not null is selected.
+ */
 public class CoalesceTypeSafeValue<T> extends TypeSafeValueImpl<T> {
     private List<TypeSafeValue<T>> values = new LinkedList<>();
     

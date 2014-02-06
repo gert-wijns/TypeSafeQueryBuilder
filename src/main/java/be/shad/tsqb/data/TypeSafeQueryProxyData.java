@@ -6,6 +6,8 @@ import java.util.LinkedHashMap;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
 import be.shad.tsqb.query.JoinType;
 
+/**
+ */
 public class TypeSafeQueryProxyData {
 
     private final LinkedHashMap<String, TypeSafeQueryProxyData> children = new LinkedHashMap<>();

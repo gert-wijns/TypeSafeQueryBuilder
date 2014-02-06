@@ -67,6 +67,9 @@ public class TypeSafeQueryFrom implements HqlQueryBuilder {
         query.addParams(from.getParams());
     }
 
+    /**
+     * Convert the join type to a string.
+     */
     private String getJoinTypeString(JoinType joinType) {
         switch (joinType) {
             case Fetch: return "join fetch";

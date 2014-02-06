@@ -3,7 +3,9 @@ package be.shad.tsqb.values;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 
 /**
- * Wraps a value in a function.
+ * Wraps a value in a function. 
+ * Examples uses are {@link TypeSafeValueFunctions#sum(Number) sum(...)},
+ * {@link TypeSafeValueFunctions#max(Number) max(...)} etc.
  */
 public class WrappedTypeSafeValue<T> extends TypeSafeValueImpl<T> {
     private String function; // sum/max/min/trim/count/...

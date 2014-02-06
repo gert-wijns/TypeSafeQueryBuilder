@@ -3,6 +3,10 @@ package be.shad.tsqb.values;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Wraps an hql stringbuilder and params and provides 
+ * convenient methods to append to them.
+ */
 public class HqlQueryValueImpl implements HqlQueryValue {
     private List<Object> params = new LinkedList<>();
     private StringBuilder hql;

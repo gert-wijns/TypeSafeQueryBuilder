@@ -28,6 +28,9 @@ import be.shad.tsqb.values.ReferenceTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValueFunctions;
 
+/**
+ * Collects the data and creates the hqlQuery based on this data.
+ */
 public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQueryInternal {
     protected final TypeSafeQueryHelper helper;
     private TypeSafeRootQueryInternal rootQuery;
@@ -42,44 +45,70 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
         this.helper = helper;
         this.dataTree = new TypeSafeQueryProxyDataTree(helper, this);
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public TypeSafeQueryProxyDataTree getDataTree() {
         return dataTree;
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public TypeSafeRootQueryInternal getRootQuery() {
         return rootQuery;
     }
     
-    public void setRootQuery(TypeSafeRootQueryInternal rootQuery) {
+    /**
+     * Allow subclasses to set the rootQuery.
+     */
+    protected void setRootQuery(TypeSafeRootQueryInternal rootQuery) {
         this.rootQuery = rootQuery;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public <T> T from(Class<T> fromClass) {
         return helper.createTypeSafeFromProxy(this, fromClass);
     }
     
-
+    /**
+     * {@inheritDoc}
+     */
     public <T> T join(Collection<T> anyCollection) {
         return join(anyCollection, JoinType.Inner);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public <T> T join(T anyObject) {
         return join(anyObject, JoinType.Inner);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @SuppressWarnings("unchecked")
     public <T> T join(Collection<T> anyCollection, JoinType joinType) {
         return (T) join(joinType);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @SuppressWarnings("unchecked")
     public <T> T join(T anyObject, JoinType joinType) {
         return (T) join(joinType);
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public <T> TypeSafeQueryJoin<T> getJoin(T obj) {
         if(!(obj instanceof TypeSafeQueryProxy)) {
@@ -88,6 +117,9 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
         return dataTree.getJoin(((TypeSafeQueryProxy) obj).getTypeSafeProxyData());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     private TypeSafeQueryProxy join(JoinType joinType) {
         List<TypeSafeQueryProxyData> invocations = rootQuery.dequeueInvocations();
         if( invocations.size() != 1 ) {
@@ -99,11 +131,17 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
         return data.getProxy();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public RestrictionChainable where() {
         return restrictions;
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public RestrictionChainable whereExists(TypeSafeSubQuery<?> subquery) {
         return restrictions.andExists(subquery);
@@ -196,31 +234,49 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
         return orderBys;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public OnGoingGroupBy groupBy(Number val) {
         return groupBys.and(val);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public OnGoingGroupBy groupBy(String val) {
         return groupBys.and(val);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public OnGoingGroupBy groupBy(Enum<?> val) {
         return groupBys.and(val);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public OnGoingGroupBy groupBy(Boolean val) {
         return groupBys.and(val);
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public OnGoingGroupBy groupBy(Date val) {
         return groupBys.and(val);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public OnGoingGroupBy groupBy(TypeSafeValue<?> val) {
         return groupBys.and(val);
@@ -244,34 +300,57 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * 
+     * Delegates to the dataTree.
+     */
     public boolean isInScope(TypeSafeQueryProxyData data, TypeSafeQueryProxyData join) {
         return dataTree.isInScope(data, join);
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
     public TypeSafeQueryProjections getProjections() {
         return projections;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public RestrictionsGroup getRestrictions() {
         return restrictions;
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public TypeSafeQueryGroupBys getGroupBys() {
         return groupBys;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public TypeSafeQueryOrderBys getOrderBys() {
         return orderBys;
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public <T> TypeSafeSubQuery<T> subquery(Class<T> clazz) {
         return new TypeSafeSubQueryImpl<>(clazz, helper, this);
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public TypeSafeValueFunctions function() {
         return new TypeSafeValueFunctions(this);
@@ -302,6 +381,5 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
         
         return query;
     }
-    
     
 }

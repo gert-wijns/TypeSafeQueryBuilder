@@ -2,6 +2,9 @@ package be.shad.tsqb.values;
 
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 
+/**
+ * Provides a bunch of functions, this list may grow in time.
+ */
 public class TypeSafeValueFunctions {
     private final TypeSafeQueryInternal query;
 

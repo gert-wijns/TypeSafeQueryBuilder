@@ -14,6 +14,9 @@ import be.shad.tsqb.joins.TypeSafeQueryJoin;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 
+/**
+ * Contains the proxy data, the from and the joined entities data known in the query.
+ */
 public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder {
     private final List<TypeSafeQueryFrom> froms = new ArrayList<>();
     private final Map<TypeSafeQueryProxyData, TypeSafeQueryJoin<?>> joins = new HashMap<>();
