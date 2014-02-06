@@ -2,17 +2,24 @@ package be.shad.tsqb.test;
 
 import java.util.Arrays;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.junit.Before;
+import org.junit.Rule;
+import org.junit.rules.TestName;
 
 import be.shad.tsqb.helper.TypeSafeQueryHelperImpl;
 import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.query.TypeSafeRootQuery;
 
 public class TypeSafeQueryTest {
-
+	
+	private final Logger logger = LogManager.getLogger(getClass());
+	@Rule public TestName name = new TestName();
+	
     private SessionFactory sessionFactory;
     private TypeSafeQueryHelperImpl helper;
 
@@ -56,12 +63,8 @@ public class TypeSafeQueryTest {
 			query.setParameter(i, params[i]);
 		}
 		
-		// don't look here, it's just to print the class+method name of the caller site... debug purposes!
-		String dirty = Thread.currentThread().getStackTrace()[2].toString();
-		dirty = dirty.substring(0, dirty.indexOf('('));
-		dirty = dirty.substring(dirty.substring(0, dirty.lastIndexOf('.')).lastIndexOf('.') + 1);
-		System.out.println("\n\n" + dirty + ":\n" + hqlQuery.getHql() + 
-				"\n--- params: " + Arrays.toString(hqlQuery.getParams()));
+		logger.debug(String.format("%s:\n %s\n--- params: %s\n", name.getMethodName(), 
+				hqlQuery.getHql(), Arrays.toString(hqlQuery.getParams())));
 		
 		// call the list, this is the moment of truth:
 		query.list();
