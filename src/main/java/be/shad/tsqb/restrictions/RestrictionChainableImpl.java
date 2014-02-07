@@ -148,4 +148,36 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable, 
         return new OnGoingNumberRestriction(or(), value);
     }
     
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public OnGoingBooleanRestriction or(Boolean value) {
+        return new OnGoingBooleanRestriction(or(), value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public OnGoingDateRestriction or(Date value) {
+        return new OnGoingDateRestriction(or(), value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public OnGoingBooleanRestriction orb(TypeSafeValue<Boolean> value) {
+        return new OnGoingBooleanRestriction(or(), value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public OnGoingDateRestriction ord(TypeSafeValue<Date> value) {
+        return new OnGoingDateRestriction(or(), value);
+    }
+    
 }

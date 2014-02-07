@@ -90,13 +90,37 @@ public interface RestrictionChainable {
     OnGoingTextRestriction and(String value);
 
     /**
+     * Restrict a date value. This can be a direct value (an actual date),
+     * or a value of a TypeSafeQueryProxy getter. 
+     */
+    OnGoingDateRestriction or(Date value);
+
+    /**
+     * The general restrict by date method. Anything which represents a date
+     * can be used with this method.
+     */
+    OnGoingDateRestriction ord(TypeSafeValue<Date> value);
+    
+    /**
+     * Restrict a boolean value. This can be a direct value (an actual boolean),
+     * or a value of a TypeSafeQueryProxy getter. 
+     */
+    OnGoingBooleanRestriction or(Boolean value);
+
+    /**
+     * The general restrict by boolean method. Anything which represents a boolean
+     * can be used with this method.
+     */
+    OnGoingBooleanRestriction orb(TypeSafeValue<Boolean> value);
+    
+    /**
      * The general restrict by number method. Anything which represents a number
      * can be used with this method.
      */
     OnGoingNumberRestriction orn(TypeSafeValue<Number> value);
 
     /**
-     * Restrict a number value. This can be a direct value (an actual string),
+     * Restrict a number value. This can be a direct value (an actual number),
      * or a value of a TypeSafeQueryProxy getter. 
      */
     OnGoingNumberRestriction or(Number value);
