@@ -3,7 +3,7 @@ package be.shad.tsqb.values;
 import java.util.LinkedList;
 import java.util.List;
 
-import be.shad.tsqb.query.TypeSafeQueryInternal;
+import be.shad.tsqb.query.TypeSafeQuery;
 
 /**
  * Represents a coalesce function. A coalesce is a fallback where the first 
@@ -12,7 +12,7 @@ import be.shad.tsqb.query.TypeSafeQueryInternal;
 public class CoalesceTypeSafeValue<T> extends TypeSafeValueImpl<T> {
     private List<TypeSafeValue<T>> values = new LinkedList<>();
     
-    public CoalesceTypeSafeValue(TypeSafeQueryInternal query, Class<T> valueType) {
+    public CoalesceTypeSafeValue(TypeSafeQuery query, Class<T> valueType) {
         super(query, valueType);
     }
 

@@ -9,7 +9,7 @@ import be.shad.tsqb.ordering.TypeSafeQueryOrderBys;
 import be.shad.tsqb.restrictions.RestrictionsGroup;
 import be.shad.tsqb.values.TypeSafeValue;
 
-public interface TypeSafeQueryInternal {
+public interface TypeSafeQueryInternal extends TypeSafeQuery {
 
     /**
      * @return the parent in case this is a subquery.

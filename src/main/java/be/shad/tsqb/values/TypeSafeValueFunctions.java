@@ -44,7 +44,7 @@ public class TypeSafeValueFunctions {
     }
     
     public TypeSafeValue<String> lower(String val) {
-        return upper(query.toValue(val));
+        return lower(query.toValue(val));
     }
 
     public TypeSafeValue<String> lower(TypeSafeValue<String> val) {

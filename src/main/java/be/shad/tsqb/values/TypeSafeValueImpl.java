@@ -1,5 +1,6 @@
 package be.shad.tsqb.values;
 
+import be.shad.tsqb.query.TypeSafeQuery;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 
 /**
@@ -11,8 +12,9 @@ public abstract class TypeSafeValueImpl<T> implements TypeSafeValue<T> {
     protected final TypeSafeQueryInternal query;
     private final Class<T> valueType;
     
-    protected TypeSafeValueImpl(TypeSafeQueryInternal query, Class<T> valueType) {
-        this.query = query;
+    protected TypeSafeValueImpl(TypeSafeQuery query, Class<T> valueType) {
+        // all queries are internal queries - the internal query just hides some methods from the API 
+        this.query = (TypeSafeQueryInternal) query; 
         this.valueType = valueType;
     }
 

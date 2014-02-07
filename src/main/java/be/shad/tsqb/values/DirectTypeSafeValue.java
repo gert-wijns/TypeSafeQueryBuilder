@@ -1,6 +1,6 @@
 package be.shad.tsqb.values;
 
-import be.shad.tsqb.query.TypeSafeQueryInternal;
+import be.shad.tsqb.query.TypeSafeQuery;
 
 /**
  * The value is an actual value, not a proxy or property path.
@@ -10,7 +10,7 @@ public class DirectTypeSafeValue<T> extends TypeSafeValueImpl<T> {
     private T value;
     
     @SuppressWarnings("unchecked")
-    public DirectTypeSafeValue(TypeSafeQueryInternal query, T value) {
+    public DirectTypeSafeValue(TypeSafeQuery query, T value) {
         super(query, (Class<T>) value.getClass());
         this.value = value;
     }

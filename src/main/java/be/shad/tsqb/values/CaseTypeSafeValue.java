@@ -1,6 +1,6 @@
 package be.shad.tsqb.values;
 
-import be.shad.tsqb.query.TypeSafeQueryInternal;
+import be.shad.tsqb.query.TypeSafeQuery;
 
 /**
  * Represents a case when() then ... else ... end.
@@ -8,7 +8,7 @@ import be.shad.tsqb.query.TypeSafeQueryInternal;
 public class CaseTypeSafeValue<T> extends TypeSafeValueImpl<T> {
     // TODO add implementation (currently javadoc-ing)
 
-    protected CaseTypeSafeValue(TypeSafeQueryInternal query, Class<T> valueType) {
+    protected CaseTypeSafeValue(TypeSafeQuery query, Class<T> valueType) {
         super(query, valueType);
     }
 
