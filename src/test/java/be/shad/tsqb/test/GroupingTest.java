@@ -1,11 +1,8 @@
 package be.shad.tsqb.test;
 
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Test;
 
 import be.shad.tsqb.domain.Building;
-import be.shad.tsqb.hql.HqlQuery;
 
 public class GroupingTest extends TypeSafeQueryTest {
 
@@ -15,8 +12,7 @@ public class GroupingTest extends TypeSafeQueryTest {
         query.selectValue(building.getConstructionDate());
         query.groupBy(building.getConstructionDate());
 
-        HqlQuery hql = doQuery(query);
-        assertTrue("group by date", hql.getHql().equals("select hobj1.constructionDate from Building hobj1 group by hobj1.constructionDate"));
+        validate("select hobj1.constructionDate from Building hobj1 group by hobj1.constructionDate");
     }
 
     @Test
@@ -27,11 +23,9 @@ public class GroupingTest extends TypeSafeQueryTest {
         query.groupBy(building.getConstructionDate()).
               and(building.getStyle());
 
-        HqlQuery hql = doQuery(query);
-        assertTrue("group by date and style", hql.getHql().equals(
-                "select hobj1.constructionDate, hobj1.style "
+        validate("select hobj1.constructionDate, hobj1.style "
                 + "from Building hobj1 "
-                + "group by hobj1.constructionDate, hobj1.style"));
+                + "group by hobj1.constructionDate, hobj1.style");
     }
     
 }

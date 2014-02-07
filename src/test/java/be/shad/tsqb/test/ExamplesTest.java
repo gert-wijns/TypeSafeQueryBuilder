@@ -1,9 +1,5 @@
 package be.shad.tsqb.test;
 
-import static org.junit.Assert.assertTrue;
-
-import java.util.Arrays;
-
 import org.junit.Test;
 
 import be.shad.tsqb.domain.people.Person;
@@ -11,7 +7,6 @@ import be.shad.tsqb.domain.people.Person.Sex;
 import be.shad.tsqb.domain.people.PersonProperty;
 import be.shad.tsqb.domain.people.Relation;
 import be.shad.tsqb.dto.PersonDto;
-import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.joins.TypeSafeQueryJoin;
 import be.shad.tsqb.query.JoinType;
 import be.shad.tsqb.query.TypeSafeSubQuery;
@@ -27,8 +22,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
     public void testObtainQuery() {
         Person person = query.from(Person.class);
         
-        HqlQuery hql = doQuery(query);
-        assertTrue(hql.getHql().equals(" from Person hobj1"));
+        validate(" from Person hobj1");
     }
     
     /**
@@ -40,9 +34,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
         
         query.where(person.getAge()).gt(50);
 
-        HqlQuery hql = doQuery(query);
-        assertTrue(hql.getHql().equals(" from Person hobj1 where hobj1.age > ?"));
-        assertTrue(Arrays.asList(hql.getParams()).equals(Arrays.asList(50)));
+        validate(" from Person hobj1 where hobj1.age > ?", 50);
     }
     
     /**
@@ -55,9 +47,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
         query.where(person.isMarried()).isTrue().  // type based checks available
                 and(person.getSex()).eq(Sex.Male); // can chain restrictions
 
-        HqlQuery hql = doQuery(query);
-        assertTrue(hql.getHql().equals(" from Person hobj1 where hobj1.married = ? and hobj1.sex = ?"));
-        assertTrue(Arrays.asList(hql.getParams()).equals(Arrays.asList(Boolean.TRUE, Sex.Male)));
+        validate(" from Person hobj1 where hobj1.married = ? and hobj1.sex = ?", Boolean.TRUE, Sex.Male);
     }
     
     /**
@@ -72,9 +62,8 @@ public class ExamplesTest extends TypeSafeQueryTest {
                  and(person.getName()).startsWith("Jef").
                  or(person.getName()).startsWith("John"));
 
-        HqlQuery hql = doQuery(query);
-        assertTrue(hql.getHql().equals(" from Person hobj1 where hobj1.married = ? and (hobj1.name like ? or hobj1.name like ?)"));
-        assertTrue(Arrays.asList(hql.getParams()).equals(Arrays.asList(Boolean.TRUE, "Jef%", "John%")));
+        validate(" from Person hobj1 where hobj1.married = ? and (hobj1.name like ? or hobj1.name like ?)", 
+                Boolean.TRUE, "Jef%", "John%");
     }
 
     /**
@@ -89,8 +78,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
         personDto.setPersonAge(person.getAge());
         personDto.setThePersonsName(person.getName());
 
-        HqlQuery hql = doQuery(query);
-        assertTrue(hql.getHql().equals("select hobj1.age as personAge, hobj1.name as thePersonsName from Person hobj1"));
+        validate("select hobj1.age as personAge, hobj1.name as thePersonsName from Person hobj1");
     }
 
     @Test
@@ -105,8 +93,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
         query.selectValue(personSQ);
         query.selectValue(person.isMarried());
 
-        HqlQuery hql = doQuery(query);
-        assertTrue(hql.getHql().equals("select (select hobj2.name from Person hobj2 where hobj1.id = hobj2.id), hobj1.married from Person hobj1"));
+        validate("select (select hobj2.name from Person hobj2 where hobj1.id = hobj2.id), hobj1.married from Person hobj1");
     }
     
     @Test
@@ -117,8 +104,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
         Relation childRelation = query.join(parent.getChildRelations());
         Person child = query.join(childRelation.getChild());
         
-        HqlQuery hql = doQuery(query);
-        assertTrue(hql.getHql().equals(" from Person hobj1 join hobj1.childRelations hobj2 join hobj2.child hobj3"));
+        validate(" from Person hobj1 join hobj1.childRelations hobj2 join hobj2.child hobj3");
     }
 
     @Test
@@ -128,8 +114,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
         
         Relation childRelation = query.join(parent.getChildRelations(), JoinType.LeftFetch);
 
-        HqlQuery hql = doQuery(query);
-        assertTrue(hql.getHql().equals(" from Person hobj1 left join fetch hobj1.childRelations hobj2"));
+        validate(" from Person hobj1 left join fetch hobj1.childRelations hobj2");
     }
     
     @Test
@@ -142,9 +127,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
         TypeSafeQueryJoin<Person> childJoin = query.getJoin(child);
         childJoin.with(child.getName()).eq("Bob");
 
-        HqlQuery hql = doQuery(query);
-        assertTrue(hql.getHql().equals(" from Person hobj1 join hobj1.childRelations hobj2 join hobj2.child hobj3 with hobj3.name = ?"));
-        assertTrue(Arrays.asList(hql.getParams()).equals(Arrays.asList("Bob")));
+        validate(" from Person hobj1 join hobj1.childRelations hobj2 join hobj2.child hobj3 with hobj3.name = ?", "Bob");
     }
 
     @Test
@@ -156,8 +139,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
         
         query.where(child.getName()).eq(parent.getName());
 
-        HqlQuery hql = doQuery(query);
-        assertTrue(hql.getHql().equals(" from Person hobj1 join hobj1.childRelations hobj2 join hobj2.child hobj3 where hobj3.name = hobj1.name"));
+        validate(" from Person hobj1 join hobj1.childRelations hobj2 join hobj2.child hobj3 where hobj3.name = hobj1.name");
     }
 
     @Test
@@ -167,9 +149,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
         query.where(person.getAge()).lt(20).
                 and(person.getName()).startsWith("Alex");
 
-        HqlQuery hql = doQuery(query);
-        assertTrue(hql.getHql().equals(" from Person hobj1 where hobj1.age < ? and hobj1.name like ?"));
-        assertTrue(Arrays.asList(hql.getParams()).equals(Arrays.asList(20, "Alex%")));
+        validate(" from Person hobj1 where hobj1.age < ? and hobj1.name like ?", 20, "Alex%");
     }
 
     @Test
@@ -187,9 +167,8 @@ public class ExamplesTest extends TypeSafeQueryTest {
         query.selectValue(person);
         query.selectValue(favoriteColorSQ);
 
-        HqlQuery hql = doQuery(query);
-        assertTrue(hql.getHql().equals("select hobj1, (select hobj2.propertyValue from PersonProperty hobj2 where hobj1.id = hobj2.person.id and hobj2.propertyKey = ?) from Person hobj1"));
-        assertTrue(Arrays.asList(hql.getParams()).equals(Arrays.asList("FavColorKey")));
+        validate("select hobj1, (select hobj2.propertyValue from PersonProperty hobj2 where hobj1.id = hobj2.person.id and hobj2.propertyKey = ?) from Person hobj1", 
+                "FavColorKey");
     }
 
     @Test
@@ -206,9 +185,8 @@ public class ExamplesTest extends TypeSafeQueryTest {
 
         query.wheret(favoriteColorSQ).eq("Blue");
         
-        HqlQuery hql = doQuery(query);
-        assertTrue(hql.getHql().equals(" from Person hobj1 where (select hobj2.propertyValue from PersonProperty hobj2 where hobj1.id = hobj2.person.id and hobj2.propertyKey = ?) = ?"));
-        assertTrue(Arrays.asList(hql.getParams()).equals(Arrays.asList("FavColorKey", "Blue")));
+        validate(" from Person hobj1 where (select hobj2.propertyValue from PersonProperty hobj2 where hobj1.id = hobj2.person.id and hobj2.propertyKey = ?) = ?",
+                "FavColorKey", "Blue");
     }
     
     @Test
@@ -217,9 +195,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
         Person parent = query.join(relation.getParent(), JoinType.None);
         query.where(parent.getId()).eq(1L);
         
-        HqlQuery hql = doQuery(query);
-        assertTrue(hql.getHql().equals(" from Relation hobj1 where hobj1.parent.id = ?"));
-        assertTrue(Arrays.asList(hql.getParams()).equals(Arrays.asList(1L)));
+        validate(" from Relation hobj1 where hobj1.parent.id = ?", 1L);
     }
 
     @Test
@@ -229,8 +205,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
         PersonDto dto = query.select(PersonDto.class);
         dto.setPersonAge(query.function().max(person.getAge()).select());
 
-        HqlQuery hql = doQuery(query);
-        assertTrue(hql.getHql().equals("select max(hobj1.age) as personAge from Person hobj1"));
+        validate("select max(hobj1.age) as personAge from Person hobj1");
     }
 
     @Test
@@ -240,8 +215,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
         PersonDto dto = query.select(PersonDto.class);
         dto.setThePersonsName(query.function().coalesce(person.getName()).or("Bert").select());
 
-        HqlQuery hql = doQuery(query);
-        assertTrue(hql.getHql().equals("select coalesce (hobj1.name,?) as thePersonsName from Person hobj1"));
+        validate("select coalesce (hobj1.name,?) as thePersonsName from Person hobj1", "Bert");
     }
 
     @Test
@@ -253,8 +227,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
         query.groupBy(person.getName()).
               and(person.getAge());
 
-        HqlQuery hql = doQuery(query);
-        assertTrue(hql.getHql().equals("select hobj1.name, hobj1.age from Person hobj1 group by hobj1.name, hobj1.age"));
+        validate("select hobj1.name, hobj1.age from Person hobj1 group by hobj1.name, hobj1.age");
     }
 
     @Test
@@ -266,8 +239,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
         query.orderBy().desc(person.getName()).
                          asc(person.getAge());
 
-        HqlQuery hql = doQuery(query);
-        assertTrue(hql.getHql().equals("select hobj1.name, hobj1.age from Person hobj1 order by hobj1.name desc, hobj1.age"));
+        validate("select hobj1.name, hobj1.age from Person hobj1 order by hobj1.name desc, hobj1.age");
     }
 
     @Test
@@ -276,8 +248,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
         
         query.wheret(query.function().upper(person.getName())).eq("TOM");
 
-        HqlQuery hql = doQuery(query);
-        assertTrue(hql.getHql().equals(" from Person hobj1 where upper(hobj1.name) = ?"));
+        validate(" from Person hobj1 where upper(hobj1.name) = ?", "TOM");
         
     }
 }

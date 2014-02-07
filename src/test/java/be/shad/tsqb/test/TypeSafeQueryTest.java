@@ -1,5 +1,7 @@
 package be.shad.tsqb.test;
 
+import static org.junit.Assert.assertTrue;
+
 import java.util.Arrays;
 
 import org.apache.logging.log4j.LogManager;
@@ -75,4 +77,15 @@ public class TypeSafeQueryTest {
         return hqlQuery;
     }
     
+    protected void validate(String hql, Object... params) {
+        HqlQuery hqlQuery = doQuery(query);
+        
+        assertTrue(hqlQuery.getHql().equals(hql));
+        if( params == null || params.length == 0 ){
+            assertTrue(hqlQuery.getParams().length == 0);
+        } else {
+            assertTrue(Arrays.asList(hqlQuery.getParams()).equals(Arrays.asList(params)));
+        }
+    }
+
 }

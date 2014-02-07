@@ -1,7 +1,5 @@
 package be.shad.tsqb.test;
 
-import static org.junit.Assert.assertTrue;
-
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.junit.Test;
 
@@ -9,7 +7,6 @@ import be.shad.tsqb.domain.Building;
 import be.shad.tsqb.domain.House;
 import be.shad.tsqb.domain.Town;
 import be.shad.tsqb.dto.FunctionsDto;
-import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.query.TypeSafeSubQuery;
 
 
@@ -21,9 +18,7 @@ public class SelectTests extends TypeSafeQueryTest {
     @Test
     public void selectEntity() {
         query.from(House.class);
-        
-        HqlQuery hql = doQuery(query);
-        assertTrue("no select should be present, simple 'from Entity'", hql.getSelect().equals(""));
+        validate(" from House hobj1");
     }
 
     /**
@@ -32,11 +27,11 @@ public class SelectTests extends TypeSafeQueryTest {
     @Test
     public void selectProperty() {
         House house = query.from(House.class);
+        
         House result = query.select(House.class);
         result.setFloors(house.getFloors());
         
-        HqlQuery hql = doQuery(query);
-        assertTrue("floors should be selected into property 'floors'.", hql.getSelect().equals("select hobj1.floors as floors"));
+        validate("select hobj1.floors as floors from House hobj1");
     }
 
     /**
@@ -49,8 +44,7 @@ public class SelectTests extends TypeSafeQueryTest {
         House result = query.select(House.class);
         result.setStyle(house.getStyle());
         
-        HqlQuery hql = doQuery(query);
-        assertTrue("style should be selected into property 'style'.", hql.getSelect().equals("select hobj1.style as style"));
+        validate("select hobj1.style as style from House hobj1");
     }
 
     /**
@@ -65,9 +59,7 @@ public class SelectTests extends TypeSafeQueryTest {
         result.setLeft(house);
         result.setRight(house.getFloors());
         
-        HqlQuery hql = doQuery(query);
-        assertTrue("select house entity into left", hql.getSelect().contains("hobj1 as left"));
-        assertTrue("select houses' floor into right", hql.getSelect().contains("hobj1.floors as right"));
+        validate("select hobj1 as left, hobj1.floors as right from House hobj1");
     }
 
     /**
@@ -79,10 +71,7 @@ public class SelectTests extends TypeSafeQueryTest {
         Building building = query.join(town.getBuildings());
         
         query.selectValue(building);
-
-        HqlQuery hql = doQuery(query);
-        assertTrue("building, joined second", hql.getFrom().contains(".buildings hobj2"));
-        assertTrue("select building", hql.getSelect().equals("select hobj2"));
+        validate("select hobj2 from Town hobj1 join hobj1.buildings hobj2");
     }
 
     /**
@@ -97,10 +86,8 @@ public class SelectTests extends TypeSafeQueryTest {
         House select = query.select(House.class);
         select.setFloors(house1.getFloors());
         select.setStyle(house2.getStyle());
-
-        HqlQuery hql = doQuery(query);
-        assertTrue("select floors from the first house", hql.getSelect().contains("hobj1.floors as floors"));
-        assertTrue("select style from the second house", hql.getSelect().contains("hobj2.style as style"));
+        
+        validate("select hobj1.floors as floors, hobj2.style as style from House hobj1, House hobj2");
     }
     
     /**
@@ -113,9 +100,7 @@ public class SelectTests extends TypeSafeQueryTest {
         
         query.selectValue(building.getId());
 
-        HqlQuery hql = doQuery(query);
-        assertTrue("buildings should be hobj2, it was joined second", hql.getFrom().contains(".buildings hobj2"));
-        assertTrue("the id of buildings should be selected", hql.getSelect().equals("select hobj2.id"));
+        validate("select hobj2.id from Town hobj1 join hobj1.buildings hobj2");
     }
 
     @Test
@@ -129,10 +114,7 @@ public class SelectTests extends TypeSafeQueryTest {
         nameSubQuery.select(houseSub.getName());
 
         query.selectValue(nameSubQuery);
-        
-        HqlQuery hql = doQuery(query);
-        assertTrue("the house was selected from in the subquery", hql.getSelect().contains("from House hobj2"));
-        assertTrue("the name should be selected in the subselect", hql.getSelect().contains("(select hobj2.name"));
+        validate("select (select hobj2.name from House hobj2 where hobj1.id = hobj2.id) from House hobj1");
     }
 
     @Test
@@ -150,10 +132,7 @@ public class SelectTests extends TypeSafeQueryTest {
         result.setLeft(house.getFloors());
         result.setRight(nameSubQuery.select());
 
-        HqlQuery hql = doQuery(query);
-        hql.toString();
-        assertTrue("the house was selected from in the subquery", hql.getSelect().contains("from House hobj2"));
-        assertTrue("the name should be selected in the subselect", hql.getSelect().contains("(select hobj2.name"));
+        validate("select hobj1.floors as left, (select hobj2.name from House hobj2 where hobj1.id = hobj2.id) as right from House hobj1");
     }
 
     /**
@@ -171,10 +150,8 @@ public class SelectTests extends TypeSafeQueryTest {
         
         House houseResult = query.select(House.class);
         houseResult.setFloors(nameSubQuery.select());
-
-        HqlQuery hql = doQuery(query);
-        assertTrue("the house was selected from in the subquery", hql.getSelect().contains("from House hobj2"));
-        assertTrue("the floors should be selected in the subselect", hql.getSelect().contains("(select hobj2.floors"));
+        
+        validate("select (select hobj2.floors from House hobj2 where hobj1.id = hobj2.id) as floors from House hobj1");
     }
 
     /**
@@ -187,8 +164,7 @@ public class SelectTests extends TypeSafeQueryTest {
         House houseResult = query.select(House.class);
         houseResult.setFloors(query.function().max(house.getFloors()).select());
 
-        HqlQuery hql = doQuery(query);
-        assertTrue("check if max(floors) was selected", hql.getSelect().equals("select max(hobj1.floors) as floors"));
+        validate("select max(hobj1.floors) as floors from House hobj1");
         
     }
 
@@ -203,8 +179,6 @@ public class SelectTests extends TypeSafeQueryTest {
         FunctionsDto dto = query.select(FunctionsDto.class);
         dto.setTestCount(query.function().count().select());
 
-        HqlQuery hql = doQuery(query);
-        assertTrue("check if the count was selected", hql.getSelect().equals("select count(*) as testCount"));
-        
+        validate("select count(*) as testCount from House hobj1");
     }
 }
