@@ -48,11 +48,21 @@ public class RestrictionImpl extends RestrictionChainableImpl implements Restric
         return group;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Continue the chain in the same group.
+     */
     @Override
     public Restriction and(Restriction restriction) {
         return group.and(restriction);
     }
-    
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Continue the chain in the same group.
+     */
     @Override
     public Restriction or(Restriction restriction) {
         return group.or(restriction);

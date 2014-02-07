@@ -310,7 +310,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
     }
 
     /**
-     * {@inheritDoc}
+     * The projections, can be called to add extra projections.
      */
     public TypeSafeQueryProjections getProjections() {
         return projections;
