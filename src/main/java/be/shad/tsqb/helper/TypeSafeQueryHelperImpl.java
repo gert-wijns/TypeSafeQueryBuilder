@@ -169,10 +169,10 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
         BasicType basic = sessionFactory.getTypeHelper().basic(value.getClass());
         if( basic instanceof StringRepresentableType<?> ) {
             String literal = ((StringRepresentableType<Object>) basic).toString(value);
-            if( value instanceof String ) {
-                literal = "'" + literal + "'";
+            if( value instanceof Number || value instanceof Boolean ) {
+                return literal;
             }
-            return literal;
+            return literal = "'" + literal + "'";
         } else {
             throw new IllegalArgumentException("Failed to convert: " + value);
         }

@@ -2,6 +2,10 @@ package be.shad.tsqb.test;
 
 import static be.shad.tsqb.restrictions.RestrictionsGroup.group;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.junit.Test;
 
@@ -186,20 +190,30 @@ public class SelectTests extends TypeSafeQueryTest {
     }
 
     @Test
-    public void selectCaseWhenValue() {
+    public void selectCaseWhenValue() throws ParseException {
         House house = query.from(House.class);
 
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // seems to be the format of hqldb:mem
+        String dateString = "1500-02-08 12:00:00";
+        Date date = df.parse(dateString);
         CaseTypeSafeValue<String> value = new CaseTypeSafeValue<String>(query, String.class);
         value.when(group(query).and(house.getFloors()).gt(40)).then("Test1");
-        value.when(group(query).and(
-            house.getName()).startsWith("Castle")).
-                then((String) null).
-                otherwise(house.getName());
+        value.when(group(query).and(house.getName()).startsWith("Castle")).then((String) null);
+        value.when(group(query).and(house.getConstructionDate()).before(date)).then("Old");
+        value.otherwise(house.getName());
 
         @SuppressWarnings("unchecked")
         MutablePair<String, Object> pair = query.select(MutablePair.class);
         pair.setLeft(value.select());
 
-        validate("select (case when (hobj1.floors > 40) then 'Test1' when (hobj1.name like 'Castle%') then null else hobj1.name end) as left from House hobj1");
+        validate("select ("
+                + "case when (hobj1.floors > 40) "
+                + "then 'Test1' "
+                + "when (hobj1.name like 'Castle%') "
+                + "then null "
+                + "when (hobj1.constructionDate < '" + dateString + "') "
+                + "then 'Old' "
+                + "else hobj1.name end) as left "
+                + "from House hobj1");
     }
 }
