@@ -1,5 +1,7 @@
 package be.shad.tsqb.values;
 
+import java.util.Date;
+
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 
 /**
@@ -50,20 +52,36 @@ public class TypeSafeValueFunctions {
     public TypeSafeValue<String> lower(TypeSafeValue<String> val) {
         return new WrappedTypeSafeValue<>(query, "lower", val);
     }
-    
+
     public <N extends Number> TypeSafeValue<N> min(N n) {
-        return min(query.toValue(n));
+        return minn(query.toValue(n));
     }
 
-    public <N extends Number> TypeSafeValue<N> min(TypeSafeValue<N> nv) {
+    public <N extends Number> TypeSafeValue<N> minn(TypeSafeValue<N> nv) {
+        return new WrappedTypeSafeValue<>(query, "min", nv);
+    }
+    
+    public TypeSafeValue<Date> max(Date n) {
+        return maxd(query.toValue(n));
+    }
+
+    public TypeSafeValue<Date> maxd(TypeSafeValue<Date> nv) {
+        return new WrappedTypeSafeValue<>(query, "max", nv);
+    }
+    
+    public TypeSafeValue<Date> min(Date n) {
+        return mind(query.toValue(n));
+    }
+
+    public TypeSafeValue<Date> mind(TypeSafeValue<Date> nv) {
         return new WrappedTypeSafeValue<>(query, "min", nv);
     }
     
     public <N extends Number> TypeSafeValue<N> max(N n) {
-        return max(query.toValue(n));
+        return maxn(query.toValue(n));
     }
 
-    public <N extends Number> TypeSafeValue<N> max(TypeSafeValue<N> nv) {
+    public <N extends Number> TypeSafeValue<N> maxn(TypeSafeValue<N> nv) {
         return new WrappedTypeSafeValue<>(query, "max", nv);
     }
     
