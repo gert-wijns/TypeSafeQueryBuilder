@@ -79,12 +79,15 @@ public class TypeSafeQueryTest {
     
     protected void validate(String hql, Object... params) {
         HqlQuery hqlQuery = doQuery(query);
+
+        String expected = String.format("\nExpected:\n%s\n--- params: %s\n", hql, Arrays.toString(params));
+        String result = String.format("\nResult:\n%s\n--- params: %s\n", hqlQuery.getHql(), Arrays.toString(hqlQuery.getParams()));
         
-        assertTrue(hqlQuery.getHql().equals(hql));
+        assertTrue(expected + result, hqlQuery.getHql().equals(hql));
         if( params == null || params.length == 0 ){
-            assertTrue(hqlQuery.getParams().length == 0);
+            assertTrue(expected + result, hqlQuery.getParams().length == 0);
         } else {
-            assertTrue(Arrays.asList(hqlQuery.getParams()).equals(Arrays.asList(params)));
+            assertTrue(expected + result, Arrays.asList(hqlQuery.getParams()).equals(Arrays.asList(params)));
         }
     }
 
