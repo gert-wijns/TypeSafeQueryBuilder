@@ -5,6 +5,7 @@ import java.util.List;
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.data.TypeSafeQueryProxyDataTree;
 import be.shad.tsqb.grouping.TypeSafeQueryGroupBys;
+import be.shad.tsqb.helper.TypeSafeQueryHelper;
 import be.shad.tsqb.ordering.TypeSafeQueryOrderBys;
 import be.shad.tsqb.restrictions.RestrictionsGroup;
 import be.shad.tsqb.values.TypeSafeValue;
@@ -73,5 +74,10 @@ public interface TypeSafeQueryInternal extends TypeSafeQuery {
      * The joins are constructed using this tree.
      */
     TypeSafeQueryProxyDataTree getDataTree();
+
+    /**
+     * Convenience method to provide the helper where the internal query was provided.
+     */
+    TypeSafeQueryHelper getHelper();
     
 }

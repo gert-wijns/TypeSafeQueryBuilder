@@ -13,7 +13,7 @@ public class CustomTypeSafeValue<T> extends TypeSafeValueImpl<T> {
     private String hql;
     private List<Object> params;
 
-    protected CustomTypeSafeValue(
+    public CustomTypeSafeValue(
             TypeSafeQuery query, Class<T> valueType, 
             String hql, List<Object> params) {
         super((TypeSafeQueryInternal) query, valueType);

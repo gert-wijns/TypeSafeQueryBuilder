@@ -9,7 +9,9 @@ import javassist.util.proxy.ProxyObject;
 import org.hibernate.SessionFactory;
 import org.hibernate.engine.SessionFactoryImplementor;
 import org.hibernate.metadata.ClassMetadata;
+import org.hibernate.type.BasicType;
 import org.hibernate.type.CollectionType;
+import org.hibernate.type.StringRepresentableType;
 import org.hibernate.type.Type;
 
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
@@ -19,6 +21,8 @@ import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.query.TypeSafeRootQuery;
 import be.shad.tsqb.query.TypeSafeRootQueryImpl;
 import be.shad.tsqb.query.TypeSafeRootQueryInternal;
+import be.shad.tsqb.values.HqlQueryValue;
+import be.shad.tsqb.values.HqlQueryValueImpl;
 
 public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
     private final SessionFactory sessionFactory;
@@ -150,6 +154,43 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
         if (name.length() > start)
             ret += name.substring(start);
         return ret;
+    }
+
+    /**
+     * Convert a value to a string. This is only used when hibernate would fail if params are used.
+     * <p>
+     * Uses the hibernate Type object to convert to a literal.
+     */
+    @SuppressWarnings("unchecked")
+    public String toLiteral(Object value) {
+        if( value == null ) {
+            return "null";
+        }
+        BasicType basic = sessionFactory.getTypeHelper().basic(value.getClass());
+        if( basic instanceof StringRepresentableType<?> ) {
+            String literal = ((StringRepresentableType<Object>) basic).toString(value);
+            if( value instanceof String ) {
+                literal = "'" + literal + "'";
+            }
+            return literal;
+        } else {
+            throw new IllegalArgumentException("Failed to convert: " + value);
+        }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public HqlQueryValue replaceParamsWithLiterals(HqlQueryValue value) {
+        if( value.getParams().length > 0 ) {
+            String hql = value.getHql();
+            for(Object param: value.getParams()) {
+                hql = hql.replaceFirst("\\?", toLiteral(param));
+            }
+            value = new HqlQueryValueImpl(hql);
+        }
+        return value;
     }
     
 }

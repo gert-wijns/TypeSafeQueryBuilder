@@ -50,6 +50,14 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      * {@inheritDoc}
      */
     @Override
+    public TypeSafeQueryHelper getHelper() {
+        return helper;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public TypeSafeQueryProxyDataTree getDataTree() {
         return dataTree;
     }

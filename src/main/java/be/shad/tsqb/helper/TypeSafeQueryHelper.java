@@ -3,6 +3,7 @@ package be.shad.tsqb.helper;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.query.TypeSafeRootQuery;
 import be.shad.tsqb.query.TypeSafeRootQueryInternal;
+import be.shad.tsqb.values.HqlQueryValue;
 
 public interface TypeSafeQueryHelper {
     
@@ -27,5 +28,10 @@ public interface TypeSafeQueryHelper {
      * calls to the given query.
      */
     <T> T createTypeSafeSelectProxy(TypeSafeRootQueryInternal query, Class<T> clazz);
+
+    /**
+     * Replaces the '?'s with 'valueToLiteral's.
+     */
+    HqlQueryValue replaceParamsWithLiterals(HqlQueryValue value);
     
 }

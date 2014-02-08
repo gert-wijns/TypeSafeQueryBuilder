@@ -1,5 +1,7 @@
 package be.shad.tsqb.test;
 
+import static be.shad.tsqb.restrictions.RestrictionsGroup.group;
+
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.junit.Test;
 
@@ -8,6 +10,7 @@ import be.shad.tsqb.domain.House;
 import be.shad.tsqb.domain.Town;
 import be.shad.tsqb.dto.FunctionsDto;
 import be.shad.tsqb.query.TypeSafeSubQuery;
+import be.shad.tsqb.values.CaseTypeSafeValue;
 
 
 public class SelectTests extends TypeSafeQueryTest {
@@ -180,5 +183,23 @@ public class SelectTests extends TypeSafeQueryTest {
         dto.setTestCount(query.function().count().select());
 
         validate("select count(*) as testCount from House hobj1");
+    }
+
+    @Test
+    public void selectCaseWhenValue() {
+        House house = query.from(House.class);
+
+        CaseTypeSafeValue<String> value = new CaseTypeSafeValue<String>(query, String.class);
+        value.when(group(query).and(house.getFloors()).gt(40)).then("Test1");
+        value.when(group(query).and(
+            house.getName()).startsWith("Castle")).
+                then((String) null).
+                otherwise(house.getName());
+
+        @SuppressWarnings("unchecked")
+        MutablePair<String, Object> pair = query.select(MutablePair.class);
+        pair.setLeft(value.select());
+
+        validate("select (case when (hobj1.floors > 40) then 'Test1' when (hobj1.name like 'Castle%') then null else hobj1.name end) as left from House hobj1");
     }
 }
