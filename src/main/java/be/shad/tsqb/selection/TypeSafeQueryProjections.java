@@ -8,7 +8,6 @@ import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.hql.HqlQueryBuilder;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
-import be.shad.tsqb.query.TypeSafeRootQueryInternal;
 import be.shad.tsqb.values.DirectTypeSafeValue;
 import be.shad.tsqb.values.ReferenceTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
@@ -49,49 +48,33 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
      */
     public void project(Object select, String propertyName) {
         TypeSafeProjection projection = null;
-        if( query instanceof TypeSafeRootQueryInternal ) {
-            TypeSafeValue<?> value = ((TypeSafeRootQueryInternal) query).dequeueSelectedValue();
-            if( value != null ) {
-                projection = new TypeSafeValueProjection(value, propertyName);
-                projections.add(projection);
-                return;
-            }
+        TypeSafeValue<?> value = query.getRootQuery().dequeueSelectedValue();
+        if( value != null ) {
+            query.validateInScope(value, null);
+            projection = new TypeSafeValueProjection(value, propertyName);
+            projections.add(projection);
+            return;
         }
         
         // No subquery was selected, check the queue or direct selections:
         List<TypeSafeQueryProxyData> invocations = query.dequeueInvocations();
-        TypeSafeValue<?> value = null;
         if( invocations.isEmpty() ) {
             if( select instanceof TypeSafeValue<?> ) {
                 // any value selection (check if referenced)
-                if( select instanceof ReferenceTypeSafeValue<?> ) {
-                    validateInScope(((ReferenceTypeSafeValue<?>) select).getData());
-                }
                 value = (TypeSafeValue<?>) select;
             } else if( select instanceof TypeSafeQueryProxy ) {
                 // entity selection
-                TypeSafeQueryProxyData data = validateInScope(((TypeSafeQueryProxy) select).getTypeSafeProxyData());
-                value = new ReferenceTypeSafeValue<>(query, data);
+                value = new ReferenceTypeSafeValue<>(query, ((TypeSafeQueryProxy) select).getTypeSafeProxyData());
             } else {
                 // direct value selection
                 value = new DirectTypeSafeValue<>(query, select);
             }
         } else {
             // value selection by proxy getter:
-            TypeSafeQueryProxyData data = validateInScope(invocations.get(0));
-            value = new ReferenceTypeSafeValue<>(query, data);
+            value = new ReferenceTypeSafeValue<>(query, invocations.get(0));
         }
+        query.validateInScope(value, null);
         projections.add(new TypeSafeValueProjection(value, propertyName));
-    }
-    
-    /**
-     * Check if data is in scope, must be available on this query or one of the parent queries.
-     */
-    private TypeSafeQueryProxyData validateInScope(TypeSafeQueryProxyData data) {
-        if( !query.isInScope(data, null) ) {
-            throw new IllegalArgumentException("Attempting to use data which is not in scope. " + data);
-        }
-        return data;
     }
 
     @Override

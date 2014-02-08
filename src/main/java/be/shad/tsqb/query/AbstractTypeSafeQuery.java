@@ -6,6 +6,7 @@ import java.util.List;
 
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.data.TypeSafeQueryProxyDataTree;
+import be.shad.tsqb.exceptions.ValueNotInScopeException;
 import be.shad.tsqb.grouping.OnGoingGroupBy;
 import be.shad.tsqb.grouping.TypeSafeQueryGroupBys;
 import be.shad.tsqb.helper.TypeSafeQueryHelper;
@@ -313,10 +314,29 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      * 
      * Delegates to the dataTree.
      */
+    @Override
     public boolean isInScope(TypeSafeQueryProxyData data, TypeSafeQueryProxyData join) {
         return dataTree.isInScope(data, join);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void validateInScope(TypeSafeQueryProxyData data, TypeSafeQueryProxyData join) {
+        if( !isInScope(data, join) ) {
+            throw new ValueNotInScopeException("Attempting to use data which is not in scope. " + data);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void validateInScope(TypeSafeValue<?> value, TypeSafeQueryProxyData join) {
+        new TypeSafeQueryScopeValidatorImpl(this, join).validateInScope(value);
+    }
+    
     /**
      * The projections, can be called to add extra projections.
      */

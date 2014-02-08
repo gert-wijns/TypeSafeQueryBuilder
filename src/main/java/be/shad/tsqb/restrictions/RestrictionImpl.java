@@ -1,10 +1,8 @@
 package be.shad.tsqb.restrictions;
 
-import static java.lang.String.format;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.values.HqlQueryValue;
 import be.shad.tsqb.values.HqlQueryValueImpl;
-import be.shad.tsqb.values.ReferenceTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
 
 /**
@@ -105,11 +103,7 @@ public class RestrictionImpl extends RestrictionChainableImpl implements Restric
     }
     
     private void validateInScope(TypeSafeValue<?> value) {
-        if( value instanceof ReferenceTypeSafeValue<?> ) {
-            if(!query.isInScope(((ReferenceTypeSafeValue<?>) value).getData(), group.getJoin())) {
-                throw new IllegalArgumentException(format("Attempting to restrict with data which is not in scope. The data: [%s].", value));
-            }
-        }
+        query.validateInScope(value, group.getJoin());
     }
     
     @Override

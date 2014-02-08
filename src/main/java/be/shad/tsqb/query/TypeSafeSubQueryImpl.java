@@ -28,6 +28,14 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
         this.parentQuery = parentQuery;
         setRootQuery(parentQuery.getRootQuery());
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public TypeSafeQueryInternal getParentQuery() {
+        return parentQuery;
+    }
     
     @Override
     public Class<T> getValueClass() {

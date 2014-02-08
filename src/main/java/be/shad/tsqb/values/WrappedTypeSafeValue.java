@@ -1,13 +1,14 @@
 package be.shad.tsqb.values;
 
 import be.shad.tsqb.query.TypeSafeQuery;
+import be.shad.tsqb.query.TypeSafeQueryScopeValidator;
 
 /**
  * Wraps a value in a function. 
  * Examples uses are {@link TypeSafeValueFunctions#sum(Number) sum(...)},
  * {@link TypeSafeValueFunctions#max(Number) max(...)} etc.
  */
-public class WrappedTypeSafeValue<T> extends TypeSafeValueImpl<T> {
+public class WrappedTypeSafeValue<T> extends TypeSafeValueImpl<T> implements TypeSafeValueContainer {
     private String function; // sum/max/min/trim/count/...
     private TypeSafeValue<T> value;
     
@@ -23,4 +24,8 @@ public class WrappedTypeSafeValue<T> extends TypeSafeValueImpl<T> {
         return new HqlQueryValueImpl(function + "("+value.getHql()+")", value.getParams());
     }
     
+    @Override
+    public void validateContainedInScope(TypeSafeQueryScopeValidator validator) {
+        validator.validateInScope(value);
+    }
 }

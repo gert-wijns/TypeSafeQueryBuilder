@@ -5,12 +5,13 @@ import java.util.List;
 
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.query.TypeSafeQuery;
+import be.shad.tsqb.query.TypeSafeQueryScopeValidator;
 import be.shad.tsqb.restrictions.Restriction;
 
 /**
  * Represents a case when() then ... (else ...) end.
  */
-public class CaseTypeSafeValue<T> extends TypeSafeValueImpl<T> implements OnGoingCase<T>, OnGoingCaseWhen<T> {
+public class CaseTypeSafeValue<T> extends TypeSafeValueImpl<T> implements OnGoingCase<T>, OnGoingCaseWhen<T>, TypeSafeValueContainer {
     private List<Restriction> whens = new LinkedList<>();
     private List<TypeSafeValue<T>> thens = new LinkedList<>();
 
@@ -115,5 +116,11 @@ public class CaseTypeSafeValue<T> extends TypeSafeValueImpl<T> implements OnGoin
         }
         return query.getHelper().replaceParamsWithLiterals(value);
     }
-
+    
+    @Override
+    public void validateContainedInScope(TypeSafeQueryScopeValidator validator) {
+        for(TypeSafeValue<T> then: thens) {
+            validator.validateInScope(then);
+        }
+    }
 }

@@ -4,12 +4,13 @@ import java.util.LinkedList;
 import java.util.List;
 
 import be.shad.tsqb.query.TypeSafeQuery;
+import be.shad.tsqb.query.TypeSafeQueryScopeValidator;
 
 /**
  * Represents a coalesce function. A coalesce is a fallback where the first 
  * value in the list which is not null is selected.
  */
-public class CoalesceTypeSafeValue<T> extends TypeSafeValueImpl<T> {
+public class CoalesceTypeSafeValue<T> extends TypeSafeValueImpl<T> implements TypeSafeValueContainer {
     private List<TypeSafeValue<T>> values = new LinkedList<>();
     
     public CoalesceTypeSafeValue(TypeSafeQuery query, Class<T> valueType) {
@@ -48,4 +49,10 @@ public class CoalesceTypeSafeValue<T> extends TypeSafeValueImpl<T> {
         return new HqlQueryValueImpl(hql, params);
     }
 
+    @Override
+    public void validateContainedInScope(TypeSafeQueryScopeValidator validator) {
+        for(TypeSafeValue<T> value: values) {
+            validator.validateInScope(value);
+        }
+    }
 }

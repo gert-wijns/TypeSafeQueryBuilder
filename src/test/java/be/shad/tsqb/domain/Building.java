@@ -38,6 +38,14 @@ public class Building extends DomainObject {
     @Type(type="be.shad.tsqb.domain.usertype.Address")
     private Address address;
     
+    public Town getTown() {
+        return town;
+    }
+    
+    public void setTown(Town town) {
+        this.town = town;
+    }
+    
     public Style getStyle() {
         return style;
     }

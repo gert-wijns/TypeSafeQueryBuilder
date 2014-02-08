@@ -24,6 +24,14 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     /**
      * {@inheritDoc}
      */
+    @Override
+    public TypeSafeQueryInternal getParentQuery() {
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public void invocationWasMade(TypeSafeQueryProxyData data) {
         invocationQueue.add(data);
     }

@@ -13,9 +13,14 @@ import be.shad.tsqb.values.TypeSafeValue;
 public interface TypeSafeQueryInternal extends TypeSafeQuery {
 
     /**
-     * @return the parent in case this is a subquery.
+     * @return the root query, may be the same instance if this query is the root query.
      */
     TypeSafeRootQueryInternal getRootQuery();
+    
+    /**
+     * @return the parent in case this is a subquery, returns self otherwise.
+     */
+    TypeSafeQueryInternal getParentQuery();
     
     /**
      * Clears the queue and returns all pending invocations.
@@ -53,6 +58,17 @@ public interface TypeSafeQueryInternal extends TypeSafeQuery {
      * And before <code>join<code> in case <code>join</code> is not null.
      */
     boolean isInScope(TypeSafeQueryProxyData data, TypeSafeQueryProxyData join);
+    
+    /**
+     * Validates if the data is available in the scope of a query (+join)
+     */
+    void validateInScope(TypeSafeQueryProxyData data, TypeSafeQueryProxyData join);
+    
+    /**
+     * Validates if the type safe value and any of its nested values is in scope
+     * of the query + join if the join is not null. 
+     */
+    void validateInScope(TypeSafeValue<?> value, TypeSafeQueryProxyData join);
     
     /**
      * @return the known restrictions for this query.
