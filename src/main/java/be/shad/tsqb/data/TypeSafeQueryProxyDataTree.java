@@ -95,31 +95,43 @@ public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder {
         
         // if the property is not an entity, then use the parent instead,
         // the parent should be part of one of the joins in the froms.
-        data = data.getProxy() == null ? data.getParent(): data;
+        while( data.getProxy() == null ) {
+            data = data.getParent();
+        }
         if( data.equals(join) ) {
+            return true;
+        }
+        if(true) {
+            // hibernate can't handle references in joins if they are from a different entity unfortunantly.
+            throw new RuntimeException("Unfortunantly, hibernate would throw a QuerySyntaxException: 'with-clause referenced two different from-clause elements.' even though sql could handle it.");
+        }
+        
+        @SuppressWarnings("unused")
+        TypeSafeQueryProxyData dataRoot = data;
+        while( dataRoot.getParent() != null ) {
+            dataRoot = dataRoot.getParent();
+        }
+        if( join.equals(dataRoot) ) {
             return true;
         }
         
         // check if data was joined before join.
         for(TypeSafeQueryFrom from: froms) {
-            // either the data to find is the root, or one of the joins.
-            if( from.getRoot().equals(data) ) {
-                return true;
-            }
-            if( from.getRoot().equals(join) ) {
-                return false; // found join before data
-            }
-            for(TypeSafeQueryJoin<?> joined: from.getJoins()) {
-                if( joined.getData().equals(data) ) {
+            if( dataRoot.equals(from.getRoot()) ) {
+                if( from.getRoot().equals(data) ) {
                     return true;
                 }
-                if( joined.getData().equals(join) ) {
-                    return false; // found join before data
+                for(TypeSafeQueryJoin<?> joined: from.getJoins()) {
+                    if( joined.getData().equals(data) ) {
+                        return true;
+                    }
+                    if( joined.getData().equals(join) ) {
+                        return false; // found join before data
+                    }
                 }
             }
         }
-        // shouldn't ever happen...
-        throw new IllegalStateException("The data is part of the queryData, but its join was not found?");
+        return false;
     }
 
     @Override

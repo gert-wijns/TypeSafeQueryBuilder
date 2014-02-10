@@ -7,6 +7,8 @@ import org.junit.Test;
 import be.shad.tsqb.domain.Building;
 import be.shad.tsqb.domain.House;
 import be.shad.tsqb.domain.Town;
+import be.shad.tsqb.domain.people.Person;
+import be.shad.tsqb.domain.people.Relation;
 import be.shad.tsqb.exceptions.ValueNotInScopeException;
 import be.shad.tsqb.query.TypeSafeSubQuery;
 
@@ -71,6 +73,47 @@ public class ScopeValidationTests extends TypeSafeQueryTest {
         query.selectValue(subquery);
         
         validate("select (select max(hobj2.constructionDate) from Building hobj2) from Town hobj1");
+    }
+
+    /**
+     * 
+     */
+    @Test(expected=ValueNotInScopeException.class)
+    public void testWithLaterJoinedNotInScope() {
+        Person parent = query.from(Person.class);
+        Relation relation = query.join(parent.getChildRelations());
+        Person child = query.join(relation.getChild());
+        Relation relation2 = query.join(parent.getChildRelations());
+        Person grandChild = query.join(relation2.getChild());
+        
+        query.getJoin(child).with(child.getName()).eq(grandChild.getName());
+    }
+
+    @Test(expected=ValueNotInScopeException.class)
+    public void testWithJoinedDifferentFromNotInScope() {
+        Person parent = query.from(Person.class);
+        Person child = query.from(Person.class);
+        Relation relation = query.join(child.getChildRelations());
+        
+        query.getJoin(relation).with(parent.getId()).eq(relation.getId());
+        validate("");
+    }
+    
+    @Test
+    public void testWithFilterByParam() {
+        Person parent = query.from(Person.class);
+        Relation relation = query.join(parent.getChildRelations());
+        Person child = query.join(relation.getChild());
+        query.getJoin(child).with(child.getName()).eq("Josh");
+        validate(" from Person hobj1 join hobj1.childRelations hobj2 join hobj2.child hobj3 with hobj3.name = ?", "Josh");
+    }
+
+    @Test(expected=RuntimeException.class)
+    public void testWithFilterByReferenceNotAllowed() {
+        Person parent = query.from(Person.class);
+        Relation relation = query.join(parent.getChildRelations());
+        Person child = query.join(relation.getChild());
+        query.getJoin(child).with(child.getName()).eq(parent.getName());
     }
     
 }
