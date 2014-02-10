@@ -7,12 +7,16 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.commons.lang3.tuple.MutableTriple;
 import org.junit.Test;
 
 import be.shad.tsqb.domain.Building;
 import be.shad.tsqb.domain.House;
 import be.shad.tsqb.domain.Town;
+import be.shad.tsqb.domain.people.Person;
+import be.shad.tsqb.domain.people.PersonProperty;
 import be.shad.tsqb.dto.FunctionsDto;
+import be.shad.tsqb.query.JoinType;
 import be.shad.tsqb.query.TypeSafeSubQuery;
 import be.shad.tsqb.values.CaseTypeSafeValue;
 
@@ -216,4 +220,27 @@ public class SelectTests extends TypeSafeQueryTest {
                 + "else hobj1.name end) as left "
                 + "from House hobj1");
     }
+
+    @Test
+    public void selectMultiJoinedEntityValues() {
+        Person person = query.from(Person.class);
+        PersonProperty property1 = query.join(person.getProperties());
+        PersonProperty property2 = query.join(person.getProperties(), JoinType.Inner, true);
+
+        query.getJoin(property1).with(property1.getPropertyKey()).eq("FavoriteColor");
+        query.getJoin(property2).with(property2.getPropertyKey()).eq("FavoriteDish");
+        
+        @SuppressWarnings("unchecked")
+        MutableTriple<Long, String, Object> triple = query.select(MutableTriple.class);
+        triple.setLeft(person.getId());
+        triple.setMiddle(property1.getPropertyValue());
+        triple.setRight(property2.getPropertyValue());
+        
+        validate("select hobj1.id as left, hobj2.propertyValue as middle, hobj3.propertyValue as right "
+                + "from Person hobj1 "
+                + "join hobj1.properties hobj2 with hobj2.propertyKey = ? "
+                + "join hobj1.properties hobj3 with hobj3.propertyKey = ?",
+                "FavoriteColor", "FavoriteDish");
+    }
+    
 }

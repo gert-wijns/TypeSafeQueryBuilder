@@ -49,6 +49,7 @@ public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder {
         if( parent == null ) {
             froms.add(new TypeSafeQueryFrom(helper, child));
         } else {
+            parent.putChild(child);
             TypeSafeQueryProxyData root = parent;
             while( root.getParent() != null ) {
                 root = root.getParent();
@@ -76,6 +77,7 @@ public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder {
         if( parent == null ) {
             throw new IllegalArgumentException("");
         }
+        parent.putChild(child);
         queryData.add(child);
         return child;
     }

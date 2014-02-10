@@ -61,20 +61,38 @@ public interface TypeSafeQuery extends WhereRestrictions {
     <T> T join(T anyObject);
     
     /**
+     * Delegates to {@link #join(Collection, JoinType, boolean)} with false as create.
+     */
+    <T> T join(Collection<T> anyCollection, JoinType joinType);
+    
+    /**
      * Joins an entity collection, returns a proxy of the joined entity type.
      * The method calls of the proxy will be captured to assist with the query building.
      * <p>
      * The type is fetched from hibernate.
+     * 
+     * @param createAdditionalJoin explicitly force the creation of an additional join.
+     *        this is only useful when the same object relation needs to be joined more than once.
+     *        Otherwise the existing joined proxy is reused instead.
      */
-    <T> T join(Collection<T> anyCollection, JoinType joinType);
+    <T> T join(Collection<T> anyCollection, JoinType joinType, boolean createAdditionalJoin);
     
+    /**
+     * Delegates to {@link #join(Object, JoinType, boolean)} with false as create.
+     */
+    <T> T join(T anyObject, JoinType joinType);
+
     /**
      * Joins an entity, returns a proxy of the joined entity type.
      * The method calls of the proxy will be captured to assist with the query building.
      * <p>
      * The type is fetched from hibernate.
+     * 
+     * @param createAdditionalJoin explicitly force the creation of an additional join.
+     *        this is only useful when the same object relation needs to be joined more than once.
+     *        Otherwise the existing joined proxy is reused instead.
      */
-    <T> T join(T anyObject, JoinType joinType);
+    <T> T join(T anyObject, JoinType joinType, boolean createAdditionalJoin);
     
     /**
      * The object must be a TypeSafeQueryProxy, this will be validated at runtime.

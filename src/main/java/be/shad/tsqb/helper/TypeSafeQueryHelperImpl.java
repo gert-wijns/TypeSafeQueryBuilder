@@ -118,9 +118,7 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
                 if( child == null ) {
                     Class<?> targetClass = getTargetEntityClass(data.getPropertyType(), method2Name);
                     if( isEntity(targetClass) ) {
-                        TypeSafeQueryProxy proxy = (TypeSafeQueryProxy) proxyFactory.getProxyInstance(targetClass);
-                        child = query.getDataTree().createData(data, method2Name, targetClass, proxy);
-                        setMethodListener(query, child);
+                        child = createTypeSafeJoinProxy(query, data, method2Name, targetClass);
                     } else {
                         child = query.getDataTree().createData(data, method2Name, targetClass); 
                     }
@@ -135,6 +133,18 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
                 return proceed.invoke(self, args);
             }
         });
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public TypeSafeQueryProxyData createTypeSafeJoinProxy(TypeSafeQueryInternal query, 
+            TypeSafeQueryProxyData parent, String propertyName, Class<?> targetClass) {
+        TypeSafeQueryProxy proxy = (TypeSafeQueryProxy) proxyFactory.getProxyInstance(targetClass);
+        TypeSafeQueryProxyData join = query.getDataTree().createData(parent, propertyName, targetClass, proxy);
+        setMethodListener(query, join);
+        return join;
     }
 
     /**
