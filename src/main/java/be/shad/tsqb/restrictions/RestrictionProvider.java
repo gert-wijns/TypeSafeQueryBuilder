@@ -8,11 +8,11 @@ public interface RestrictionProvider {
     /**
      * Creates a new restriction and adds it as 'and' to the existing chain.
      */
-    Restriction and();
+    RestrictionImpl and();
 
     /**
      * Creates a new restriction and adds it as 'or' to the existing chain.
      */
-    Restriction or();
+    RestrictionImpl or();
     
 }

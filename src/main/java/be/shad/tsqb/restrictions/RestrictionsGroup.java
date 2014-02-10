@@ -1,12 +1,14 @@
 package be.shad.tsqb.restrictions;
 
+import be.shad.tsqb.values.HqlQueryValueBuilder;
+
 
 /**
  * Groups the Restriction and WhereRestrictions to be able to add a group
  * as a nested restriction group and to provide the where() methods to start
  * chaining.
  */
-public interface RestrictionsGroup extends WhereRestrictions {
+public interface RestrictionsGroup extends WhereRestrictions, HqlQueryValueBuilder {
 
     /**
      * The RestrictionsGroup doesn't implement the Restriction itself

@@ -11,8 +11,8 @@ import be.shad.tsqb.restrictions.OnGoingNumberRestriction;
 import be.shad.tsqb.restrictions.OnGoingTextRestriction;
 import be.shad.tsqb.restrictions.Restriction;
 import be.shad.tsqb.restrictions.RestrictionChainable;
-import be.shad.tsqb.restrictions.RestrictionsGroup;
 import be.shad.tsqb.restrictions.RestrictionsGroupImpl;
+import be.shad.tsqb.restrictions.RestrictionsGroupInternal;
 import be.shad.tsqb.values.TypeSafeValue;
 
 /**
@@ -20,7 +20,7 @@ import be.shad.tsqb.values.TypeSafeValue;
  */
 public class TypeSafeQueryJoin<T> {
     private final TypeSafeQueryProxyData data;
-    private final RestrictionsGroup restrictions;
+    private final RestrictionsGroupInternal restrictions;
 
     public TypeSafeQueryJoin(TypeSafeQueryInternal query, TypeSafeQueryProxyData data) {
         this.restrictions = new RestrictionsGroupImpl(query, data);
@@ -37,7 +37,7 @@ public class TypeSafeQueryJoin<T> {
     }
     
     public Restriction getRestrictions() {
-        return restrictions.getRestrictions();
+        return restrictions;
     }
     
     /**

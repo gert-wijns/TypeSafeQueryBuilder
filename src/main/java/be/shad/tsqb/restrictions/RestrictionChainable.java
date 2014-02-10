@@ -24,11 +24,21 @@ public interface RestrictionChainable {
     Restriction and(Restriction restriction);
     
     /**
+     * Adds a restriction group as and to the existing where clause.
+     */
+    RestrictionChainable and(RestrictionsGroup group);
+    
+    /**
      * Add a restriction, the restriction is returned to continue chaining.
      * Use this to add groups of restrictions (useful when using ´or´s in a query).
      */
     Restriction or(Restriction restriction);
 
+    /**
+     * Adds a restriction group as or to the existing where clause.
+     */
+    RestrictionChainable or(RestrictionsGroup group);
+    
     /**
      * The general restrict by enum method. Anything which represents a number
      * can be used with this method.

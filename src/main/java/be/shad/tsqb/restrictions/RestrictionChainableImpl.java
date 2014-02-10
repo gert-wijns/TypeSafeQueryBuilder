@@ -8,11 +8,7 @@ import be.shad.tsqb.query.TypeSafeSubQuery;
 import be.shad.tsqb.values.TypeSafeValue;
 
 public abstract class RestrictionChainableImpl implements RestrictionChainable, RestrictionProvider {
-    
-    public abstract RestrictionImpl and();
 
-    public abstract RestrictionImpl or();
-    
     private RestrictionChainable exists(RestrictionImpl restriction, TypeSafeSubQuery<?> subquery) {
         restriction.setRight(subquery);
         restriction.setLeft(null);

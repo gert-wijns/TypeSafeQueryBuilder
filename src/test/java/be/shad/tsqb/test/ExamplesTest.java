@@ -10,7 +10,7 @@ import be.shad.tsqb.dto.PersonDto;
 import be.shad.tsqb.joins.TypeSafeQueryJoin;
 import be.shad.tsqb.query.JoinType;
 import be.shad.tsqb.query.TypeSafeSubQuery;
-import be.shad.tsqb.restrictions.RestrictionsGroupImpl;
+import be.shad.tsqb.restrictions.RestrictionsGroup;
 
 public class ExamplesTest extends TypeSafeQueryTest {
 
@@ -57,10 +57,11 @@ public class ExamplesTest extends TypeSafeQueryTest {
     public void testFilteringGroup() {
         Person person = query.from(Person.class);
         
-        query.where(person.isMarried()).isTrue().
-            and(RestrictionsGroupImpl.group(query).
-                 and(person.getName()).startsWith("Jef").
-                 or(person.getName()).startsWith("John"));
+        RestrictionsGroup nameOrs = query.whereGroup();
+        nameOrs.where(person.getName()).startsWith("Jef").
+                   or(person.getName()).startsWith("John");
+        
+        query.where(person.isMarried()).and(nameOrs);
 
         validate(" from Person hobj1 where hobj1.married = ? and (hobj1.name like ? or hobj1.name like ?)", 
                 Boolean.TRUE, "Jef%", "John%");

@@ -150,5 +150,15 @@ public class OnGoingBooleanRestriction extends OnGoingRestriction<Boolean> imple
     public OnGoingTextRestriction or(String value) {
         return isTrue().or(value);
     }
+
+    @Override
+    public RestrictionChainable and(RestrictionsGroup group) {
+        return isTrue().and(group);
+    }
+
+    @Override
+    public RestrictionChainable or(RestrictionsGroup group) {
+        return isTrue().or(group);
+    }
     
 }

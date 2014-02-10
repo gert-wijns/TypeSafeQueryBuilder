@@ -9,7 +9,6 @@ import be.shad.tsqb.query.TypeSafeQuery;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.query.TypeSafeSubQuery;
 import be.shad.tsqb.values.HqlQueryValue;
-import be.shad.tsqb.values.HqlQueryValueBuilder;
 import be.shad.tsqb.values.HqlQueryValueImpl;
 import be.shad.tsqb.values.TypeSafeValue;
 
@@ -18,7 +17,7 @@ import be.shad.tsqb.values.TypeSafeValue;
  * <p>
  * A restriction group may be nested, to group a sequence of 'ors' in one part of a query for example.
  */
-public class RestrictionsGroupImpl extends RestrictionChainableImpl implements RestrictionProvider, Restriction, RestrictionsGroupInternal, HqlQueryValueBuilder {
+public class RestrictionsGroupImpl extends RestrictionChainableImpl implements RestrictionProvider, Restriction, RestrictionsGroupInternal {
     private final TypeSafeQueryInternal query;
     private final TypeSafeQueryProxyData join;
     private List<RestrictionNode> restrictions;
@@ -110,8 +109,25 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
     /**
      * {@inheritDoc}
      */
+    @Override
     public Restriction and(Restriction restriction) {
         return add(restriction, RestrictionNodeType.And);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public RestrictionChainable and(RestrictionsGroup group) {
+        return and(group.getRestrictions());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public RestrictionChainable or(RestrictionsGroup group) {
+        return or(group.getRestrictions());
     }
 
     /**
