@@ -1,6 +1,6 @@
 package be.shad.tsqb.test;
 
-import static be.shad.tsqb.restrictions.RestrictionsGroup.group;
+import static be.shad.tsqb.restrictions.RestrictionsGroupImpl.group;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

@@ -28,7 +28,7 @@ public class RestrictionImpl extends RestrictionChainableImpl implements Restric
     public final static String IS_NOT_NULL = "is not null";
     public final static String EXISTS = "exists";
     
-    private final RestrictionsGroup group;
+    private final RestrictionsGroupImpl group;
     private final TypeSafeQueryInternal query;
     
     private TypeSafeValue<?> left;
@@ -36,7 +36,7 @@ public class RestrictionImpl extends RestrictionChainableImpl implements Restric
     private TypeSafeValue<?> right;
     
     public RestrictionImpl(TypeSafeQueryInternal query, 
-            RestrictionsGroup restrictions) {
+            RestrictionsGroupImpl restrictions) {
         this.group = restrictions;
         this.query = query;
     }

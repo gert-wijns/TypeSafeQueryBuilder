@@ -5,6 +5,7 @@ import org.junit.Test;
 import be.shad.tsqb.domain.House;
 import be.shad.tsqb.domain.Style;
 import be.shad.tsqb.query.TypeSafeSubQuery;
+import be.shad.tsqb.restrictions.RestrictionsGroup;
 
 public class WhereTests extends TypeSafeQueryTest {
 
@@ -60,4 +61,19 @@ public class WhereTests extends TypeSafeQueryTest {
 
         validate(" from House hobj1 where exists ( from House hobj2 where hobj2.name = hobj1.name and hobj2.id <> hobj1.id)");
     }
+
+    @Test
+    public void whereGroupMultiOrTest() {
+        House house = query.from(House.class);
+        
+        RestrictionsGroup group = query.whereGroup();
+        group.where(house.getStyle()).eq(Style.the1980s).
+                 or(house.getFloors()).gt(2);
+        
+        query.where(group).and(house.getName()).startsWith("Castle");
+        
+        validate(" from House hobj1 where (hobj1.style = ? or hobj1.floors > ?) and hobj1.name like ?", 
+                Style.the1980s, 2, "Castle%");
+    }
+    
 }

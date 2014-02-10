@@ -8,12 +8,9 @@ import be.shad.tsqb.helper.TypeSafeQueryHelper;
 import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.joins.TypeSafeQueryJoin;
 import be.shad.tsqb.ordering.OnGoingOrderBy;
-import be.shad.tsqb.restrictions.OnGoingBooleanRestriction;
-import be.shad.tsqb.restrictions.OnGoingDateRestriction;
-import be.shad.tsqb.restrictions.OnGoingEnumRestriction;
-import be.shad.tsqb.restrictions.OnGoingNumberRestriction;
-import be.shad.tsqb.restrictions.OnGoingTextRestriction;
 import be.shad.tsqb.restrictions.RestrictionChainable;
+import be.shad.tsqb.restrictions.RestrictionsGroup;
+import be.shad.tsqb.restrictions.WhereRestrictions;
 import be.shad.tsqb.values.TypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValueFunctions;
 
@@ -42,7 +39,7 @@ import be.shad.tsqb.values.TypeSafeValueFunctions;
  * <p>
  * For an example, see {@link TypeSafeRootQuery}.
  */
-public interface TypeSafeQuery {
+public interface TypeSafeQuery extends WhereRestrictions {
     
     /**
      * Creates a proxy for the given fromClass.
@@ -86,74 +83,17 @@ public interface TypeSafeQuery {
      * @throws IllegalArgumentException if the object is not an entity proxy.
      */
     <T> TypeSafeQueryJoin<T> getJoin(T obj);
-    
-    RestrictionChainable where();
 
     /**
-     * The general restrict by enum method. Anything which represents a number
-     * can be used with this method.
+     * Creates a subgroup for this query. This group is not added to the query
+     * where until it is added using the {@link RestrictionChainable#and(be.shad.tsqb.restrictions.Restriction) and(restriction)} 
+     * or the {@link RestrictionChainable#or(be.shad.tsqb.restrictions.Restriction) or(restriction)}.
+     * <p>
+     * The group will not be added to the existing restrictions automatically.
+     * This must be done separately.
      */
-    <E extends Enum<E>> OnGoingEnumRestriction<E> wheree(TypeSafeValue<E> value);
+    RestrictionsGroup whereGroup();
 
-    /**
-     * Restrict an enum value. This can be a direct value (an actual enum value),
-     * or a value of a TypeSafeQueryProxy getter.
-     */
-    <E extends Enum<E>> OnGoingEnumRestriction<E> where(E value);
-    
-    /**
-     * The general restrict by boolean method. Anything which represents a boolean
-     * can be used with this method.
-     */
-    OnGoingBooleanRestriction whereb(TypeSafeValue<Boolean> value);
-
-    /**
-     * Restrict a boolean value. This can be a direct value (an actual boolean),
-     * or a value of a TypeSafeQueryProxy getter. 
-     */
-    OnGoingBooleanRestriction where(Boolean value);
-
-    /**
-     * The general restrict by number method. Anything which represents a number
-     * can be used with this method.
-     */
-    OnGoingNumberRestriction wheren(TypeSafeValue<Number> value);
-
-    /**
-     * Restrict a number value. This can be a direct value (an actual number),
-     * or a value of a TypeSafeQueryProxy getter. 
-     */
-    OnGoingNumberRestriction where(Number value);
-
-    /**
-     * The general restrict by date method. Anything which represents a date
-     * can be used with this method.
-     */
-    OnGoingDateRestriction whered(TypeSafeValue<Date> value);
-
-    /**
-     * Restrict a number value. This can be a direct value (an actual date),
-     * or a value of a TypeSafeQueryProxy getter. 
-     */
-    OnGoingDateRestriction where(Date value);
-
-    /**
-     * The general restrict by string method. Anything which represents a string
-     * can be used with this method.
-     */
-    OnGoingTextRestriction wheret(TypeSafeValue<String> value);
-
-    /**
-     * Restrict a string value. This can be a direct value (an actual string),
-     * or a value of a TypeSafeQueryProxy getter. 
-     */
-    OnGoingTextRestriction where(String value);
-
-    /**
-     * Adds an exists restriction.
-     */
-    RestrictionChainable whereExists(TypeSafeSubQuery<?> subquery);
-    
     /**
      * Get the orderBy, allowing to add descending and ascending order bys.
      */
