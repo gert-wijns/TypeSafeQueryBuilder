@@ -1,6 +1,6 @@
 package be.shad.tsqb.test.restrictions;
 
-import static be.shad.tsqb.restrictions.RestrictionsGroup.group;
+import static be.shad.tsqb.restrictions.RestrictionsGroupImpl.group;
 import static java.lang.Boolean.FALSE;
 import static java.math.BigDecimal.ZERO;
 

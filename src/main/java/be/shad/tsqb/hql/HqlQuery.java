@@ -110,8 +110,10 @@ public class HqlQuery implements HqlQueryValue {
         return getSelect() + getFrom() + getWhere() + getGroupBy() + getOrderBy();
     }
 
-    @Override
-    public String toString() {
+    /**
+     * String with newlines and spaces to outline the query in a pretty format.
+     */
+    public String toFormattedString() {
         String str = getHql().
                 replace("select", "\nselect").
                 replace("from", "\nfrom").
@@ -137,6 +139,11 @@ public class HqlQuery implements HqlQueryValue {
             }
         }
         return format + "\n --- with params: " + params;
+    }
+    
+    @Override
+    public String toString() {
+        return getHql() + " --- with params: " + params;
     }
     
 }

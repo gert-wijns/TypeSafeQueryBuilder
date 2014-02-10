@@ -20,8 +20,11 @@ import be.shad.tsqb.restrictions.OnGoingDateRestriction;
 import be.shad.tsqb.restrictions.OnGoingEnumRestriction;
 import be.shad.tsqb.restrictions.OnGoingNumberRestriction;
 import be.shad.tsqb.restrictions.OnGoingTextRestriction;
+import be.shad.tsqb.restrictions.Restriction;
 import be.shad.tsqb.restrictions.RestrictionChainable;
 import be.shad.tsqb.restrictions.RestrictionsGroup;
+import be.shad.tsqb.restrictions.RestrictionsGroupImpl;
+import be.shad.tsqb.restrictions.RestrictionsGroupInternal;
 import be.shad.tsqb.selection.TypeSafeQueryProjections;
 import be.shad.tsqb.values.DirectTypeSafeValue;
 import be.shad.tsqb.values.HqlQueryValue;
@@ -38,7 +41,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
 
     private final TypeSafeQueryProxyDataTree dataTree;
     private final TypeSafeQueryProjections projections = new TypeSafeQueryProjections(this); 
-    private final RestrictionsGroup restrictions = new RestrictionsGroup(this, null); 
+    private final RestrictionsGroupInternal restrictions = new RestrictionsGroupImpl(this, null); 
     private final TypeSafeQueryGroupBys groupBys = new TypeSafeQueryGroupBys(this);
     private final TypeSafeQueryOrderBys orderBys = new TypeSafeQueryOrderBys(this);
     
@@ -152,6 +155,30 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      * {@inheritDoc}
      */
     @Override
+    public RestrictionChainable where(RestrictionsGroup group) {
+        return restrictions.and(group.getRestrictions());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Restriction where(Restriction restriction) {
+        return restrictions.and(restriction);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public RestrictionsGroup whereGroup() {
+        return new RestrictionsGroupImpl(this, null);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public RestrictionChainable whereExists(TypeSafeSubQuery<?> subquery) {
         return restrictions.andExists(subquery);
     }
@@ -168,8 +195,8 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      * Delegate to restrictions.
      */
     @Override
-    public <E extends Enum<E>> OnGoingEnumRestriction<E> wheree(TypeSafeValue<E> value) {
-        return restrictions.ande(value);
+    public <E extends Enum<E>> OnGoingEnumRestriction<E> whereEnum(TypeSafeValue<E> value) {
+        return restrictions.andEnum(value);
     }
     
     /**
@@ -184,8 +211,8 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      * Delegate to restrictions.
      */
     @Override
-    public OnGoingBooleanRestriction whereb(TypeSafeValue<Boolean> value) {
-        return restrictions.andb(value);
+    public OnGoingBooleanRestriction whereBoolean(TypeSafeValue<Boolean> value) {
+        return restrictions.andBoolean(value);
     }
     
     /**
@@ -208,16 +235,16 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      * Delegate to restrictions.
      */
     @Override
-    public OnGoingNumberRestriction wheren(TypeSafeValue<Number> value) {
-        return restrictions.andn(value);
+    public OnGoingNumberRestriction whereNumber(TypeSafeValue<Number> value) {
+        return restrictions.andNumber(value);
     }
 
     /**
      * Delegate to restrictions.
      */
     @Override
-    public OnGoingTextRestriction wheret(TypeSafeValue<String> value) {
-        return restrictions.andt(value);
+    public OnGoingTextRestriction whereString(TypeSafeValue<String> value) {
+        return restrictions.andString(value);
     }
     
     /**
@@ -232,8 +259,8 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      * Delegate to restrictions.
      */
     @Override
-    public OnGoingDateRestriction whered(TypeSafeValue<Date> value) {
-        return restrictions.andd(value);
+    public OnGoingDateRestriction whereDate(TypeSafeValue<Date> value) {
+        return restrictions.andDate(value);
     }
     
     /**

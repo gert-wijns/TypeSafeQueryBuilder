@@ -7,10 +7,10 @@ import be.shad.tsqb.values.HqlQueryValueImpl;
  * Wraps a restriction in brackets.
  */
 public class RestrictionWrapper extends RestrictionChainableImpl implements Restriction {
-    private final RestrictionsGroup group;
+    private final RestrictionsGroupImpl group;
     private final Restriction restriction;
     
-    public RestrictionWrapper(RestrictionsGroup group,
+    public RestrictionWrapper(RestrictionsGroupImpl group,
             Restriction restriction) {
         this.restriction = restriction;
         this.group = group;
@@ -43,7 +43,7 @@ public class RestrictionWrapper extends RestrictionChainableImpl implements Rest
     }
 
     @Override
-    public RestrictionsGroup getRestrictionsGroup() {
+    public RestrictionsGroupImpl getRestrictionsGroup() {
         return group;
     }
 

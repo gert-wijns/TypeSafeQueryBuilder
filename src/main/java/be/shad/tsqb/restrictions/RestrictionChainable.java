@@ -33,7 +33,7 @@ public interface RestrictionChainable {
      * The general restrict by enum method. Anything which represents a number
      * can be used with this method.
      */
-    <E extends Enum<E>> OnGoingEnumRestriction<E> ande(TypeSafeValue<E> value);
+    <E extends Enum<E>> OnGoingEnumRestriction<E> andEnum(TypeSafeValue<E> value);
 
     /**
      * Restrict an enum value. This can be a direct value (an actual enum value),
@@ -45,7 +45,7 @@ public interface RestrictionChainable {
      * The general restrict by number method. Anything which represents a number
      * can be used with this method.
      */
-    OnGoingBooleanRestriction andb(TypeSafeValue<Boolean> value);
+    OnGoingBooleanRestriction andBoolean(TypeSafeValue<Boolean> value);
 
     /**
      * Restrict a number value. This can be a direct value (an actual string),
@@ -57,7 +57,7 @@ public interface RestrictionChainable {
      * The general restrict by number method. Anything which represents a number
      * can be used with this method.
      */
-    OnGoingNumberRestriction andn(TypeSafeValue<Number> value);
+    OnGoingNumberRestriction andNumber(TypeSafeValue<Number> value);
 
     /**
      * Restrict a number value. This can be a direct value (an actual string),
@@ -69,7 +69,7 @@ public interface RestrictionChainable {
      * The general restrict by date method. Anything which represents a number
      * can be used with this method.
      */
-    OnGoingDateRestriction andd(TypeSafeValue<Date> value);
+    OnGoingDateRestriction andDate(TypeSafeValue<Date> value);
 
     /**
      * Restrict a number value. This can be a direct value (an actual string),
@@ -81,7 +81,7 @@ public interface RestrictionChainable {
      * The general restrict by number method. Anything which represents a number
      * can be used with this method.
      */
-    OnGoingTextRestriction andt(TypeSafeValue<String> value);
+    OnGoingTextRestriction andString(TypeSafeValue<String> value);
 
     /**
      * Restrict a string value. This can be a direct value (an actual string),
@@ -99,7 +99,7 @@ public interface RestrictionChainable {
      * The general restrict by date method. Anything which represents a date
      * can be used with this method.
      */
-    OnGoingDateRestriction ord(TypeSafeValue<Date> value);
+    OnGoingDateRestriction orDate(TypeSafeValue<Date> value);
     
     /**
      * Restrict a boolean value. This can be a direct value (an actual boolean),
@@ -111,13 +111,13 @@ public interface RestrictionChainable {
      * The general restrict by boolean method. Anything which represents a boolean
      * can be used with this method.
      */
-    OnGoingBooleanRestriction orb(TypeSafeValue<Boolean> value);
+    OnGoingBooleanRestriction orBoolean(TypeSafeValue<Boolean> value);
     
     /**
      * The general restrict by number method. Anything which represents a number
      * can be used with this method.
      */
-    OnGoingNumberRestriction orn(TypeSafeValue<Number> value);
+    OnGoingNumberRestriction orNumber(TypeSafeValue<Number> value);
 
     /**
      * Restrict a number value. This can be a direct value (an actual number),
@@ -129,7 +129,7 @@ public interface RestrictionChainable {
      * The general restrict by number method. Anything which represents a number
      * can be used with this method.
      */
-    OnGoingTextRestriction ort(TypeSafeValue<String> value);
+    OnGoingTextRestriction orString(TypeSafeValue<String> value);
 
     /**
      * Restrict a string value. This can be a direct value (an actual string),

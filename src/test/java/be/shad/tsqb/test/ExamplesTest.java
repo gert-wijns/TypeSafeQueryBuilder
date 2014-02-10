@@ -10,7 +10,7 @@ import be.shad.tsqb.dto.PersonDto;
 import be.shad.tsqb.joins.TypeSafeQueryJoin;
 import be.shad.tsqb.query.JoinType;
 import be.shad.tsqb.query.TypeSafeSubQuery;
-import be.shad.tsqb.restrictions.RestrictionsGroup;
+import be.shad.tsqb.restrictions.RestrictionsGroupImpl;
 
 public class ExamplesTest extends TypeSafeQueryTest {
 
@@ -44,7 +44,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
     public void testFilteringMore() {
         Person person = query.from(Person.class);
         
-        query.where(person.isMarried()).isTrue().  // type based checks available
+        query.where(person.isMarried()).  // type based checks available
                 and(person.getSex()).eq(Sex.Male); // can chain restrictions
 
         validate(" from Person hobj1 where hobj1.married = ? and hobj1.sex = ?", Boolean.TRUE, Sex.Male);
@@ -58,7 +58,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
         Person person = query.from(Person.class);
         
         query.where(person.isMarried()).isTrue().
-            and(RestrictionsGroup.group(query).
+            and(RestrictionsGroupImpl.group(query).
                  and(person.getName()).startsWith("Jef").
                  or(person.getName()).startsWith("John"));
 
@@ -132,14 +132,12 @@ public class ExamplesTest extends TypeSafeQueryTest {
 
     @Test
     public void testMultiFrom() {
-        Person parent = query.from(Person.class);
+        Person parent1 = query.from(Person.class);
+        Person parent2 = query.from(Person.class);
         
-        Relation childRelation = query.join(parent.getChildRelations());
-        Person child = query.join(childRelation.getChild());
-        
-        query.where(child.getName()).eq(parent.getName());
+        query.where(parent1.getName()).eq(parent2.getName());
 
-        validate(" from Person hobj1 join hobj1.childRelations hobj2 join hobj2.child hobj3 where hobj3.name = hobj1.name");
+        validate(" from Person hobj1, Person hobj2 where hobj1.name = hobj2.name");
     }
 
     @Test
@@ -183,7 +181,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
         favoriteColorSQ.where(person.getId()).eq(personSQ.getId()).
                           and(favColor.getPropertyKey()).eq("FavColorKey");
 
-        query.wheret(favoriteColorSQ).eq("Blue");
+        query.whereString(favoriteColorSQ).eq("Blue");
         
         validate(" from Person hobj1 where (select hobj2.propertyValue from PersonProperty hobj2 where hobj1.id = hobj2.person.id and hobj2.propertyKey = ?) = ?",
                 "FavColorKey", "Blue");
@@ -246,7 +244,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
     public void testUpperFunction() {
         Person person = query.from(Person.class);
         
-        query.wheret(query.function().upper(person.getName())).eq("TOM");
+        query.whereString(query.function().upper(person.getName())).eq("TOM");
 
         validate(" from Person hobj1 where upper(hobj1.name) = ?", "TOM");
         
