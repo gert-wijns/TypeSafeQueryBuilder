@@ -14,7 +14,9 @@ public class TypeSafeQueryProxyData {
     private final TypeSafeQueryProxyData parent;
     private final TypeSafeQueryProxy proxy;
     private final String propertyPath;
+    private final String identifierPath;
     private final Class<?> propertyType;
+    private final boolean collectionType;
     private final String alias;
     private JoinType joinType;
     
@@ -22,7 +24,7 @@ public class TypeSafeQueryProxyData {
      * Package protected so that the data is correctly add to the data tree.
      */
     TypeSafeQueryProxyData(TypeSafeQueryProxyData parent, String propertyPath, Class<?> propertyType) {
-        this(parent, propertyPath, propertyType, null, null);
+        this(parent, propertyPath, propertyType, false, null, null, null);
     }
     
     /**
@@ -30,12 +32,23 @@ public class TypeSafeQueryProxyData {
      * Package protected so that the data is correctly add to the data tree.
      */
     TypeSafeQueryProxyData(TypeSafeQueryProxyData parent, String propertyPath, 
-            Class<?> propertyType, TypeSafeQueryProxy proxy, String alias) {
+            Class<?> propertyType, boolean collectionType, TypeSafeQueryProxy proxy, 
+            String identifierPath, String alias) {
+        this.identifierPath = identifierPath;
+        this.collectionType = collectionType;
         this.propertyPath = propertyPath;
         this.propertyType = propertyType;
         this.parent = parent;
         this.proxy = proxy;
         this.alias = alias;
+    }
+    
+    public boolean isCollectionType() {
+        return collectionType;
+    }
+    
+    public String getIdentifierPath() {
+        return identifierPath;
     }
     
     public TypeSafeQueryProxyData getParent() {
@@ -55,7 +68,7 @@ public class TypeSafeQueryProxyData {
     }
     
     public String getAlias() {
-        if( parent != null && (joinType == null || joinType == JoinType.None) ) {
+        if( parent != null && (joinType == null || getEffectiveJoinType() == JoinType.None) ) {
             return parent.getAlias() + "." + propertyPath;
         }
         return alias;
@@ -70,6 +83,25 @@ public class TypeSafeQueryProxyData {
     }
 
     public JoinType getJoinType() {
+        return joinType;
+    }
+
+    /**
+     * When the join type was not set by the user, the default join type is evaluated to an effective join type.
+     * When only the identifier property of a joined entity is used, the effective type is None.
+     * Otherwise the default join type is Inner.
+     */
+    public JoinType getEffectiveJoinType() {
+        if( joinType == JoinType.Default ) {
+            if( !collectionType && children.size() == 1 ) {
+                // might be worth checking if only an identity relation was used:
+                TypeSafeQueryProxyData child = children.values().iterator().next();
+                if( identifierPath.equals(child.getPropertyPath()) ) {
+                    return JoinType.None;
+                }
+            }
+            return JoinType.Inner;
+        }
         return joinType;
     }
     

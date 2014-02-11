@@ -45,5 +45,11 @@ public enum JoinType {
      * not actually necessary to filter on the id of B, 
      * the query 'from A a where a.b.id = ?' will be generated.
      */
-    None;
+    None,
+    
+    /**
+     * The default join type is <code>Inner</code> when more than the identity fields
+     * have been used in the query. And <code>None</code> when only the identity field was used.
+     */
+    Default;
 }

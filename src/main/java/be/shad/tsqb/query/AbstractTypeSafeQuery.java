@@ -92,47 +92,43 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      * {@inheritDoc}
      */
     public <T> T join(Collection<T> anyCollection) {
-        return join(anyCollection, JoinType.Inner);
+        return handleJoin(null, null, false);
     }
 
     /**
      * {@inheritDoc}
      */
     public <T> T join(T anyObject) {
-        return join(anyObject, JoinType.Inner);
+        return handleJoin(anyObject, null, false);
     }
 
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     public <T> T join(Collection<T> anyCollection, JoinType joinType) {
-        return (T) join(joinType, false);
+        return handleJoin((T) null, joinType, false);
     }
 
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     public <T> T join(T anyObject, JoinType joinType) {
-        return (T) join(joinType, false);
+        return handleJoin(anyObject, joinType, false);
     }
 
 
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     public <T> T join(Collection<T> anyCollection, JoinType joinType, boolean createAdditionalJoin) {
-        return (T) join(joinType, createAdditionalJoin);
+        return handleJoin((T) null, joinType, createAdditionalJoin);
     }
 
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     public <T> T join(T anyObject, JoinType joinType, boolean createAdditionalJoin) {
-        return (T) join(joinType, createAdditionalJoin);
+        return handleJoin(anyObject, joinType, createAdditionalJoin);
     }
 
     /**
@@ -149,19 +145,18 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
     /**
      * {@inheritDoc}
      */
-    private TypeSafeQueryProxy join(JoinType joinType, boolean createAdditionalJoin) {
-        List<TypeSafeQueryProxyData> invocations = rootQuery.dequeueInvocations();
-        if( invocations.size() != 1 ) {
-            throw new IllegalStateException(String.format("There are %d invocations pending. Only 1 should be pending. "
-                    + "The one that was used to call join(value, joinType).", invocations.size()));
+    @SuppressWarnings("unchecked")
+    private <T> T handleJoin(T obj, JoinType joinType, boolean createAdditionalJoin) {
+        TypeSafeQueryProxyData data = rootQuery.dequeueInvocation();
+        if( obj instanceof TypeSafeQueryProxy ) {
+            data = ((TypeSafeQueryProxy) obj).getTypeSafeProxyData();
         }
-        TypeSafeQueryProxyData data = invocations.get(0);
         if( createAdditionalJoin ) {
             data = helper.createTypeSafeJoinProxy(this, data.getParent(), 
                     data.getPropertyPath(), data.getPropertyType());
         }
-        data.setJoinType(joinType);
-        return data.getProxy();
+        data.setJoinType(joinType == null ? JoinType.Default: joinType);
+        return (T) data.getProxy();
     }
 
     /**

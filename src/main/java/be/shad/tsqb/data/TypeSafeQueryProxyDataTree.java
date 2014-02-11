@@ -7,11 +7,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import be.shad.tsqb.exceptions.ValueNotInScopeException;
 import be.shad.tsqb.helper.TypeSafeQueryHelper;
 import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.hql.HqlQueryBuilder;
 import be.shad.tsqb.joins.TypeSafeQueryJoin;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
+import be.shad.tsqb.query.JoinType;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 
 /**
@@ -43,9 +45,11 @@ public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder {
      * is used to construct a FROM part of the query.
      */
     public TypeSafeQueryProxyData createData(TypeSafeQueryProxyData parent, 
-            String propertyName, Class<?> propertyType, TypeSafeQueryProxy proxy) {
+            String propertyName, Class<?> propertyType, boolean collectionType,
+            String identifierPath, TypeSafeQueryProxy proxy) {
         TypeSafeQueryProxyData child = new TypeSafeQueryProxyData(parent, propertyName, 
-                propertyType, proxy, query.createEntityAlias());
+                propertyType, collectionType, proxy, identifierPath, query.createEntityAlias());
+        child.setJoinType(JoinType.Default); // default join type
         if( parent == null ) {
             froms.add(new TypeSafeQueryFrom(helper, child));
         } else {
@@ -105,7 +109,8 @@ public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder {
         }
         if(true) {
             // hibernate can't handle references in joins if they are from a different entity unfortunantly.
-            throw new RuntimeException("Unfortunantly, hibernate would throw a QuerySyntaxException: 'with-clause referenced two different from-clause elements.' even though sql could handle it.");
+            throw new ValueNotInScopeException("Unfortunantly, hibernate would throw a QuerySyntaxException: "
+                    + "'with-clause referenced two different from-clause elements.' even though sql could handle it.");
         }
         
         @SuppressWarnings("unused")

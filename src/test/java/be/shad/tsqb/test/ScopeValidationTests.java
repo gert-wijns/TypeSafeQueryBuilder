@@ -83,7 +83,7 @@ public class ScopeValidationTests extends TypeSafeQueryTest {
         Person parent = query.from(Person.class);
         Relation relation = query.join(parent.getChildRelations());
         Person child = query.join(relation.getChild());
-        Relation relation2 = query.join(parent.getChildRelations());
+        Relation relation2 = query.join(child.getChildRelations());
         Person grandChild = query.join(relation2.getChild());
         
         query.getJoin(child).with(child.getName()).eq(grandChild.getName());
