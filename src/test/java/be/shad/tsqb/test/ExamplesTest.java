@@ -197,6 +197,32 @@ public class ExamplesTest extends TypeSafeQueryTest {
         validate(" from Relation hobj1 where hobj1.parent.id = ?", 1L);
     }
 
+    /**
+     * When only the identifier property (retrieved from the hibernate meta data) is used,
+     * and the join type was not explicitly set by the user, then the 
+     * JoinType.None is automatically used.
+     */
+    @Test
+    public void testJoinTypeNoneByDefaultWhenOnlyIdentifierPropertyIsUsed() {
+        Relation relation = query.from(Relation.class);
+        query.where(relation.getParent().getId()).eq(1L);
+        
+        validate(" from Relation hobj1 where hobj1.parent.id = ?", 1L);
+    }
+
+    /**
+     * More than the identifier property is used, so the join type defaults to
+     * inner in case it was not set explicitly.
+     */
+    @Test
+    public void testJoinTypeInnerByDefaultWhenNonIdentifierPropertyIsUsed() {
+        Relation relation = query.from(Relation.class);
+        query.where(relation.getParent().getId()).eq(1L);
+        query.where(relation.getParent().getName()).eq("Iain");
+        
+        validate(" from Relation hobj1 join hobj1.parent hobj2 where hobj2.id = ? and hobj2.name = ?", 1L, "Iain");
+    }
+    
     @Test
     public void testSelectMaxAge() {
         Person person = query.from(Person.class);

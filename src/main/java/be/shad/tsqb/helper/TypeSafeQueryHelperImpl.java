@@ -32,20 +32,16 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
         this.sessionFactory = sessionFactory;
         this.proxyFactory = new TypeSafeQueryProxyFactory();
     }
-    /**
-     * Checks in hibernate to see if the clazz is an entity.
-     */
-    private boolean isEntity(Class<?> clazz) {
-        ClassMetadata meta = sessionFactory.getClassMetadata(clazz);
-        return meta != null;
+    
+    private Type getTargetType(Class<?> fromClass, String property) {
+        ClassMetadata meta = sessionFactory.getClassMetadata(fromClass);
+        return meta.getPropertyType(property);
     }
 
     /**
      * Retrieves the type information from hibernate.
      */
-    private Class<?> getTargetEntityClass(Class<?> fromClass, String property) {
-        ClassMetadata meta = sessionFactory.getClassMetadata(fromClass);
-        Type propertyType = meta.getPropertyType(property);
+    private Class<?> getTargetEntityClass(Type propertyType) {
         if( CollectionType.class.isAssignableFrom(propertyType.getClass()) ) {
             CollectionType collectionType = (CollectionType) propertyType;
             Type elementType = collectionType.getElementType(
@@ -97,7 +93,7 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
     public <T> T createTypeSafeFromProxy(TypeSafeQueryInternal query, Class<T> clazz) {
         T proxy = proxyFactory.getProxyInstance(clazz);
         TypeSafeQueryProxyData data = query.getDataTree().createData(
-                null, null, clazz, (TypeSafeQueryProxy) proxy);
+                null, null, clazz, false, null, (TypeSafeQueryProxy) proxy);
         setMethodListener(query, data);
         return proxy;
     }
@@ -116,36 +112,46 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
                 String method2Name = method2PropertyName(m);
                 TypeSafeQueryProxyData child = data.getChild(method2Name);
                 if( child == null ) {
-                    Class<?> targetClass = getTargetEntityClass(data.getPropertyType(), method2Name);
-                    if( isEntity(targetClass) ) {
-                        child = createTypeSafeJoinProxy(query, data, method2Name, targetClass);
-                    } else {
-                        child = query.getDataTree().createData(data, method2Name, targetClass); 
-                    }
+                    child = createChildData(query, data, method2Name);
+                }
+                if ( !Collection.class.isAssignableFrom(m.getReturnType()) && child.getProxy() != null ) {
+                    // return the proxy without adding to the invocation queue to allow method chaining.
+                    return child.getProxy();
                 }
                 // remember the method invocation, to be used later...
                 query.invocationWasMade(child);
-                if( child.getProxy() != null && !Collection.class.isAssignableFrom(m.getReturnType())) {
-                    // return null to make sure no method chaining occurs. 
-                    // joining must be done explicitly by query.join, this will return a proxy)
-                    return proxyFactory.getMethodChainingExceptionProxy(child.getPropertyType()); 
-                }
                 return proceed.invoke(self, args);
             }
+
+
         });
     }
 
+    private TypeSafeQueryProxyData createChildData(TypeSafeQueryInternal query, TypeSafeQueryProxyData parent, String property) {
+        Type propertyType = getTargetType(parent.getPropertyType(), property);
+        Class<?> targetClass = getTargetEntityClass(propertyType);
+        ClassMetadata metadata = sessionFactory.getClassMetadata(targetClass);
+        if( metadata != null ) {
+            TypeSafeQueryProxy proxy = (TypeSafeQueryProxy) proxyFactory.getProxyInstance(targetClass);
+            TypeSafeQueryProxyData join = query.getDataTree().createData(parent, property, 
+                    targetClass, CollectionType.class.isAssignableFrom(propertyType.getClass()),
+                    metadata.getIdentifierPropertyName(), proxy);
+            setMethodListener(query, join);
+            return join;
+        } else {
+            return query.getDataTree().createData(parent, property, targetClass); 
+        }
+    }
+    
     /**
      * {@inheritDoc}
      */
     @Override
     public TypeSafeQueryProxyData createTypeSafeJoinProxy(TypeSafeQueryInternal query, 
             TypeSafeQueryProxyData parent, String propertyName, Class<?> targetClass) {
-        TypeSafeQueryProxy proxy = (TypeSafeQueryProxy) proxyFactory.getProxyInstance(targetClass);
-        TypeSafeQueryProxyData join = query.getDataTree().createData(parent, propertyName, targetClass, proxy);
-        setMethodListener(query, join);
-        return join;
+        return createChildData(query, parent, propertyName);
     }
+    
 
     /**
      * Simple conversion to the property path to be used in the query building phase.

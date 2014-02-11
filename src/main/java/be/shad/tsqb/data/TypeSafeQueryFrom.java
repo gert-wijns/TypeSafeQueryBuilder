@@ -47,13 +47,13 @@ public class TypeSafeQueryFrom implements HqlQueryBuilder {
             if( data.getProxy() == null ) {
                 throw new IllegalStateException(format("Data [%s] was added as a join, but does not have a proxy.", data));
             }
-            if( data.getJoinType() == null ) {
+            if( data.getEffectiveJoinType() == null ) {
                 throw new IllegalArgumentException("The getter for [" + data.getProxy() + "] was called, "
                         + "but it was not passed to query.join(object, jointype).");
             }
-            if( data.getJoinType() != JoinType.None ) {
+            if( data.getEffectiveJoinType() != JoinType.None ) {
                 // example: 'left join fetch' 'hobj1'.'propertyPath' 'hobj2' 
-                from.appendHql(format(" %s %s.%s %s", getJoinTypeString(data.getJoinType()), 
+                from.appendHql(format(" %s %s.%s %s", getJoinTypeString(data.getEffectiveJoinType()), 
                         data.getParent().getAlias(), data.getPropertyPath(), data.getAlias()));
                 HqlQueryValue hqlQueryValue = join.getRestrictions().toHqlQueryValue();
                 String withHql = hqlQueryValue.getHql();
