@@ -13,6 +13,7 @@ import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.hql.HqlQueryBuilder;
 import be.shad.tsqb.joins.TypeSafeQueryJoin;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
+import be.shad.tsqb.proxy.TypeSafeQueryProxyFactory.TypeSafeQueryProxyType;
 import be.shad.tsqb.query.JoinType;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 
@@ -45,10 +46,10 @@ public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder {
      * is used to construct a FROM part of the query.
      */
     public TypeSafeQueryProxyData createData(TypeSafeQueryProxyData parent, 
-            String propertyName, Class<?> propertyType, boolean collectionType,
+            String propertyName, Class<?> propertyType, TypeSafeQueryProxyType proxyType,
             String identifierPath, TypeSafeQueryProxy proxy) {
         TypeSafeQueryProxyData child = new TypeSafeQueryProxyData(parent, propertyName, 
-                propertyType, collectionType, proxy, identifierPath, query.createEntityAlias());
+                propertyType, proxyType, proxy, identifierPath, query.createEntityAlias());
         child.setJoinType(JoinType.Default); // default join type
         if( parent == null ) {
             froms.add(new TypeSafeQueryFrom(helper, child));

@@ -12,6 +12,7 @@ import org.junit.Test;
 
 import be.shad.tsqb.domain.Building;
 import be.shad.tsqb.domain.House;
+import be.shad.tsqb.domain.Style;
 import be.shad.tsqb.domain.Town;
 import be.shad.tsqb.domain.people.Person;
 import be.shad.tsqb.domain.people.PersonProperty;
@@ -241,6 +242,18 @@ public class SelectTests extends TypeSafeQueryTest {
                 + "join hobj1.properties hobj2 with hobj2.propertyKey = ? "
                 + "join hobj1.properties hobj3 with hobj3.propertyKey = ?",
                 "FavoriteColor", "FavoriteDish");
+    }
+    
+    @Test
+    public void selectCompositeTypeValues() {
+        Building building = query.from(Building.class);
+
+        @SuppressWarnings("unchecked")
+        MutablePair<String, Style> result = query.select(MutablePair.class);
+        result.setLeft(building.getAddress().getNumber());
+        result.setRight(building.getStyle());
+        
+        validate("select hobj1.address.number as left, hobj1.style as right from Building hobj1");
     }
     
 }

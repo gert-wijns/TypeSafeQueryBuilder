@@ -1,5 +1,10 @@
 package be.shad.tsqb.helper;
 
+import static be.shad.tsqb.proxy.TypeSafeQueryProxyFactory.TypeSafeQueryProxyType.CompositeType;
+import static be.shad.tsqb.proxy.TypeSafeQueryProxyFactory.TypeSafeQueryProxyType.EntityCollectionType;
+import static be.shad.tsqb.proxy.TypeSafeQueryProxyFactory.TypeSafeQueryProxyType.EntityType;
+import static be.shad.tsqb.proxy.TypeSafeQueryProxyFactory.TypeSafeQueryProxyType.SelectionDtoType;
+
 import java.lang.reflect.Method;
 import java.util.Collection;
 
@@ -11,12 +16,15 @@ import org.hibernate.engine.SessionFactoryImplementor;
 import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.type.BasicType;
 import org.hibernate.type.CollectionType;
+import org.hibernate.type.CompositeCustomType;
 import org.hibernate.type.StringRepresentableType;
 import org.hibernate.type.Type;
+import org.hibernate.usertype.CompositeUserType;
 
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
 import be.shad.tsqb.proxy.TypeSafeQueryProxyFactory;
+import be.shad.tsqb.proxy.TypeSafeQueryProxyFactory.TypeSafeQueryProxyType;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.query.TypeSafeRootQuery;
 import be.shad.tsqb.query.TypeSafeRootQueryImpl;
@@ -33,9 +41,20 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
         this.proxyFactory = new TypeSafeQueryProxyFactory();
     }
     
-    private Type getTargetType(Class<?> fromClass, String property) {
-        ClassMetadata meta = sessionFactory.getClassMetadata(fromClass);
-        return meta.getPropertyType(property);
+    private Type getTargetType(TypeSafeQueryProxyData data, String property) {
+        if( data.getProxyType() == CompositeType ) {
+            CompositeCustomType compositeType = (CompositeCustomType) sessionFactory.getClassMetadata(
+                    data.getParent().getPropertyType()).getPropertyType(data.getPropertyPath());
+            CompositeUserType type = compositeType.getUserType();
+            int i=0;
+            for(String propertyName: type.getPropertyNames()) {
+                if( propertyName.equals(property) ) {
+                    return type.getPropertyTypes()[i];
+                }
+                i++;
+            }
+        }
+        return sessionFactory.getClassMetadata(data.getPropertyType()).getPropertyType(property);
     }
 
     /**
@@ -72,7 +91,7 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
      */
     @Override
     public <T> T createTypeSafeSelectProxy(final TypeSafeRootQueryInternal query, Class<T> clazz) {
-        T proxy = proxyFactory.getProxyInstance(clazz);
+        T proxy = proxyFactory.getProxy(clazz, SelectionDtoType);
         ((ProxyObject) proxy).setHandler(new MethodHandler() {
             public Object invoke(Object self, Method m, Method proceed, Object[] args) throws Throwable {
                 if( m.getName().startsWith("set") ) {
@@ -91,10 +110,10 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
      */
     @Override
     public <T> T createTypeSafeFromProxy(TypeSafeQueryInternal query, Class<T> clazz) {
-        T proxy = proxyFactory.getProxyInstance(clazz);
-        TypeSafeQueryProxyData data = query.getDataTree().createData(
-                null, null, clazz, false, null, (TypeSafeQueryProxy) proxy);
-        setMethodListener(query, data);
+        T proxy = proxyFactory.getProxy(clazz, EntityType);
+        TypeSafeQueryProxyData data = query.getDataTree().createData(null, 
+                null, clazz, EntityType, null, (TypeSafeQueryProxy) proxy);
+        setEntityProxyMethodListener(query, data);
         return proxy;
     }
 
@@ -102,7 +121,7 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
      * Sets the method handler on the proxy to create new proxies when 
      * hibernate entities are traversed via the getter/setters.
      */
-    private void setMethodListener(final TypeSafeQueryInternal query, final TypeSafeQueryProxyData data) {
+    private void setEntityProxyMethodListener(final TypeSafeQueryInternal query, final TypeSafeQueryProxyData data) {
         ((ProxyObject) data.getProxy()).setHandler(new MethodHandler() {
             public Object invoke(Object self, Method m, Method proceed, Object[] args) throws Throwable {
                 if( m.getReturnType().equals(TypeSafeQueryProxyData.class) ) {
@@ -128,16 +147,21 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
     }
 
     private TypeSafeQueryProxyData createChildData(TypeSafeQueryInternal query, TypeSafeQueryProxyData parent, String property) {
-        Type propertyType = getTargetType(parent.getPropertyType(), property);
+        Type propertyType = getTargetType(parent, property);
         Class<?> targetClass = getTargetEntityClass(propertyType);
         ClassMetadata metadata = sessionFactory.getClassMetadata(targetClass);
-        if( metadata != null ) {
-            TypeSafeQueryProxy proxy = (TypeSafeQueryProxy) proxyFactory.getProxyInstance(targetClass);
-            TypeSafeQueryProxyData join = query.getDataTree().createData(parent, property, 
-                    targetClass, CollectionType.class.isAssignableFrom(propertyType.getClass()),
-                    metadata.getIdentifierPropertyName(), proxy);
-            setMethodListener(query, join);
-            return join;
+        if( metadata != null || propertyType.isComponentType() ) {
+            TypeSafeQueryProxyType proxyType = CompositeType;
+            String identifierPropertyName = null;
+            if( !propertyType.isComponentType() ) {
+                proxyType = propertyType.isCollectionType() ? EntityCollectionType: EntityType;
+                identifierPropertyName = metadata.getIdentifierPropertyName();
+            }
+            TypeSafeQueryProxy proxy = (TypeSafeQueryProxy) proxyFactory.getProxy(targetClass, proxyType);
+            TypeSafeQueryProxyData data = query.getDataTree().createData(parent, property, 
+                    targetClass, proxyType, identifierPropertyName, proxy);
+            setEntityProxyMethodListener(query, data);
+            return data;
         } else {
             return query.getDataTree().createData(parent, property, targetClass); 
         }

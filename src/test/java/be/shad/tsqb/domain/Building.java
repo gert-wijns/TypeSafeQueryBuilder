@@ -12,6 +12,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Columns;
 import org.hibernate.annotations.Type;
 
 import be.shad.tsqb.domain.usertype.Address;
@@ -35,7 +36,11 @@ public class Building extends DomainObject {
     @Column
     private Date constructionDate;
     
-    @Type(type="be.shad.tsqb.domain.usertype.Address")
+    @Type(type="AddressType")
+    @Columns(columns = {
+            @Column(name = "street"),
+            @Column(name = "number")
+    })
     private Address address;
     
     public Town getTown() {
