@@ -12,6 +12,7 @@ import org.junit.Test;
 
 import be.shad.tsqb.domain.Building;
 import be.shad.tsqb.domain.House;
+import be.shad.tsqb.domain.Product;
 import be.shad.tsqb.domain.Style;
 import be.shad.tsqb.domain.Town;
 import be.shad.tsqb.domain.people.Person;
@@ -261,11 +262,24 @@ public class SelectTests extends TypeSafeQueryTest {
         Town town = query.from(Town.class);
 
         @SuppressWarnings("unchecked")
-        MutablePair<String, String> result = query.select(MutablePair.class);
-        result.setLeft(town.getProperties().getEmbeddedProperty1());
-        result.setRight(town.getProperties().getEmbeddedProperty2());
+        MutablePair<Double, Double> result = query.select(MutablePair.class);
+        result.setLeft(town.getGeographicCoordinate().getLongitude());
+        result.setRight(town.getGeographicCoordinate().getLattitude());
         
-        validate("select hobj1.properties.embeddedProperty1 as left, hobj1.properties.embeddedProperty2 as right from Town hobj1");
+        validate("select hobj1.geographicCoordinate.longitude as left, hobj1.geographicCoordinate.lattitude as right from Town hobj1");
+    }
+    
+    @Test
+    public void selectNestedComponentTypeValues() {
+        Product product = query.from(Product.class);
+
+        @SuppressWarnings("unchecked")
+        MutableTriple<String, String, Boolean> triple = query.select(MutableTriple.class);
+        triple.setLeft(product.getName());
+        triple.setMiddle(product.getProperties().getPlanning().getAlgorithm());
+        triple.setRight(product.getProperties().getSales().isSalesAllowed());
+
+        validate("select hobj1.name as left, hobj1.properties.planning.algorithm as middle, hobj1.properties.sales.salesAllowed as right from Product hobj1");
     }
     
 }

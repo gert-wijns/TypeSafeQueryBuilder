@@ -13,7 +13,7 @@ import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.hql.HqlQueryBuilder;
 import be.shad.tsqb.joins.TypeSafeQueryJoin;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
-import be.shad.tsqb.proxy.TypeSafeQueryProxyFactory.TypeSafeQueryProxyType;
+import be.shad.tsqb.proxy.TypeSafeQueryProxyType;
 import be.shad.tsqb.query.JoinType;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 

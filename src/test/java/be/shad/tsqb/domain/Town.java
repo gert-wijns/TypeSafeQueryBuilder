@@ -18,14 +18,14 @@ public class Town extends DomainObject {
     private Set<Building> buildings;
     
     @Embedded
-    private EmbeddedProperties properties;
+    private GeographicCoordinate geographicCoordinate;
     
-    public EmbeddedProperties getProperties() {
-        return properties;
+    public GeographicCoordinate getGeographicCoordinate() {
+        return geographicCoordinate;
     }
-    
-    public void setProperties(EmbeddedProperties properties) {
-        this.properties = properties;
+
+    public void setGeographicCoordinate(GeographicCoordinate geographicCoordinate) {
+        this.geographicCoordinate = geographicCoordinate;
     }
 
     public Set<Building> getBuildings() {

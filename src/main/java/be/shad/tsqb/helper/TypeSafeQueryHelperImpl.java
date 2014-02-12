@@ -1,14 +1,13 @@
 package be.shad.tsqb.helper;
 
-import static be.shad.tsqb.proxy.TypeSafeQueryProxyFactory.TypeSafeQueryProxyType.ComponentType;
-import static be.shad.tsqb.proxy.TypeSafeQueryProxyFactory.TypeSafeQueryProxyType.CompositeType;
-import static be.shad.tsqb.proxy.TypeSafeQueryProxyFactory.TypeSafeQueryProxyType.EntityCollectionType;
-import static be.shad.tsqb.proxy.TypeSafeQueryProxyFactory.TypeSafeQueryProxyType.EntityType;
-import static be.shad.tsqb.proxy.TypeSafeQueryProxyFactory.TypeSafeQueryProxyType.SelectionDtoType;
+import static be.shad.tsqb.proxy.TypeSafeQueryProxyType.ComponentType;
+import static be.shad.tsqb.proxy.TypeSafeQueryProxyType.CompositeType;
+import static be.shad.tsqb.proxy.TypeSafeQueryProxyType.EntityCollectionType;
+import static be.shad.tsqb.proxy.TypeSafeQueryProxyType.EntityType;
+import static be.shad.tsqb.proxy.TypeSafeQueryProxyType.SelectionDtoType;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
-import java.util.Stack;
 
 import javassist.util.proxy.MethodHandler;
 import javassist.util.proxy.ProxyObject;
@@ -19,15 +18,13 @@ import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.type.BasicType;
 import org.hibernate.type.CollectionType;
 import org.hibernate.type.ComponentType;
-import org.hibernate.type.CompositeCustomType;
 import org.hibernate.type.StringRepresentableType;
 import org.hibernate.type.Type;
-import org.hibernate.usertype.CompositeUserType;
 
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
 import be.shad.tsqb.proxy.TypeSafeQueryProxyFactory;
-import be.shad.tsqb.proxy.TypeSafeQueryProxyFactory.TypeSafeQueryProxyType;
+import be.shad.tsqb.proxy.TypeSafeQueryProxyType;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.query.TypeSafeRootQuery;
 import be.shad.tsqb.query.TypeSafeRootQueryImpl;
@@ -45,33 +42,9 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
     }
     
     private Type getTargetType(TypeSafeQueryProxyData data, String property) {
-        if( data.getProxyType() == CompositeType ) {
-            CompositeCustomType compositeType = (CompositeCustomType) sessionFactory.getClassMetadata(
-                    data.getParent().getPropertyType()).getPropertyType(data.getPropertyPath());
-            CompositeUserType type = compositeType.getUserType();
-            int i=0;
-            for(String propertyName: type.getPropertyNames()) {
-                if( propertyName.equals(property) ) {
-                    return type.getPropertyTypes()[i];
-                }
-                i++;
-            }
-        } else if ( data.getProxyType() == ComponentType ) {
-            Stack<TypeSafeQueryProxyData> stack = new Stack<>();
-            TypeSafeQueryProxyData entityParent = data;
-            while( entityParent.getProxyType() != EntityType ) {
-                stack.add(entityParent);
-                entityParent = entityParent.getParent();
-            }
-
-            StringBuilder path = new StringBuilder();
-            while( !stack.isEmpty() ) {
-                path.append(stack.pop().getPropertyPath()).append(".");
-            }
-            path.append(property);
-            
-            return sessionFactory.getClassMetadata(entityParent.getPropertyType()).
-                    getPropertyType(path.toString());
+        if ( data.getProxyType().isComposite() ) {
+            return sessionFactory.getClassMetadata(data.getCompositeTypeEntityParent().getPropertyType()).
+                    getPropertyType(data.getCompositePropertyPath() + "." + property);
         }
         return sessionFactory.getClassMetadata(data.getPropertyType()).getPropertyType(property);
     }
@@ -169,23 +142,20 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
         Type propertyType = getTargetType(parent, property);
         Class<?> targetClass = getTargetEntityClass(propertyType);
         ClassMetadata metadata = sessionFactory.getClassMetadata(targetClass);
-        if( metadata != null || propertyType.isComponentType() ) {
-            TypeSafeQueryProxyType proxyType = null;
-            String identifierPropertyName = null;
-            if( propertyType.isComponentType() ) {
-                proxyType = propertyType instanceof ComponentType ? ComponentType: CompositeType;
-            } else {
-                proxyType = propertyType.isCollectionType() ? EntityCollectionType: EntityType;
-                identifierPropertyName = metadata.getIdentifierPropertyName();
-            }
-            TypeSafeQueryProxy proxy = (TypeSafeQueryProxy) proxyFactory.getProxy(targetClass, proxyType);
-            TypeSafeQueryProxyData data = query.getDataTree().createData(parent, property, 
-                    targetClass, proxyType, identifierPropertyName, proxy);
-            setEntityProxyMethodListener(query, data);
-            return data;
-        } else {
+        if( metadata == null && !propertyType.isComponentType() ) {
             return query.getDataTree().createData(parent, property, targetClass); 
         }
+        TypeSafeQueryProxyType proxyType = null;
+        if( metadata != null ) {
+            proxyType = propertyType.isCollectionType() ? EntityCollectionType: EntityType;
+        } else {
+            proxyType = propertyType instanceof ComponentType ? ComponentType: CompositeType;
+        }
+        TypeSafeQueryProxy proxy = (TypeSafeQueryProxy) proxyFactory.getProxy(targetClass, proxyType);
+        TypeSafeQueryProxyData data = query.getDataTree().createData(parent, property, targetClass, 
+                proxyType, metadata == null ? null: metadata.getIdentifierPropertyName(), proxy);
+        setEntityProxyMethodListener(query, data);
+        return data;
     }
     
     /**

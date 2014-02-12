@@ -1,9 +1,6 @@
 package be.shad.tsqb.data;
 
-import static be.shad.tsqb.proxy.TypeSafeQueryProxyFactory.TypeSafeQueryProxyType.ComponentType;
-import static be.shad.tsqb.proxy.TypeSafeQueryProxyFactory.TypeSafeQueryProxyType.CompositeType;
-import static be.shad.tsqb.proxy.TypeSafeQueryProxyFactory.TypeSafeQueryProxyType.EntityCollectionType;
-import static be.shad.tsqb.proxy.TypeSafeQueryProxyFactory.TypeSafeQueryProxyType.EntityPropertyType;
+import static be.shad.tsqb.proxy.TypeSafeQueryProxyType.EntityPropertyType;
 import static be.shad.tsqb.query.JoinType.Default;
 import static be.shad.tsqb.query.JoinType.Inner;
 import static be.shad.tsqb.query.JoinType.None;
@@ -12,7 +9,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
-import be.shad.tsqb.proxy.TypeSafeQueryProxyFactory.TypeSafeQueryProxyType;
+import be.shad.tsqb.proxy.TypeSafeQueryProxyType;
 import be.shad.tsqb.query.JoinType;
 
 /**
@@ -23,6 +20,8 @@ public class TypeSafeQueryProxyData {
     private final TypeSafeQueryProxyType proxyType;
     private final TypeSafeQueryProxyData parent;
     private final TypeSafeQueryProxy proxy;
+    private final TypeSafeQueryProxyData compositeTypeEntityParent;
+    private final String compositeTypePropertyPath;
     private final String propertyPath;
     private final String identifierPath;
     private final Class<?> propertyType;
@@ -50,6 +49,20 @@ public class TypeSafeQueryProxyData {
         this.parent = parent;
         this.proxy = proxy;
         this.alias = alias;
+
+        // set composite related data:
+        if( proxyType.isComposite() ) { 
+            if (parent.getProxyType().isComposite() ) {
+                compositeTypeEntityParent = parent.compositeTypeEntityParent;
+                compositeTypePropertyPath = parent.compositeTypePropertyPath + "." + propertyPath;
+            } else {
+                compositeTypeEntityParent = parent;
+                compositeTypePropertyPath = propertyPath;
+            }
+        } else {
+            compositeTypeEntityParent = null;
+            compositeTypePropertyPath = null;
+        }
     }
     
     public TypeSafeQueryProxyType getProxyType() {
@@ -86,6 +99,14 @@ public class TypeSafeQueryProxyData {
     public TypeSafeQueryProxy getProxy() {
         return proxy;
     }
+    
+    public TypeSafeQueryProxyData getCompositeTypeEntityParent() {
+        return compositeTypeEntityParent;
+    }
+    
+    public String getCompositePropertyPath() {
+        return compositeTypePropertyPath;
+    }
 
     public String getPropertyPath() {
         return propertyPath;
@@ -101,11 +122,11 @@ public class TypeSafeQueryProxyData {
      * Otherwise the default join type is Inner.
      */
     public JoinType getEffectiveJoinType() {
-        if( proxyType == CompositeType || proxyType == ComponentType ) {
+        if( proxyType.isComposite() ) {
             return JoinType.None;
         }
         if( joinType == Default ) {
-            if( proxyType != EntityCollectionType && children.size() == 1 ) {
+            if( !proxyType.isCollection() && children.size() == 1 ) {
                 // might be worth checking if only an identity relation was used:
                 TypeSafeQueryProxyData child = children.values().iterator().next();
                 if( identifierPath.equals(child.getPropertyPath()) ) {
