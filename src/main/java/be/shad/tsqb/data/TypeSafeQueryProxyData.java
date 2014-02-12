@@ -1,5 +1,6 @@
 package be.shad.tsqb.data;
 
+import static be.shad.tsqb.proxy.TypeSafeQueryProxyFactory.TypeSafeQueryProxyType.ComponentType;
 import static be.shad.tsqb.proxy.TypeSafeQueryProxyFactory.TypeSafeQueryProxyType.CompositeType;
 import static be.shad.tsqb.proxy.TypeSafeQueryProxyFactory.TypeSafeQueryProxyType.EntityCollectionType;
 import static be.shad.tsqb.proxy.TypeSafeQueryProxyFactory.TypeSafeQueryProxyType.EntityPropertyType;
@@ -100,7 +101,7 @@ public class TypeSafeQueryProxyData {
      * Otherwise the default join type is Inner.
      */
     public JoinType getEffectiveJoinType() {
-        if( proxyType == CompositeType ) {
+        if( proxyType == CompositeType || proxyType == ComponentType ) {
             return JoinType.None;
         }
         if( joinType == Default ) {

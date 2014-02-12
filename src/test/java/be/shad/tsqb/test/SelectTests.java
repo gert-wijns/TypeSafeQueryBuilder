@@ -256,4 +256,16 @@ public class SelectTests extends TypeSafeQueryTest {
         validate("select hobj1.address.number as left, hobj1.style as right from Building hobj1");
     }
     
+    @Test
+    public void selectComponentTypeValues() {
+        Town town = query.from(Town.class);
+
+        @SuppressWarnings("unchecked")
+        MutablePair<String, String> result = query.select(MutablePair.class);
+        result.setLeft(town.getProperties().getEmbeddedProperty1());
+        result.setRight(town.getProperties().getEmbeddedProperty2());
+        
+        validate("select hobj1.properties.embeddedProperty1 as left, hobj1.properties.embeddedProperty2 as right from Town hobj1");
+    }
+    
 }

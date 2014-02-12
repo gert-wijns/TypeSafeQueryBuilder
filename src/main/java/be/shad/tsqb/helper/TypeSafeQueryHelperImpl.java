@@ -1,5 +1,6 @@
 package be.shad.tsqb.helper;
 
+import static be.shad.tsqb.proxy.TypeSafeQueryProxyFactory.TypeSafeQueryProxyType.ComponentType;
 import static be.shad.tsqb.proxy.TypeSafeQueryProxyFactory.TypeSafeQueryProxyType.CompositeType;
 import static be.shad.tsqb.proxy.TypeSafeQueryProxyFactory.TypeSafeQueryProxyType.EntityCollectionType;
 import static be.shad.tsqb.proxy.TypeSafeQueryProxyFactory.TypeSafeQueryProxyType.EntityType;
@@ -7,6 +8,7 @@ import static be.shad.tsqb.proxy.TypeSafeQueryProxyFactory.TypeSafeQueryProxyTyp
 
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.Stack;
 
 import javassist.util.proxy.MethodHandler;
 import javassist.util.proxy.ProxyObject;
@@ -16,6 +18,7 @@ import org.hibernate.engine.SessionFactoryImplementor;
 import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.type.BasicType;
 import org.hibernate.type.CollectionType;
+import org.hibernate.type.ComponentType;
 import org.hibernate.type.CompositeCustomType;
 import org.hibernate.type.StringRepresentableType;
 import org.hibernate.type.Type;
@@ -53,6 +56,22 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
                 }
                 i++;
             }
+        } else if ( data.getProxyType() == ComponentType ) {
+            Stack<TypeSafeQueryProxyData> stack = new Stack<>();
+            TypeSafeQueryProxyData entityParent = data;
+            while( entityParent.getProxyType() != EntityType ) {
+                stack.add(entityParent);
+                entityParent = entityParent.getParent();
+            }
+
+            StringBuilder path = new StringBuilder();
+            while( !stack.isEmpty() ) {
+                path.append(stack.pop().getPropertyPath()).append(".");
+            }
+            path.append(property);
+            
+            return sessionFactory.getClassMetadata(entityParent.getPropertyType()).
+                    getPropertyType(path.toString());
         }
         return sessionFactory.getClassMetadata(data.getPropertyType()).getPropertyType(property);
     }
@@ -151,9 +170,11 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
         Class<?> targetClass = getTargetEntityClass(propertyType);
         ClassMetadata metadata = sessionFactory.getClassMetadata(targetClass);
         if( metadata != null || propertyType.isComponentType() ) {
-            TypeSafeQueryProxyType proxyType = CompositeType;
+            TypeSafeQueryProxyType proxyType = null;
             String identifierPropertyName = null;
-            if( !propertyType.isComponentType() ) {
+            if( propertyType.isComponentType() ) {
+                proxyType = propertyType instanceof ComponentType ? ComponentType: CompositeType;
+            } else {
                 proxyType = propertyType.isCollectionType() ? EntityCollectionType: EntityType;
                 identifierPropertyName = metadata.getIdentifierPropertyName();
             }

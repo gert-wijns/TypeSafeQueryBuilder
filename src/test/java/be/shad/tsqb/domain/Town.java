@@ -4,6 +4,7 @@ import static javax.persistence.FetchType.LAZY;
 
 import java.util.Set;
 
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -15,6 +16,17 @@ public class Town extends DomainObject {
 
     @OneToMany(fetch = LAZY, mappedBy = "town", targetEntity = Building.class)
     private Set<Building> buildings;
+    
+    @Embedded
+    private EmbeddedProperties properties;
+    
+    public EmbeddedProperties getProperties() {
+        return properties;
+    }
+    
+    public void setProperties(EmbeddedProperties properties) {
+        this.properties = properties;
+    }
 
     public Set<Building> getBuildings() {
         return buildings;

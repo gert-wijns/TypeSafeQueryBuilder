@@ -1,5 +1,6 @@
 package be.shad.tsqb.proxy;
 
+import static be.shad.tsqb.proxy.TypeSafeQueryProxyFactory.TypeSafeQueryProxyType.ComponentType;
 import static be.shad.tsqb.proxy.TypeSafeQueryProxyFactory.TypeSafeQueryProxyType.CompositeType;
 import static be.shad.tsqb.proxy.TypeSafeQueryProxyFactory.TypeSafeQueryProxyType.EntityCollectionType;
 import static be.shad.tsqb.proxy.TypeSafeQueryProxyFactory.TypeSafeQueryProxyType.EntityType;
@@ -24,6 +25,7 @@ public final class TypeSafeQueryProxyFactory {
         EntityCollectionType,
         EntityPropertyType,
         CompositeType,
+        ComponentType,
         SelectionDtoType
     }
     
@@ -57,7 +59,7 @@ public final class TypeSafeQueryProxyFactory {
             if( proxyClass == null ) {
                 ProxyFactory f = new ProxyFactory();
                 f.setSuperclass(fromClass); // what if the super class is final?? guess it will give an exception..
-                if( type == EntityType || type == EntityCollectionType || type == CompositeType) {
+                if( type == EntityType || type == EntityCollectionType || type == CompositeType || type == ComponentType) {
                     f.setInterfaces(new Class[] { TypeSafeQueryProxy.class });
                 }
                 f.setFilter(METHOD_FILTER);
