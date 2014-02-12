@@ -2,11 +2,13 @@ package be.shad.tsqb.test;
 
 import org.junit.Test;
 
+import be.shad.tsqb.domain.Town;
 import be.shad.tsqb.domain.people.Person;
 import be.shad.tsqb.domain.people.Person.Sex;
 import be.shad.tsqb.domain.people.PersonProperty;
 import be.shad.tsqb.domain.people.Relation;
 import be.shad.tsqb.dto.PersonDto;
+import be.shad.tsqb.exceptions.JoinException;
 import be.shad.tsqb.joins.TypeSafeQueryJoin;
 import be.shad.tsqb.query.JoinType;
 import be.shad.tsqb.query.TypeSafeSubQuery;
@@ -299,5 +301,11 @@ public class ExamplesTest extends TypeSafeQueryTest {
         query.where(person1.getId()).eq(person2.getId());
 
         validate(" from Person hobj1, Person hobj2 where hobj1.id = hobj2.id");
+    }
+    
+    @Test(expected=JoinException.class)
+    public void testJoinCompositeTypeShouldFail() {
+        Town town = query.from(Town.class);
+        query.join(town.getGeographicCoordinate());
     }
 }

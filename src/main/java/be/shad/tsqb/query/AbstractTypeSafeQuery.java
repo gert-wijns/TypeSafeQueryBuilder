@@ -6,6 +6,7 @@ import java.util.List;
 
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.data.TypeSafeQueryProxyDataTree;
+import be.shad.tsqb.exceptions.JoinException;
 import be.shad.tsqb.exceptions.ValueNotInScopeException;
 import be.shad.tsqb.grouping.OnGoingGroupBy;
 import be.shad.tsqb.grouping.TypeSafeQueryGroupBys;
@@ -150,6 +151,10 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
         TypeSafeQueryProxyData data = rootQuery.dequeueInvocation();
         if( obj instanceof TypeSafeQueryProxy ) {
             data = ((TypeSafeQueryProxy) obj).getTypeSafeProxyData();
+        }
+        if( !data.getProxyType().isEntity() ) {
+            throw new JoinException(String.format("Attempting to join an object "
+                    + "which does not represent an entity. ", data.getAlias()));
         }
         if( createAdditionalJoin ) {
             data = helper.createTypeSafeJoinProxy(this, data.getParent(), 
