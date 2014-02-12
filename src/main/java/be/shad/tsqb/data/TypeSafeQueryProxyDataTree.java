@@ -102,7 +102,7 @@ public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder {
         
         // if the property is not an entity, then use the parent instead,
         // the parent should be part of one of the joins in the froms.
-        while( data.getProxy() == null ) {
+        while( !data.getProxyType().isEntity() ) {
             data = data.getParent();
         }
         if( data.equals(join) ) {
