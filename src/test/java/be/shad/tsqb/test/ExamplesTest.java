@@ -103,7 +103,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
         Person parent = query.from(Person.class);
         
         Relation childRelation = query.join(parent.getChildRelations());
-        Person child = query.join(childRelation.getChild());
+        Person child = childRelation.getChild();
         
         validate(" from Person hobj1 join hobj1.childRelations hobj2 join hobj2.child hobj3");
     }
@@ -274,6 +274,30 @@ public class ExamplesTest extends TypeSafeQueryTest {
         query.whereString(query.function().upper(person.getName())).eq("TOM");
 
         validate(" from Person hobj1 where upper(hobj1.name) = ?", "TOM");
-        
+    }
+
+    @Test
+    public void testImplicitJoin() {
+        Relation relation = query.from(Relation.class);
+        query.where(relation.getParent().getName()).startsWith("Sam"); // implicit join on parent
+
+        validate(" from Relation hobj1 join hobj1.parent hobj2 where hobj2.name like ?", "Sam%");
+    }
+
+    @Test
+    public void testImplicitJoinIdentifierOnly() {
+        Relation relation = query.from(Relation.class);
+        query.where(relation.getParent().getId()).eq(1L); // implicit join on parent
+
+        validate(" from Relation hobj1 where hobj1.parent.id = ?", 1L);
+    }
+
+    @Test
+    public void testMultiFromIdentifierOnlyShouldntOmmit() {
+        Person person1 = query.from(Person.class);
+        Person person2 = query.from(Person.class);
+        query.where(person1.getId()).eq(person2.getId());
+
+        validate(" from Person hobj1, Person hobj2 where hobj1.id = hobj2.id");
     }
 }
