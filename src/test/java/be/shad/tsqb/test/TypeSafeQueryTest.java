@@ -19,7 +19,7 @@ import be.shad.tsqb.query.TypeSafeRootQuery;
 
 public class TypeSafeQueryTest {
     
-    private final Logger logger = LogManager.getLogger(getClass());
+    protected final Logger logger = LogManager.getLogger(getClass());
     @Rule public TestName name = new TestName();
     
     private SessionFactory sessionFactory;

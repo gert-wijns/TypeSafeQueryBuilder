@@ -10,6 +10,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import be.shad.tsqb.domain.DomainObject;
+import be.shad.tsqb.domain.Town;
 
 @Entity
 @Table(name = "Person")
@@ -30,6 +31,9 @@ public class Person extends DomainObject {
 
     @OneToMany(fetch = LAZY, mappedBy = "person", targetEntity = PersonProperty.class)
     private Set<PersonProperty> properties;
+
+    @Column
+    private Town town;
     
     @Column
     private String name;
@@ -99,4 +103,11 @@ public class Person extends DomainObject {
         this.properties = properties;
     }
     
+    public Town getTown() {
+        return town;
+    }
+    
+    public void setTown(Town town) {
+        this.town = town;
+    }
 }
