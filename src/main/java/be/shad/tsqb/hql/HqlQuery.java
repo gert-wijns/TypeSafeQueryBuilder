@@ -17,6 +17,8 @@ package be.shad.tsqb.hql;
 
 import java.util.LinkedList;
 
+import org.hibernate.transform.ResultTransformer;
+
 import be.shad.tsqb.values.HqlQueryValue;
 
 public class HqlQuery implements HqlQueryValue {
@@ -26,18 +28,14 @@ public class HqlQuery implements HqlQueryValue {
     private StringBuilder groupBy = new StringBuilder();
     private StringBuilder orderBy = new StringBuilder();
     private LinkedList<Object> params = new LinkedList<>();
-    private Class<?> resultClass;
-    
-    /**
-     * Use with {@link org.hibernate.transform.Transformers#aliasToBean(Class) aliasToBean} 
-     * to select the aliased values into a dto.
-     */
-    public Class<?> getResultClass() {
-        return resultClass;
+    private ResultTransformer resultTransformer;
+
+    public ResultTransformer getResultTransformer() {
+        return resultTransformer;
     }
     
-    public void setResultClass(Class<?> resultClass) {
-        this.resultClass = resultClass;
+    public void setResultTransformer(ResultTransformer resultTransformer) {
+        this.resultTransformer = resultTransformer;
     }
 
     public String getSelect() {

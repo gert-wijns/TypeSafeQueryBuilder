@@ -21,6 +21,8 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -47,7 +49,8 @@ public class Person extends DomainObject {
     @OneToMany(fetch = LAZY, mappedBy = "person", targetEntity = PersonProperty.class)
     private Set<PersonProperty> properties;
 
-    @Column
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "TownId", nullable = false)
     private Town town;
     
     @Column

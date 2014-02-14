@@ -296,5 +296,15 @@ public class SelectTests extends TypeSafeQueryTest {
 
         validate("select hobj1.name as left, hobj1.properties.planning.algorithm as middle, hobj1.properties.sales.salesAllowed as right from Product hobj1");
     }
-    
+
+    @Test
+    public void selectNestedSelectionPropertyDto() {
+        Product product = query.from(Product.class);
+        
+        Product productDto = query.select(Product.class);
+        productDto.setName(product.getName());
+        productDto.getProperties().getPlanning().setAlgorithm(product.getName());
+
+        validate("select hobj1.name as name, hobj1.name as properties_planning_algorithm from Product hobj1");
+    }
 }

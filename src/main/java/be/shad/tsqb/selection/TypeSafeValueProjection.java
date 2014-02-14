@@ -15,8 +15,6 @@
  */
 package be.shad.tsqb.selection;
 
-import be.shad.tsqb.hql.HqlQuery;
-import be.shad.tsqb.values.HqlQueryValue;
 import be.shad.tsqb.values.TypeSafeValue;
 
 /**
@@ -26,20 +24,20 @@ import be.shad.tsqb.values.TypeSafeValue;
  * <p>
  * The propertyName represents the alias of this value in the select clause.
  */
-public class TypeSafeValueProjection implements TypeSafeProjection {
+public class TypeSafeValueProjection {
     private final TypeSafeValue<?> value;
-    private final String propertyName;
+    private final String alias;
 
-    public TypeSafeValueProjection(TypeSafeValue<?> value, String propertyName) {
+    public TypeSafeValueProjection(TypeSafeValue<?> value, String alias) {
+        this.alias = alias;
         this.value = value;
-        this.propertyName = propertyName;
     }
 
-    @Override
-    public void appendTo(HqlQuery query) {
-        HqlQueryValue val = value.toHqlQueryValue();
-        query.appendSelect(val.getHql() + (propertyName == null ? "": " as " + propertyName));
-        query.addParams(val.getParams());
+    public TypeSafeValue<?> getValue() {
+        return value;
     }
 
+    public String getAlias() {
+        return alias;
+    }
 }

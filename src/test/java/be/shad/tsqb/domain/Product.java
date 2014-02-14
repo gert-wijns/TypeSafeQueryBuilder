@@ -19,6 +19,7 @@ import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+import be.shad.tsqb.domain.properties.ManyProperties;
 import be.shad.tsqb.domain.properties.ProductProperties;
 
 @Entity
@@ -28,8 +29,19 @@ public class Product extends DomainObject {
     
     @Embedded
     private ProductProperties properties;
+
+    @Embedded
+    private ManyProperties manyProperties;
     
     private String name;
+    
+    public ManyProperties getManyProperties() {
+        return manyProperties;
+    }
+    
+    public void setManyProperties(ManyProperties manyProperties) {
+        this.manyProperties = manyProperties;
+    }
 
     public ProductProperties getProperties() {
         return properties;

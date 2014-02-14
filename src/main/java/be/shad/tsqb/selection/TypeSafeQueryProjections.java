@@ -15,6 +15,7 @@
  */
 package be.shad.tsqb.selection;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -24,6 +25,7 @@ import be.shad.tsqb.hql.HqlQueryBuilder;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.values.DirectTypeSafeValue;
+import be.shad.tsqb.values.HqlQueryValue;
 import be.shad.tsqb.values.ReferenceTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
 
@@ -35,7 +37,7 @@ import be.shad.tsqb.values.TypeSafeValue;
  */
 public class TypeSafeQueryProjections implements HqlQueryBuilder {
     private final TypeSafeQueryInternal query;
-    private final LinkedList<TypeSafeProjection> projections = new LinkedList<>();
+    private final LinkedList<TypeSafeValueProjection> projections = new LinkedList<>();
     private Class<?> resultClass;
 
     public TypeSafeQueryProjections(TypeSafeQueryInternal query) {
@@ -50,8 +52,12 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
         return resultClass;
     }
     
-    public LinkedList<TypeSafeProjection> getProjections() {
+    public LinkedList<TypeSafeValueProjection> getProjections() {
         return projections;
+    }
+
+    public void addProjection(TypeSafeValueProjection projection) {
+        projections.add(projection);
     }
     
     /**
@@ -62,7 +68,7 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
      * Covnerts the invocation data to a type safe value otherwise.
      */
     public void project(Object select, String propertyName) {
-        TypeSafeProjection projection = null;
+        TypeSafeValueProjection projection = null;
         TypeSafeValue<?> value = query.getRootQuery().dequeueSelectedValue();
         if( value != null ) {
             query.validateInScope(value, null);
@@ -94,9 +100,23 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
 
     @Override
     public void appendTo(HqlQuery query) {
-        query.setResultClass(resultClass);
-        for(TypeSafeProjection projection: projections) {
-            projection.appendTo(query);
+        List<String[]> paths = new ArrayList<>();
+        for(TypeSafeValueProjection projection: projections) {
+            HqlQueryValue val = projection.getValue().toHqlQueryValue();
+            if( projection.getValue() instanceof DirectTypeSafeValue<?> ) {
+                val = this.query.getHelper().replaceParamsWithLiterals(val);
+            }
+            String alias = "";
+            if( projection.getAlias() != null ) {
+                alias = projection.getAlias().replace(".", "_");
+                paths.add(projection.getAlias().split("\\."));
+                alias = " as " + alias;
+            }
+            query.appendSelect(val.getHql() + alias);
+            query.addParams(val.getParams());
+        }
+        if( !paths.isEmpty() ) {
+            query.setResultTransformer(new TypeSafeQueryResultTransformer(resultClass, paths));
         }
     }
 

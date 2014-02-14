@@ -98,18 +98,32 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
      */
     @Override
     public <T> T createTypeSafeSelectProxy(final TypeSafeRootQueryInternal query, Class<T> clazz) {
-        T proxy = proxyFactory.getProxy(clazz, SelectionDtoType);
-        ((ProxyObject) proxy).setHandler(new MethodHandler() {
-            public Object invoke(Object self, Method m, Method proceed, Object[] args) throws Throwable {
-                if( m.getName().startsWith("set") ) {
-                    String propertyName = m.getName().substring(3, 4).toLowerCase() + m.getName().substring(4);
-                    query.getProjections().project(args[0], propertyName);
-                }
-                return null;
-            }
-        });
+        final T proxy = proxyFactory.getProxy(clazz, SelectionDtoType);
+        setSelectionDtoMethodHandler(query, proxy, null);
         query.getProjections().setResultClass(clazz);
         return proxy;
+    }
+    
+    /**
+     * Build nested property path when values are retrieved, link to projections when values are set.
+     */
+    private void setSelectionDtoMethodHandler(final TypeSafeRootQueryInternal query, Object selectionDto, final String parentPath) {
+        ((ProxyObject) selectionDto).setHandler(new MethodHandler() {
+            public Object invoke(Object self, Method m, Method proceed, Object[] args) throws Throwable {
+                String propertyName = method2PropertyName(m);
+                if( parentPath != null ) {
+                    propertyName = parentPath + "." + propertyName;
+                }
+                Object childDto = null;
+                if( m.getName().startsWith("set") ) {
+                    query.getProjections().project(args[0], propertyName);
+                } else {
+                    childDto = proxyFactory.getProxy(m.getReturnType(), SelectionDtoType);
+                    setSelectionDtoMethodHandler(query, childDto, propertyName);
+                }
+                return childDto;
+            }
+        });
     }
 
     /**
@@ -193,6 +207,8 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
             start = 3;
         } else if ( name.startsWith("is") ) {
             start = 2;
+        } else if( name.startsWith("set") ) {
+            start = 3;
         } else {
             return name;
         }
@@ -238,5 +254,5 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
         }
         return value;
     }
-    
+
 }

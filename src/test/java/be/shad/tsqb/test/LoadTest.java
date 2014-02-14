@@ -23,7 +23,6 @@ import be.shad.tsqb.domain.people.Person;
 import be.shad.tsqb.domain.people.Relation;
 import be.shad.tsqb.dto.LoadTestDto;
 import be.shad.tsqb.hql.HqlQuery;
-import be.shad.tsqb.query.TypeSafeRootQuery;
 import be.shad.tsqb.query.TypeSafeSubQuery;
 
 public class LoadTest extends TypeSafeQueryTest {
@@ -39,11 +38,12 @@ public class LoadTest extends TypeSafeQueryTest {
         for(int i=0; i < 500; i++) {
             names.add("name" + i);
         }
-        
+
+        int n = 100000;
         long time = System.currentTimeMillis();
         HqlQuery last = null;
-        for(int i=0; i < 100000; i++) {
-            TypeSafeRootQuery query = createQuery();
+        for(int i=0; i < n; i++) {
+            query = createQuery();
             Town town = query.from(Town.class);
             Person inhabitant = query.join(town.getInhabitants());
             Relation childRelation = query.join(inhabitant.getChildRelations());
@@ -65,7 +65,7 @@ public class LoadTest extends TypeSafeQueryTest {
             last = query.toHqlQuery();
         }
         time = (System.currentTimeMillis() - time);
-        logger.debug(time / 1000.0 + "ms/query\n" + last.toFormattedString());
+        logger.debug(time / (double) n + "ms/query\n" + last.toFormattedString());
     }
     
 }
