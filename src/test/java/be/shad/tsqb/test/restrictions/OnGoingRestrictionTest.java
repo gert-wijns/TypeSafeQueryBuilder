@@ -23,7 +23,6 @@ import org.junit.Test;
 import be.shad.tsqb.domain.people.Person;
 import be.shad.tsqb.domain.people.Relation;
 import be.shad.tsqb.query.JoinType;
-import be.shad.tsqb.query.TypeSafeRootQuery;
 import be.shad.tsqb.query.TypeSafeSubQuery;
 import be.shad.tsqb.test.TypeSafeQueryTest;
 import be.shad.tsqb.values.DirectTypeSafeValue;
@@ -49,12 +48,11 @@ public class OnGoingRestrictionTest extends TypeSafeQueryTest {
         Person person = query.from(Person.class);
         List<String> names = Arrays.asList("Jos", "Marie", "Katrien");
         query.where(person.getName()).in(names);
-        validate(" from Person hobj1 where hobj1.name in (?, ?, ?)", names);
+        validate(" from Person hobj1 where hobj1.name in (?, ?, ?)", names.toArray());
     }
     
     @Test
     public void testTypeSafeValueInSubQuery() {
-        TypeSafeRootQuery query = createQuery();
         Person person = query.from(Person.class);
         
         TypeSafeSubQuery<Number> subquery = query.subquery(Number.class);

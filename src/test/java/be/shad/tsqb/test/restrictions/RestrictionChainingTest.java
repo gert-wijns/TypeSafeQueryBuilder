@@ -44,14 +44,14 @@ public class RestrictionChainingTest extends TypeSafeQueryTest {
     public void testAnds() {
         House house = query.from(House.class);
         query.where(house.getFloors()).gt(4).and(house.isOccupied()).isFalse().and(house.getPrice()).eq(ZERO);
-        validate(" from House hobj1 where hobj1.floors > ? and hobj1.occupied = ? and hobj1.price = ? ", 4, FALSE, ZERO);
+        validate(" from House hobj1 where hobj1.floors > ? and hobj1.occupied = ? and hobj1.price = ?", 4, FALSE, ZERO);
     }
 
     @Test
     public void testOrs() {
         House house = query.from(House.class);
         query.where(house.getFloors()).gt(4).or(house.isOccupied()).isFalse().or(house.getPrice()).eq(ZERO);
-        validate(" from House hobj1 where hobj1.floors > ? or hobj1.occupied = ? or hobj1.price = ? ", 4, FALSE, ZERO);
+        validate(" from House hobj1 where hobj1.floors > ? or hobj1.occupied = ? or hobj1.price = ?", 4, FALSE, ZERO);
     }
 
     @Test
