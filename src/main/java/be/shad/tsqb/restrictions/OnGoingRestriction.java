@@ -70,7 +70,7 @@ public class OnGoingRestriction<VAL> {
      * Can be used with a TypeSafeSubQuery to check if
      * the left part is in the subquery results.
      */
-    public Restriction in(TypeSafeValue<VAL> value) {
+    public <T extends VAL> Restriction in(TypeSafeValue<T> value) {
         restriction.setOperator(IN);
         restriction.setRight(value);
         return restriction;
@@ -79,7 +79,7 @@ public class OnGoingRestriction<VAL> {
     /**
      * Generates: left not in ( actualValues )
      */
-    public Restriction in(Collection<VAL> values) {
+    public <T extends VAL> Restriction in(Collection<T> values) {
         return in(new CollectionTypeSafeValue<>(restriction.getQuery(), values));
     }
 
@@ -89,7 +89,7 @@ public class OnGoingRestriction<VAL> {
      * Can be used with a TypeSafeSubQuery to check if
      * the left part is not in the subquery results.
      */
-    public Restriction notIn(TypeSafeValue<VAL> value) {
+    public <T extends VAL> Restriction notIn(TypeSafeValue<T> value) {
         restriction.setOperator(NOT_IN);
         restriction.setRight(value);
         return restriction;
@@ -98,7 +98,7 @@ public class OnGoingRestriction<VAL> {
     /**
      * Generates: left not in ( actualValues )
      */
-    public Restriction notIn(Collection<VAL> values) {
+    public <T extends VAL> Restriction notIn(Collection<T> values) {
         return notIn(new CollectionTypeSafeValue<>(restriction.getQuery(), values));
     }
 
