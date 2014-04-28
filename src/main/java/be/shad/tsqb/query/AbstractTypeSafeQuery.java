@@ -271,7 +271,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      * Delegate to restrictions.
      */
     @Override
-    public OnGoingNumberRestriction whereNumber(TypeSafeValue<Number> value) {
+    public <N extends Number> OnGoingNumberRestriction whereNumber(TypeSafeValue<N> value) {
         return restrictions.andNumber(value);
     }
 

@@ -67,7 +67,7 @@ public interface WhereRestrictions {
      * The general restrict by number method. Anything which represents a number
      * can be used with this method.
      */
-    OnGoingNumberRestriction whereNumber(TypeSafeValue<Number> value);
+    <N extends Number> OnGoingNumberRestriction whereNumber(TypeSafeValue<N> value);
 
     /**
      * Restrict a number value. This can be a direct value (an actual number),

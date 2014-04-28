@@ -107,7 +107,7 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable, 
      * {@inheritDoc}
      */
     @Override
-    public OnGoingNumberRestriction andNumber(TypeSafeValue<Number> value) {
+    public <N extends Number> OnGoingNumberRestriction andNumber(TypeSafeValue<N> value) {
         return new OnGoingNumberRestriction(and(), value);
     }
 

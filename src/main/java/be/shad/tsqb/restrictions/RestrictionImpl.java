@@ -16,6 +16,7 @@
 package be.shad.tsqb.restrictions;
 
 import be.shad.tsqb.query.TypeSafeQueryInternal;
+import be.shad.tsqb.values.CastTypeSafeValue;
 import be.shad.tsqb.values.HqlQueryValue;
 import be.shad.tsqb.values.HqlQueryValueImpl;
 import be.shad.tsqb.values.TypeSafeValue;
@@ -92,6 +93,9 @@ public class RestrictionImpl extends RestrictionChainableDelegatingImpl implemen
         HqlQueryValueImpl value = new HqlQueryValueImpl();
         if( left != null ) {
             HqlQueryValue hqlQueryValue = left.toHqlQueryValue();
+            if( leftSideRequiresLiterals() ) {
+                hqlQueryValue = query.getHelper().replaceParamsWithLiterals(hqlQueryValue);
+            }
             value.appendHql(hqlQueryValue.getHql());
             value.addParams(hqlQueryValue.getParams());
         }
@@ -103,10 +107,30 @@ public class RestrictionImpl extends RestrictionChainableDelegatingImpl implemen
         }
         if( right != null ) {
             HqlQueryValue hqlQueryValue = right.toHqlQueryValue();
+            if( rightSideRequiresLiterals() ) {
+                hqlQueryValue = query.getHelper().replaceParamsWithLiterals(hqlQueryValue);
+            }
             value.appendHql(hqlQueryValue.getHql());
             value.addParams(hqlQueryValue.getParams());
         }
         return value;
     }
 
+    /**
+     * Hibernate will validate the left side parameter type is exactly
+     * the same as the right side during the parameter binding phase for some reason
+     * this doesn't seem to be a database restriction however.
+     * <p>
+     * By using literals instead, this problem is avoided:
+     */
+    private boolean leftSideRequiresLiterals() {
+        return right instanceof CastTypeSafeValue<?>;
+    }
+    
+    /**
+     * See remak {@link #leftSideRequiresLiterals()}
+     */
+    private boolean rightSideRequiresLiterals() {
+        return left instanceof CastTypeSafeValue<?>;
+    }
 }

@@ -97,7 +97,7 @@ public class OnGoingBooleanRestriction extends OnGoingRestriction<Boolean> imple
     }
 
     @Override
-    public OnGoingNumberRestriction andNumber(TypeSafeValue<Number> value) {
+    public <N extends Number> OnGoingNumberRestriction andNumber(TypeSafeValue<N> value) {
         return isTrue().andNumber(value);
     }
 

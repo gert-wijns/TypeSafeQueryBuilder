@@ -82,7 +82,7 @@ public interface RestrictionChainable {
      * The general restrict by number method. Anything which represents a number
      * can be used with this method.
      */
-    OnGoingNumberRestriction andNumber(TypeSafeValue<Number> value);
+    <N extends Number> OnGoingNumberRestriction andNumber(TypeSafeValue<N> value);
 
     /**
      * Restrict a number value. This can be a direct value (an actual string),

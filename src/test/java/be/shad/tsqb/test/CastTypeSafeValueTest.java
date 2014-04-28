@@ -17,6 +17,7 @@ package be.shad.tsqb.test;
 
 import org.junit.Test;
 
+import be.shad.tsqb.domain.Product;
 import be.shad.tsqb.domain.people.Person;
 
 public class CastTypeSafeValueTest extends TypeSafeQueryTest {
@@ -42,7 +43,19 @@ public class CastTypeSafeValueTest extends TypeSafeQueryTest {
         
         query.whereString(query.function().cast(person.getAge(), String.class)).startsWith("10");
         
-        validate(" from Person hobj1 where cast(hobj1.age as string) like ?", "10%");
+        validate(" from Person hobj1 where cast(hobj1.age as string) like '10%'");
+    }
+
+    /**
+     * Cast a value of the select statement.
+     */
+    @Test
+    public void testCastNumberSubclassCompiles() {
+        Product product = query.from(Product.class);
+        
+        query.whereNumber(query.function().cast(product.getManyProperties().getProperty1(), Long.class)).lt(10.0d);
+        
+        validate(" from Product hobj1 where cast(hobj1.manyProperties.property1 as long) < 10.0");
     }
     
 }

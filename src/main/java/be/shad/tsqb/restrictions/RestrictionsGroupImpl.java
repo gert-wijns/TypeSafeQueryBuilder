@@ -236,7 +236,7 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
      * Delegate the call to and().
      */
     @Override
-    public OnGoingNumberRestriction whereNumber(TypeSafeValue<Number> value) {
+    public <N extends Number> OnGoingNumberRestriction whereNumber(TypeSafeValue<N> value) {
         return andNumber(value);
     }
 

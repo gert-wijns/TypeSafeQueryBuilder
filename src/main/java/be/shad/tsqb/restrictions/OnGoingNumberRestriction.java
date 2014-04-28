@@ -31,9 +31,10 @@ public class OnGoingNumberRestriction extends OnGoingRestriction<Number> {
     public OnGoingNumberRestriction(RestrictionImpl restriction, Number argument) {
         super(restriction, argument);
     }
-
-    public OnGoingNumberRestriction(RestrictionImpl restriction, TypeSafeValue<Number> argument) {
-        super(restriction, argument);
+    
+    @SuppressWarnings("unchecked")
+    public OnGoingNumberRestriction(RestrictionImpl restriction, TypeSafeValue<? extends Number> argument) {
+        super(restriction, (TypeSafeValue<Number>) argument);
     }
 
     /**
