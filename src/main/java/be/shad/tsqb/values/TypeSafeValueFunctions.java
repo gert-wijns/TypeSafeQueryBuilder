@@ -37,9 +37,16 @@ public class TypeSafeValueFunctions {
         return new WrappedTypeSafeValue<>(query, "distinct", val);
     }
 
-
     public TypeSafeValue<Long> count() {
         return new CustomTypeSafeValue<>(query, Long.class, "count(*)", null);
+    }
+    
+    public <VAL, CAST> TypeSafeValue<CAST> cast(VAL val, Class<CAST> type) {
+        return cast(query.toValue(val), type);
+    }
+
+    public <VAL, CAST> TypeSafeValue<CAST> cast(TypeSafeValue<VAL> val, Class<CAST> type) {
+        return new CastTypeSafeValue<>(query, type, val);
     }
     
     public <VAL> CoalesceTypeSafeValue<VAL> coalesce(VAL val) {

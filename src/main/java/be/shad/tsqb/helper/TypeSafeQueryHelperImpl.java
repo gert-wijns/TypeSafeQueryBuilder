@@ -255,4 +255,12 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
         return value;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getResolvedTypeName(Class<?> javaType) {
+        return sessionFactory.getTypeHelper().basic(javaType).getName();
+    }
+
 }

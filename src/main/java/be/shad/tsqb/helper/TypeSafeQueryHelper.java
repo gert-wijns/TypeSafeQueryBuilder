@@ -56,4 +56,10 @@ public interface TypeSafeQueryHelper {
      */
     HqlQueryValue replaceParamsWithLiterals(HqlQueryValue value);
     
+    /**
+     * Uses the type resolver to get the name of the type for the given class.
+     * Example: class <code>java.lang.Long</code> will resolve to <code>long</code>.
+     */
+    String getResolvedTypeName(Class<?> javaType);
+    
 }
