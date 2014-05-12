@@ -49,7 +49,7 @@ public final class TypeSafeQueryProxyFactory {
         try {
             return (T) getProxyClass(fromClass, type).newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
-            throw new RuntimeException();
+            throw new RuntimeException(e);
         }
     }
     
