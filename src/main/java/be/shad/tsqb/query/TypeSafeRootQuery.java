@@ -15,6 +15,8 @@
  */
 package be.shad.tsqb.query;
 
+import be.shad.tsqb.selection.SelectionValueTransformer;
+
 /**
  * For the general information, see {@link TypeSafeQuery}.
  * <p>
@@ -72,4 +74,10 @@ public interface TypeSafeRootQuery extends TypeSafeQuery {
      */
     <T> T select(Class<T> resultClass);
 
+    /**
+     * Registers the transformer to be used for the selection value
+     * when the default result transformer is used.
+     */
+    <T, V> V select(Class<V> transformedClass, T value, SelectionValueTransformer<T, V> transformer);
+    
 }

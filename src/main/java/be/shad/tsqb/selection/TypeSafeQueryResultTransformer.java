@@ -21,13 +21,13 @@ import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.util.List;
 
-import org.hibernate.transform.ResultTransformer;
+import org.hibernate.transform.BasicTransformerAdapter;
 
 /**
  * Implementation to set values on nested select dtos.
  * Seems to be faster than the alias to bean result transformer too.
  */
-public class TypeSafeQueryResultTransformer implements ResultTransformer {
+public class TypeSafeQueryResultTransformer extends BasicTransformerAdapter {
     private static final long serialVersionUID = 4686800769621139636L;
     
     private final Class<?> resultClass;
@@ -35,9 +35,14 @@ public class TypeSafeQueryResultTransformer implements ResultTransformer {
     private final Field[] setters;
     private final SelectionTree[] values;
     
-    public TypeSafeQueryResultTransformer(Class<?> resultClass, List<String[]> aliases) {
+    @SuppressWarnings("rawtypes")
+    private final SelectionValueTransformer[] transformers;
+    
+    public TypeSafeQueryResultTransformer(Class<?> resultClass, List<String[]> aliases, 
+            List<SelectionValueTransformer<?, ?>> transformers) {
         try {
             this.resultClass = resultClass;
+            this.transformers = transformers.toArray(new SelectionValueTransformer[transformers.size()]);
             this.setters = new Field[aliases.size()];
             this.values = new SelectionTree[aliases.size()];
             this.tree = new SelectionTree(resultClass); 
@@ -57,22 +62,21 @@ public class TypeSafeQueryResultTransformer implements ResultTransformer {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Object transformTuple(Object[] tuple, String[] aliases) {
         try {
             tree.populate(resultClass.newInstance());
             for(int i=0; i < aliases.length; i++) {
-                setters[i].set(values[i].getValue(), tuple[i]);
+                Object value = tuple[i];
+                if (transformers[i] != null) {
+                    value = transformers[i].convert(value);
+                }
+                setters[i].set(values[i].getValue(), value);
             }
             return tree.getValue();
         } catch (InstantiationException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @Override
-    @SuppressWarnings("rawtypes")
-    public List transformList(List collection) {
-        return collection;
     }
 
 }

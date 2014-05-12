@@ -27,10 +27,17 @@ import be.shad.tsqb.values.TypeSafeValue;
 public class TypeSafeValueProjection {
     private final TypeSafeValue<?> value;
     private final String alias;
+    private final SelectionValueTransformer<?, ?> transformer;
 
-    public TypeSafeValueProjection(TypeSafeValue<?> value, String alias) {
+    public TypeSafeValueProjection(TypeSafeValue<?> value, String alias, 
+            SelectionValueTransformer<?, ?> transformer) {
+        this.transformer = transformer;
         this.alias = alias;
         this.value = value;
+    }
+    
+    public SelectionValueTransformer<?, ?> getTransformer() {
+        return transformer;
     }
 
     public TypeSafeValue<?> getValue() {
