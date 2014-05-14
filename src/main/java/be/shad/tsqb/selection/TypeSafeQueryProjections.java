@@ -38,6 +38,7 @@ import be.shad.tsqb.values.TypeSafeValue;
 public class TypeSafeQueryProjections implements HqlQueryBuilder {
     private final TypeSafeQueryInternal query;
     private final LinkedList<TypeSafeValueProjection> projections = new LinkedList<>();
+    private SelectionValueTransformer<?, ?> transformerForNextProjection;
     private Class<?> resultClass;
 
     public TypeSafeQueryProjections(TypeSafeQueryInternal query) {
@@ -61,6 +62,14 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
     }
     
     /**
+     * Sets the given transformer to be put on the next created projection.
+     * After it is set on a projection, the transformerForNextProjection is reset.
+     */
+    public <T, V> void setTransformerForNextProjection(SelectionValueTransformer<T, V> transformerForNextProjection) {
+        this.transformerForNextProjection = transformerForNextProjection;
+    }
+    
+    /**
      * First checks if a TypeSafeQueryValue.select() was called. 
      * This will take precendence over everything else.
      * <p>
@@ -72,7 +81,8 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
         TypeSafeValue<?> value = query.getRootQuery().dequeueSelectedValue();
         if( value != null ) {
             query.validateInScope(value, null);
-            projection = new TypeSafeValueProjection(value, propertyName);
+            projection = new TypeSafeValueProjection(value, propertyName, transformerForNextProjection);
+            transformerForNextProjection = null;
             projections.add(projection);
             return;
         }
@@ -95,12 +105,15 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
             value = new ReferenceTypeSafeValue<>(query, invocations.get(0));
         }
         query.validateInScope(value, null);
-        projections.add(new TypeSafeValueProjection(value, propertyName));
+        projections.add(new TypeSafeValueProjection(value, propertyName, transformerForNextProjection));
+        transformerForNextProjection = null;
     }
 
     @Override
     public void appendTo(HqlQuery query) {
-        List<String[]> paths = new ArrayList<>();
+        List<String[]> paths = new ArrayList<>(projections.size());
+        List<SelectionValueTransformer<?, ?>> transformers = new ArrayList<>(projections.size());
+        boolean hasTransformer = false;
         for(TypeSafeValueProjection projection: projections) {
             HqlQueryValue val = projection.getValue().toHqlQueryValue();
             if( projection.getValue() instanceof DirectTypeSafeValue<?> ) {
@@ -112,11 +125,15 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
                 paths.add(projection.getAlias().split("\\."));
                 alias = " as " + alias;
             }
+            transformers.add(projection.getTransformer());
+            hasTransformer = hasTransformer || projection.getTransformer() != null;
             query.appendSelect(val.getHql() + alias);
             query.addParams(val.getParams());
         }
         if( !paths.isEmpty() ) {
-            query.setResultTransformer(new TypeSafeQueryResultTransformer(resultClass, paths));
+            query.setResultTransformer(new TypeSafeQueryResultTransformer(resultClass, paths, transformers));
+        } else if( hasTransformer ) {
+            query.setResultTransformer(new WithoutAliasesQueryResultTransformer(transformers));
         }
     }
 

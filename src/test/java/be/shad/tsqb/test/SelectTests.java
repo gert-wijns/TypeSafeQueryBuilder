@@ -17,10 +17,12 @@ package be.shad.tsqb.test;
 
 import static be.shad.tsqb.restrictions.RestrictionsGroupImpl.group;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.MutableTriple;
 import org.junit.Test;
@@ -32,9 +34,14 @@ import be.shad.tsqb.domain.Style;
 import be.shad.tsqb.domain.Town;
 import be.shad.tsqb.domain.people.Person;
 import be.shad.tsqb.domain.people.PersonProperty;
+import be.shad.tsqb.domain.people.Relation;
+import be.shad.tsqb.domain.properties.PlanningProperties;
 import be.shad.tsqb.dto.FunctionsDto;
+import be.shad.tsqb.dto.ProductDetailsDto;
+import be.shad.tsqb.dto.StringToPlanningPropertiesTransformer;
 import be.shad.tsqb.query.JoinType;
 import be.shad.tsqb.query.TypeSafeSubQuery;
+import be.shad.tsqb.selection.SelectionValueTransformer;
 import be.shad.tsqb.values.CaseTypeSafeValue;
 
 
@@ -307,4 +314,70 @@ public class SelectTests extends TypeSafeQueryTest {
 
         validate("select hobj1.name as name, hobj1.name as properties_planning_algorithm from Product hobj1");
     }
+
+    /**
+     * Use a transformer to select a value into a selection dto which doesn't comply with the original
+     * and is converted in code instead of in the query.
+     */
+    @Test
+    public void selectSimpleTransformedValue() {
+        Product product = query.from(Product.class);
+        
+        Product productDto = query.select(Product.class);
+        productDto.setName(product.getName());
+        productDto.getProperties().setPlanning(query.select(PlanningProperties.class, 
+                product.getName(), new StringToPlanningPropertiesTransformer()));
+
+        validate("select hobj1.name as name, hobj1.name as properties_planning from Product hobj1");
+    }
+    
+    /**
+     * Select encoded string property into a date field.
+     */
+    @Test
+    public void selectDateTransformedValue() {
+        Product product = query.from(Product.class);
+        
+        ProductDetailsDto dto = query.select(ProductDetailsDto.class);
+        dto.setId(product.getId());
+        dto.setValidUntilDate(query.select(Date.class, product.getManyProperties().getProperty1(), 
+                new SelectionValueTransformer<String, Date>() {
+            @Override
+            public Date convert(String a) {
+                try {
+                    return DateFormat.getDateInstance().parse(a);
+                } catch (ParseException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }));
+
+        validate("select hobj1.id as id, hobj1.manyProperties.property1 as validUntilDate from Product hobj1");
+    }
+
+    /**
+     * Select an object and use some of the values of this object to transform into another dto.
+     * <p>
+     * Using a proxy as select value to get values from it should be avoided. Only do this
+     * if there is no other option! (value on a dto without a default constructor for example)
+     */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @Test
+    public void selectProxyTransformedValue() {
+        Person person = query.from(Person.class);
+        Relation relation = query.join(person.getChildRelations());
+
+        MutablePair<Long, ImmutablePair<Long, Integer>> select = query.select(MutablePair.class);
+        select.setLeft(person.getId());
+        select.setRight(query.select(ImmutablePair.class, relation.getChild(), 
+            new SelectionValueTransformer<Person, ImmutablePair>() {
+                @Override
+                public ImmutablePair<Long, Integer> convert(Person a) {
+                    return new ImmutablePair<Long, Integer>(a.getId(), a.getAge());
+                }
+        }));
+
+        validate("select hobj1.id as left, hobj3 as right from Person hobj1 join hobj1.childRelations hobj2 join hobj2.child hobj3");
+    }
+    
 }

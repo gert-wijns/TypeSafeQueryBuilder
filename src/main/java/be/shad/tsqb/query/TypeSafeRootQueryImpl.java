@@ -20,6 +20,8 @@ import java.util.List;
 
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.helper.TypeSafeQueryHelper;
+import be.shad.tsqb.proxy.TypeSafeQueryProxy;
+import be.shad.tsqb.selection.SelectionValueTransformer;
 import be.shad.tsqb.values.TypeSafeValue;
 
 /**
@@ -99,7 +101,21 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     public <T> T select(Class<T> resultClass) {
         return helper.createTypeSafeSelectProxy(this, resultClass);
     }
-
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T, V> V select(Class<V> transformedClass, T value, SelectionValueTransformer<T, V> transformer) {
+        if (value instanceof TypeSafeQueryProxy) {
+            // invocation was not added because it is not a leaf (to support method chaining).
+            invocationWasMade(((TypeSafeQueryProxy) value).getTypeSafeProxyData());
+        }
+        getProjections().setTransformerForNextProjection(transformer);
+        return (V) getDummyValue(transformedClass);
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -107,11 +123,16 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     @SuppressWarnings("unchecked")
     public <T> T queueValueSelected(TypeSafeValue<T> value) {
         lastSelectedValue = value;
-        
-        // return a random value, (but take primitives into account to prevent NPEs)
-        Class<?> primitiveClass = getPrimitiveClass(value.getValueClass());
+        return (T) getDummyValue(value.getValueClass());
+    }
+
+    /**
+     * return a random value, (but take primitives into account to prevent NPEs)
+     */
+    private Object getDummyValue(Class<?> clazz) {
+        Class<?> primitiveClass = getPrimitiveClass(clazz);
         if( primitiveClass != null ) {
-            return (T) defaultPrimitiveValue(primitiveClass);
+            return defaultPrimitiveValue(primitiveClass);
         }
         return null;
     }
