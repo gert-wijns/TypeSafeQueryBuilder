@@ -15,6 +15,8 @@
  */
 package be.shad.tsqb.restrictions;
 
+import be.shad.tsqb.values.HqlQueryValue;
+
 /**
  * An implementation where all methods are delegates to a group.
  */
@@ -36,6 +38,22 @@ public abstract class RestrictionChainableDelegatingImpl extends RestrictionChai
 
     public RestrictionImpl or() {
         return group.or();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public RestrictionChainable and(HqlQueryValue restriction) {
+        return group.and(restriction);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public RestrictionChainable or(HqlQueryValue restriction) {
+        return group.or(restriction);
     }
 
     /**

@@ -25,20 +25,22 @@ import be.shad.tsqb.query.TypeSafeQueryInternal;
  * this custom value may be used to inject hql with params into the query.
  */
 public class CustomTypeSafeValue<T> extends TypeSafeValueImpl<T> {
-    private String hql;
-    private List<Object> params;
+    private final HqlQueryValue value;
 
-    public CustomTypeSafeValue(
-            TypeSafeQuery query, Class<T> valueType, 
+    public CustomTypeSafeValue(TypeSafeQuery query, Class<T> valueType, 
             String hql, List<Object> params) {
+        this(query, valueType, new HqlQueryValueImpl(hql, params));
+    }
+
+    public CustomTypeSafeValue(TypeSafeQuery query, 
+            Class<T> valueType, HqlQueryValue value) {
         super((TypeSafeQueryInternal) query, valueType);
-        this.hql = hql;
-        this.params = params;
+        this.value = value;
     }
 
     @Override
     public HqlQueryValue toHqlQueryValue() {
-        return new HqlQueryValueImpl(hql, params);
+        return value;
     }
 
 }

@@ -21,6 +21,7 @@ import java.util.Date;
 
 import be.shad.tsqb.query.TypeSafeSubQuery;
 import be.shad.tsqb.values.DirectTypeSafeValue;
+import be.shad.tsqb.values.HqlQueryValue;
 import be.shad.tsqb.values.TypeSafeValue;
 
 /**
@@ -64,6 +65,16 @@ public class OnGoingBooleanRestriction extends OnGoingRestriction<Boolean> imple
     @Override
     public RestrictionChainable orExists(TypeSafeSubQuery<?> subquery) {
         return isTrue().orExists(subquery);
+    }
+    
+    @Override
+    public RestrictionChainable and(HqlQueryValue restriction) {
+        return isTrue().and(restriction);
+    }
+    
+    @Override
+    public RestrictionChainable or(HqlQueryValue restriction) {
+        return isTrue().or(restriction);
     }
 
     @Override

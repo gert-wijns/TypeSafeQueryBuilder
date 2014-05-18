@@ -18,6 +18,7 @@ package be.shad.tsqb.restrictions;
 import java.util.Date;
 
 import be.shad.tsqb.query.TypeSafeSubQuery;
+import be.shad.tsqb.values.HqlQueryValue;
 import be.shad.tsqb.values.TypeSafeValue;
 
 public interface WhereRestrictions {
@@ -28,6 +29,11 @@ public interface WhereRestrictions {
      * one to be able to continue with 'or' on an already partially built restrictions group.
      */
     RestrictionChainable where();
+
+    /**
+     * Adds a custom restriction as and to the existing where clause.
+     */
+    RestrictionChainable where(HqlQueryValue restriction);
 
     /**
      * Adds a restriction group as and to the existing where clause.

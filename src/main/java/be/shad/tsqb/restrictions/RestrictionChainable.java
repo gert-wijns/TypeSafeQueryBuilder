@@ -18,6 +18,7 @@ package be.shad.tsqb.restrictions;
 import java.util.Date;
 
 import be.shad.tsqb.query.TypeSafeSubQuery;
+import be.shad.tsqb.values.HqlQueryValue;
 import be.shad.tsqb.values.TypeSafeValue;
 
 public interface RestrictionChainable {
@@ -31,6 +32,18 @@ public interface RestrictionChainable {
      * Adds the 'or exists(subquery)' to the chain.
      */
     RestrictionChainable orExists(TypeSafeSubQuery<?> subquery);
+    
+    /**
+     * Adds a custom restriction which consists of only the hql query value
+     * which is 'and'ed with the existing restrictions.
+     */
+    RestrictionChainable and(HqlQueryValue restriction);
+
+    /**
+     * Adds a custom restriction which consists of only the hql query value
+     * which is 'or'ed with the existing restrictions.
+     */
+    RestrictionChainable or(HqlQueryValue restriction);
     
     /**
      * Add a restriction, the restriction is returned to continue chaining.

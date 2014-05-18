@@ -191,6 +191,14 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      * {@inheritDoc}
      */
     @Override
+    public RestrictionChainable where(HqlQueryValue restriction) {
+        return restrictions.and(restriction);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public RestrictionChainable where(RestrictionsGroup group) {
         return restrictions.and(group.getRestrictions());
     }

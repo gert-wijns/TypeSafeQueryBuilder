@@ -23,6 +23,7 @@ import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.query.TypeSafeQuery;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.query.TypeSafeSubQuery;
+import be.shad.tsqb.values.CustomTypeSafeValue;
 import be.shad.tsqb.values.HqlQueryValue;
 import be.shad.tsqb.values.HqlQueryValueImpl;
 import be.shad.tsqb.values.TypeSafeValue;
@@ -42,6 +43,11 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
         this.query = query;
         this.join = join;
         this.restrictions = new ArrayList<>();
+    }
+    
+    @Override
+    public RestrictionChainable where(HqlQueryValue restriction) {
+        return and(restriction);
     }
     
     @Override
@@ -164,6 +170,24 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
      */
     public RestrictionImpl or() {
         return add(RestrictionNodeType.Or);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public RestrictionChainable and(HqlQueryValue customValue) {
+        and().setLeft(new CustomTypeSafeValue<Object>(query, Object.class, customValue));
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public RestrictionChainable or(HqlQueryValue customValue) {
+        or().setLeft(new CustomTypeSafeValue<Object>(query, Object.class, customValue));
+        return this;
     }
 
     /**
