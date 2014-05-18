@@ -20,6 +20,11 @@ import java.util.Date;
 import be.shad.tsqb.values.TypeSafeValue;
 
 public interface OnGoingOrderBy {
+    
+    /**
+     * Adds the custom order by to the order bys and continues the order by chain.
+     */
+    OnGoingOrderBy by(OrderBy orderBy);
 
     /**
      * Converts to a TypesafeValue and delegates to {@link #desc(TypeSafeValue)}

@@ -15,9 +15,14 @@
  */
 package be.shad.tsqb.test;
 
+import java.util.Date;
+
+import org.apache.commons.lang3.tuple.MutablePair;
 import org.junit.Test;
 
 import be.shad.tsqb.domain.Building;
+import be.shad.tsqb.ordering.OrderByProjection;
+import be.shad.tsqb.query.TypeSafeSubQuery;
 
 public class OrderingTest extends TypeSafeQueryTest {
 
@@ -46,4 +51,34 @@ public class OrderingTest extends TypeSafeQueryTest {
         validate(" from Building hobj1 order by hobj1.constructionDate, hobj1.style desc");
     }
 
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testOrderByAlias() {
+        Building building = query.from(Building.class);
+        
+        MutablePair<Long, Date> select = query.select(MutablePair.class);
+        select.setLeft(building.getId());
+        select.setRight(building.getConstructionDate());
+        
+        query.orderBy().by(new OrderByProjection(query, "right", true));
+
+        validate("select hobj1.id as left, hobj1.constructionDate as right from Building hobj1 order by hobj1.constructionDate desc");
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testOrderByAliasWithSubQuery() {
+        Building building = query.from(Building.class);
+        TypeSafeSubQuery<Long> maxId = query.subquery(Long.class);
+        Building buildingMaxId = maxId.from(Building.class);
+        maxId.select(maxId.function().max(buildingMaxId.getId()));
+        
+        MutablePair<Long, Date> select = query.select(MutablePair.class);
+        select.setLeft(maxId.select());
+        select.setRight(building.getConstructionDate());
+        
+        query.orderBy().by(new OrderByProjection(query, "left", true));
+
+        validate("select (select max(hobj2.id) from Building hobj2) as left, hobj1.constructionDate as right from Building hobj1 order by 1 desc");
+    }
 }

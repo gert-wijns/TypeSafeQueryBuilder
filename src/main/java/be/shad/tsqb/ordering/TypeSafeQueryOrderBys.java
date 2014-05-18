@@ -33,7 +33,15 @@ public class TypeSafeQueryOrderBys implements OnGoingOrderBy, HqlQueryBuilder {
     }
 
     private OnGoingOrderBy orderBy(Object val, boolean desc) {
-        orderBys.add(new OrderByImpl(query.toValue(val), desc));
+        return by(new OrderByImpl(query.toValue(val), desc));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public OnGoingOrderBy by(OrderBy orderBy) {
+        orderBys.add(orderBy);
         return this;
     }
     
