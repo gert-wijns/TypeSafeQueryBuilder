@@ -41,6 +41,7 @@ public class TypeSafeQueryProxyData {
     private final String identifierPath;
     private final Class<?> propertyType;
     private final String alias;
+    private String customAlias;
     private JoinType joinType;
     
     /**
@@ -108,7 +109,15 @@ public class TypeSafeQueryProxyData {
         if( parent != null && (joinType == null || getEffectiveJoinType() == None) ) {
             return parent.getAlias() + "." + propertyPath;
         }
-        return alias;
+        return customAlias == null ? alias: customAlias;
+    }
+    
+    public void setCustomAlias(String customAlias) {
+        if (this.customAlias != null && !this.customAlias.equals(customAlias)) {
+            throw new IllegalArgumentException(String.format("A custom alias was already set. [%s, %s]", 
+                    this.customAlias, customAlias));
+        }
+        this.customAlias = customAlias;
     }
     
     public TypeSafeQueryProxy getProxy() {
@@ -141,7 +150,7 @@ public class TypeSafeQueryProxyData {
             return JoinType.None;
         }
         if( joinType == Default ) {
-            if( !proxyType.isCollection() && children.size() == 1 ) {
+            if( customAlias == null && !proxyType.isCollection() && children.size() == 1 ) {
                 // might be worth checking if only an identity relation was used:
                 TypeSafeQueryProxyData child = children.values().iterator().next();
                 if( identifierPath.equals(child.getPropertyPath()) ) {

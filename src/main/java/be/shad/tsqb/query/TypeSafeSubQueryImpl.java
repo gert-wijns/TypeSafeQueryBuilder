@@ -129,5 +129,21 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
     public T select() {
         return getRootQuery().queueValueSelected(this);
     }
+
+    /**
+     * Delegate to root.
+     */
+    @Override
+    public void registerCustomAliasForProxy(Object value, String alias) {
+        getRootQuery().registerCustomAliasForProxy(value, alias);
+    }
+
+    /**
+     * Delegate to root.
+     */
+    @Override
+    public <V> V getProxyByCustomEntityAlias(String alias) {
+        return getRootQuery().getProxyByCustomEntityAlias(alias);
+    }
     
 }

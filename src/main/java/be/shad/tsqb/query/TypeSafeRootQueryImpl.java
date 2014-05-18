@@ -15,8 +15,10 @@
  */
 package be.shad.tsqb.query;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.helper.TypeSafeQueryHelper;
@@ -29,7 +31,9 @@ import be.shad.tsqb.values.TypeSafeValue;
  */
 public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements TypeSafeRootQuery, TypeSafeRootQueryInternal {
     
+    private static final Object TypeSafeQueryProxy = null;
     private List<TypeSafeQueryProxyData> invocationQueue = new LinkedList<>();
+    private Map<String, TypeSafeQueryProxy> customAliasedProxies = new HashMap<>();
     private TypeSafeValue<?> lastSelectedValue;
     private int entityAliasCount = 1;
 
@@ -76,6 +80,41 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
                     + "The one that was used to call join(value, joinType).", invocations.size()));
         }
         return invocations.get(0);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void registerCustomAliasForProxy(Object value, String customAlias) {
+        TypeSafeQueryProxyData queuedData = dequeueInvocation();
+        if (value == null && queuedData != null) {
+            value = queuedData.getProxy();
+        }
+        if (!(value instanceof TypeSafeQueryProxy)) {
+            throw new IllegalArgumentException(String.format("Value [%s] is not a TypeSafeQueryProxy", value));
+        }
+        TypeSafeQueryProxy current = (TypeSafeQueryProxy) value;
+        TypeSafeQueryProxy previous = customAliasedProxies.put(customAlias, current);
+        if (previous != null) {
+            String previousAlias = previous.getTypeSafeProxyData().getAlias();
+            String currentAlias = current.getTypeSafeProxyData().getAlias();
+            if (!previousAlias.equals(currentAlias)) {
+                throw new IllegalArgumentException(String.format("A different proxy [%s] was already "
+                        + "registered for alias [%s]. Cannot register proxy [%s]", 
+                        previousAlias, customAlias, currentAlias));
+            }
+        }
+        current.getTypeSafeProxyData().setCustomAlias(customAlias);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T getProxyByCustomEntityAlias(String alias) {
+        return (T) customAliasedProxies.get(alias);
     }
 
     /**

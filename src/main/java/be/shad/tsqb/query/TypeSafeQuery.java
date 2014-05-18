@@ -180,4 +180,24 @@ public interface TypeSafeQuery extends WhereRestrictions {
      */
     HqlQuery toHqlQuery();
     
+    /**
+     * Remembers a custom alias for a proxy.
+     * The value may not be null and must be an instance of TypeSafeQueryProxy.
+     * This means it must be an object which has been obtained by building the query.
+     * <p>
+     * The custom alias must be unique for the entire query (several subqueries can not use the same custom alias).
+     * <p>
+     * The custom alias will be used as alias in the final query, so take care when choosing an alias.
+     * 
+     * @throws IllegalArgumentException if the alias was already registered for a different proxy.
+     * @throws IllegalArgumentException if the value is not a TypeSafeQueryProxy or it is null and no invocation representing a proxy was queued.
+     */
+    void registerCustomAliasForProxy(Object value, String alias);
+    
+    /**
+     * Retrieves a previously registered proxy for the given alias.
+     * Returns null if no proxy was registered with the custom alias.
+     */
+    <T> T getProxyByCustomEntityAlias(String alias);
+    
 }
