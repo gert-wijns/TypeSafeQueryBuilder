@@ -25,6 +25,7 @@ import be.shad.tsqb.domain.people.Relation;
 import be.shad.tsqb.dto.PersonDto;
 import be.shad.tsqb.exceptions.JoinException;
 import be.shad.tsqb.joins.TypeSafeQueryJoin;
+import be.shad.tsqb.ordering.OrderByProjection;
 import be.shad.tsqb.query.JoinType;
 import be.shad.tsqb.query.TypeSafeSubQuery;
 import be.shad.tsqb.restrictions.RestrictionsGroup;
@@ -282,6 +283,18 @@ public class ExamplesTest extends TypeSafeQueryTest {
                          asc(person.getAge());
 
         validate("select hobj1.name, hobj1.age from Person hobj1 order by hobj1.name desc, hobj1.age");
+    }
+    
+    @Test
+    public void testOrderByProjection() {
+        Person person = query.from(Person.class);
+        
+        PersonDto dto = query.select(PersonDto.class);
+        dto.setThePersonsName(person.getName());
+
+        query.orderBy().by(new OrderByProjection(query, "thePersonsName", true));
+
+        validate("select hobj1.name as thePersonsName from Person hobj1 order by hobj1.name desc");
     }
 
     @Test
