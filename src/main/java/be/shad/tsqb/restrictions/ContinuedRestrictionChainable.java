@@ -15,21 +15,6 @@
  */
 package be.shad.tsqb.restrictions;
 
-import be.shad.tsqb.data.TypeSafeQueryProxyData;
+public interface ContinuedRestrictionChainable<VAL> extends RestrictionChainable {
 
-/**
- * Extend to include extra interfaces
- */
-public interface RestrictionsGroupInternal extends RestrictionsGroup, RestrictionProvider, Restriction {
-
-    /**
-     * Get the join, for scope testing.
-     */
-    TypeSafeQueryProxyData getJoin();
-    
-    /**
-     * @return true if the group doesn't contain restrictions
-     */
-    boolean isEmpty();
-    
 }

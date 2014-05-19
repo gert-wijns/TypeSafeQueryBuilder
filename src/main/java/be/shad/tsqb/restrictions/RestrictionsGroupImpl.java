@@ -46,6 +46,11 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
     }
     
     @Override
+    public boolean isEmpty() {
+        return restrictions.isEmpty();
+    }
+    
+    @Override
     public RestrictionChainable where(HqlQueryValue restriction) {
         return and(restriction);
     }
@@ -161,14 +166,14 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
     /**
      * {@inheritDoc}
      */
-    public RestrictionImpl and() {
+    public RestrictionImpl createAnd() {
         return add(RestrictionNodeType.And);
     }
 
     /**
      * {@inheritDoc}
      */
-    public RestrictionImpl or() {
+    public RestrictionImpl createOr() {
         return add(RestrictionNodeType.Or);
     }
 
@@ -177,7 +182,7 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
      */
     @Override
     public RestrictionChainable and(HqlQueryValue customValue) {
-        and().setLeft(new CustomTypeSafeValue<Object>(query, Object.class, customValue));
+        createAnd().setLeft(new CustomTypeSafeValue<Object>(query, Object.class, customValue));
         return this;
     }
 
@@ -186,7 +191,7 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
      */
     @Override
     public RestrictionChainable or(HqlQueryValue customValue) {
-        or().setLeft(new CustomTypeSafeValue<Object>(query, Object.class, customValue));
+        createOr().setLeft(new CustomTypeSafeValue<Object>(query, Object.class, customValue));
         return this;
     }
 
@@ -228,7 +233,7 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
      * Delegate the call to and().
      */
     @Override
-    public <E extends Enum<E>> OnGoingEnumRestriction<E> whereEnum(TypeSafeValue<E> value) {
+    public <E extends Enum<E>> OnGoingEnumRestrictionImpl<E> whereEnum(TypeSafeValue<E> value) {
         return andEnum(value);
     }
 
@@ -236,7 +241,7 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
      * Delegate the call to and().
      */
     @Override
-    public <E extends Enum<E>> OnGoingEnumRestriction<E> where(E value) {
+    public <E extends Enum<E>> OnGoingEnumRestrictionImpl<E> where(E value) {
         return and(value);
     }
 

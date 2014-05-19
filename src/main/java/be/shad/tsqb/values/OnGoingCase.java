@@ -15,13 +15,100 @@
  */
 package be.shad.tsqb.values;
 
+import java.util.Date;
+
+import be.shad.tsqb.query.TypeSafeSubQuery;
+import be.shad.tsqb.restrictions.OnGoingBooleanRestriction;
+import be.shad.tsqb.restrictions.OnGoingDateRestriction;
+import be.shad.tsqb.restrictions.OnGoingEnumRestriction;
+import be.shad.tsqb.restrictions.OnGoingNumberRestriction;
+import be.shad.tsqb.restrictions.OnGoingTextRestriction;
 import be.shad.tsqb.restrictions.Restriction;
+import be.shad.tsqb.restrictions.RestrictionChainable;
+import be.shad.tsqb.restrictions.RestrictionsGroup;
+import be.shad.tsqb.restrictions.WhereRestrictions;
 
 public interface OnGoingCase<T> {
 
     /**
-     * Provide a when ( some expression evaluates true ) case.
+     * Add restrictions to the when case.
      */
-    OnGoingCaseWhen<T> when(Restriction restriction);
+    RestrictionChainable when();
+
+    /**
+     * @see WhereRestrictions
+     */
+    RestrictionChainable when(HqlQueryValue restriction);
+
+    /**
+     * @see WhereRestrictions
+     */
+    RestrictionChainable when(RestrictionsGroup group);
+
+    /**
+     * @see WhereRestrictions
+     */
+    Restriction when(Restriction restriction);
+
+    /**
+     * @see WhereRestrictions
+     */
+    <E extends Enum<E>> OnGoingEnumRestriction<E> whenEnum(TypeSafeValue<E> value);
+
+    /**
+     * @see WhereRestrictions
+     */
+    <E extends Enum<E>> OnGoingEnumRestriction<E> when(E value);
+
+    /**
+     * @see WhereRestrictions
+     */
+    OnGoingBooleanRestriction whenBoolean(TypeSafeValue<Boolean> value);
+
+    /**
+     * @see WhereRestrictions
+     */
+    OnGoingBooleanRestriction when(Boolean value);
+
+    /**
+     * @see WhereRestrictions
+     */
+    <N extends Number> OnGoingNumberRestriction whenNumber(TypeSafeValue<N> value);
+
+    /**
+     * @see WhereRestrictions
+     */
+    OnGoingNumberRestriction when(Number value);
+
+    /**
+     * @see WhereRestrictions
+     */
+    OnGoingDateRestriction whenDate(TypeSafeValue<Date> value);
+
+    /**
+     * @see WhereRestrictions
+     */
+    OnGoingDateRestriction when(Date value);
+
+    /**
+     * @see WhereRestrictions
+     */
+    OnGoingTextRestriction whenString(TypeSafeValue<String> value);
+
+    /**
+     * @see WhereRestrictions
+     */
+    OnGoingTextRestriction when(String value);
+
+    /**
+     * @see WhereRestrictions
+     */
+    RestrictionChainable whenExists(TypeSafeSubQuery<?> subquery);
+    
+    /**
+     * Defines the value to return in the else part of a (case when ... then ... (else ...) end).
+     * The end() is implicitely called.
+     */
+    TypeSafeValue<T> otherwise();
     
 }

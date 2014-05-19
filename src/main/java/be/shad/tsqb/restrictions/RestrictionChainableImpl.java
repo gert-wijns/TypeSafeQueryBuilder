@@ -36,7 +36,7 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable, 
      */
     @Override
     public RestrictionChainable andExists(TypeSafeSubQuery<?> subquery) {
-        return exists(and(), subquery);
+        return exists(createAnd(), subquery);
     }
 
     /**
@@ -44,23 +44,23 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable, 
      */
     @Override
     public RestrictionChainable orExists(TypeSafeSubQuery<?> subquery) {
-        return exists(or(), subquery);
+        return exists(createOr(), subquery);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public <E extends Enum<E>> OnGoingEnumRestriction<E> and(E value) {
-        return new OnGoingEnumRestriction<E>(and(), value);
+    public <E extends Enum<E>> OnGoingEnumRestrictionImpl<E> and(E value) {
+        return new OnGoingEnumRestrictionImpl<E>(createAnd(), value);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public <E extends Enum<E>> OnGoingEnumRestriction<E> andEnum(TypeSafeValue<E> value) {
-        return new OnGoingEnumRestriction<E>(and(), value);
+    public <E extends Enum<E>> OnGoingEnumRestrictionImpl<E> andEnum(TypeSafeValue<E> value) {
+        return new OnGoingEnumRestrictionImpl<E>(createAnd(), value);
     }
 
     /**
@@ -68,7 +68,7 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable, 
      */
     @Override
     public OnGoingTextRestriction and(String value) {
-        return new OnGoingTextRestriction(and(), value);
+        return new OnGoingTextRestrictionImpl(createAnd(), value);
     }
 
     /**
@@ -76,7 +76,7 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable, 
      */
     @Override
     public OnGoingTextRestriction andString(TypeSafeValue<String> value) {
-        return new OnGoingTextRestriction(and(), value);
+        return new OnGoingTextRestrictionImpl(createAnd(), value);
     }
 
     /**
@@ -84,7 +84,7 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable, 
      */
     @Override
     public OnGoingBooleanRestriction and(Boolean value) {
-        return new OnGoingBooleanRestriction(and(), value);
+        return new OnGoingBooleanRestrictionImpl(createAnd(), value);
     }
 
     /**
@@ -92,7 +92,7 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable, 
      */
     @Override
     public OnGoingBooleanRestriction andBoolean(TypeSafeValue<Boolean> value) {
-        return new OnGoingBooleanRestriction(and(), value);
+        return new OnGoingBooleanRestrictionImpl(createAnd(), value);
     }
 
     /**
@@ -100,7 +100,7 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable, 
      */
     @Override
     public OnGoingNumberRestriction and(Number value) {
-        return new OnGoingNumberRestriction(and(), value);
+        return new OnGoingNumberRestrictionImpl(createAnd(), value);
     }
 
     /**
@@ -108,7 +108,7 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable, 
      */
     @Override
     public <N extends Number> OnGoingNumberRestriction andNumber(TypeSafeValue<N> value) {
-        return new OnGoingNumberRestriction(and(), value);
+        return new OnGoingNumberRestrictionImpl(createAnd(), value);
     }
 
     /**
@@ -116,7 +116,7 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable, 
      */
     @Override
     public OnGoingDateRestriction and(Date value) {
-        return new OnGoingDateRestriction(and(), value);
+        return new OnGoingDateRestrictionImpl(createAnd(), value);
     }
 
     /**
@@ -124,7 +124,7 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable, 
      */
     @Override
     public OnGoingDateRestriction andDate(TypeSafeValue<Date> value) {
-        return new OnGoingDateRestriction(and(), value);
+        return new OnGoingDateRestrictionImpl(createAnd(), value);
     }
 
     /**
@@ -132,7 +132,7 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable, 
      */
     @Override
     public OnGoingTextRestriction or(String value) {
-        return new OnGoingTextRestriction(or(), value);
+        return new OnGoingTextRestrictionImpl(createOr(), value);
     }
 
     /**
@@ -140,7 +140,7 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable, 
      */
     @Override
     public OnGoingTextRestriction orString(TypeSafeValue<String> value) {
-        return new OnGoingTextRestriction(or(), value);
+        return new OnGoingTextRestrictionImpl(createOr(), value);
     }
 
     /**
@@ -148,7 +148,7 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable, 
      */
     @Override
     public OnGoingNumberRestriction or(Number value) {
-        return new OnGoingNumberRestriction(or(), value);
+        return new OnGoingNumberRestrictionImpl(createOr(), value);
     }
 
     /**
@@ -156,7 +156,7 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable, 
      */
     @Override
     public OnGoingNumberRestriction orNumber(TypeSafeValue<Number> value) {
-        return new OnGoingNumberRestriction(or(), value);
+        return new OnGoingNumberRestrictionImpl(createOr(), value);
     }
     
     /**
@@ -164,7 +164,7 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable, 
      */
     @Override
     public OnGoingBooleanRestriction or(Boolean value) {
-        return new OnGoingBooleanRestriction(or(), value);
+        return new OnGoingBooleanRestrictionImpl(createOr(), value);
     }
 
     /**
@@ -172,7 +172,7 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable, 
      */
     @Override
     public OnGoingDateRestriction or(Date value) {
-        return new OnGoingDateRestriction(or(), value);
+        return new OnGoingDateRestrictionImpl(createOr(), value);
     }
 
     /**
@@ -180,7 +180,7 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable, 
      */
     @Override
     public OnGoingBooleanRestriction orBoolean(TypeSafeValue<Boolean> value) {
-        return new OnGoingBooleanRestriction(or(), value);
+        return new OnGoingBooleanRestrictionImpl(createOr(), value);
     }
 
     /**
@@ -188,7 +188,7 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable, 
      */
     @Override
     public OnGoingDateRestriction orDate(TypeSafeValue<Date> value) {
-        return new OnGoingDateRestriction(or(), value);
+        return new OnGoingDateRestrictionImpl(createOr(), value);
     }
     
 }

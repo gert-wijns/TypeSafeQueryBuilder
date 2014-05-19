@@ -32,12 +32,12 @@ public abstract class RestrictionChainableDelegatingImpl extends RestrictionChai
         return group;
     }
 
-    public RestrictionImpl and() {
-        return group.and();
+    public RestrictionImpl createAnd() {
+        return group.createAnd();
     }
 
-    public RestrictionImpl or() {
-        return group.or();
+    public RestrictionImpl createOr() {
+        return group.createOr();
     }
 
     /**

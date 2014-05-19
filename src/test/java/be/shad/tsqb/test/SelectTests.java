@@ -15,8 +15,6 @@
  */
 package be.shad.tsqb.test;
 
-import static be.shad.tsqb.restrictions.RestrictionsGroupImpl.group;
-
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -225,10 +223,10 @@ public class SelectTests extends TypeSafeQueryTest {
         String dateString = "1500-02-08 12:00:00";
         Date date = df.parse(dateString);
         CaseTypeSafeValue<String> value = new CaseTypeSafeValue<String>(query, String.class);
-        value.when(group(query).and(house.getFloors()).gt(40)).then("Test1");
-        value.when(group(query).and(house.getName()).startsWith("Castle")).then((String) null);
-        value.when(group(query).and(house.getConstructionDate()).before(date)).then("Old");
-        value.otherwise(house.getName());
+        value.is("Test1").when(house.getFloors()).gt(40);
+        value.is((String) null).when(house.getName()).startsWith("Castle");
+        value.is("Old").when(house.getConstructionDate()).before(date);
+        value.is(house.getName()).otherwise();
 
         @SuppressWarnings("unchecked")
         MutablePair<String, Object> pair = query.select(MutablePair.class);
