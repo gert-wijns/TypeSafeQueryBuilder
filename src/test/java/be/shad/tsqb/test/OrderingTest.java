@@ -21,6 +21,9 @@ import org.apache.commons.lang3.tuple.MutablePair;
 import org.junit.Test;
 
 import be.shad.tsqb.domain.Building;
+import be.shad.tsqb.domain.Product;
+import be.shad.tsqb.domain.people.Person;
+import be.shad.tsqb.dto.PersonDto;
 import be.shad.tsqb.ordering.OrderByProjection;
 import be.shad.tsqb.query.TypeSafeSubQuery;
 
@@ -65,6 +68,30 @@ public class OrderingTest extends TypeSafeQueryTest {
         validate("select hobj1.id as left, hobj1.constructionDate as right from Building hobj1 order by hobj1.constructionDate desc");
     }
 
+    @Test
+    public void testOrderBySelectionDtoField() {
+        Person person = query.from(Person.class);
+        
+        PersonDto dto = query.select(PersonDto.class);
+        dto.setThePersonsName(person.getName());
+
+        query.orderBy().desc(dto.getThePersonsName());
+
+        validate("select hobj1.name as thePersonsName from Person hobj1 order by hobj1.name desc");
+    }
+
+    @Test
+    public void testOrderByNestedSelectionDtoField() {
+        Product product = query.from(Product.class);
+        
+        Product dto = query.select(Product.class);
+        dto.getManyProperties().setProperty1(product.getName());
+
+        query.orderBy().desc(dto.getManyProperties().getProperty1());
+
+        validate("select hobj1.name as manyProperties_property1 from Product hobj1 order by hobj1.name desc");
+    }
+    
     @Test
     @SuppressWarnings("unchecked")
     public void testOrderByAliasWithSubQuery() {

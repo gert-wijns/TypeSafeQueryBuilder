@@ -62,6 +62,8 @@ public final class TypeSafeQueryProxyFactory {
                 f.setSuperclass(fromClass); // what if the super class is final?? guess it will give an exception..
                 if( type.isEntity() || type.isComposite() ) {
                     f.setInterfaces(new Class[] { TypeSafeQueryProxy.class });
+                } else {
+                    f.setInterfaces(new Class[] { TypeSafeQuerySelectionProxy.class });
                 }
                 f.setFilter(METHOD_FILTER);
                 proxyClass = f.createClass();

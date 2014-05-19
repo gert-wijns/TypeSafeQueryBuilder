@@ -33,6 +33,19 @@ public interface TypeSafeRootQueryInternal extends TypeSafeRootQuery, TypeSafeQu
     TypeSafeQueryProjections getProjections();
 
     /**
+     * Sets the queued projection path back to null and returns the value
+     * if there was any.
+     */
+    String dequeueInvokedProjectionPath();
+    
+    /**
+     * Queues the invoked projection path when this projection path was
+     * that of a basic type. This projection path is used later during order by
+     * and is reset when an invocation is queued to remove ambiguity.
+     */
+    void queueInvokedProjectionPath(String lastInvokedProjectionPath);
+    
+    /**
      * Queues the value as a selected value, this value will
      * take precedence over everything else when a proxy call to
      * a resultDto setter handled.

@@ -34,6 +34,7 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     private List<TypeSafeQueryProxyData> invocationQueue = new LinkedList<>();
     private Map<String, TypeSafeQueryProxy> customAliasedProxies = new HashMap<>();
     private TypeSafeValue<?> lastSelectedValue;
+    private String lastInvokedProjectionPath;
     private int entityAliasCount = 1;
 
     public TypeSafeRootQueryImpl(TypeSafeQueryHelper helper) {
@@ -52,8 +53,28 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     /**
      * {@inheritDoc}
      */
+    @Override
+    public void queueInvokedProjectionPath(String lastInvokedProjectionPath) {
+        this.lastInvokedProjectionPath = lastInvokedProjectionPath;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String dequeueInvokedProjectionPath() {
+        String lastInvokedProjectionPath = this.lastInvokedProjectionPath;
+        this.lastInvokedProjectionPath = null;
+        return lastInvokedProjectionPath;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
     public void invocationWasMade(TypeSafeQueryProxyData data) {
         invocationQueue.add(data);
+        // reset the invoked projection path, the getter was called without reason?
+        lastInvokedProjectionPath = null;
     }
 
     /**
@@ -144,35 +165,22 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
      * {@inheritDoc}
      */
     @Override
-    @SuppressWarnings("unchecked")
     public <T, V> V select(Class<V> transformedClass, T value, SelectionValueTransformer<T, V> transformer) {
         if (value instanceof TypeSafeQueryProxy) {
             // invocation was not added because it is not a leaf (to support method chaining).
             invocationWasMade(((TypeSafeQueryProxy) value).getTypeSafeProxyData());
         }
         getProjections().setTransformerForNextProjection(transformer);
-        return (V) getDummyValue(transformedClass);
+        return helper.getDummyValue(transformedClass);
     }
     
     /**
      * {@inheritDoc}
      */
     @Override
-    @SuppressWarnings("unchecked")
     public <T> T queueValueSelected(TypeSafeValue<T> value) {
         lastSelectedValue = value;
-        return (T) getDummyValue(value.getValueClass());
-    }
-
-    /**
-     * return a random value, (but take primitives into account to prevent NPEs)
-     */
-    private Object getDummyValue(Class<?> clazz) {
-        Class<?> primitiveClass = getPrimitiveClass(clazz);
-        if( primitiveClass != null ) {
-            return defaultPrimitiveValue(primitiveClass);
-        }
-        return null;
+        return helper.getDummyValue(value.getValueClass());
     }
     
     /**
@@ -183,54 +191,6 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
         TypeSafeValue<?> value = lastSelectedValue;
         lastSelectedValue = null;
         return value;
-    }
-    
-    /**
-     * @return the primitive class if the class could be a primitive.
-     */
-    private Class<?> getPrimitiveClass(Class<?> valueClass) {
-        if( Boolean.class.equals(valueClass) ) {
-            return Boolean.TYPE;
-        } else if ( Integer.class.equals(valueClass) ) {
-            return Integer.TYPE;
-        } else if ( Long.class.equals(valueClass) ) {
-            return Long.TYPE;
-        } else if ( Double.class.equals(valueClass) ) {
-            return Double.TYPE;
-        } else if ( Byte.class.equals(valueClass) ) {
-            return Byte.TYPE;
-        } else if ( Short.class.equals(valueClass) ) {
-            return Short.TYPE;
-        } else if ( Float.class.equals(valueClass) ) {
-            return Float.TYPE;
-        } else if ( Character.class.equals(valueClass) ) {
-            return Character.TYPE;
-        }
-        return null;
-    }
-
-    /**
-     * @return a default value for each primitive class.
-     */
-    private Object defaultPrimitiveValue(Class<?> primitiveClass) {
-        if( primitiveClass == Boolean.TYPE ) {
-            return Boolean.FALSE;
-        } else if( primitiveClass == Integer.TYPE ) {
-            return Integer.valueOf(0);
-        } else if ( primitiveClass == Long.TYPE ) {
-            return Long.valueOf(0);
-        } else if ( primitiveClass == Double.TYPE ) {
-            return Double.valueOf(0);
-        } else if( primitiveClass == Byte.TYPE) {
-            return Byte.valueOf((byte) 0);
-        } else if( primitiveClass == Short.TYPE ) {
-            return Short.valueOf((short) 0);
-        } else if ( primitiveClass == Float.TYPE ) {
-            return Float.valueOf(0);
-        } else if ( primitiveClass == Character.TYPE ) {
-            return Character.valueOf('a');
-        }
-        throw new IllegalArgumentException("Didn't take a primtiive class into account: " + primitiveClass);
     }
 
 }

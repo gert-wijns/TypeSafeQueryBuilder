@@ -61,5 +61,10 @@ public interface TypeSafeQueryHelper {
      * Example: class <code>java.lang.Long</code> will resolve to <code>long</code>.
      */
     String getResolvedTypeName(Class<?> javaType);
+
+    /**
+     * return a random value, (but take primitives into account to prevent NPEs)
+     */
+    <T> T getDummyValue(Class<T> clazz);
     
 }

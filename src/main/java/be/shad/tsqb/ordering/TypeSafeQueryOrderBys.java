@@ -21,7 +21,9 @@ import java.util.List;
 
 import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.hql.HqlQueryBuilder;
+import be.shad.tsqb.proxy.TypeSafeQuerySelectionProxy;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
+import be.shad.tsqb.query.TypeSafeRootQueryInternal;
 import be.shad.tsqb.values.TypeSafeValue;
 
 public class TypeSafeQueryOrderBys implements OnGoingOrderBy, HqlQueryBuilder {
@@ -33,6 +35,19 @@ public class TypeSafeQueryOrderBys implements OnGoingOrderBy, HqlQueryBuilder {
     }
 
     private OnGoingOrderBy orderBy(Object val, boolean desc) {
+        if (query instanceof TypeSafeRootQueryInternal) {
+            // if the last invoked projection path was set, then the value
+            // is a result of a getter of the selection dto.
+            TypeSafeRootQueryInternal query = (TypeSafeRootQueryInternal) this.query;
+            String lastInvokedProjectionPath = query.dequeueInvokedProjectionPath();
+            if (lastInvokedProjectionPath != null) {
+                return by(new OrderByProjection(query, lastInvokedProjectionPath, desc));
+            }
+        }
+        if (val instanceof TypeSafeQuerySelectionProxy) {
+            throw new IllegalArgumentException("Ordering by a selection proxy "
+                    + "is not allowed. This was attempted for proxy: " + val);
+        }
         return by(new OrderByImpl(query.toValue(val), desc));
     }
 
