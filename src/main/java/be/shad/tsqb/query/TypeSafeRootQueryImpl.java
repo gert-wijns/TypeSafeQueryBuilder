@@ -31,7 +31,6 @@ import be.shad.tsqb.values.TypeSafeValue;
  */
 public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements TypeSafeRootQuery, TypeSafeRootQueryInternal {
     
-    private static final Object TypeSafeQueryProxy = null;
     private List<TypeSafeQueryProxyData> invocationQueue = new LinkedList<>();
     private Map<String, TypeSafeQueryProxy> customAliasedProxies = new HashMap<>();
     private TypeSafeValue<?> lastSelectedValue;
