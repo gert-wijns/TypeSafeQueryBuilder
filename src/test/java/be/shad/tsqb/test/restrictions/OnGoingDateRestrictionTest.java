@@ -16,15 +16,18 @@
 package be.shad.tsqb.test.restrictions;
 
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
 import be.shad.tsqb.domain.Building;
+import be.shad.tsqb.domain.Style;
 import be.shad.tsqb.test.TypeSafeQueryTest;
 import be.shad.tsqb.values.DirectTypeSafeValue;
 
 public class OnGoingDateRestrictionTest extends TypeSafeQueryTest {
     private Date date = new Date();
+    private Date date2 = new Date(date.getTime() + TimeUnit.DAYS.toMillis(1));
 
     @Test
     public void testBefore() {
@@ -80,6 +83,34 @@ public class OnGoingDateRestrictionTest extends TypeSafeQueryTest {
         Building building = query.from(Building.class);
         query.where(building.getConstructionDate()).notBefore(new DirectTypeSafeValue<Date>(query, date));
         validate(" from Building hobj1 where hobj1.constructionDate >= ?", date);
+    }
+
+    @Test
+    public void testBetweenAsContinuedOngoingRestriction() {
+        Building building = query.from(Building.class);
+        query.where(building.getConstructionDate()).after(date).before(date2);
+        validate(" from Building hobj1 where hobj1.constructionDate > ? and hobj1.constructionDate < ?", date, date2);
+    }
+
+    @Test
+    public void testBetweenAsContinuedOngoingRestrictionAlternative() {
+        Building building = query.from(Building.class);
+        query.where(building.getConstructionDate()).after(date).and().before(date2);
+        validate(" from Building hobj1 where hobj1.constructionDate > ? and hobj1.constructionDate < ?", date, date2);
+    }
+
+    @Test
+    public void testNotBetweenAsContinuedOngoingRestriction() {
+        Building building = query.from(Building.class);
+        query.where(building.getConstructionDate()).before(date).or().after(date2);
+        validate(" from Building hobj1 where hobj1.constructionDate < ? or hobj1.constructionDate > ?", date, date2);
+    }
+
+    @Test
+    public void testContinueAfterContinuedRestriction() {
+        Building building = query.from(Building.class);
+        query.where(building.getConstructionDate()).after(date).and().before(date2).and(building.getStyle()).eq(Style.the1980s);
+        validate(" from Building hobj1 where hobj1.constructionDate > ? and hobj1.constructionDate < ? and hobj1.style = ?", date, date2, Style.the1980s);
     }
 
 }
