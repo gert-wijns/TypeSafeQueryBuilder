@@ -24,26 +24,34 @@ import be.shad.tsqb.values.TypeSafeValue;
  */
 public class OnGoingNumberRestrictionImpl 
         extends OnGoingRestrictionImpl<Number, ContinuedOnGoingNumberRestriction, OnGoingNumberRestriction> 
-        implements OnGoingNumberRestriction {
+        implements OnGoingNumberRestriction, ContinuedOnGoingNumberRestriction {
     
     private final static String LESS_THAN_EQUAL = "<=";
     private final static String LESS_THAN = "<";
     private final static String GREATER_THAN = ">";
     private final static String GREATER_THAN_EQUAL = ">=";
 
-    public OnGoingNumberRestrictionImpl(RestrictionImpl restriction, Number argument) {
-        super(restriction, argument);
+    public OnGoingNumberRestrictionImpl(RestrictionsGroupInternal group, 
+            RestrictionNodeType restrictionNodeType, Number argument) {
+        super(group, restrictionNodeType, argument);
     }
     
     @SuppressWarnings("unchecked")
-    public OnGoingNumberRestrictionImpl(RestrictionImpl restriction, TypeSafeValue<? extends Number> argument) {
-        super(restriction, (TypeSafeValue<Number>) argument);
+    public OnGoingNumberRestrictionImpl(RestrictionsGroupInternal group, 
+            RestrictionNodeType restrictionNodeType, TypeSafeValue<? extends Number> argument) {
+        super(group, restrictionNodeType, (TypeSafeValue<Number>) argument);
     }
 
     @Override
-    protected ContinuedOnGoingNumberRestrictionImpl createContinuedOnGoingRestriction(
-            RestrictionsGroupInternal group, TypeSafeValue<Number> previousValue) {
-        return new ContinuedOnGoingNumberRestrictionImpl(group, previousValue);
+    protected OnGoingNumberRestrictionImpl createContinuedOnGoingRestriction(
+            RestrictionNodeType restrictionNodeType, TypeSafeValue<Number> previousValue) {
+        return new OnGoingNumberRestrictionImpl(group, restrictionNodeType, previousValue);
+    }
+    
+    @Override
+    protected OnGoingNumberRestriction createOriginalOnGoingRestriction(
+            RestrictionNodeType restrictionNodeType, TypeSafeValue<Number> previousValue) {
+        return createContinuedOnGoingRestriction(restrictionNodeType, previousValue);
     }
 
     /**
@@ -59,9 +67,7 @@ public class OnGoingNumberRestrictionImpl
      */
     @Override
     public ContinuedOnGoingNumberRestriction lt(TypeSafeValue<Number> value) {
-        restriction.setOperator(LESS_THAN);
-        restriction.setRight(value);
-        return createContinuedOnGoingRestriction();
+        return addRestrictionAndContinue(startValue, LESS_THAN, value);
     }
 
     /**
@@ -77,9 +83,7 @@ public class OnGoingNumberRestrictionImpl
      */
     @Override
     public ContinuedOnGoingNumberRestriction gt(TypeSafeValue<Number> value) {
-        restriction.setOperator(GREATER_THAN);
-        restriction.setRight(value);
-        return createContinuedOnGoingRestriction();
+        return addRestrictionAndContinue(startValue, GREATER_THAN, value);
     }
 
     /**
@@ -95,9 +99,7 @@ public class OnGoingNumberRestrictionImpl
      */
     @Override
     public ContinuedOnGoingNumberRestriction lte(TypeSafeValue<Number> value) {
-        restriction.setOperator(LESS_THAN_EQUAL);
-        restriction.setRight(value);
-        return createContinuedOnGoingRestriction();
+        return addRestrictionAndContinue(startValue, LESS_THAN_EQUAL, value);
     }
 
     /**
@@ -113,9 +115,7 @@ public class OnGoingNumberRestrictionImpl
      */
     @Override
     public ContinuedOnGoingNumberRestriction gte(TypeSafeValue<Number> value) {
-        restriction.setOperator(GREATER_THAN_EQUAL);
-        restriction.setRight(value);
-        return createContinuedOnGoingRestriction();
+        return addRestrictionAndContinue(startValue, GREATER_THAN_EQUAL, value);
     }
 
 }

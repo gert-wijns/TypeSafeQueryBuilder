@@ -2,7 +2,9 @@ package be.shad.tsqb.restrictions;
 
 import be.shad.tsqb.values.TypeSafeValue;
 
-
+/**
+ * Exposes Number related restrictions in addition to the basic restrictions.
+ */
 public interface OnGoingNumberRestriction extends OnGoingRestriction<Number, ContinuedOnGoingNumberRestriction, OnGoingNumberRestriction> {
 
     /**

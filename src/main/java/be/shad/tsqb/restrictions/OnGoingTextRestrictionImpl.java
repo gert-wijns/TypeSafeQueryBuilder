@@ -27,24 +27,32 @@ import be.shad.tsqb.values.TypeSafeValue;
  */
 public class OnGoingTextRestrictionImpl 
         extends OnGoingRestrictionImpl<String, ContinuedOnGoingTextRestriction, OnGoingTextRestriction> 
-        implements OnGoingTextRestriction {
+        implements OnGoingTextRestriction, ContinuedOnGoingTextRestriction {
     
     private final static String WILDCARD = "%";
     private final static String EMPTY = "";
     private final static String LIKE = "like";
 
-    public OnGoingTextRestrictionImpl(RestrictionImpl restriction, String argument) {
-        super(restriction, argument);
+    public OnGoingTextRestrictionImpl(RestrictionsGroupInternal group, 
+            RestrictionNodeType restrictionNodeType, String argument) {
+        super(group, restrictionNodeType, argument);
     }
     
-    public OnGoingTextRestrictionImpl(RestrictionImpl restriction, TypeSafeValue<String> argument) {
-        super(restriction, argument);
+    public OnGoingTextRestrictionImpl(RestrictionsGroupInternal group, 
+            RestrictionNodeType restrictionNodeType, TypeSafeValue<String> argument) {
+        super(group, restrictionNodeType, argument);
     }
     
     @Override
-    protected ContinuedOnGoingTextRestriction createContinuedOnGoingRestriction(
-            RestrictionsGroupInternal group, TypeSafeValue<String> previousValue) {
-        return new ContinuedOnGoingTextRestrictionImpl(group, previousValue);
+    protected OnGoingTextRestrictionImpl createContinuedOnGoingRestriction(
+            RestrictionNodeType restrictionNodeType, TypeSafeValue<String> startValue) {
+        return new OnGoingTextRestrictionImpl(group, restrictionNodeType, startValue);
+    }
+    
+    @Override
+    protected OnGoingTextRestriction createOriginalOnGoingRestriction(
+            RestrictionNodeType restrictionNodeType, TypeSafeValue<String> startValue) {
+        return createContinuedOnGoingRestriction(restrictionNodeType, startValue);
     }
     
     /**
@@ -52,9 +60,7 @@ public class OnGoingTextRestrictionImpl
      */
     @Override
     public ContinuedOnGoingTextRestriction like(TypeSafeValue<String> value) {
-        restriction.setOperator(LIKE);
-        restriction.setRight(value);
-        return createContinuedOnGoingRestriction();
+        return addRestrictionAndContinue(startValue, LIKE, value);
     }
 
     /**
@@ -90,7 +96,7 @@ public class OnGoingTextRestrictionImpl
             return toValue(left + value + right);
         }
         if( left.length() != 0 || right.length() != 0 ) {
-            List<TypeSafeQueryProxyData> dequeued = restriction.getQuery().dequeueInvocations();
+            List<TypeSafeQueryProxyData> dequeued = group.getQuery().dequeueInvocations();
             if( !dequeued.isEmpty() ) {
                 throw new UnsupportedOperationException("Like not supported for "
                         + "referenced value [" + dequeued.get(0) + "].");

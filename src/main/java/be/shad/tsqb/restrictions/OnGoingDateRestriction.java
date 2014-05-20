@@ -4,6 +4,9 @@ import java.util.Date;
 
 import be.shad.tsqb.values.TypeSafeValue;
 
+/**
+ * Exposes Date related restrictions in addition to the basic restrictions.
+ */
 public interface OnGoingDateRestriction extends OnGoingRestriction<Date, ContinuedOnGoingDateRestriction, OnGoingDateRestriction> {
 
     /**

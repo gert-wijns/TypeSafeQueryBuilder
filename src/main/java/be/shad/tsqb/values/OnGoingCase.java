@@ -48,7 +48,7 @@ public interface OnGoingCase<T> {
     /**
      * @see WhereRestrictions
      */
-    Restriction when(Restriction restriction);
+    RestrictionChainable when(Restriction restriction);
 
     /**
      * @see WhereRestrictions

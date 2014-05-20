@@ -24,20 +24,28 @@ import be.shad.tsqb.values.TypeSafeValue;
  */
 public class OnGoingEnumRestrictionImpl<E extends Enum<E>> 
         extends OnGoingRestrictionImpl<E, ContinuedOnGoingEnumRestriction<E>, OnGoingEnumRestriction<E>> 
-        implements OnGoingEnumRestriction<E> {
+        implements OnGoingEnumRestriction<E>, ContinuedOnGoingEnumRestriction<E> {
 
-    public OnGoingEnumRestrictionImpl(RestrictionImpl restriction, E argument) {
-        super(restriction, argument);
+    public OnGoingEnumRestrictionImpl(RestrictionsGroupInternal group, 
+            RestrictionNodeType restrictionNodeType, E argument) {
+        super(group, restrictionNodeType, argument);
     }
 
-    public OnGoingEnumRestrictionImpl(RestrictionImpl restriction, TypeSafeValue<E> argument) {
-        super(restriction, argument);
+    public OnGoingEnumRestrictionImpl(RestrictionsGroupInternal group, 
+            RestrictionNodeType restrictionNodeType, TypeSafeValue<E> argument) {
+        super(group, restrictionNodeType, argument);
+    }
+
+    @Override
+    protected OnGoingEnumRestrictionImpl<E> createContinuedOnGoingRestriction(
+            RestrictionNodeType restrictionNodeType, TypeSafeValue<E> previousValue) {
+        return new OnGoingEnumRestrictionImpl<E>(group, restrictionNodeType, previousValue);
     }
     
     @Override
-    protected ContinuedOnGoingEnumRestriction<E> createContinuedOnGoingRestriction(
-            RestrictionsGroupInternal group, TypeSafeValue<E> previousValue) {
-        return new ContinuedOnGoingEnumRestrictionImpl<>(group, previousValue);
+    protected OnGoingEnumRestriction<E> createOriginalOnGoingRestriction(
+            RestrictionNodeType restrictionNodeType, TypeSafeValue<E> previousValue) {
+        return createContinuedOnGoingRestriction(restrictionNodeType, previousValue);
     }
 
 }

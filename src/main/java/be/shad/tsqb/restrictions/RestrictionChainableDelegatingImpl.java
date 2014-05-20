@@ -22,7 +22,7 @@ import be.shad.tsqb.values.HqlQueryValue;
  */
 public abstract class RestrictionChainableDelegatingImpl extends RestrictionChainableImpl {
 
-    private final RestrictionsGroupInternal group;
+    protected final RestrictionsGroupInternal group;
     
     public RestrictionChainableDelegatingImpl(RestrictionsGroupInternal group) {
         this.group = group;
@@ -30,14 +30,6 @@ public abstract class RestrictionChainableDelegatingImpl extends RestrictionChai
 
     public RestrictionsGroupInternal getRestrictionsGroup() {
         return group;
-    }
-
-    public RestrictionImpl createAnd() {
-        return group.createAnd();
-    }
-
-    public RestrictionImpl createOr() {
-        return group.createOr();
     }
 
     /**
@@ -60,7 +52,7 @@ public abstract class RestrictionChainableDelegatingImpl extends RestrictionChai
      * {@inheritDoc}
      */
     @Override
-    public Restriction and(Restriction restriction) {
+    public RestrictionChainable and(Restriction restriction) {
         return group.and(restriction);
     }
 
@@ -68,7 +60,7 @@ public abstract class RestrictionChainableDelegatingImpl extends RestrictionChai
      * {@inheritDoc}
      */
     @Override
-    public RestrictionChainable and(RestrictionsGroup group) {
+    public RestrictionAndChainable and(RestrictionsGroup group) {
         return this.group.and(group);
     }
 
@@ -76,7 +68,7 @@ public abstract class RestrictionChainableDelegatingImpl extends RestrictionChai
      * {@inheritDoc}
      */
     @Override
-    public Restriction or(Restriction restriction) {
+    public RestrictionChainable or(Restriction restriction) {
         return group.or(restriction);
     }
 
@@ -84,7 +76,7 @@ public abstract class RestrictionChainableDelegatingImpl extends RestrictionChai
      * {@inheritDoc}
      */
     @Override
-    public RestrictionChainable or(RestrictionsGroup group) {
+    public RestrictionAndChainable or(RestrictionsGroup group) {
         return this.group.or(group);
     }
     

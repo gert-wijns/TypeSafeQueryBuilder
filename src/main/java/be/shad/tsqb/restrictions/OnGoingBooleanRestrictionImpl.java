@@ -31,38 +31,46 @@ import be.shad.tsqb.values.TypeSafeValue;
  */
 public class OnGoingBooleanRestrictionImpl 
         extends OnGoingRestrictionImpl<Boolean, ContinuedOnGoingBooleanRestriction, OnGoingBooleanRestriction> 
-        implements OnGoingBooleanRestriction {
+        implements OnGoingBooleanRestriction, ContinuedOnGoingBooleanRestriction {
 
-    public OnGoingBooleanRestrictionImpl(RestrictionImpl restriction, Boolean argument) {
-        super(restriction, argument);
+    public OnGoingBooleanRestrictionImpl(RestrictionsGroupInternal group, 
+            RestrictionNodeType restrictionNodeType, Boolean argument) {
+        super(group, restrictionNodeType, argument);
     }
 
-    public OnGoingBooleanRestrictionImpl(RestrictionImpl restriction, TypeSafeValue<Boolean> argument) {
-        super(restriction, argument);
+    public OnGoingBooleanRestrictionImpl(RestrictionsGroupInternal group, 
+            RestrictionNodeType restrictionNodeType, TypeSafeValue<Boolean> argument) {
+        super(group, restrictionNodeType, argument);
     }
 
     @Override
-    protected ContinuedOnGoingBooleanRestriction createContinuedOnGoingRestriction(
-            RestrictionsGroupInternal group, TypeSafeValue<Boolean> previousValue) {
-        return new ContinuedOnGoingBooleanRestrictionImpl(group, previousValue);
+    protected OnGoingBooleanRestrictionImpl createContinuedOnGoingRestriction(
+            RestrictionNodeType restrictionNodeType, TypeSafeValue<Boolean> startValue) {
+        return new OnGoingBooleanRestrictionImpl(group, restrictionNodeType, startValue);
+    }
+    
+    @Override
+    protected OnGoingBooleanRestriction createOriginalOnGoingRestriction(
+            RestrictionNodeType restrictionNodeType, TypeSafeValue<Boolean> startValue) {
+        return createContinuedOnGoingRestriction(restrictionNodeType, startValue);
     }
     
     /**
      * {@inheritDoc}
      */
-    public Restriction isFalse() {
-        restriction.setOperator(EQUAL);
-        restriction.setRight(new DirectTypeSafeValue<>(restriction.getQuery(), Boolean.FALSE));
-        return restriction;
+    public RestrictionChainable isFalse() {
+        TypeSafeValue<Boolean> falseValue = new DirectTypeSafeValue<>(group.getQuery(), Boolean.FALSE);
+        addRestrictionAndContinue(startValue, EQUAL, falseValue);
+        return getRestrictionsGroup();
     }
 
     /**
      * {@inheritDoc}
      */
-    public Restriction isTrue() {
-        restriction.setOperator(EQUAL);
-        restriction.setRight(new DirectTypeSafeValue<>(restriction.getQuery(), Boolean.TRUE));
-        return restriction;
+    public RestrictionChainable isTrue() {
+        TypeSafeValue<Boolean> falseValue = new DirectTypeSafeValue<>(group.getQuery(), Boolean.TRUE);
+        addRestrictionAndContinue(startValue, EQUAL, falseValue);
+        return getRestrictionsGroup();
     }
 
     /**
@@ -101,7 +109,7 @@ public class OnGoingBooleanRestrictionImpl
      * {@inheritDoc}
      */
     @Override
-    public Restriction and(Restriction restriction) {
+    public RestrictionChainable and(Restriction restriction) {
         return isTrue().and(restriction);
     }
 
@@ -109,7 +117,7 @@ public class OnGoingBooleanRestrictionImpl
      * {@inheritDoc}
      */
     @Override
-    public Restriction or(Restriction restriction) {
+    public RestrictionChainable or(Restriction restriction) {
         return isTrue().or(restriction);
     }
 
@@ -261,7 +269,7 @@ public class OnGoingBooleanRestrictionImpl
      * {@inheritDoc}
      */
     @Override
-    public RestrictionChainable and(RestrictionsGroup group) {
+    public RestrictionAndChainable and(RestrictionsGroup group) {
         return isTrue().and(group);
     }
 
@@ -269,7 +277,7 @@ public class OnGoingBooleanRestrictionImpl
      * {@inheritDoc}
      */
     @Override
-    public RestrictionChainable or(RestrictionsGroup group) {
+    public RestrictionAndChainable or(RestrictionsGroup group) {
         return isTrue().or(group);
     }
     

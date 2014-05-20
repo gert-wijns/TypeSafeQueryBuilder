@@ -26,27 +26,35 @@ import be.shad.tsqb.values.TypeSafeValue;
  */
 public class OnGoingDateRestrictionImpl 
         extends OnGoingRestrictionImpl<Date, ContinuedOnGoingDateRestriction, OnGoingDateRestriction> 
-        implements OnGoingDateRestriction {
+        implements OnGoingDateRestriction, ContinuedOnGoingDateRestriction {
     
     private final static String LESS_THAN_EQUAL = "<=";
     private final static String LESS_THAN = "<";
     private final static String GREATER_THAN = ">";
     private final static String GREATER_THAN_EQUAL = ">=";
 
-    public OnGoingDateRestrictionImpl(RestrictionImpl restriction, Date argument) {
-        super(restriction, argument);
+    public OnGoingDateRestrictionImpl(RestrictionsGroupInternal group, 
+            RestrictionNodeType restrictionNodeType, Date argument) {
+        super(group, restrictionNodeType, argument);
     }
 
-    public OnGoingDateRestrictionImpl(RestrictionImpl restriction, TypeSafeValue<Date> argument) {
-        super(restriction, argument);
+    public OnGoingDateRestrictionImpl(RestrictionsGroupInternal group, 
+            RestrictionNodeType restrictionNodeType, TypeSafeValue<Date> argument) {
+        super(group, restrictionNodeType, argument);
     }
     
     @Override
-    protected ContinuedOnGoingDateRestriction createContinuedOnGoingRestriction(
-            RestrictionsGroupInternal group, TypeSafeValue<Date> previousValue) {
-        return new ContinuedOnGoingDateRestrictionImpl(group, previousValue);
+    protected OnGoingDateRestrictionImpl createContinuedOnGoingRestriction(
+            RestrictionNodeType restrictionNodeType, TypeSafeValue<Date> previousValue) {
+        return new OnGoingDateRestrictionImpl(group, restrictionNodeType, previousValue);
     }
 
+    @Override
+    protected OnGoingDateRestriction createOriginalOnGoingRestriction(
+            RestrictionNodeType restrictionNodeType, TypeSafeValue<Date> previousValue) {
+        return createContinuedOnGoingRestriction(restrictionNodeType, previousValue);
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -60,9 +68,7 @@ public class OnGoingDateRestrictionImpl
      */
     @Override
     public ContinuedOnGoingDateRestriction before(TypeSafeValue<Date> value) {
-        restriction.setOperator(LESS_THAN);
-        restriction.setRight(value);
-        return createContinuedOnGoingRestriction();
+        return addRestrictionAndContinue(startValue, LESS_THAN, value);
     }
 
     /**
@@ -78,9 +84,7 @@ public class OnGoingDateRestrictionImpl
      */
     @Override
     public ContinuedOnGoingDateRestriction after(TypeSafeValue<Date> value) {
-        restriction.setOperator(GREATER_THAN);
-        restriction.setRight(value);
-        return createContinuedOnGoingRestriction();
+        return addRestrictionAndContinue(startValue, GREATER_THAN, value);
     }
 
     /**
@@ -96,9 +100,7 @@ public class OnGoingDateRestrictionImpl
      */
     @Override
     public ContinuedOnGoingDateRestriction notAfter(TypeSafeValue<Date> value) {
-        restriction.setOperator(LESS_THAN_EQUAL);
-        restriction.setRight(value);
-        return createContinuedOnGoingRestriction();
+        return addRestrictionAndContinue(startValue, LESS_THAN_EQUAL, value);
     }
 
     /**
@@ -114,9 +116,7 @@ public class OnGoingDateRestrictionImpl
      */
     @Override
     public ContinuedOnGoingDateRestriction notBefore(TypeSafeValue<Date> value) {
-        restriction.setOperator(GREATER_THAN_EQUAL);
-        restriction.setRight(value);
-        return createContinuedOnGoingRestriction();
+        return addRestrictionAndContinue(startValue, GREATER_THAN_EQUAL, value);
     }
 
 }

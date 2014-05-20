@@ -1,15 +1,19 @@
 package be.shad.tsqb.restrictions;
 
-public interface OnGoingBooleanRestriction extends RestrictionChainable, OnGoingRestriction<Boolean, ContinuedOnGoingBooleanRestriction, OnGoingBooleanRestriction> {
+/**
+ * Exposes boolean related restrictions in addition to the basic restrictions.
+ */
+public interface OnGoingBooleanRestriction 
+    extends RestrictionChainable, OnGoingRestriction<Boolean, ContinuedOnGoingBooleanRestriction, OnGoingBooleanRestriction> {
 
     /**
      * Generates: left == false
      */
-    Restriction isFalse();
+    RestrictionChainable isFalse();
 
     /**
      * Generates: left == true
      */
-    Restriction isTrue();
+    RestrictionChainable isTrue();
     
 }

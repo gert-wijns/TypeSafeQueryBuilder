@@ -21,6 +21,8 @@ import static be.shad.tsqb.restrictions.RestrictionImpl.IS_NOT_NULL;
 import static be.shad.tsqb.restrictions.RestrictionImpl.IS_NULL;
 import static be.shad.tsqb.restrictions.RestrictionImpl.NOT_EQUAL;
 import static be.shad.tsqb.restrictions.RestrictionImpl.NOT_IN;
+import static be.shad.tsqb.restrictions.RestrictionNodeType.And;
+import static be.shad.tsqb.restrictions.RestrictionNodeType.Or;
 
 import java.util.Collection;
 
@@ -35,47 +37,64 @@ import be.shad.tsqb.values.TypeSafeValue;
  * @see RestrictionImpl
  */
 public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnGoingRestriction<VAL, CONTINUED, ORIGINAL>, 
-            ORIGINAL extends OnGoingRestriction<VAL, CONTINUED, ORIGINAL>> 
-        implements OnGoingRestriction<VAL, CONTINUED, ORIGINAL> {
+            ORIGINAL extends OnGoingRestriction<VAL, CONTINUED, ORIGINAL>> extends RestrictionChainableDelegatingImpl
+        implements OnGoingRestriction<VAL, CONTINUED, ORIGINAL>, ContinuedOnGoingRestriction<VAL, CONTINUED, ORIGINAL> {
+    
+    private final RestrictionNodeType restrictionNodeType;
+    protected final TypeSafeValue<VAL> startValue;
 
-    protected final RestrictionImpl restriction;
-
-    public OnGoingRestrictionImpl(RestrictionImpl restriction, VAL argument) {
-        this.restriction = restriction;
-        restriction.setLeft(toValue(argument));
+    public OnGoingRestrictionImpl(RestrictionsGroupInternal group, RestrictionNodeType restrictionNodeType, VAL argument) {
+        super(group);
+        this.restrictionNodeType = restrictionNodeType;
+        this.startValue = toValue(argument);
     }
 
-    public OnGoingRestrictionImpl(RestrictionImpl restriction, TypeSafeValue<VAL> argument) {
-        this.restriction = restriction;
-        restriction.setLeft(argument);
-    }
-
-    /**
-     * Delegates to {@link #createContinuedOnGoingRestriction(RestrictionsGroupInternal, TypeSafeValue)}
-     * withe the current restriction group and restriction left value or the right value if the left value is null.
-     */
-    @SuppressWarnings("unchecked")
-    protected final CONTINUED createContinuedOnGoingRestriction() {
-        TypeSafeValue<VAL> previous = (TypeSafeValue<VAL>) restriction.getLeft();
-        if (previous == null) {
-            previous = (TypeSafeValue<VAL>) restriction.getRight();
-        }
-        return createContinuedOnGoingRestriction(restriction.getRestrictionsGroup(), previous);
+    public OnGoingRestrictionImpl(RestrictionsGroupInternal group, RestrictionNodeType restrictionNodeType, TypeSafeValue<VAL> argument) {
+        super(group);
+        this.restrictionNodeType = restrictionNodeType;
+        this.startValue = argument;
     }
 
     /**
      * Delegates to subclass to create the correct type.
      */
     protected abstract CONTINUED createContinuedOnGoingRestriction(
-            RestrictionsGroupInternal group, TypeSafeValue<VAL> previousValue);
+            RestrictionNodeType restrictionNodeType, 
+            TypeSafeValue<VAL> previousValue);
+
+    /**
+     * Delegates to subclass to create the correct type.
+     */
+    protected abstract ORIGINAL createOriginalOnGoingRestriction(
+            RestrictionNodeType restrictionNodeType, 
+            TypeSafeValue<VAL> previousValue);
 
     /**
      * {@inheritDoc}
      */
     @Override
     public CONTINUED isNull() {
-        restriction.setOperator(IS_NULL);
-        return createContinuedOnGoingRestriction();
+        return addRestrictionAndContinue(startValue, IS_NULL, null);
+    }
+
+    /**
+     * The go-to method for to add the restriction to the restrictions group.
+     */
+    @SuppressWarnings("unchecked")
+    protected <L extends VAL, R extends VAL> CONTINUED addRestrictionAndContinue(
+            TypeSafeValue<L> left, String operator, TypeSafeValue<R> right) {
+        TypeSafeValue<VAL> leftVal = (TypeSafeValue<VAL>) left;
+        TypeSafeValue<VAL> rightVal = (TypeSafeValue<VAL>) right;
+        RestrictionImpl<VAL> restriction = new RestrictionImpl<>(
+                group, leftVal, operator, rightVal);
+        if (restrictionNodeType == And) {
+            group.and(restriction);
+        } else {
+            group.or(restriction);
+        }
+        // continue with the next one assuming And, if or() is called the instance 
+        // is simply discarded and one with Or is returned instead. 
+        return createContinuedOnGoingRestriction(And, leftVal == null ? rightVal: leftVal);
     }
 
     /**
@@ -83,8 +102,7 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
      */
     @Override
     public CONTINUED isNotNull() {
-        restriction.setOperator(IS_NOT_NULL);
-        return createContinuedOnGoingRestriction();
+        return addRestrictionAndContinue(startValue, IS_NOT_NULL, null);
     }
 
     /**
@@ -92,9 +110,7 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
      */
     @Override
     public <T extends VAL> CONTINUED in(TypeSafeValue<T> value) {
-        restriction.setOperator(IN);
-        restriction.setRight(value);
-        return createContinuedOnGoingRestriction();
+        return addRestrictionAndContinue(startValue, IN, value);
     }
 
     /**
@@ -102,7 +118,7 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
      */
     @Override
     public <T extends VAL> CONTINUED in(Collection<T> values) {
-        return in(new CollectionTypeSafeValue<>(restriction.getQuery(), values));
+        return in(new CollectionTypeSafeValue<>(group.getQuery(), values));
     }
 
     /**
@@ -110,9 +126,7 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
      */
     @Override
     public <T extends VAL> CONTINUED notIn(TypeSafeValue<T> value) {
-        restriction.setOperator(NOT_IN);
-        restriction.setRight(value);
-        return createContinuedOnGoingRestriction();
+        return addRestrictionAndContinue(startValue, NOT_IN, value);
     }
 
     /**
@@ -120,7 +134,7 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
      */
     @Override
     public <T extends VAL> CONTINUED notIn(Collection<T> values) {
-        return notIn(new CollectionTypeSafeValue<>(restriction.getQuery(), values));
+        return notIn(new CollectionTypeSafeValue<>(group.getQuery(), values));
     }
 
     /**
@@ -128,9 +142,7 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
      */
     @Override
     public CONTINUED eq(TypeSafeValue<VAL> value) {
-        restriction.setOperator(EQUAL);
-        restriction.setRight(value);
-        return createContinuedOnGoingRestriction();
+        return addRestrictionAndContinue(startValue, EQUAL, value);
     }
 
     /**
@@ -146,9 +158,7 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
      */
     @Override
     public CONTINUED not(TypeSafeValue<VAL> value) {
-        restriction.setOperator(NOT_EQUAL);
-        restriction.setRight(value);
-        return createContinuedOnGoingRestriction();
+        return addRestrictionAndContinue(startValue, NOT_EQUAL, value);
     }
 
     /**
@@ -163,7 +173,17 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
      * Delegates to {@link TypeSafeQueryInternal#toValue(Object)}
      */
     protected TypeSafeValue<VAL> toValue(VAL value) {
-        return restriction.getQuery().toValue(value);
+        return group.getQuery().toValue(value);
     }
 
+    @Override
+    public ORIGINAL and() {
+        return createOriginalOnGoingRestriction(And, startValue);
+    }
+
+    @Override
+    public ORIGINAL or() {
+        return createOriginalOnGoingRestriction(Or, startValue);
+    }
+    
 }

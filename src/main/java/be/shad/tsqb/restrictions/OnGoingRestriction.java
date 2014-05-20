@@ -4,6 +4,9 @@ import java.util.Collection;
 
 import be.shad.tsqb.values.TypeSafeValue;
 
+/**
+ * Exposes the basic restrictions available for all value types.
+ */
 public interface OnGoingRestriction<VAL, CONTINUED extends ContinuedOnGoingRestriction<VAL, CONTINUED, ORIGINAL>, 
         ORIGINAL extends OnGoingRestriction<VAL, CONTINUED, ORIGINAL>> {
 

@@ -34,6 +34,16 @@ public interface RestrictionChainable {
     RestrictionChainable orExists(TypeSafeSubQuery<?> subquery);
     
     /**
+     * 
+     */
+    RestrictionAndChainable and(ContinuedRestrictionChainable continuedRestrictionChainable);
+
+    /**
+     * 
+     */
+    RestrictionAndChainable or(ContinuedRestrictionChainable continuedRestrictionChainable);
+    
+    /**
      * Adds a custom restriction which consists of only the hql query value
      * which is 'and'ed with the existing restrictions.
      */
@@ -49,23 +59,23 @@ public interface RestrictionChainable {
      * Add a restriction, the restriction is returned to continue chaining.
      * Use this to add groups of restrictions (useful when using ´or´s in a query).
      */
-    Restriction and(Restriction restriction);
+    RestrictionChainable and(Restriction restriction);
     
     /**
      * Adds a restriction group as and to the existing where clause.
      */
-    RestrictionChainable and(RestrictionsGroup group);
+    RestrictionAndChainable and(RestrictionsGroup group);
     
     /**
      * Add a restriction, the restriction is returned to continue chaining.
      * Use this to add groups of restrictions (useful when using ´or´s in a query).
      */
-    Restriction or(Restriction restriction);
+    RestrictionChainable or(Restriction restriction);
 
     /**
      * Adds a restriction group as or to the existing where clause.
      */
-    RestrictionChainable or(RestrictionsGroup group);
+    RestrictionAndChainable or(RestrictionsGroup group);
     
     /**
      * The general restrict by enum method. Anything which represents a number

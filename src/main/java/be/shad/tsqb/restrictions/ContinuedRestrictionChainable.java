@@ -15,6 +15,16 @@
  */
 package be.shad.tsqb.restrictions;
 
-public interface ContinuedRestrictionChainable<VAL> extends RestrictionChainable {
+/**
+ * Allows for continued restrictions to be usable to either continue with another restriction
+ * or to have its grouped restrictions added.
+ */
+public interface ContinuedRestrictionChainable extends RestrictionChainable {
 
+    /**
+     * Exposes the restriction group so it can be used when this
+     * continued restriction chainable is added to another restriction chainable.
+     */
+    RestrictionsGroup getRestrictionsGroup();
+    
 }

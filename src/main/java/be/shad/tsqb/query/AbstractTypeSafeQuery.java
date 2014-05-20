@@ -207,7 +207,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      * {@inheritDoc}
      */
     @Override
-    public Restriction where(Restriction restriction) {
+    public RestrictionChainable where(Restriction restriction) {
         return restrictions.and(restriction);
     }
 

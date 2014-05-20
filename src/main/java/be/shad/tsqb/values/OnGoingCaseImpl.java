@@ -54,7 +54,7 @@ public class OnGoingCaseImpl<T> extends RestrictionChainableDelegatingImpl imple
      * {@inheritDoc}
      */
     @Override
-    public Restriction when(Restriction restriction) {
+    public RestrictionChainable when(Restriction restriction) {
         return and(restriction);
     }
 

@@ -43,7 +43,7 @@ public interface WhereRestrictions {
     /**
      * Adds a restriction as and to the existing where clause.
      */
-    Restriction where(Restriction restriction);
+    RestrictionChainable where(Restriction restriction);
     
     /**
      * The general restrict by enum method. Anything which represents a number
