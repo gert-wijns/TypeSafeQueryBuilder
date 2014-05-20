@@ -42,6 +42,13 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
     
     private final RestrictionNodeType restrictionNodeType;
     protected final TypeSafeValue<VAL> startValue;
+    
+    /*
+     * NOTE: The restriction is kept around so that it is possible to 'save' the restriction to alter the query
+     * without having to rebuild it completely.
+     */
+    private RestrictionImpl<VAL> restriction;
+    
 
     public OnGoingRestrictionImpl(RestrictionsGroupInternal group, RestrictionNodeType restrictionNodeType, VAL argument) {
         super(group);
@@ -85,12 +92,17 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
             TypeSafeValue<L> left, String operator, TypeSafeValue<R> right) {
         TypeSafeValue<VAL> leftVal = (TypeSafeValue<VAL>) left;
         TypeSafeValue<VAL> rightVal = (TypeSafeValue<VAL>) right;
-        RestrictionImpl<VAL> restriction = new RestrictionImpl<>(
-                group, leftVal, operator, rightVal);
-        if (restrictionNodeType == And) {
-            group.and(restriction);
+        if (restriction == null) {
+            restriction = new RestrictionImpl<>(group, leftVal, operator, rightVal);
+            if (restrictionNodeType == And) {
+                group.and(restriction);
+            } else {
+                group.or(restriction);
+            }
         } else {
-            group.or(restriction);
+            restriction.setLeft(leftVal);
+            restriction.setOperator(operator);
+            restriction.setRight(rightVal);
         }
         // continue with the next one assuming And, if or() is called the instance 
         // is simply discarded and one with Or is returned instead. 
