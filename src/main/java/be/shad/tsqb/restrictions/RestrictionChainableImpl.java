@@ -24,7 +24,7 @@ import java.util.Date;
 import be.shad.tsqb.query.TypeSafeSubQuery;
 import be.shad.tsqb.values.TypeSafeValue;
 
-public abstract class RestrictionChainableImpl implements RestrictionChainable, RestrictionProvider {
+public abstract class RestrictionChainableImpl implements RestrictionChainable {
     
     protected abstract RestrictionsGroupInternal getRestrictionsGroup();
 

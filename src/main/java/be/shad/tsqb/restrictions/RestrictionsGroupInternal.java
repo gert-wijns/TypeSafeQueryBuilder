@@ -21,7 +21,7 @@ import be.shad.tsqb.query.TypeSafeQueryInternal;
 /**
  * Extend to include extra interfaces
  */
-public interface RestrictionsGroupInternal extends RestrictionsGroup, RestrictionProvider, Restriction, RestrictionChainable {
+public interface RestrictionsGroupInternal extends RestrictionsGroup, Restriction, RestrictionChainable {
 
     /**
      * Get the join, for scope testing.

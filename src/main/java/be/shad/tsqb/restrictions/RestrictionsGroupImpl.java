@@ -36,7 +36,7 @@ import be.shad.tsqb.values.TypeSafeValue;
  * <p>
  * A restriction group may be nested, to group a sequence of 'ors' in one part of a query for example.
  */
-public class RestrictionsGroupImpl extends RestrictionChainableImpl implements RestrictionProvider, RestrictionAndChainable, RestrictionsGroupInternal {
+public class RestrictionsGroupImpl extends RestrictionChainableImpl implements RestrictionAndChainable, RestrictionsGroupInternal {
     private final TypeSafeQueryInternal query;
     private final TypeSafeQueryProxyData join;
     private List<RestrictionNode> restrictions;
