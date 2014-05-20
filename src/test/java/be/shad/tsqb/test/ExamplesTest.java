@@ -15,14 +15,18 @@
  */
 package be.shad.tsqb.test;
 
+import java.util.Date;
+
 import org.junit.Test;
 
+import be.shad.tsqb.domain.Building;
 import be.shad.tsqb.domain.Town;
 import be.shad.tsqb.domain.people.Person;
 import be.shad.tsqb.domain.people.Person.Sex;
 import be.shad.tsqb.domain.people.PersonProperty;
 import be.shad.tsqb.domain.people.Relation;
 import be.shad.tsqb.dto.PersonDto;
+import be.shad.tsqb.dto.TownDetailsDto;
 import be.shad.tsqb.exceptions.JoinException;
 import be.shad.tsqb.joins.TypeSafeQueryJoin;
 import be.shad.tsqb.ordering.OrderByProjection;
@@ -335,5 +339,33 @@ public class ExamplesTest extends TypeSafeQueryTest {
     public void testJoinCompositeTypeShouldFail() {
         Town town = query.from(Town.class);
         query.join(town.getGeographicCoordinate());
+    }
+    
+    @Test
+    public void testShowcaseSelectOptions() {
+        Town town = query.from(Town.class);
+        
+        TypeSafeSubQuery<Long> cntInhabitantsSQ = query.subquery(Long.class);
+        Person inhabitant = cntInhabitantsSQ.from(Person.class);
+        cntInhabitantsSQ.where(inhabitant.getTown().getId()).eq(town.getId());
+        cntInhabitantsSQ.select(cntInhabitantsSQ.function().count());
+
+        TypeSafeSubQuery<Date> maxBuildingDateSQ = query.subquery(Date.class);
+        Building building = maxBuildingDateSQ.from(Building.class);
+        maxBuildingDateSQ.where(building.getTown().getId()).eq(town.getId());
+        maxBuildingDateSQ.select(maxBuildingDateSQ.function().max(building.getConstructionDate()));
+        
+        TownDetailsDto dto = query.select(TownDetailsDto.class);
+        dto.setInhabitants(cntInhabitantsSQ.select());
+        dto.getNestedDto().setOldestBuildingConstructionDate(maxBuildingDateSQ.select());
+        dto.getNestedDto().setLattitude(town.getGeographicCoordinate().getLattitude()); // select nested path into nested dto path
+        dto.setName(query.function().upper(town.getName()).select());
+
+        validate("select " + 
+                 "(select count(*) from Person hobj2 where hobj2.town.id = hobj1.id) as inhabitants, " +
+                 "(select max(hobj4.constructionDate) from Building hobj4 where hobj4.town.id = hobj1.id) as nestedDto_oldestBuildingConstructionDate, " +
+                 "hobj1.geographicCoordinate.lattitude as nestedDto_lattitude, " +
+                 "upper(hobj1.name) as name " +
+                 "from Town hobj1");
     }
 }
