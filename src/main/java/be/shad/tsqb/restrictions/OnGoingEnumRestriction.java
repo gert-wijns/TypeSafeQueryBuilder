@@ -15,21 +15,9 @@
  */
 package be.shad.tsqb.restrictions;
 
-import be.shad.tsqb.values.TypeSafeValue;
-
 /**
- * Restrictions for enums, enum specific restrictions can be added here.
- * 
- * @see OnGoingRestriction
+ * Exposes enum related restrictions in addition to the basic restrictions.
  */
-public class OnGoingEnumRestriction<E extends Enum<E>> extends OnGoingRestriction<E> {
-
-    public OnGoingEnumRestriction(RestrictionImpl restriction, E argument) {
-        super(restriction, argument);
-    }
-
-    public OnGoingEnumRestriction(RestrictionImpl restriction, TypeSafeValue<E> argument) {
-        super(restriction, argument);
-    }
+public interface OnGoingEnumRestriction<E extends Enum<E>> extends OnGoingRestriction<E, ContinuedOnGoingEnumRestriction<E>, OnGoingEnumRestriction<E>> {
 
 }

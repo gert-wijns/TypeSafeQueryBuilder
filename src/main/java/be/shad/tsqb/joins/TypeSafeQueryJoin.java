@@ -52,7 +52,7 @@ public class TypeSafeQueryJoin<T> {
     }
     
     public Restriction getRestrictions() {
-        return restrictions;
+        return restrictions.getRestrictions();
     }
     
     /**
@@ -62,7 +62,7 @@ public class TypeSafeQueryJoin<T> {
      * methods, but the result would be the same as calling with().and(...).
      */
     public RestrictionChainable with() {
-        return restrictions.getRestrictions();
+        return restrictions;
     }
 
     /**

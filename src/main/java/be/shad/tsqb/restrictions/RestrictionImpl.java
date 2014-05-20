@@ -35,7 +35,7 @@ import be.shad.tsqb.values.TypeSafeValue;
  * The <b>is_null</b>, <b>is_not_null</b> can be used without a right part.<br>
  * The rest requires both parts.
  */
-public class RestrictionImpl extends RestrictionChainableDelegatingImpl implements Restriction {
+public class RestrictionImpl<VAL> implements Restriction {
     public final static String EQUAL = "=";
     public final static String IN = "in";
     public final static String NOT_IN = "not in";
@@ -47,44 +47,49 @@ public class RestrictionImpl extends RestrictionChainableDelegatingImpl implemen
     private final RestrictionsGroupInternal group;
     private final TypeSafeQueryInternal query;
     
-    private TypeSafeValue<?> left;
+    private TypeSafeValue<VAL> left;
     private String operator;
-    private TypeSafeValue<?> right;
+    private TypeSafeValue<VAL> right;
     
-    public RestrictionImpl(TypeSafeQueryInternal query, 
-            RestrictionsGroupInternal restrictions) {
-        super(restrictions);
-        this.group = restrictions;
-        this.query = query;
-    }
-
-    public TypeSafeQueryInternal getQuery() {
-        return query;
+    public RestrictionImpl(RestrictionsGroupInternal group, 
+            TypeSafeValue<VAL> left, 
+            String operator, 
+            TypeSafeValue<VAL> right) {
+        this.group = group;
+        this.query = group.getQuery();
+        setLeft(left);
+        setOperator(operator);
+        setRight(right);
     }
 
     public void setOperator(String operator) {
         this.operator = operator;
+    }
+
+    @Override
+    public RestrictionsGroup getRestrictionsGroup() {
+        return group;
     }
     
     public TypeSafeValue<?> getLeft() {
         return left;
     }
     
-    public void setLeft(TypeSafeValue<?> left) {
+    public void setLeft(TypeSafeValue<VAL> left) {
         this.left = left;
         validateInScope(left);
     }
     
-    public TypeSafeValue<?> getRight() {
+    public TypeSafeValue<VAL> getRight() {
         return right;
     }
     
-    public void setRight(TypeSafeValue<?> right) {
+    public void setRight(TypeSafeValue<VAL> right) {
         this.right = right;
         validateInScope(right);
     }
     
-    private void validateInScope(TypeSafeValue<?> value) {
+    private void validateInScope(TypeSafeValue<VAL> value) {
         query.validateInScope(value, group.getJoin());
     }
     

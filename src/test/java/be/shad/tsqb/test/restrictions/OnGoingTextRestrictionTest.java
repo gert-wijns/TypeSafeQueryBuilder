@@ -50,5 +50,12 @@ public class OnGoingTextRestrictionTest extends TypeSafeQueryTest {
         query.where(person.getName()).endsWith("e");
         validate(" from Person hobj1 where hobj1.name like ?", "%e");
     }
+
+    @Test
+    public void startsWithOrStartsWithTest() {
+        Person person = query.from(Person.class);
+        query.where(person.getName()).startsWith("Jos").or().startsWith("Kris");
+        validate(" from Person hobj1 where hobj1.name like ? or hobj1.name like ?", "Jos%", "Kris%");
+    }
     
 }

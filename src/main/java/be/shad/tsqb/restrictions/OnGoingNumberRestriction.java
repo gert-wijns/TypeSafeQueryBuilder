@@ -18,87 +18,48 @@ package be.shad.tsqb.restrictions;
 import be.shad.tsqb.values.TypeSafeValue;
 
 /**
- * Restrictions for numbers. Number specific restrictions are added here.
- * 
- * @see OnGoingRestriction
+ * Exposes Number related restrictions in addition to the basic restrictions.
  */
-public class OnGoingNumberRestriction extends OnGoingRestriction<Number> {
-    private final static String LESS_THAN_EQUAL = "<=";
-    private final static String LESS_THAN = "<";
-    private final static String GREATER_THAN = ">";
-    private final static String GREATER_THAN_EQUAL = ">=";
-
-    public OnGoingNumberRestriction(RestrictionImpl restriction, Number argument) {
-        super(restriction, argument);
-    }
-    
-    @SuppressWarnings("unchecked")
-    public OnGoingNumberRestriction(RestrictionImpl restriction, TypeSafeValue<? extends Number> argument) {
-        super(restriction, (TypeSafeValue<Number>) argument);
-    }
-
-    /**
-     * Generates: left < (referencedValue or actualValue)
-     */
-    public Restriction lt(Number value) {
-        return lt(toValue(value));
-    }
-
-    /**
-     * Generates: left < numberRepresentative
-     */
-    public Restriction lt(TypeSafeValue<Number> value) {
-        restriction.setOperator(LESS_THAN);
-        restriction.setRight(value);
-        return restriction;
-    }
-
-    /**
-     * Generates: left > (referencedValue or actualValue)
-     */
-    public Restriction gt(Number value) {
-        return gt(toValue(value));
-    }
-
-    /**
-     * Generates: left > numberRepresentative
-     */
-    public Restriction gt(TypeSafeValue<Number> value) {
-        restriction.setOperator(GREATER_THAN);
-        restriction.setRight(value);
-        return restriction;
-    }
-
-    /**
-     * Generates: left <= (referencedValue or actualValue)
-     */
-    public Restriction lte(Number value) {
-        return lte(toValue(value));
-    }
-
-    /**
-     * Generates: left <= numberRepresentative
-     */
-    public Restriction lte(TypeSafeValue<Number> value) {
-        restriction.setOperator(LESS_THAN_EQUAL);
-        restriction.setRight(value);
-        return restriction;
-    }
-
-    /**
-     * Generates: left >= (referencedValue or actualValue)
-     */
-    public Restriction gte(Number value) {
-        return gte(toValue(value));
-    }
+public interface OnGoingNumberRestriction extends OnGoingRestriction<Number, ContinuedOnGoingNumberRestriction, OnGoingNumberRestriction> {
 
     /**
      * Generates: left >= numberRepresentative
      */
-    public Restriction gte(TypeSafeValue<Number> value) {
-        restriction.setOperator(GREATER_THAN_EQUAL);
-        restriction.setRight(value);
-        return restriction;
-    }
+    ContinuedOnGoingNumberRestriction gte(TypeSafeValue<Number> value);
+
+    /**
+     * Generates: left >= (referencedValue or actualValue)
+     */
+    ContinuedOnGoingNumberRestriction gte(Number value);
+
+    /**
+     * Generates: left <= numberRepresentative
+     */
+    ContinuedOnGoingNumberRestriction lte(TypeSafeValue<Number> value);
+
+    /**
+     * Generates: left <= (referencedValue or actualValue)
+     */
+    ContinuedOnGoingNumberRestriction lte(Number value);
+
+    /**
+     * Generates: left > numberRepresentative
+     */
+    ContinuedOnGoingNumberRestriction gt(TypeSafeValue<Number> value);
+
+    /**
+     * Generates: left > (referencedValue or actualValue)
+     */
+    ContinuedOnGoingNumberRestriction gt(Number value);
+
+    /**
+     * Generates: left < numberRepresentative
+     */
+    ContinuedOnGoingNumberRestriction lt(TypeSafeValue<Number> value);
+
+    /**
+     * Generates: left < (referencedValue or actualValue)
+     */
+    ContinuedOnGoingNumberRestriction lt(Number value);
 
 }

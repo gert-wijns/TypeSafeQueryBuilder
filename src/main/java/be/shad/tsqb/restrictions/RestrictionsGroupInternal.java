@@ -16,15 +16,26 @@
 package be.shad.tsqb.restrictions;
 
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
+import be.shad.tsqb.query.TypeSafeQueryInternal;
 
 /**
  * Extend to include extra interfaces
  */
-public interface RestrictionsGroupInternal extends RestrictionsGroup, RestrictionProvider, Restriction {
+public interface RestrictionsGroupInternal extends RestrictionsGroup, Restriction, RestrictionChainable {
 
     /**
      * Get the join, for scope testing.
      */
     TypeSafeQueryProxyData getJoin();
+    
+    /**
+     * Get the query, to convert none TypeSafeValue<VAL>s to them.
+     */
+    TypeSafeQueryInternal getQuery();
+    
+    /**
+     * @return true if the group doesn't contain restrictions
+     */
+    boolean isEmpty();
     
 }

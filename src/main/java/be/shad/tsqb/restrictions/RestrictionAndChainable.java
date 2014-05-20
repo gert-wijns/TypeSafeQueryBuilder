@@ -16,18 +16,8 @@
 package be.shad.tsqb.restrictions;
 
 /**
- * 
+ * Combines the restriction and restriction chainable into one interface.
  */
-public interface RestrictionProvider {
+public interface RestrictionAndChainable extends Restriction, RestrictionChainable {
 
-    /**
-     * Creates a new restriction and adds it as 'and' to the existing chain.
-     */
-    RestrictionImpl and();
-
-    /**
-     * Creates a new restriction and adds it as 'or' to the existing chain.
-     */
-    RestrictionImpl or();
-    
 }

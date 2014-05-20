@@ -13,20 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.shad.tsqb.values;
+package be.shad.tsqb.restrictions;
 
-
-public interface OnGoingCaseWhen<T> {
+/**
+ * Allows for continued restrictions to be usable to either continue with another restriction
+ * or to have its grouped restrictions added.
+ */
+public interface ContinuedRestrictionChainable extends RestrictionChainable {
 
     /**
-     * Defines the value to return in a certain case.
-     * Allows additional when's to be added.
+     * Exposes the restriction group so it can be used when this
+     * continued restriction chainable is added to another restriction chainable.
      */
-    OnGoingCase<T> is(TypeSafeValue<T> value);
-    
-    /**
-     * Delegates to {@link #then(TypeSafeValue)} with a converted value;
-     */
-    OnGoingCase<T> is(T value);
+    RestrictionsGroup getRestrictionsGroup();
     
 }

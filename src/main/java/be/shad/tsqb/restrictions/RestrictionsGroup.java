@@ -23,7 +23,7 @@ import be.shad.tsqb.values.HqlQueryValueBuilder;
  * as a nested restriction group and to provide the where() methods to start
  * chaining.
  */
-public interface RestrictionsGroup extends WhereRestrictions, HqlQueryValueBuilder {
+public interface RestrictionsGroup extends WhereRestrictions, RestrictionChainable, HqlQueryValueBuilder {
 
     /**
      * The RestrictionsGroup doesn't implement the Restriction itself

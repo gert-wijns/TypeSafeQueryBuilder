@@ -13,20 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.shad.tsqb.values;
+package be.shad.tsqb.restrictions;
 
+/**
+ * Binds ContinuedOnGoingBooleanRestriction and OnGoingBooleanRestriction together.
+ * <p>
+ * Also extends the original restriction to allow method chaining with implicit and().
+ */
+public interface ContinuedOnGoingBooleanRestriction
+    extends ContinuedOnGoingRestriction<Boolean, ContinuedOnGoingBooleanRestriction, OnGoingBooleanRestriction>,
+    OnGoingBooleanRestriction {
 
-public interface OnGoingCaseWhen<T> {
-
-    /**
-     * Defines the value to return in a certain case.
-     * Allows additional when's to be added.
-     */
-    OnGoingCase<T> is(TypeSafeValue<T> value);
-    
-    /**
-     * Delegates to {@link #then(TypeSafeValue)} with a converted value;
-     */
-    OnGoingCase<T> is(T value);
-    
 }

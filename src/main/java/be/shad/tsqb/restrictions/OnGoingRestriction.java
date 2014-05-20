@@ -15,73 +15,40 @@
  */
 package be.shad.tsqb.restrictions;
 
-import static be.shad.tsqb.restrictions.RestrictionImpl.EQUAL;
-import static be.shad.tsqb.restrictions.RestrictionImpl.IN;
-import static be.shad.tsqb.restrictions.RestrictionImpl.IS_NOT_NULL;
-import static be.shad.tsqb.restrictions.RestrictionImpl.IS_NULL;
-import static be.shad.tsqb.restrictions.RestrictionImpl.NOT_EQUAL;
-import static be.shad.tsqb.restrictions.RestrictionImpl.NOT_IN;
-
 import java.util.Collection;
 
-import be.shad.tsqb.query.TypeSafeQueryInternal;
-import be.shad.tsqb.values.CollectionTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
 
 /**
- * Takes a partially built restriction and provides methods complete it.
- * Type specific methods are added in subclasses of this class.
- * 
- * @see RestrictionImpl
+ * Exposes the basic restrictions available for all value types.
  */
-public class OnGoingRestriction<VAL> {
-
-    protected final RestrictionImpl restriction;
-
-    public OnGoingRestriction(RestrictionImpl restriction, VAL argument) {
-        this.restriction = restriction;
-        restriction.setLeft(toValue(argument));
-    }
-
-    public OnGoingRestriction(RestrictionImpl restriction, TypeSafeValue<VAL> argument) {
-        this.restriction = restriction;
-        restriction.setLeft(argument);
-    }
+public interface OnGoingRestriction<VAL, CONTINUED extends ContinuedOnGoingRestriction<VAL, CONTINUED, ORIGINAL>, 
+        ORIGINAL extends OnGoingRestriction<VAL, CONTINUED, ORIGINAL>> {
 
     /**
-     * Generates: left is null
+     * Generates: left <> (referencedValue or actualValue)
      */
-    public Restriction isNull() {
-        restriction.setOperator(IS_NULL);
-        return restriction;
-    }
+    CONTINUED not(VAL value);
 
     /**
-     * Generates: left is not null
+     * Generates: left <> valueRepresentative
      */
-    public Restriction isNotNull() {
-        restriction.setOperator(IS_NOT_NULL);
-        return restriction;
-    }
-    
+    CONTINUED not(TypeSafeValue<VAL> value);
+
     /**
-     * Generates: left in ( valuesRepresentative )
-     * <p>
-     * Can be used with a TypeSafeSubQuery to check if
-     * the left part is in the subquery results.
+     * Generates: left = (referencedValue or actualValue)
      */
-    public <T extends VAL> Restriction in(TypeSafeValue<T> value) {
-        restriction.setOperator(IN);
-        restriction.setRight(value);
-        return restriction;
-    }
+    CONTINUED eq(VAL value);
+
+    /**
+     * Generates: left = valueRepresentative
+     */
+    CONTINUED eq(TypeSafeValue<VAL> value);
 
     /**
      * Generates: left not in ( actualValues )
      */
-    public <T extends VAL> Restriction in(Collection<T> values) {
-        return in(new CollectionTypeSafeValue<>(restriction.getQuery(), values));
-    }
+    <T extends VAL> CONTINUED notIn(Collection<T> values);
 
     /**
      * Generates: left not in ( valuesRepresentative )
@@ -89,55 +56,29 @@ public class OnGoingRestriction<VAL> {
      * Can be used with a TypeSafeSubQuery to check if
      * the left part is not in the subquery results.
      */
-    public <T extends VAL> Restriction notIn(TypeSafeValue<T> value) {
-        restriction.setOperator(NOT_IN);
-        restriction.setRight(value);
-        return restriction;
-    }
+    <T extends VAL> CONTINUED notIn(TypeSafeValue<T> value);
 
     /**
      * Generates: left not in ( actualValues )
      */
-    public <T extends VAL> Restriction notIn(Collection<T> values) {
-        return notIn(new CollectionTypeSafeValue<>(restriction.getQuery(), values));
-    }
+    <T extends VAL> CONTINUED in(Collection<T> values);
 
     /**
-     * Generates: left = valueRepresentative
+     * Generates: left in ( valuesRepresentative )
+     * <p>
+     * Can be used with a TypeSafeSubQuery to check if
+     * the left part is in the subquery results.
      */
-    public Restriction eq(TypeSafeValue<VAL> value) {
-        restriction.setOperator(EQUAL);
-        restriction.setRight(value);
-        return restriction;
-    }
+    <T extends VAL> CONTINUED in(TypeSafeValue<T> value);
 
     /**
-     * Generates: left = (referencedValue or actualValue)
+     * Generates: left is not null
      */
-    public Restriction eq(VAL value) {
-        return eq(toValue(value));
-    }
+    CONTINUED isNotNull();
 
     /**
-     * Generates: left <> valueRepresentative
+     * Generates: left is null
      */
-    public Restriction not(TypeSafeValue<VAL> value) {
-        restriction.setOperator(NOT_EQUAL);
-        restriction.setRight(value);
-        return restriction;
-    }
+    CONTINUED isNull();
 
-    /**
-     * Generates: left <> (referencedValue or actualValue)
-     */
-    public Restriction not(VAL value) {
-        return not(toValue(value));
-    }
-
-    /**
-     * Delegates to {@link TypeSafeQueryInternal#toValue(Object)}
-     */
-    protected TypeSafeValue<VAL> toValue(VAL value) {
-        return restriction.getQuery().toValue(value);
-    }
 }

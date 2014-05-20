@@ -15,6 +15,9 @@
  */
 package be.shad.tsqb.restrictions;
 
+import static be.shad.tsqb.restrictions.RestrictionNodeType.And;
+import static be.shad.tsqb.restrictions.RestrictionNodeType.Or;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -33,7 +36,7 @@ import be.shad.tsqb.values.TypeSafeValue;
  * <p>
  * A restriction group may be nested, to group a sequence of 'ors' in one part of a query for example.
  */
-public class RestrictionsGroupImpl extends RestrictionChainableImpl implements RestrictionProvider, Restriction, RestrictionsGroupInternal {
+public class RestrictionsGroupImpl extends RestrictionChainableImpl implements RestrictionAndChainable, RestrictionsGroupInternal {
     private final TypeSafeQueryInternal query;
     private final TypeSafeQueryProxyData join;
     private List<RestrictionNode> restrictions;
@@ -43,6 +46,16 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
         this.query = query;
         this.join = join;
         this.restrictions = new ArrayList<>();
+    }
+    
+    @Override
+    public TypeSafeQueryInternal getQuery() {
+        return query;
+    }
+    
+    @Override
+    public boolean isEmpty() {
+        return restrictions.isEmpty();
     }
     
     @Override
@@ -56,7 +69,7 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
     }
     
     @Override
-    public Restriction where(Restriction restriction) {
+    public RestrictionChainable where(Restriction restriction) {
         return and(restriction);
     }
     
@@ -71,7 +84,7 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
     /**
      * Creates a new group which is used to restrict the where part of a query.
      */
-    public static RestrictionsGroupImpl group(TypeSafeQuery query) {
+    public static RestrictionsGroup group(TypeSafeQuery query) {
         return group(query, null);
     }
 
@@ -79,7 +92,7 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
      * Creates a new group which is used to restrict the with part of a join.
      * The join data is kept in order to be able to validate if the used values are in scope.
      */
-    public static RestrictionsGroupImpl group(TypeSafeQuery query, TypeSafeQueryProxyData join) {
+    public static RestrictionsGroup group(TypeSafeQuery query, TypeSafeQueryProxyData join) {
         return new RestrictionsGroupImpl((TypeSafeQueryInternal) query, join);
     }
     
@@ -131,7 +144,7 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
      * {@inheritDoc}
      */
     @Override
-    public Restriction and(Restriction restriction) {
+    public RestrictionAndChainable and(Restriction restriction) {
         return add(restriction, RestrictionNodeType.And);
     }
 
@@ -139,7 +152,7 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
      * {@inheritDoc}
      */
     @Override
-    public RestrictionChainable and(RestrictionsGroup group) {
+    public RestrictionAndChainable and(RestrictionsGroup group) {
         return and(group.getRestrictions());
     }
 
@@ -147,29 +160,15 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
      * {@inheritDoc}
      */
     @Override
-    public RestrictionChainable or(RestrictionsGroup group) {
+    public RestrictionAndChainable or(RestrictionsGroup group) {
         return or(group.getRestrictions());
     }
 
     /**
      * {@inheritDoc}
      */
-    public Restriction or(Restriction restriction) {
-        return add(restriction, RestrictionNodeType.Or);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public RestrictionImpl and() {
-        return add(RestrictionNodeType.And);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public RestrictionImpl or() {
-        return add(RestrictionNodeType.Or);
+    public RestrictionAndChainable or(Restriction restriction) {
+        return add(restriction, Or);
     }
 
     /**
@@ -177,8 +176,7 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
      */
     @Override
     public RestrictionChainable and(HqlQueryValue customValue) {
-        and().setLeft(new CustomTypeSafeValue<Object>(query, Object.class, customValue));
-        return this;
+        return add(customValue, And);
     }
 
     /**
@@ -186,16 +184,12 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
      */
     @Override
     public RestrictionChainable or(HqlQueryValue customValue) {
-        or().setLeft(new CustomTypeSafeValue<Object>(query, Object.class, customValue));
-        return this;
+        return add(customValue, Or);
     }
-
-    /**
-     * Creates the restrictions and adds it to the chain, with the given <code>type</code>.
-     */
-    private RestrictionImpl add(RestrictionNodeType type) {
-        RestrictionImpl next = new RestrictionImpl(query, this);
-        return (RestrictionImpl) add(next, type);
+    
+    private RestrictionChainable add(HqlQueryValue customValue, RestrictionNodeType type) {
+        TypeSafeValue<Object> value = new CustomTypeSafeValue<Object>(query, Object.class, customValue);
+        return add(new RestrictionImpl<>(this, value, null, null), type);
     }
     
     /**
@@ -216,12 +210,12 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
      * and add to this group. At this point it is detected that the restriction was part
      * of a sub-group because its restriction group is different.
      */
-    private Restriction add(Restriction restriction, RestrictionNodeType type) {
+    private RestrictionAndChainable add(Restriction restriction, RestrictionNodeType type) {
         if( restriction.getRestrictionsGroup() != this ) {
             restriction = new RestrictionWrapper(this, restriction.getRestrictionsGroup().getRestrictions());
         }
         restrictions.add(new RestrictionNode(restriction, restrictions.isEmpty() ? null: type));
-        return restriction;
+        return this;
     }
 
     /**
