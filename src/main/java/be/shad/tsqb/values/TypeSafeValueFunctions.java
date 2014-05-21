@@ -34,11 +34,19 @@ public class TypeSafeValueFunctions {
     }
 
     public <VAL> TypeSafeValue<VAL> distinct(TypeSafeValue<VAL> val) {
-        return new WrappedTypeSafeValue<>(query, "distinct", val);
+        return new DistinctTypeSafeValue<>(query, val);
     }
 
     public TypeSafeValue<Long> count() {
         return new CustomTypeSafeValue<>(query, Long.class, "count(*)", null);
+    }
+    
+    public <VAL> TypeSafeValue<Long> countDistinct(VAL val) {
+        return countDistinct(query.toValue(val));
+    }
+
+    public <VAL> TypeSafeValue<Long> countDistinct(TypeSafeValue<VAL> val) {
+        return new CountTypeSafeValue(query, distinct(val));
     }
     
     public <VAL, CAST> TypeSafeValue<CAST> cast(VAL val, Class<CAST> type) {

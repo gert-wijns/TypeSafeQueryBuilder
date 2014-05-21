@@ -16,6 +16,7 @@
 package be.shad.tsqb.query;
 
 import be.shad.tsqb.selection.SelectionValueTransformer;
+import be.shad.tsqb.values.TypeSafeValue;
 
 /**
  * For the general information, see {@link TypeSafeQuery}.
@@ -79,5 +80,17 @@ public interface TypeSafeRootQuery extends TypeSafeQuery {
      * when the default result transformer is used.
      */
     <T, V> V select(Class<V> transformedClass, T value, SelectionValueTransformer<T, V> transformer);
+    
+    /**
+     * @see #distinct(TypeSafeValue)
+     */
+    <VAL> VAL distinct(VAL value);
+
+    /**
+     * Shorthand to make use of the distinct function.
+     * <p>
+     * Calls query.function().distinct(value).select().
+     */
+    <VAL> VAL distinct(TypeSafeValue<VAL> value);
     
 }

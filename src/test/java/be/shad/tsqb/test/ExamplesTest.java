@@ -21,7 +21,6 @@ import java.util.Date;
 
 import org.junit.Test;
 
-import be.shad.tsqb.domain.Building;
 import be.shad.tsqb.domain.Town;
 import be.shad.tsqb.domain.TownProperty;
 import be.shad.tsqb.domain.people.Person;
@@ -349,26 +348,18 @@ public class ExamplesTest extends TypeSafeQueryTest {
     @Test
     public void testShowcaseSelectOptions() {
         Town town = query.from(Town.class);
-        TownProperty lastUfoSpottingDateProperty = query.join(town.getProperties(), JoinType.Left);
-        query.getJoin(lastUfoSpottingDateProperty).with(lastUfoSpottingDateProperty.getPropertyKey()).eq("LastUfoSpottingDate");
+        TownProperty dateProp = query.join(town.getProperties(), JoinType.Left);
+        query.getJoin(dateProp).with(dateProp.getPropertyKey()).eq("LastUfoSpottingDate");
         
         TypeSafeSubQuery<Long> cntInhabitantsSQ = query.subquery(Long.class);
         Person inhabitant = cntInhabitantsSQ.from(Person.class);
         cntInhabitantsSQ.where(inhabitant.getTown().getId()).eq(town.getId());
         cntInhabitantsSQ.select(cntInhabitantsSQ.function().count());
-
-        TypeSafeSubQuery<Date> minBuildingDateSQ = query.subquery(Date.class);
-        Building building = minBuildingDateSQ.from(Building.class);
-        minBuildingDateSQ.where(building.getTown().getId()).eq(town.getId());
-        minBuildingDateSQ.select(minBuildingDateSQ.function().min(building.getConstructionDate()));
         
         TownDetailsDto dto = query.select(TownDetailsDto.class);
         
         // select a subselected value into a dto property
         dto.setInhabitants(cntInhabitantsSQ.select());
-        
-        // select a subselected value into a nested dto property:
-        dto.getNestedDto().setOldestBuildingConstructionDate(minBuildingDateSQ.select());
         
         // select an embeddable property value into a nested dto property:
         dto.getNestedDto().setLattitude(town.getGeographicCoordinate().getLattitude());
@@ -378,7 +369,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
         
         // select a value of a different type using a converter to convert the selected value, 
         // this will not be seen in the query and is only a post processor
-        dto.setLastUfoSpottingDate(query.select(Date.class, lastUfoSpottingDateProperty.getPropertyValue(), 
+        dto.setLastUfoSpottingDate(query.select(Date.class, dateProp.getPropertyValue(), 
                 new StringToDateTransformer(DateFormat.getDateInstance())));
         
         // when no function is available and the value can't be retrieved another way it's still possible to just inject hql
@@ -387,7 +378,6 @@ public class ExamplesTest extends TypeSafeQueryTest {
 
         validate("select " + 
                  "(select count(*) from Person hobj3 where hobj3.town.id = hobj1.id) as inhabitants, " +
-                 "(select min(hobj5.constructionDate) from Building hobj5 where hobj5.town.id = hobj1.id) as nestedDto_oldestBuildingConstructionDate, " +
                  "hobj1.geographicCoordinate.lattitude as nestedDto_lattitude, " +
                  "upper(hobj1.name) as name, " +
                  "hobj2.propertyValue as lastUfoSpottingDate, " +

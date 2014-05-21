@@ -20,6 +20,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.MutableTriple;
@@ -201,6 +202,89 @@ public class SelectTests extends TypeSafeQueryTest {
         
     }
 
+    /**
+     * Test distinct function
+     */
+    @Test
+    public void selectDistinct() {
+        House house = query.from(House.class);
+
+        House houseResult = query.select(House.class);
+        houseResult.setFloors(query.function().distinct(house.getFloors()).select());
+
+        validate("select distinct hobj1.floors as floors from House hobj1");
+    }
+
+    /**
+     * Test wrapped distinct function
+     */
+    @Test
+    public void selectCountDistinct() {
+        House house = query.from(House.class);
+
+        @SuppressWarnings("unchecked")
+        MutableObject<Long> dto = query.select(MutableObject.class);
+        dto.setValue(query.function().countDistinct(house.getFloors()).select());
+
+        validate("select count(distinct hobj1.floors) as value from House hobj1");
+    }
+
+    /**
+     * Distinct subquery value selection
+     */
+    @Test
+    public void selectDistinctSubquery() {
+        House house = query.from(House.class);
+        
+        TypeSafeSubQuery<Long> subquery = query.subquery(Long.class);
+        House subhouse = subquery.from(House.class);
+        subquery.where(subhouse.getId()).lt(house.getId());
+        subquery.select(subquery.function().count());
+
+        @SuppressWarnings("unchecked")
+        MutableObject<Long> dto = query.select(MutableObject.class);
+        dto.setValue(query.function().distinct(subquery).select());
+
+        validate("select distinct (select count(*) from House hobj2 where hobj2.id < hobj1.id) as value from House hobj1");
+    }
+
+    /**
+     * Test distinct is selected after another selection was made 
+     * but shows up first in the hql select list.
+     */
+    @Test
+    public void selectDistinctIsMovedToFrontOfProjections() {
+        House house = query.from(House.class);
+
+        @SuppressWarnings("unchecked")
+        MutablePair<Long, Integer> dto = query.select(MutablePair.class);
+        dto.setLeft(house.getId());
+        dto.setRight(query.function().distinct(house.getFloors()).select());
+
+        validate("select distinct hobj1.floors as right, hobj1.id as left from House hobj1");
+    }
+
+    /**
+     * Test the shorthand distinct call
+     */
+    @Test
+    public void selectDistinctShorthand() {
+        House house = query.from(House.class);
+
+        House houseResult = query.select(House.class);
+        houseResult.setFloors(query.distinct(house.getFloors()));
+
+        validate("select distinct hobj1.floors as floors from House hobj1");
+    }
+    
+    @Test
+    public void selectDistinctWithoutDto() {
+        House house = query.from(House.class);
+        query.selectValue(query.distinct(house.getFloors()));
+        
+        validate("select distinct hobj1.floors from House hobj1");
+    }
+    
     /**
      * Test count function
      */

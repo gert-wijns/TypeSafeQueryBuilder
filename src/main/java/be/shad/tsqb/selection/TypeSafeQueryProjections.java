@@ -25,6 +25,7 @@ import be.shad.tsqb.hql.HqlQueryBuilder;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.values.DirectTypeSafeValue;
+import be.shad.tsqb.values.IsMaybeDistinct;
 import be.shad.tsqb.values.HqlQueryValue;
 import be.shad.tsqb.values.ReferenceTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
@@ -57,8 +58,26 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
         return projections;
     }
 
+    /**
+     * Adds the projection to the projections list.
+     * If it is a distinct value, then it is added at the front
+     * 
+     * @throws IllegalArgumentException when a distinct value was already added.
+     */
     public void addProjection(TypeSafeValueProjection projection) {
-        projections.add(projection);
+        if(isDistinct(projection)) {
+            if (!projections.isEmpty() && isDistinct(projections.getFirst())) {
+                throw new IllegalArgumentException(String.format("Attempting to add a second distinct projection. "
+                        + "Existing: %s, New: %s", projections.getFirst().getValue(), projection.getValue()));
+            }
+            projections.addFirst(projection);
+        } else {
+            projections.add(projection);
+        }
+    }
+    
+    private boolean isDistinct(TypeSafeValueProjection projection) {
+        return projection.getValue() instanceof IsMaybeDistinct && ((IsMaybeDistinct)projection.getValue()).isDistinct();
     }
     
     /**
@@ -83,7 +102,7 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
             query.validateInScope(value, null);
             projection = new TypeSafeValueProjection(value, propertyName, transformerForNextProjection);
             transformerForNextProjection = null;
-            projections.add(projection);
+            addProjection(projection);
             return;
         }
         
@@ -105,7 +124,7 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
             value = new ReferenceTypeSafeValue<>(query, invocations.get(0));
         }
         query.validateInScope(value, null);
-        projections.add(new TypeSafeValueProjection(value, propertyName, transformerForNextProjection));
+        addProjection(new TypeSafeValueProjection(value, propertyName, transformerForNextProjection));
         transformerForNextProjection = null;
     }
 

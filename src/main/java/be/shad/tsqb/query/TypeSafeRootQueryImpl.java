@@ -178,6 +178,22 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
      * {@inheritDoc}
      */
     @Override
+    public <VAL> VAL distinct(VAL value) {
+        return distinct(toValue(value));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <VAL> VAL distinct(TypeSafeValue<VAL> value) {
+        return function().distinct(value).select();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public <T> T queueValueSelected(TypeSafeValue<T> value) {
         lastSelectedValue = value;
         return helper.getDummyValue(value.getValueClass());
