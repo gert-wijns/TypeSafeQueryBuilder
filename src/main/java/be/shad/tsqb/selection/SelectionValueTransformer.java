@@ -15,7 +15,6 @@
  */
 package be.shad.tsqb.selection;
 
-
 /**
  * Transforms a queried value in memory before setting it on the select dto.
  * Some example cases:
@@ -33,6 +32,6 @@ public interface SelectionValueTransformer<A, B> {
     /**
      * Transforms a queried value in memory before setting it on the select dto.
      */
-    B convert(A a);
+    B convert(A a) throws SelectionValueTransformerException;
     
 }

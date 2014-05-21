@@ -15,17 +15,21 @@
  */
 package be.shad.tsqb.test;
 
+import java.text.DateFormat;
+import java.util.Arrays;
 import java.util.Date;
 
 import org.junit.Test;
 
 import be.shad.tsqb.domain.Building;
 import be.shad.tsqb.domain.Town;
+import be.shad.tsqb.domain.TownProperty;
 import be.shad.tsqb.domain.people.Person;
 import be.shad.tsqb.domain.people.Person.Sex;
 import be.shad.tsqb.domain.people.PersonProperty;
 import be.shad.tsqb.domain.people.Relation;
 import be.shad.tsqb.dto.PersonDto;
+import be.shad.tsqb.dto.StringToDateTransformer;
 import be.shad.tsqb.dto.TownDetailsDto;
 import be.shad.tsqb.exceptions.JoinException;
 import be.shad.tsqb.joins.TypeSafeQueryJoin;
@@ -33,6 +37,7 @@ import be.shad.tsqb.ordering.OrderByProjection;
 import be.shad.tsqb.query.JoinType;
 import be.shad.tsqb.query.TypeSafeSubQuery;
 import be.shad.tsqb.restrictions.RestrictionsGroup;
+import be.shad.tsqb.values.CustomTypeSafeValue;
 
 public class ExamplesTest extends TypeSafeQueryTest {
 
@@ -344,28 +349,49 @@ public class ExamplesTest extends TypeSafeQueryTest {
     @Test
     public void testShowcaseSelectOptions() {
         Town town = query.from(Town.class);
+        TownProperty lastUfoSpottingDateProperty = query.join(town.getProperties(), JoinType.Left);
+        query.getJoin(lastUfoSpottingDateProperty).with(lastUfoSpottingDateProperty.getPropertyKey()).eq("LastUfoSpottingDate");
         
         TypeSafeSubQuery<Long> cntInhabitantsSQ = query.subquery(Long.class);
         Person inhabitant = cntInhabitantsSQ.from(Person.class);
         cntInhabitantsSQ.where(inhabitant.getTown().getId()).eq(town.getId());
         cntInhabitantsSQ.select(cntInhabitantsSQ.function().count());
 
-        TypeSafeSubQuery<Date> maxBuildingDateSQ = query.subquery(Date.class);
-        Building building = maxBuildingDateSQ.from(Building.class);
-        maxBuildingDateSQ.where(building.getTown().getId()).eq(town.getId());
-        maxBuildingDateSQ.select(maxBuildingDateSQ.function().max(building.getConstructionDate()));
+        TypeSafeSubQuery<Date> minBuildingDateSQ = query.subquery(Date.class);
+        Building building = minBuildingDateSQ.from(Building.class);
+        minBuildingDateSQ.where(building.getTown().getId()).eq(town.getId());
+        minBuildingDateSQ.select(minBuildingDateSQ.function().min(building.getConstructionDate()));
         
         TownDetailsDto dto = query.select(TownDetailsDto.class);
+        
+        // select a subselected value into a dto property
         dto.setInhabitants(cntInhabitantsSQ.select());
-        dto.getNestedDto().setOldestBuildingConstructionDate(maxBuildingDateSQ.select());
-        dto.getNestedDto().setLattitude(town.getGeographicCoordinate().getLattitude()); // select nested path into nested dto path
+        
+        // select a subselected value into a nested dto property:
+        dto.getNestedDto().setOldestBuildingConstructionDate(minBuildingDateSQ.select());
+        
+        // select an embeddable property value into a nested dto property:
+        dto.getNestedDto().setLattitude(town.getGeographicCoordinate().getLattitude());
+        
+        // select the upper case name into the dto, this upper will be found in the query
         dto.setName(query.function().upper(town.getName()).select());
+        
+        // select a value of a different type using a converter to convert the selected value, 
+        // this will not be seen in the query and is only a post processor
+        dto.setLastUfoSpottingDate(query.select(Date.class, lastUfoSpottingDateProperty.getPropertyValue(), 
+                new StringToDateTransformer(DateFormat.getDateInstance())));
+        
+        // when no function is available and the value can't be retrieved another way it's still possible to just inject hql
+        // it doesn't look pretty, and it isn't supposed to.. because you probably shouldn't do this!
+        dto.setCustomString(new CustomTypeSafeValue<>(query, String.class, "'SomeCustomHql'", Arrays.asList()).select());
 
         validate("select " + 
-                 "(select count(*) from Person hobj2 where hobj2.town.id = hobj1.id) as inhabitants, " +
-                 "(select max(hobj4.constructionDate) from Building hobj4 where hobj4.town.id = hobj1.id) as nestedDto_oldestBuildingConstructionDate, " +
+                 "(select count(*) from Person hobj3 where hobj3.town.id = hobj1.id) as inhabitants, " +
+                 "(select min(hobj5.constructionDate) from Building hobj5 where hobj5.town.id = hobj1.id) as nestedDto_oldestBuildingConstructionDate, " +
                  "hobj1.geographicCoordinate.lattitude as nestedDto_lattitude, " +
-                 "upper(hobj1.name) as name " +
-                 "from Town hobj1");
+                 "upper(hobj1.name) as name, " +
+                 "hobj2.propertyValue as lastUfoSpottingDate, " +
+                 "'SomeCustomHql' as customString " +
+                 "from Town hobj1 left join hobj1.properties hobj2 with hobj2.propertyKey = ?", "LastUfoSpottingDate");
     }
 }

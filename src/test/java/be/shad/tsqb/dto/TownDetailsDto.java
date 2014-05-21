@@ -1,9 +1,21 @@
 package be.shad.tsqb.dto;
 
+import java.util.Date;
+
 public class TownDetailsDto {
     private TownDetailsNestedDto nestedDto;
     private Long inhabitants;
+    private Date lastUfoSpottingDate;
     private String name;
+    private String customString;
+
+    public String getCustomString() {
+        return customString;
+    }
+
+    public void setCustomString(String customString) {
+        this.customString = customString;
+    }
 
     public TownDetailsNestedDto getNestedDto() {
         return nestedDto;
@@ -27,6 +39,14 @@ public class TownDetailsDto {
 
     public void setName(String name) {
         this.name = name;
+    }
+    
+    public Date getLastUfoSpottingDate() {
+        return lastUfoSpottingDate;
+    }
+
+    public void setLastUfoSpottingDate(Date lastUfoSpottingDate) {
+        this.lastUfoSpottingDate = lastUfoSpottingDate;
     }
     
 }

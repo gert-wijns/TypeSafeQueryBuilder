@@ -37,6 +37,9 @@ public class Town extends DomainObject {
 
     @OneToMany(fetch = LAZY, mappedBy = "town", targetEntity = Person.class)
     private Set<Person> inhabitants;
+
+    @OneToMany(fetch = LAZY, mappedBy = "town", targetEntity = TownProperty.class)
+    private Set<TownProperty> properties;
     
     @Embedded
     private GeographicCoordinate geographicCoordinate;
@@ -66,6 +69,14 @@ public class Town extends DomainObject {
 
     public void setBuildings(Set<Building> buildings) {
         this.buildings = buildings;
+    }
+    
+    public Set<TownProperty> getProperties() {
+        return properties;
+    }
+    
+    public void setProperties(Set<TownProperty> properties) {
+        this.properties = properties;
     }
     
     public Set<Person> getInhabitants() {
