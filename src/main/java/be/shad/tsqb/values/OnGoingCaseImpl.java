@@ -163,7 +163,7 @@ public class OnGoingCaseImpl<T> extends RestrictionChainableDelegatingImpl imple
 
     @Override
     public TypeSafeValue<T> otherwise() {
-        // TODO Auto-generated method stub
-        return null;
+        return value;
     }
+    
 }
