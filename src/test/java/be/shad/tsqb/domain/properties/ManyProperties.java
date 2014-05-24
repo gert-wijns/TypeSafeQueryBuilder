@@ -161,6 +161,12 @@ public class ManyProperties {
     public void setProperty9(String property9) {
         this.property9 = property9;
     }
+    public String getProperty10() {
+        return property10;
+    }
+    public void setProperty10(String property10) {
+        this.property10 = property10;
+    }
     public String getProperty11() {
         return property11;
     }
@@ -214,6 +220,12 @@ public class ManyProperties {
     }
     public void setProperty19(String property19) {
         this.property19 = property19;
+    }
+    public String getProperty20() {
+        return property20;
+    }
+    public void setProperty20(String property20) {
+        this.property20 = property20;
     }
     public String getProperty21() {
         return property21;
@@ -269,6 +281,12 @@ public class ManyProperties {
     public void setProperty29(String property29) {
         this.property29 = property29;
     }
+    public String getProperty30() {
+        return property30;
+    }
+    public void setProperty30(String property30) {
+        this.property30 = property30;
+    }
     public String getProperty31() {
         return property31;
     }
@@ -322,6 +340,12 @@ public class ManyProperties {
     }
     public void setProperty39(String property39) {
         this.property39 = property39;
+    }
+    public String getProperty40() {
+        return property40;
+    }
+    public void setProperty40(String property40) {
+        this.property40 = property40;
     }
     public String getProperty41() {
         return property41;
@@ -377,6 +401,12 @@ public class ManyProperties {
     public void setProperty49(String property49) {
         this.property49 = property49;
     }
+    public String getProperty50() {
+        return property50;
+    }
+    public void setProperty50(String property50) {
+        this.property50 = property50;
+    }
     public String getProperty51() {
         return property51;
     }
@@ -431,6 +461,12 @@ public class ManyProperties {
     public void setProperty59(String property59) {
         this.property59 = property59;
     }
+    public String getProperty60() {
+        return property60;
+    }
+    public void setProperty60(String property60) {
+        this.property60 = property60;
+    }
     public String getProperty61() {
         return property61;
     }
@@ -484,6 +520,12 @@ public class ManyProperties {
     }
     public void setProperty69(String property69) {
         this.property69 = property69;
+    }
+    public String getProperty70() {
+        return property70;
+    }
+    public void setProperty70(String property70) {
+        this.property70 = property70;
     }
     public String getProperty71() {
         return property71;
