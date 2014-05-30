@@ -287,21 +287,23 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
      * @return the primitive class if the class could be a primitive.
      */
     private Class<?> getPrimitiveClass(Class<?> valueClass) {
-        if( Boolean.class.equals(valueClass) ) {
+        if (valueClass.isPrimitive()) {
+            return valueClass;
+        } else if (Boolean.class.equals(valueClass)) {
             return Boolean.TYPE;
-        } else if ( Integer.class.equals(valueClass) ) {
+        } else if (Integer.class.equals(valueClass)) {
             return Integer.TYPE;
-        } else if ( Long.class.equals(valueClass) ) {
+        } else if (Long.class.equals(valueClass)) {
             return Long.TYPE;
-        } else if ( Double.class.equals(valueClass) ) {
+        } else if (Double.class.equals(valueClass)) {
             return Double.TYPE;
-        } else if ( Byte.class.equals(valueClass) ) {
+        } else if (Byte.class.equals(valueClass)) {
             return Byte.TYPE;
-        } else if ( Short.class.equals(valueClass) ) {
+        } else if (Short.class.equals(valueClass)) {
             return Short.TYPE;
-        } else if ( Float.class.equals(valueClass) ) {
+        } else if (Float.class.equals(valueClass)) {
             return Float.TYPE;
-        } else if ( Character.class.equals(valueClass) ) {
+        } else if (Character.class.equals(valueClass)) {
             return Character.TYPE;
         }
         return null;
@@ -311,21 +313,21 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
      * @return a default value for each primitive class.
      */
     private Object defaultPrimitiveValue(Class<?> primitiveClass) {
-        if( primitiveClass == Boolean.TYPE ) {
+        if (primitiveClass == Boolean.TYPE) {
             return Boolean.FALSE;
-        } else if( primitiveClass == Integer.TYPE ) {
+        } else if (primitiveClass == Integer.TYPE) {
             return Integer.valueOf(0);
-        } else if ( primitiveClass == Long.TYPE ) {
+        } else if (primitiveClass == Long.TYPE) {
             return Long.valueOf(0);
-        } else if ( primitiveClass == Double.TYPE ) {
+        } else if (primitiveClass == Double.TYPE) {
             return Double.valueOf(0);
-        } else if( primitiveClass == Byte.TYPE) {
+        } else if (primitiveClass == Byte.TYPE) {
             return Byte.valueOf((byte) 0);
-        } else if( primitiveClass == Short.TYPE ) {
+        } else if (primitiveClass == Short.TYPE) {
             return Short.valueOf((short) 0);
-        } else if ( primitiveClass == Float.TYPE ) {
+        } else if (primitiveClass == Float.TYPE) {
             return Float.valueOf(0);
-        } else if ( primitiveClass == Character.TYPE ) {
+        } else if (primitiveClass == Character.TYPE) {
             return Character.valueOf('a');
         }
         throw new IllegalArgumentException("Didn't take a primtiive class into account: " + primitiveClass);
