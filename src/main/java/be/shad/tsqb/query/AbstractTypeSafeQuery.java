@@ -370,6 +370,10 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
         List<TypeSafeQueryProxyData> invocations = dequeueInvocations();
         if( invocations.isEmpty() ) {
             // direct selection
+            if (value == null) {
+                throw new IllegalArgumentException("No invocation was queued and the provided value is null. "
+                        + "When using restrictions, don't use .eq(null), use .isNull() instead.");
+            }
             return new DirectTypeSafeValue<VAL>(this, value);
         } else if( invocations.size() == 1 ) {
             // invoked with proxy
