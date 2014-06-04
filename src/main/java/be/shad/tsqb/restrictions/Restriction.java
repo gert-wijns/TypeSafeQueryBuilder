@@ -23,7 +23,7 @@ import be.shad.tsqb.values.HqlQueryValueBuilder;
  * All restrictions could be expressed using the {@link RestrictionImpl} so 
  * this interface currently only has one implementation.
  */
-public interface Restriction extends HqlQueryValueBuilder {
+public interface Restriction extends HqlQueryValueBuilder, RestrictionHolder {
     
     /**
      * Available to check whether or not to add enclosing brackets.

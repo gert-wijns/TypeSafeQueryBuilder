@@ -23,7 +23,13 @@ import be.shad.tsqb.values.HqlQueryValueBuilder;
  * as a nested restriction group and to provide the where() methods to start
  * chaining.
  */
-public interface RestrictionsGroup extends WhereRestrictions, RestrictionChainable, HqlQueryValueBuilder {
+public interface RestrictionsGroup extends RestrictionsGroupFactory, RestrictionChainable, HqlQueryValueBuilder {
+    
+    public enum RestrictionsGroupBracketsPolicy {
+        Always,
+        Never,
+        WhenMoreThanOne;
+    }
 
     /**
      * The RestrictionsGroup doesn't implement the Restriction itself
@@ -36,5 +42,12 @@ public interface RestrictionsGroup extends WhereRestrictions, RestrictionChainab
      * final return value will already be a restriction.
      */
     Restriction getRestrictions();
+
+    /**
+     * Change when this group should add brackets.
+     * For the first group of the where clause, the value is set to Never.
+     * The default value is WhenMoreThanOne.
+     */
+    void setBracketsPolicy(RestrictionsGroupBracketsPolicy bracketsPolicy);
 
 }

@@ -21,6 +21,7 @@ import be.shad.tsqb.domain.House;
 import be.shad.tsqb.domain.Style;
 import be.shad.tsqb.query.TypeSafeSubQuery;
 import be.shad.tsqb.restrictions.RestrictionsGroup;
+import be.shad.tsqb.restrictions.RestrictionsGroupFactory;
 
 public class WhereTests extends TypeSafeQueryTest {
 
@@ -87,6 +88,21 @@ public class WhereTests extends TypeSafeQueryTest {
         
         query.where(group).and(house.getName()).startsWith("Castle");
         
+        validate(" from House hobj1 where (hobj1.style = ? or hobj1.floors > ?) and hobj1.name like ?", 
+                Style.the1980s, 2, "Castle%");
+    }
+
+    @Test
+    public void whereGroupMultiOrTestImproved() {
+        RestrictionsGroupFactory factory = query.getRestrictionsGroupFactory();
+        House house = query.from(House.class);
+        
+        query.and(
+            factory.or(
+                factory.where(house.getStyle()).eq(Style.the1980s),
+                factory.where(house.getFloors()).gt(2)),
+            factory.where(house.getName()).startsWith("Castle"));
+
         validate(" from House hobj1 where (hobj1.style = ? or hobj1.floors > ?) and hobj1.name like ?", 
                 Style.the1980s, 2, "Castle%");
     }

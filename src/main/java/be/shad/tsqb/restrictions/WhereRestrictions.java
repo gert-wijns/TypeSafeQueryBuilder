@@ -24,6 +24,16 @@ import be.shad.tsqb.values.TypeSafeValue;
 public interface WhereRestrictions {
 
     /**
+     * Adds the restrictions as 'and' to the where restrictions
+     */
+    RestrictionChainable and(RestrictionHolder... restrictions);
+    
+    /**
+     * Adds the restrictions as 'and' to the where restrictions
+     */
+    RestrictionChainable or(RestrictionHolder... restrictions);
+    
+    /**
      * In case part of the restrictions were already built, but no reference was kept
      * to the last restriction chainable, this method can be used to get the last
      * one to be able to continue with 'or' on an already partially built restrictions group.

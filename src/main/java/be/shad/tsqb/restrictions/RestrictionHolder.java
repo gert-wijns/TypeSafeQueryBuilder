@@ -15,25 +15,14 @@
  */
 package be.shad.tsqb.restrictions;
 
-import be.shad.tsqb.values.HqlQueryValue;
-import be.shad.tsqb.values.HqlQueryValueImpl;
-
 /**
- * Wraps a restriction in brackets.
+ * Implemented by objects which are a restriction or wraps a restriction.
  */
-public class RestrictionWrapper extends RestrictionChainableDelegatingImpl implements Restriction {
-    private final Restriction restriction;
+public interface RestrictionHolder {
+
+    /**
+     * Get the wrapped restriction or this.
+     */
+    Restriction getRestriction();
     
-    public RestrictionWrapper(RestrictionsGroupInternal group,
-            Restriction restriction) {
-        super(group);
-        this.restriction = restriction;
-    }
-
-    @Override
-    public HqlQueryValue toHqlQueryValue() {
-        HqlQueryValue value = restriction.toHqlQueryValue();
-        return new HqlQueryValueImpl("(" + value.getHql() + ")", value.getParams());
-    }
-
 }

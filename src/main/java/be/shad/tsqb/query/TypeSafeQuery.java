@@ -25,6 +25,7 @@ import be.shad.tsqb.joins.TypeSafeQueryJoin;
 import be.shad.tsqb.ordering.OnGoingOrderBy;
 import be.shad.tsqb.restrictions.RestrictionChainable;
 import be.shad.tsqb.restrictions.RestrictionsGroup;
+import be.shad.tsqb.restrictions.RestrictionsGroupFactory;
 import be.shad.tsqb.restrictions.WhereRestrictions;
 import be.shad.tsqb.values.TypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValueFunctions;
@@ -126,6 +127,11 @@ public interface TypeSafeQuery extends WhereRestrictions {
      * This must be done separately.
      */
     RestrictionsGroup whereGroup();
+    
+    /**
+     * @return a factory to create whereGroups for each method called on the factory.
+     */
+    RestrictionsGroupFactory getRestrictionsGroupFactory();
 
     /**
      * Get the orderBy, allowing to add descending and ascending order bys.

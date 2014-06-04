@@ -31,6 +31,11 @@ public abstract class RestrictionChainableDelegatingImpl extends RestrictionChai
     public RestrictionsGroupInternal getRestrictionsGroup() {
         return group;
     }
+    
+    @Override
+    public Restriction getRestriction() {
+        return group;
+    }
 
     /**
      * {@inheritDoc}

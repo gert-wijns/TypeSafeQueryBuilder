@@ -48,7 +48,6 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
      * without having to rebuild it completely.
      */
     private RestrictionImpl<VAL> restriction;
-    
 
     public OnGoingRestrictionImpl(RestrictionsGroupInternal group, RestrictionNodeType restrictionNodeType, VAL argument) {
         super(group);
@@ -61,7 +60,7 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
         this.restrictionNodeType = restrictionNodeType;
         this.startValue = argument;
     }
-
+    
     /**
      * Delegates to subclass to create the correct type.
      */

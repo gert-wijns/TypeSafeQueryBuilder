@@ -40,12 +40,41 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
     private final TypeSafeQueryInternal query;
     private final TypeSafeQueryProxyData join;
     private List<RestrictionNode> restrictions;
+    private RestrictionsGroupBracketsPolicy bracketsPolicy;
+
+    public RestrictionsGroupImpl(TypeSafeQueryInternal query,
+            TypeSafeQueryProxyData join, 
+            RestrictionsGroupBracketsPolicy bracketsPolicy) {
+        this.query = query;
+        this.join = join;
+        this.bracketsPolicy = bracketsPolicy;
+        this.restrictions = new ArrayList<>();
+    }
     
     public RestrictionsGroupImpl(TypeSafeQueryInternal query,
             TypeSafeQueryProxyData join) {
-        this.query = query;
-        this.join = join;
-        this.restrictions = new ArrayList<>();
+        this(query, join, RestrictionsGroupBracketsPolicy.WhenMoreThanOne);
+    }
+    
+    @Override
+    public RestrictionsGroup or(RestrictionHolder... restrictions) {
+        for(RestrictionHolder restriction: restrictions) {
+            or(restriction.getRestriction());
+        }
+        return this;
+    }
+
+    @Override
+    public RestrictionsGroup and(RestrictionHolder... restrictions) {
+        for(RestrictionHolder restriction: restrictions) {
+            and(restriction.getRestriction());
+        }
+        return this;
+    }
+    
+    @Override
+    public Restriction getRestriction() {
+        return getRestrictions();
     }
     
     @Override
@@ -109,6 +138,10 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
     @Override
     public HqlQueryValueImpl toHqlQueryValue() {
         HqlQueryValueImpl value = new HqlQueryValueImpl();
+        boolean addBrackets = isAddBrackets();
+        if (addBrackets) {
+            value.appendHql("(");
+        }
         for(RestrictionNode item: restrictions) {
             HqlQueryValue nextValue = item.getRestriction().toHqlQueryValue();
             if( item.getType() == RestrictionNodeType.And ) {
@@ -119,9 +152,24 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
             value.appendHql(nextValue.getHql());
             value.addParams(nextValue.getParams());
         }
+        if (addBrackets) {
+            value.appendHql(")");
+        }
         return value;
     }
     
+    /**
+     * Evaluates brackets policy to decide whether to add brackets or not.
+     */
+    private boolean isAddBrackets() {
+        switch (bracketsPolicy) {
+            case WhenMoreThanOne: return restrictions.size() > 1;
+            case Never:           return false;
+            case Always:
+            default:              return true;
+        }
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("Restrictions [");
@@ -212,7 +260,7 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
      */
     private RestrictionAndChainable add(Restriction restriction, RestrictionNodeType type) {
         if( restriction.getRestrictionsGroup() != this ) {
-            restriction = new RestrictionWrapper(this, restriction.getRestrictionsGroup().getRestrictions());
+            restriction = restriction.getRestrictionsGroup().getRestrictions();
         }
         restrictions.add(new RestrictionNode(restriction, restrictions.isEmpty() ? null: type));
         return this;
@@ -312,6 +360,14 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
     @Override
     public Restriction getRestrictions() {
         return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setBracketsPolicy(RestrictionsGroupBracketsPolicy bracketsPolicy) {
+        this.bracketsPolicy = bracketsPolicy;
     }
 
 }

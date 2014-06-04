@@ -120,6 +120,14 @@ public class RestrictionImpl<VAL> implements Restriction {
         }
         return value;
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Restriction getRestriction() {
+        return this;
+    }
 
     /**
      * Hibernate will validate the left side parameter type is exactly
