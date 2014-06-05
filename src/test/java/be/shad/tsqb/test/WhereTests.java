@@ -94,7 +94,7 @@ public class WhereTests extends TypeSafeQueryTest {
 
     @Test
     public void whereGroupMultiOrTestImproved() {
-        RestrictionsGroupFactory factory = query.getRestrictionsGroupFactory();
+        RestrictionsGroupFactory factory = query.factories().getRestrictionsGroupFactory();
         House house = query.from(House.class);
         
         query.and(
