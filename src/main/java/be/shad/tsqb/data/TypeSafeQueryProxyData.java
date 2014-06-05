@@ -149,11 +149,20 @@ public class TypeSafeQueryProxyData {
         if( proxyType.isComposite() ) {
             return JoinType.None;
         }
-        if( joinType == Default ) {
-            if( customAlias == null && !proxyType.isCollection() && children.size() == 1 ) {
+        if (joinType == Default) {
+            if (getParent() != null && getParent().getParent() != null) {
+                // check the parent join type if the parent is not the root of the query (a FROM proxy)
+                JoinType parentJoinType = getParent().getEffectiveJoinType();
+                switch (parentJoinType) {
+                    case LeftFetch: 
+                    case Left: return JoinType.Left;
+                    default:
+                }
+            }
+            if (customAlias == null && !proxyType.isCollection() && children.size() == 1) {
                 // might be worth checking if only an identity relation was used:
                 TypeSafeQueryProxyData child = children.values().iterator().next();
-                if( identifierPath.equals(child.getPropertyPath()) ) {
+                if (identifierPath.equals(child.getPropertyPath())) {
                     return None;
                 }
             }
