@@ -21,7 +21,7 @@ import be.shad.tsqb.query.TypeSafeSubQuery;
 import be.shad.tsqb.values.HqlQueryValue;
 import be.shad.tsqb.values.TypeSafeValue;
 
-public interface RestrictionChainable {
+public interface RestrictionChainable extends RestrictionHolder {
 
     /**
      * Adds the 'and exists(subquery)' to the chain.

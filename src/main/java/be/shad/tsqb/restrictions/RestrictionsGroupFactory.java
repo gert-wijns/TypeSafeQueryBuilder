@@ -15,16 +15,20 @@
  */
 package be.shad.tsqb.restrictions;
 
+
 /**
- * Allows for continued restrictions to be usable to either continue with another restriction
- * or to have its grouped restrictions added.
+ * Each where restriction method is implemented so that a whereGroup is created to wrap the chained restriction
  */
-public interface ContinuedRestrictionChainable extends RestrictionChainable, RestrictionHolder {
+public interface RestrictionsGroupFactory extends WhereRestrictions {
 
     /**
-     * Exposes the restriction group so it can be used when this
-     * continued restriction chainable is added to another restriction chainable.
+     * @return creates a restriction group in which all restrictions are or'ed.
      */
-    RestrictionsGroup getRestrictionsGroup();
+    RestrictionsGroup or(RestrictionHolder... restrictions);
+
+    /**
+     * @return creates a restriction group in which all restrictions are and'ed.
+     */
+    RestrictionsGroup and(RestrictionHolder... restrictions);
     
 }

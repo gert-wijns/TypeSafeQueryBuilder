@@ -38,7 +38,11 @@ import be.shad.tsqb.restrictions.OnGoingNumberRestriction;
 import be.shad.tsqb.restrictions.OnGoingTextRestriction;
 import be.shad.tsqb.restrictions.Restriction;
 import be.shad.tsqb.restrictions.RestrictionChainable;
+import be.shad.tsqb.restrictions.RestrictionHolder;
 import be.shad.tsqb.restrictions.RestrictionsGroup;
+import be.shad.tsqb.restrictions.RestrictionsGroup.RestrictionsGroupBracketsPolicy;
+import be.shad.tsqb.restrictions.RestrictionsGroupFactory;
+import be.shad.tsqb.restrictions.RestrictionsGroupFactoryImpl;
 import be.shad.tsqb.restrictions.RestrictionsGroupImpl;
 import be.shad.tsqb.restrictions.RestrictionsGroupInternal;
 import be.shad.tsqb.selection.TypeSafeQueryProjections;
@@ -57,7 +61,8 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
 
     private final TypeSafeQueryProxyDataTree dataTree;
     private final TypeSafeQueryProjections projections = new TypeSafeQueryProjections(this); 
-    private final RestrictionsGroupInternal restrictions = new RestrictionsGroupImpl(this, null); 
+    private final RestrictionsGroupInternal restrictions = new RestrictionsGroupImpl(
+            this, null, RestrictionsGroupBracketsPolicy.Never);
     private final TypeSafeQueryGroupBys groupBys = new TypeSafeQueryGroupBys(this);
     private final TypeSafeQueryOrderBys orderBys = new TypeSafeQueryOrderBys(this);
     
@@ -191,6 +196,22 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      * {@inheritDoc}
      */
     @Override
+    public RestrictionChainable and(RestrictionHolder... restrictions) {
+        return this.restrictions.and(restrictions);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public RestrictionChainable or(RestrictionHolder... restrictions) {
+        return this.restrictions.or(restrictions);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public RestrictionChainable where(HqlQueryValue restriction) {
         return restrictions.and(restriction);
     }
@@ -217,6 +238,14 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
     @Override
     public RestrictionsGroup whereGroup() {
         return new RestrictionsGroupImpl(this, null);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public RestrictionsGroupFactory getRestrictionsGroupFactory() {
+        return new RestrictionsGroupFactoryImpl(this);
     }
     
     /**
