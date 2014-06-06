@@ -36,6 +36,7 @@ import be.shad.tsqb.ordering.OrderByProjection;
 import be.shad.tsqb.query.JoinType;
 import be.shad.tsqb.query.TypeSafeSubQuery;
 import be.shad.tsqb.restrictions.RestrictionsGroup;
+import be.shad.tsqb.restrictions.RestrictionsGroupFactory;
 import be.shad.tsqb.values.CustomTypeSafeValue;
 
 public class ExamplesTest extends TypeSafeQueryTest {
@@ -75,12 +76,28 @@ public class ExamplesTest extends TypeSafeQueryTest {
 
         validate(" from Person hobj1 where hobj1.married = ? and hobj1.sex = ?", Boolean.TRUE, Sex.Male);
     }
-    
+
     /**
      * Filter group (create where parts in brackets)
      */
     @Test
     public void testFilteringGroup() {
+        RestrictionsGroupFactory rb = query.factories().getRestrictionsGroupFactory();
+        Person person = query.from(Person.class);
+        
+        query.where(person.isMarried()).and(
+            rb.where(person.getName()).startsWith("Jef").or().startsWith("John")
+        );
+
+        validate(" from Person hobj1 where hobj1.married = ? and (hobj1.name like ? or hobj1.name like ?)", 
+                Boolean.TRUE, "Jef%", "John%");
+    }
+    
+    /**
+     * Filter group (create where parts in brackets)
+     */
+    @Test
+    public void testFilteringGroupAlternative() {
         Person person = query.from(Person.class);
         
         RestrictionsGroup nameOrs = query.whereGroup();
@@ -91,6 +108,50 @@ public class ExamplesTest extends TypeSafeQueryTest {
 
         validate(" from Person hobj1 where hobj1.married = ? and (hobj1.name like ? or hobj1.name like ?)", 
                 Boolean.TRUE, "Jef%", "John%");
+    }
+
+    /**
+     * Can build a query restriction entirely without chaining, using the 
+     * restriction group factory to create all restrictions.
+     */
+    @Test
+    public void testRestrictionsGroupFactory() {
+        RestrictionsGroupFactory rb = query.factories().getRestrictionsGroupFactory();
+        Person person = query.from(Person.class);
+        
+        query.and(
+            rb.where(person.getName()).startsWith("Jef"),
+            rb.or(
+                rb.and(
+                    rb.where(person.getAge()).lt(10),
+                    rb.where(person.getName()).startsWith("John")
+                ),
+                rb.and(
+                    rb.where(person.getAge()).gt(20),
+                    rb.where(person.getName()).startsWith("Emily")
+                )
+            )
+        );
+
+        validate(" from Person hobj1 where hobj1.name like ? and ((hobj1.age < ? and hobj1.name like ?) or (hobj1.age > ? and hobj1.name like ?))", 
+                "Jef%", 10, "John%", 20, "Emily%");
+    }
+
+    /**
+     * It's also possible to mix the chaining and the combination approach
+     */
+    @Test
+    public void testRestrictionsGroupFactoryAlternative() {
+        RestrictionsGroupFactory rb = query.factories().getRestrictionsGroupFactory();
+        Person person = query.from(Person.class);
+
+        query.where(person.getName()).startsWith("Jef");
+        query.where(rb.or(
+            rb.where(person.getAge()).lt(10).and(person.getName()).startsWith("John"),
+            rb.where(person.getAge()).gt(20).and(person.getName()).startsWith("Emily")));
+
+        validate(" from Person hobj1 where hobj1.name like ? and ((hobj1.age < ? and hobj1.name like ?) or (hobj1.age > ? and hobj1.name like ?))", 
+                "Jef%", 10, "John%", 20, "Emily%");
     }
 
     /**

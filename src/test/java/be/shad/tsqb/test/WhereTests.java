@@ -94,17 +94,27 @@ public class WhereTests extends TypeSafeQueryTest {
 
     @Test
     public void whereGroupMultiOrTestImproved() {
-        RestrictionsGroupFactory factory = query.factories().getRestrictionsGroupFactory();
+        RestrictionsGroupFactory rb = query.factories().getRestrictionsGroupFactory();
         House house = query.from(House.class);
         
         query.and(
-            factory.or(
-                factory.where(house.getStyle()).eq(Style.the1980s),
-                factory.where(house.getFloors()).gt(2)),
-            factory.where(house.getName()).startsWith("Castle"));
+            rb.or(
+                rb.where(house.getStyle()).eq(Style.the1980s),
+                rb.where(house.getFloors()).gt(2)),
+            rb.where(house.getName()).startsWith("Castle"));
 
         validate(" from House hobj1 where (hobj1.style = ? or hobj1.floors > ?) and hobj1.name like ?", 
                 Style.the1980s, 2, "Castle%");
+    }
+
+    /**
+     * query.where, query.and, query.or all add the items directly to the query,
+     * they should not be nested.
+     */
+    @Test(expected=IllegalArgumentException.class)
+    public void wherNestedWithSelf() {
+        House house = query.from(House.class);
+        query.and(query.where(house.getFloors()).gt(2));
     }
     
 }
