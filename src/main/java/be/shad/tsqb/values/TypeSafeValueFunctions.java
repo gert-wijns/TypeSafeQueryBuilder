@@ -131,4 +131,11 @@ public class TypeSafeValueFunctions {
         return new WrappedTypeSafeValue<>(query, "sum", nv);
     }
 
+    /**
+     * Wrapps the value in brackets.
+     */
+    public <N> TypeSafeValue<N> wrap(TypeSafeValue<N> value) {
+        return new WrappedTypeSafeValue<>(query, "", value);
+    }
+    
 }

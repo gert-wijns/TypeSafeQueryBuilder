@@ -23,6 +23,7 @@ import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.data.TypeSafeQueryProxyDataTree;
 import be.shad.tsqb.exceptions.JoinException;
 import be.shad.tsqb.exceptions.ValueNotInScopeException;
+import be.shad.tsqb.factories.TypeSafeQueryFactories;
 import be.shad.tsqb.grouping.OnGoingGroupBy;
 import be.shad.tsqb.grouping.TypeSafeQueryGroupBys;
 import be.shad.tsqb.helper.TypeSafeQueryHelper;
@@ -41,8 +42,6 @@ import be.shad.tsqb.restrictions.RestrictionChainable;
 import be.shad.tsqb.restrictions.RestrictionHolder;
 import be.shad.tsqb.restrictions.RestrictionsGroup;
 import be.shad.tsqb.restrictions.RestrictionsGroup.RestrictionsGroupBracketsPolicy;
-import be.shad.tsqb.restrictions.RestrictionsGroupFactory;
-import be.shad.tsqb.restrictions.RestrictionsGroupFactoryImpl;
 import be.shad.tsqb.restrictions.RestrictionsGroupImpl;
 import be.shad.tsqb.restrictions.RestrictionsGroupInternal;
 import be.shad.tsqb.selection.TypeSafeQueryProjections;
@@ -59,6 +58,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
     protected final TypeSafeQueryHelper helper;
     private TypeSafeRootQueryInternal rootQuery;
 
+    private final TypeSafeQueryFactories factories;
     private final TypeSafeQueryProxyDataTree dataTree;
     private final TypeSafeQueryProjections projections = new TypeSafeQueryProjections(this); 
     private final RestrictionsGroupInternal restrictions = new RestrictionsGroupImpl(
@@ -68,7 +68,8 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
     
     public AbstractTypeSafeQuery(TypeSafeQueryHelper helper) {
         this.helper = helper;
-        this.dataTree = new TypeSafeQueryProxyDataTree(helper, this);
+        this.dataTree = new TypeSafeQueryProxyDataTree(helper, this);;
+        this.factories = new TypeSafeQueryFactories(this);
     }
 
     /**
@@ -244,8 +245,8 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      * {@inheritDoc}
      */
     @Override
-    public RestrictionsGroupFactory getRestrictionsGroupFactory() {
-        return new RestrictionsGroupFactoryImpl(this);
+    public TypeSafeQueryFactories factories() {
+        return factories;
     }
     
     /**

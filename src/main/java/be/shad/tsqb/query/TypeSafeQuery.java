@@ -18,6 +18,7 @@ package be.shad.tsqb.query;
 import java.util.Collection;
 import java.util.Date;
 
+import be.shad.tsqb.factories.TypeSafeQueryFactories;
 import be.shad.tsqb.grouping.OnGoingGroupBy;
 import be.shad.tsqb.helper.TypeSafeQueryHelper;
 import be.shad.tsqb.hql.HqlQuery;
@@ -25,7 +26,6 @@ import be.shad.tsqb.joins.TypeSafeQueryJoin;
 import be.shad.tsqb.ordering.OnGoingOrderBy;
 import be.shad.tsqb.restrictions.RestrictionChainable;
 import be.shad.tsqb.restrictions.RestrictionsGroup;
-import be.shad.tsqb.restrictions.RestrictionsGroupFactory;
 import be.shad.tsqb.restrictions.WhereRestrictions;
 import be.shad.tsqb.values.TypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValueFunctions;
@@ -127,12 +127,6 @@ public interface TypeSafeQuery extends WhereRestrictions {
      * This must be done separately.
      */
     RestrictionsGroup whereGroup();
-    
-    /**
-     * @return a factory to create whereGroups for each method called on the factory.
-     */
-    RestrictionsGroupFactory getRestrictionsGroupFactory();
-
     /**
      * Get the orderBy, allowing to add descending and ascending order bys.
      */
@@ -177,6 +171,11 @@ public interface TypeSafeQuery extends WhereRestrictions {
      * Build a value using a function. Use this method to create TypeSafeValue objects fluently.
      */
     TypeSafeValueFunctions function();
+    
+    /**
+     * Retrieve the various factories available for restrictions or value building.
+     */
+    TypeSafeQueryFactories factories();
     
     /**
      * Converts this query to an hqlQuery. 
