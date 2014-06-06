@@ -19,8 +19,10 @@ import java.text.DateFormat;
 import java.util.Arrays;
 import java.util.Date;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Test;
 
+import be.shad.tsqb.domain.Building;
 import be.shad.tsqb.domain.Town;
 import be.shad.tsqb.domain.TownProperty;
 import be.shad.tsqb.domain.people.Person;
@@ -275,6 +277,10 @@ public class ExamplesTest extends TypeSafeQueryTest {
                 "FavColorKey", "Blue");
     }
     
+    /**
+     * JoinType.None omits the join from the hql query and
+     * uses the nested property path instead. 
+     */
     @Test
     public void testJoinTypeNone() {
         Relation relation = query.from(Relation.class);
@@ -282,6 +288,24 @@ public class ExamplesTest extends TypeSafeQueryTest {
         query.where(parent.getId()).eq(1L);
         
         validate(" from Relation hobj1 where hobj1.parent.id = ?", 1L);
+    }
+
+    /**
+     * When filtering a date between two dates, the continued ongoing date restriction allows
+     * you to add an extra restriction using the left value of the previous restriction.
+     * Just read the test code to understand...
+     */
+    @Test
+    public void testContinuedOngoingDateRestriction() {
+        Date date1 = DateUtils.addYears(new Date(), -5);
+        Date date2 = DateUtils.addYears(new Date(), -3);
+        
+        Building building = query.from(Building.class);
+        
+        // construction date will be used for the 'after' and the 'before' date check.
+        query.where(building.getConstructionDate()).after(date1).before(date2);
+
+        validate(" from Building hobj1 where hobj1.constructionDate > ? and hobj1.constructionDate < ?", date1, date2);
     }
 
     /**
@@ -445,4 +469,5 @@ public class ExamplesTest extends TypeSafeQueryTest {
                  "'SomeCustomHql' as customString " +
                  "from Town hobj1 left join hobj1.properties hobj2 with hobj2.propertyKey = ?", "LastUfoSpottingDate");
     }
+    
 }
