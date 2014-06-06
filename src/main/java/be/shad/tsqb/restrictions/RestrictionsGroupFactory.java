@@ -24,11 +24,11 @@ public interface RestrictionsGroupFactory extends WhereRestrictions {
     /**
      * @return creates a restriction group in which all restrictions are or'ed.
      */
-    RestrictionsGroup or(RestrictionHolder... restrictions);
+    RestrictionsGroup or(RestrictionHolder restriction, RestrictionHolder... restrictions);
 
     /**
      * @return creates a restriction group in which all restrictions are and'ed.
      */
-    RestrictionsGroup and(RestrictionHolder... restrictions);
+    RestrictionsGroup and(RestrictionHolder restriction, RestrictionHolder... restrictions);
     
 }

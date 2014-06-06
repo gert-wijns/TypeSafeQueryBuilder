@@ -26,12 +26,12 @@ public interface WhereRestrictions {
     /**
      * Adds the restrictions as 'and' to the where restrictions
      */
-    RestrictionChainable and(RestrictionHolder... restrictions);
+    RestrictionChainable and(RestrictionHolder restriction, RestrictionHolder... restrictions);
     
     /**
      * Adds the restrictions as 'and' to the where restrictions
      */
-    RestrictionChainable or(RestrictionHolder... restrictions);
+    RestrictionChainable or(RestrictionHolder restriction, RestrictionHolder... restrictions);
     
     /**
      * In case part of the restrictions were already built, but no reference was kept

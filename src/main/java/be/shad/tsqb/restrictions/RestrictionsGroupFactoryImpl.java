@@ -33,13 +33,13 @@ public class RestrictionsGroupFactoryImpl implements RestrictionsGroupFactory {
     }
 
     @Override
-    public RestrictionsGroup or(RestrictionHolder... restrictions) {
-        return query.whereGroup().or(restrictions);
+    public RestrictionsGroup or(RestrictionHolder restriction, RestrictionHolder... restrictions) {
+        return query.whereGroup().or(restriction, restrictions);
     }
 
     @Override
-    public RestrictionsGroup and(RestrictionHolder... restrictions) {
-        return query.whereGroup().and(restrictions);
+    public RestrictionsGroup and(RestrictionHolder restriction, RestrictionHolder... restrictions) {
+        return query.whereGroup().and(restriction, restrictions);
     }
     
     @Override

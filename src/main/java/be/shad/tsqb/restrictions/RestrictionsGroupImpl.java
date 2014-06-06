@@ -57,17 +57,23 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
     }
     
     @Override
-    public RestrictionsGroup or(RestrictionHolder... restrictions) {
-        for(RestrictionHolder restriction: restrictions) {
-            or(restriction.getRestriction());
+    public RestrictionsGroup or(RestrictionHolder first, RestrictionHolder... restrictions) {
+        or(first.getRestriction());
+        if (restrictions != null) {
+            for(RestrictionHolder restriction: restrictions) {
+                or(restriction.getRestriction());
+            }
         }
         return this;
     }
 
     @Override
-    public RestrictionsGroup and(RestrictionHolder... restrictions) {
-        for(RestrictionHolder restriction: restrictions) {
-            and(restriction.getRestriction());
+    public RestrictionsGroup and(RestrictionHolder first, RestrictionHolder... restrictions) {
+        and(first.getRestriction());
+        if (restrictions != null) {
+            for(RestrictionHolder restriction: restrictions) {
+                and(restriction.getRestriction());
+            }
         }
         return this;
     }
@@ -261,6 +267,9 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
     private RestrictionAndChainable add(Restriction restriction, RestrictionNodeType type) {
         if( restriction.getRestrictionsGroup() != this ) {
             restriction = restriction.getRestrictionsGroup().getRestrictions();
+        } else if (restriction == this) {
+            throw new IllegalArgumentException("Attempting to add a restriction group to itself. "
+                    + "Did you nest query.where inside a query.where?");
         }
         restrictions.add(new RestrictionNode(restriction, restrictions.isEmpty() ? null: type));
         return this;
