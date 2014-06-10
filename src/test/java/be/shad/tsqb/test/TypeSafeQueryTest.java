@@ -24,6 +24,7 @@ import org.apache.logging.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
@@ -60,6 +61,16 @@ public class TypeSafeQueryTest {
             }
         };
         query = helper.createQuery();
+        sessionFactory.getCurrentSession().beginTransaction();
+    }
+    
+    @After
+    public void teardown() {
+        sessionFactory.getCurrentSession().getTransaction().rollback();
+    }
+    
+    public SessionFactory getSessionFactory() {
+        return sessionFactory;
     }
 
     protected TypeSafeRootQuery createQuery() {
@@ -76,7 +87,7 @@ public class TypeSafeQueryTest {
         HqlQuery hqlQuery = typeSafeQuery.toHqlQuery();
         
         // Create a hibernate query object using the generated hql+params:
-        Query query = sessionFactory.openSession().createQuery(hqlQuery.getHql());
+        Query query = sessionFactory.getCurrentSession().createQuery(hqlQuery.getHql());
         Object[] params = hqlQuery.getParams();
         for(int i=0; i < params.length; i++) {
             query.setParameter(i, params[i]);
@@ -86,6 +97,7 @@ public class TypeSafeQueryTest {
                 hqlQuery.getHql(), Arrays.toString(hqlQuery.getParams())));
         
         // call the list, this is the moment of truth:
+        query.setResultTransformer(hqlQuery.getResultTransformer());
         query.list();
         
         // return for additional checks:

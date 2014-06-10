@@ -40,10 +40,10 @@ public class Person extends DomainObject {
         Other
     }
 
-    @OneToMany(fetch = LAZY, mappedBy = "child", targetEntity = Relation.class)
+    @OneToMany(fetch = LAZY, mappedBy = "parent", targetEntity = Relation.class)
     private Set<Relation> childRelations;
     
-    @OneToMany(fetch = LAZY, mappedBy = "parent", targetEntity = Relation.class)
+    @OneToMany(fetch = LAZY, mappedBy = "child", targetEntity = Relation.class)
     private Set<Relation> parentRelations;
 
     @OneToMany(fetch = LAZY, mappedBy = "person", targetEntity = PersonProperty.class)

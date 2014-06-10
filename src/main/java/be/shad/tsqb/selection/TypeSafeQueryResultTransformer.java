@@ -19,9 +19,15 @@ import static be.shad.tsqb.selection.SelectionTree.getField;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.hibernate.transform.BasicTransformerAdapter;
+
+import be.shad.tsqb.data.TypeSafeQuerySelectionProxyData;
+import be.shad.tsqb.selection.group.SelectionTreeGroup;
+import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroup;
+import be.shad.tsqb.selection.parallel.ParallelSelectionMerger;
 
 /**
  * Implementation to set values on nested select dtos.
@@ -30,24 +36,36 @@ import org.hibernate.transform.BasicTransformerAdapter;
 public class TypeSafeQueryResultTransformer extends BasicTransformerAdapter {
     private static final long serialVersionUID = 4686800769621139636L;
     
-    private final Class<?> resultClass;
-    private final SelectionTree tree;
     private final Field[] setters;
     private final SelectionTree[] values;
+    private final SelectionTreeGroup[] groups;
+    
+    // reusing a result array to reduce object creation during transformation
+    // the tuple transformation may be called thousands of times or more in
+    // queries with big result sets
+    private final Object[] resultArray; 
     
     @SuppressWarnings("rawtypes")
     private final SelectionValueTransformer[] transformers;
     
-    public TypeSafeQueryResultTransformer(Class<?> resultClass, List<String[]> aliases, 
+    public TypeSafeQueryResultTransformer(
+            List<TypeSafeQuerySelectionProxyData> selectionDatas, 
             List<SelectionValueTransformer<?, ?>> transformers) {
         try {
-            this.resultClass = resultClass;
             this.transformers = transformers.toArray(new SelectionValueTransformer[transformers.size()]);
-            this.setters = new Field[aliases.size()];
-            this.values = new SelectionTree[aliases.size()];
-            this.tree = new SelectionTree(resultClass); 
+            this.setters = new Field[selectionDatas.size()];
+            this.values = new SelectionTree[selectionDatas.size()];
+            LinkedHashMap<TypeSafeQuerySelectionGroup, SelectionTreeGroup> groups = new LinkedHashMap<>();
             int a = 0;
-            for(String[] alias: aliases) {
+            for(TypeSafeQuerySelectionProxyData selectionData: selectionDatas) {
+                String propertyPath = selectionData.getPropertyPath();
+                TypeSafeQuerySelectionGroup group = selectionData.getGroup();
+                SelectionTreeGroup tree = groups.get(group);
+                if (tree == null) {
+                    tree = new SelectionTreeGroup(group.getResultClass(), group);
+                    groups.put(group, tree);
+                }
+                String[] alias = propertyPath.split("\\.");
                 SelectionTree subtree = tree;
                 for(int i=0; i < alias.length-1; i++) {
                     subtree = subtree.getSubtree(alias[i]);
@@ -55,6 +73,18 @@ public class TypeSafeQueryResultTransformer extends BasicTransformerAdapter {
                 values[a] = subtree;
                 setters[a++] = getField(subtree.getResultType(), alias[alias.length-1]);
             }
+            
+            // Create groups array, having the result group as first group:
+            a = 1;
+            this.groups = new SelectionTreeGroup[groups.size()];
+            for(SelectionTreeGroup group: groups.values()) {
+                if (group.getGroup().isResultGroup()) {
+                    this.groups[0] = group;
+                } else {
+                    this.groups[a++] = group;
+                }
+            }
+            this.resultArray = new Object[this.groups.length];
             AccessibleObject.setAccessible(setters, true);
         } catch (NoSuchFieldException | SecurityException e) {
             throw new RuntimeException(e);
@@ -65,18 +95,39 @@ public class TypeSafeQueryResultTransformer extends BasicTransformerAdapter {
     @SuppressWarnings("unchecked")
     public Object transformTuple(Object[] tuple, String[] aliases) {
         try {
-            tree.populate(resultClass.newInstance());
-            for(int i=0; i < aliases.length; i++) {
+            int i=0;
+            for(SelectionTree group: groups) {
+                resultArray[i] = group.getResultType().newInstance();
+                group.populate(resultArray[i++]);
+            }
+            for(i=0; i < aliases.length; i++) {
                 Object value = tuple[i];
                 if (transformers[i] != null) {
                     value = transformers[i].convert(value);
                 }
                 setters[i].set(values[i].getValue(), value);
             }
-            return tree.getValue();
+            
+            for(i=1; i < groups.length; i++) {
+                @SuppressWarnings("rawtypes")
+                ParallelSelectionMerger merger = groups[i].getGroup().getParallelSelectionMerger();
+                if (merger != null) {
+                    merger.mergeIntoResult(resultArray[0], resultArray[i]);
+                }
+            }
+            return resultArray[0];
         } catch (InstantiationException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
+    }
+    
+    @Override
+    @SuppressWarnings("rawtypes")
+    public List transformList(List list) {
+        for(int i=0; i < groups.length; i++) {
+            resultArray[i] = null;
+        }
+        return list;
     }
 
 }

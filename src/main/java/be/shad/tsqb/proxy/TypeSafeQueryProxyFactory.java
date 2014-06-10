@@ -43,7 +43,15 @@ public final class TypeSafeQueryProxyFactory {
         }
     };
     
-    private final Map<Class<?>, Class<?>> proxyClasses = new HashMap<>();
+    private final Map<Class<?>, Class<?>>[] proxyClasses;
+    
+    @SuppressWarnings("unchecked")
+    public TypeSafeQueryProxyFactory() {
+        proxyClasses = new HashMap[TypeSafeQueryProxyType.values().length];
+        for (int i = 0, n = TypeSafeQueryProxyType.values().length; i < n; i++) {
+            proxyClasses[i] = new HashMap<>();
+        }
+    }
 
     public <T> T getProxy(Class<T> fromClass, TypeSafeQueryProxyType type) {
         try {
@@ -56,7 +64,7 @@ public final class TypeSafeQueryProxyFactory {
     @SuppressWarnings("unchecked")
     private <T> Class<T> getProxyClass(Class<T> fromClass, TypeSafeQueryProxyType type) {
         synchronized ( proxyClasses ) { 
-            Class<?> proxyClass = proxyClasses.get(fromClass);
+            Class<?> proxyClass = proxyClasses[type.ordinal()].get(fromClass);
             if( proxyClass == null ) {
                 ProxyFactory f = new ProxyFactory();
                 f.setSuperclass(fromClass); // what if the super class is final?? guess it will give an exception..
@@ -67,7 +75,7 @@ public final class TypeSafeQueryProxyFactory {
                 }
                 f.setFilter(METHOD_FILTER);
                 proxyClass = f.createClass();
-                proxyClasses.put(fromClass, proxyClass);
+                proxyClasses[type.ordinal()].put(fromClass, proxyClass);
             }
             return (Class<T>) proxyClass;
         }

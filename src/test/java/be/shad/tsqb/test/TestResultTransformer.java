@@ -18,7 +18,9 @@ package be.shad.tsqb.test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -28,18 +30,19 @@ import org.junit.Test;
 
 import be.shad.tsqb.domain.Product;
 import be.shad.tsqb.domain.properties.ManyProperties;
+import be.shad.tsqb.domain.properties.PlanningProperties;
 import be.shad.tsqb.dto.StringToPlanningPropertiesTransformer;
 import be.shad.tsqb.hql.HqlQuery;
-import be.shad.tsqb.selection.SelectionValueTransformer;
+import be.shad.tsqb.query.TypeSafeRootQueryInternal;
 import be.shad.tsqb.selection.TypeSafeQueryProjections;
 import be.shad.tsqb.selection.TypeSafeQueryResultTransformer;
-import be.shad.tsqb.selection.TypeSafeValueProjection;
-import be.shad.tsqb.values.CustomTypeSafeValue;
-import be.shad.tsqb.values.TypeSafeValue;
 
-public class TestResultTransformer {
+public class TestResultTransformer extends TypeSafeQueryTest {
     protected final Logger logger = LogManager.getLogger(getClass());
 
+    private TypeSafeQueryProjections getProjections() {
+        return ((TypeSafeRootQueryInternal) this.query).getProjections();
+    }
     /**
      * 
      */
@@ -49,15 +52,21 @@ public class TestResultTransformer {
         List<String[]> paths = new ArrayList<>();
         paths.add(new String[] { "name" });
         paths.add(new String[] { "properties", "planning", "algorithm" });
-        List<SelectionValueTransformer<?, ?>> transformers = new ArrayList<>();
-        transformers.add(null);
-        transformers.add(null);
+
+        Product selectProxy = query.select(Product.class);
+        selectProxy.setName("Name");
+        selectProxy.getProperties().getPlanning().setAlgorithm("Algo");
         
-        TypeSafeQueryResultTransformer tf = new TypeSafeQueryResultTransformer(Product.class, paths, transformers);
+        HqlQuery query = new HqlQuery();
+        getProjections().appendTo(query);
+        
+        TypeSafeQueryResultTransformer tf = (TypeSafeQueryResultTransformer) query.getResultTransformer();
         Object transformTuple = tf.transformTuple(new Object[] {"Name", "Algo"}, new String[paths.size()]);
+        List<?> transformList = tf.transformList(Arrays.asList(transformTuple));
+        Object transformed = transformList.get(0);
         
-        assertTrue(transformTuple instanceof Product);
-        Product product = (Product) transformTuple;
+        assertTrue(transformed instanceof Product);
+        Product product = (Product) transformed;
         assertEquals("Name", product.getName());
         assertEquals("Algo", product.getProperties().getPlanning().getAlgorithm());
     }
@@ -65,30 +74,37 @@ public class TestResultTransformer {
     @Test
     public void testResultTransformerSetsConvertedFields() {
         //String hql = "select hobj1.name as name, hobj1.name as properties_planning from Product hobj1";
-        List<String[]> paths = new ArrayList<>();
-        paths.add(new String[] { "name" });
-        paths.add(new String[] { "properties", "planning" });
-        List<SelectionValueTransformer<?, ?>> transformers = new ArrayList<>();
-        transformers.add(null);
-        transformers.add(new StringToPlanningPropertiesTransformer());
-
-        TypeSafeQueryResultTransformer tf = new TypeSafeQueryResultTransformer(Product.class, paths, transformers);
-        Object transformTuple = tf.transformTuple(new Object[] {"Name", "Algo"}, new String[paths.size()]);
+        Product fromProxy = query.from(Product.class);
         
-        assertTrue(transformTuple instanceof Product);
-        Product product = (Product) transformTuple;
+        Product selectProxy = query.select(Product.class);
+        selectProxy.setName("Name");
+        selectProxy.getProperties().setPlanning(query.select(PlanningProperties.class, 
+                fromProxy.getProperties().getPlanning().getAlgorithm(), 
+                new StringToPlanningPropertiesTransformer()));
+
+        HqlQuery query = new HqlQuery();
+        getProjections().appendTo(query);
+        
+        TypeSafeQueryResultTransformer tf = (TypeSafeQueryResultTransformer) query.getResultTransformer();
+        Object transformTuple = tf.transformTuple(new Object[] {"Name", "Algo"}, new String[2]);
+        List<?> transformList = tf.transformList(Arrays.asList(transformTuple));
+        Object transformed = transformList.get(0);
+        
+        assertTrue(transformed instanceof Product);
+        Product product = (Product) transformed;
         assertEquals("Name", product.getName());
         assertEquals("Algo", product.getProperties().getPlanning().getAlgorithm());
     }
 
     @Test
-    public void resultTransformerLoadTest() {
+    public void resultTransformerLoadTest() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+        Product product = query.select(Product.class);
+        ManyProperties manyProperties = product.getManyProperties();
+        
         List<String> aliases = new ArrayList<>();
         List<String> aliasToBeanResultAliases = new ArrayList<>();
-        TypeSafeValue<String> dummy = new CustomTypeSafeValue<>(null, String.class, "", null);
-        TypeSafeQueryProjections projections = new TypeSafeQueryProjections(null);
         for(int i=1; i < 80; i++) {
-            projections.addProjection(new TypeSafeValueProjection(dummy, "manyProperties.property" + i, null));
+            manyProperties.getClass().getMethod("setProperty"+i, String.class).invoke(manyProperties, "");
             aliases.add("manyProperties_property" + i);
             aliasToBeanResultAliases.add("property" + i);
         }
@@ -96,6 +112,9 @@ public class TestResultTransformer {
         String[] aliasToBeanResultAliasesArray = aliasToBeanResultAliases.toArray(new String[0]);
         String[] aliasesArray = aliases.toArray(new String[0]);
         Object[] valuesArray = new Object[aliasesArray.length];
+        for(int i=0; i < aliasesArray.length; i++) {
+            valuesArray[i] = "value"+i;
+        }
         
         int outer = 5;
         int inner = 100000;
@@ -112,8 +131,7 @@ public class TestResultTransformer {
         time = System.currentTimeMillis();
         for(int i=0; i < outer; i++) {
             HqlQuery query = new HqlQuery();
-            projections.setResultClass(Product.class);
-            projections.appendTo(query);
+            getProjections().appendTo(query);
             for(int j=0; j < inner; j++) {
                 query.getResultTransformer().transformTuple(valuesArray, aliasesArray);
             }

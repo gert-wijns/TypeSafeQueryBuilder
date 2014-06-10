@@ -15,7 +15,15 @@
  */
 package be.shad.tsqb.query;
 
+import org.apache.commons.lang3.mutable.MutableObject;
+import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.commons.lang3.tuple.MutableTriple;
+
 import be.shad.tsqb.selection.SelectionValueTransformer;
+import be.shad.tsqb.selection.parallel.ParallelSelectionMerger;
+import be.shad.tsqb.selection.parallel.ParallelSelectionMerger1;
+import be.shad.tsqb.selection.parallel.ParallelSelectionMerger2;
+import be.shad.tsqb.selection.parallel.ParallelSelectionMerger3;
 import be.shad.tsqb.values.TypeSafeValue;
 
 /**
@@ -74,6 +82,36 @@ public interface TypeSafeRootQuery extends TypeSafeQuery {
      * </pre>
      */
     <T> T select(Class<T> resultClass);
+    
+    /**
+     * Create a proxy to select into. This is a sub selected proxy which will be added to the result dto using the merger.
+     * The merger type T should be the same as the selected resultClass.
+     * <p>
+     * The type S 
+     */
+    <T, SUB> SUB selectParallel(T resultDto, Class<SUB> subselectClass, ParallelSelectionMerger<T, SUB> merger);
+
+    /**
+     * Convenience method to select a single value which can be used to set some value on the resultDto
+     * This is basically the same as {@link #select(Class, Object, SelectionValueTransformer)}.
+     * <p>
+     * For more values or stricter naming, use {@link #selectParallel(Object, Class, ParallelSelectionMerger)} with a dtoClass.
+     */
+    <T, A> MutableObject<A> selectParallel(T resultDto, ParallelSelectionMerger1<T, A> merger);
+    
+    /**
+     * Convenience method to select two values which can be used to set values on the result dto.
+     * <p>
+     * For more values or stricter naming, use {@link #selectParallel(Object, Class, ParallelSelectionMerger)} with a dtoClass.
+     */
+    <T, A, B> MutablePair<A, B> selectParallel(T resultDto, ParallelSelectionMerger2<T, A, B> merger);
+    
+    /**
+     * Convenience method to select three values which can be used to set values on the result dto.
+     * <p>
+     * For more values or stricter naming, use {@link #selectParallel(Object, Class, ParallelSelectionMerger)} with a dtoClass.
+     */
+    <T, A, B, C> MutableTriple<A, B, C> selectParallel(T resultDto, ParallelSelectionMerger3<T, A, B, C> merger);
 
     /**
      * Registers the transformer to be used for the selection value

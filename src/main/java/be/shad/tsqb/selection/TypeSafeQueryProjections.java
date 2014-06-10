@@ -20,13 +20,14 @@ import java.util.LinkedList;
 import java.util.List;
 
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
+import be.shad.tsqb.data.TypeSafeQuerySelectionProxyData;
 import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.hql.HqlQueryBuilder;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.values.DirectTypeSafeValue;
-import be.shad.tsqb.values.IsMaybeDistinct;
 import be.shad.tsqb.values.HqlQueryValue;
+import be.shad.tsqb.values.IsMaybeDistinct;
 import be.shad.tsqb.values.ReferenceTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
 
@@ -95,18 +96,23 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
      * Converts the input value to a type safe value if it isn't one yet when no invocations were made.
      * Covnerts the invocation data to a type safe value otherwise.
      */
-    public void project(Object select, String propertyName) {
-        TypeSafeValueProjection projection = null;
+    public void project(Object select, TypeSafeQuerySelectionProxyData property) {
         TypeSafeValue<?> value = query.getRootQuery().dequeueSelectedValue();
         if( value != null ) {
-            query.validateInScope(value, null);
-            projection = new TypeSafeValueProjection(value, propertyName, transformerForNextProjection);
-            transformerForNextProjection = null;
-            addProjection(projection);
+            projectBySelectedValue(value, property);
             return;
         }
-        
+
         // No subquery was selected, check the queue or direct selections:
+        projectInvocationQueueValue(select, property);
+    }
+
+    /**
+     * 
+     */
+    private void projectInvocationQueueValue(Object select, TypeSafeQuerySelectionProxyData property) {
+        TypeSafeValue<?> value = null;
+        
         List<TypeSafeQueryProxyData> invocations = query.dequeueInvocations();
         if( invocations.isEmpty() ) {
             if( select instanceof TypeSafeValue<?> ) {
@@ -123,14 +129,27 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
             // value selection by proxy getter:
             value = new ReferenceTypeSafeValue<>(query, invocations.get(0));
         }
+        
         query.validateInScope(value, null);
-        addProjection(new TypeSafeValueProjection(value, propertyName, transformerForNextProjection));
+        addProjection(new TypeSafeValueProjection(value, property, transformerForNextProjection));
         transformerForNextProjection = null;
+    }
+
+    /**
+     * 
+     */
+    private void projectBySelectedValue(TypeSafeValue<?> value, 
+            TypeSafeQuerySelectionProxyData property) {
+        query.validateInScope(value, null);
+        TypeSafeValueProjection projection = new TypeSafeValueProjection(
+                value, property, transformerForNextProjection);
+        transformerForNextProjection = null;
+        addProjection(projection);
     }
 
     @Override
     public void appendTo(HqlQuery query) {
-        List<String[]> paths = new ArrayList<>(projections.size());
+        List<TypeSafeQuerySelectionProxyData> selectionDatas = new ArrayList<>(projections.size());
         List<SelectionValueTransformer<?, ?>> transformers = new ArrayList<>(projections.size());
         boolean hasTransformer = false;
         for(TypeSafeValueProjection projection: projections) {
@@ -139,18 +158,18 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
                 val = this.query.getHelper().replaceParamsWithLiterals(val);
             }
             String alias = "";
-            if( projection.getAlias() != null ) {
-                alias = projection.getAlias().replace(".", "_");
-                paths.add(projection.getAlias().split("\\."));
-                alias = " as " + alias;
+            TypeSafeQuerySelectionProxyData selectionData = projection.getSelectionData();
+            if( selectionData != null ) {
+                selectionDatas.add(selectionData);
+                alias = " as " + selectionData.getAlias();
             }
             transformers.add(projection.getTransformer());
             hasTransformer = hasTransformer || projection.getTransformer() != null;
             query.appendSelect(val.getHql() + alias);
             query.addParams(val.getParams());
         }
-        if( !paths.isEmpty() ) {
-            query.setResultTransformer(new TypeSafeQueryResultTransformer(resultClass, paths, transformers));
+        if( !selectionDatas.isEmpty() ) {
+            query.setResultTransformer(new TypeSafeQueryResultTransformer(selectionDatas, transformers));
         } else if( hasTransformer ) {
             query.setResultTransformer(new WithoutAliasesQueryResultTransformer(transformers));
         }

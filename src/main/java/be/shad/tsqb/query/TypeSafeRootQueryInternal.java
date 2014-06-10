@@ -58,4 +58,10 @@ public interface TypeSafeRootQueryInternal extends TypeSafeRootQuery, TypeSafeQu
      */
     TypeSafeValue<?> dequeueSelectedValue();
 
+    /**
+     * Unique group name to be used when values are selected 
+     * into a grouped collection dto.
+     */
+    String createSelectGroupAlias();
+    
 }

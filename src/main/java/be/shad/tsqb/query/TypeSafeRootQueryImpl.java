@@ -20,10 +20,20 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.mutable.MutableObject;
+import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.commons.lang3.tuple.MutableTriple;
+
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.helper.TypeSafeQueryHelper;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
 import be.shad.tsqb.selection.SelectionValueTransformer;
+import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroup;
+import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroupImpl;
+import be.shad.tsqb.selection.parallel.ParallelSelectionMerger;
+import be.shad.tsqb.selection.parallel.ParallelSelectionMerger1;
+import be.shad.tsqb.selection.parallel.ParallelSelectionMerger2;
+import be.shad.tsqb.selection.parallel.ParallelSelectionMerger3;
 import be.shad.tsqb.values.TypeSafeValue;
 
 /**
@@ -36,6 +46,7 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     private TypeSafeValue<?> lastSelectedValue;
     private String lastInvokedProjectionPath;
     private int entityAliasCount = 1;
+    private int selectionGroupAliasCount = 1;
 
     public TypeSafeRootQueryImpl(TypeSafeQueryHelper helper) {
         super(helper);
@@ -145,6 +156,11 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
         return "hobj"+ entityAliasCount++;
     }
 
+    @Override
+    public String createSelectGroupAlias() {
+        return "g" + selectionGroupAliasCount++;
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -158,7 +174,9 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
      */
     @Override
     public <T> T select(Class<T> resultClass) {
-        return helper.createTypeSafeSelectProxy(this, resultClass);
+        TypeSafeQuerySelectionGroup resultGroup = new TypeSafeQuerySelectionGroupImpl(
+                createSelectGroupAlias(), resultClass, true, null);
+        return helper.createTypeSafeSelectProxy(this, resultClass, resultGroup);
     }
     
     /**
@@ -207,6 +225,42 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
         TypeSafeValue<?> value = lastSelectedValue;
         lastSelectedValue = null;
         return value;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <T, SUB> SUB selectParallel(T resultDto, Class<SUB> subselectClass, ParallelSelectionMerger<T, SUB> merger) {
+        return getHelper().createTypeSafeSelectProxy(this, subselectClass, new TypeSafeQuerySelectionGroupImpl(
+                createSelectGroupAlias(), subselectClass, false, merger));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public <T, A> MutableObject<A> selectParallel(T resultDto, ParallelSelectionMerger1<T, A> merger) {
+        return selectParallel(resultDto, MutableObject.class, (ParallelSelectionMerger) merger);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public <T, A, B> MutablePair<A, B> selectParallel(T resultDto, ParallelSelectionMerger2<T, A, B> merger) {
+        return selectParallel(resultDto, MutablePair.class, (ParallelSelectionMerger) merger);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public <T, A, B, C> MutableTriple<A, B, C> selectParallel(T resultDto, ParallelSelectionMerger3<T, A, B, C> merger) {
+        return selectParallel(resultDto, MutableTriple.class, (ParallelSelectionMerger) merger);
     }
 
 }

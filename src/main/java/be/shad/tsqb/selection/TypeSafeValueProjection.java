@@ -15,6 +15,7 @@
  */
 package be.shad.tsqb.selection;
 
+import be.shad.tsqb.data.TypeSafeQuerySelectionProxyData;
 import be.shad.tsqb.values.TypeSafeValue;
 
 /**
@@ -26,13 +27,14 @@ import be.shad.tsqb.values.TypeSafeValue;
  */
 public class TypeSafeValueProjection {
     private final TypeSafeValue<?> value;
-    private final String alias;
+    private final TypeSafeQuerySelectionProxyData selectionData;
     private final SelectionValueTransformer<?, ?> transformer;
 
-    public TypeSafeValueProjection(TypeSafeValue<?> value, String alias, 
+    public TypeSafeValueProjection(TypeSafeValue<?> value, 
+            TypeSafeQuerySelectionProxyData selectionData, 
             SelectionValueTransformer<?, ?> transformer) {
+        this.selectionData = selectionData;
         this.transformer = transformer;
-        this.alias = alias;
         this.value = value;
     }
     
@@ -44,7 +46,21 @@ public class TypeSafeValueProjection {
         return value;
     }
 
+    public TypeSafeQuerySelectionProxyData getSelectionData() {
+        return selectionData;
+    }
+    
     public String getAlias() {
-        return alias;
+        if (selectionData != null) {
+            return selectionData.getAlias();
+        }
+        return null;
+    }
+
+    public Object getPropertyPath() {
+        if (selectionData != null) {
+            return selectionData.getPropertyPath();
+        }
+        return null;
     }
 }

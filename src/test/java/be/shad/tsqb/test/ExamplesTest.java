@@ -20,9 +20,11 @@ import java.util.Arrays;
 import java.util.Date;
 
 import org.apache.commons.lang3.time.DateUtils;
+import org.hibernate.Session;
 import org.junit.Test;
 
 import be.shad.tsqb.domain.Building;
+import be.shad.tsqb.domain.GeographicCoordinate;
 import be.shad.tsqb.domain.Town;
 import be.shad.tsqb.domain.TownProperty;
 import be.shad.tsqb.domain.people.Person;
@@ -336,10 +338,24 @@ public class ExamplesTest extends TypeSafeQueryTest {
     
     @Test
     public void testSelectMaxAge() {
-        Person person = query.from(Person.class);
+        Session session = getSessionFactory().getCurrentSession();
+        Town town = new Town();
+        town.setId(1L);
+        town.setGeographicCoordinate(new GeographicCoordinate());
+        town.getGeographicCoordinate().setLattitude(1d);
+        town.getGeographicCoordinate().setLongitude(1d);
+        session.save(town);
+        
+        Person person = new Person();
+        person.setId(1L);
+        person.setAge(50);
+        person.setTown(town);
+        session.save(person);
+        
+        Person personProxy = query.from(Person.class);
         
         PersonDto dto = query.select(PersonDto.class);
-        dto.setPersonAge(query.function().max(person.getAge()).select());
+        dto.setPersonAge(query.function().max(personProxy.getAge()).select());
 
         validate("select max(hobj1.age) as personAge from Person hobj1");
     }

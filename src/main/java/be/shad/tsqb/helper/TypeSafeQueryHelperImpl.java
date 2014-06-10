@@ -37,13 +37,16 @@ import org.hibernate.type.StringRepresentableType;
 import org.hibernate.type.Type;
 
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
+import be.shad.tsqb.data.TypeSafeQuerySelectionProxyData;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
 import be.shad.tsqb.proxy.TypeSafeQueryProxyFactory;
 import be.shad.tsqb.proxy.TypeSafeQueryProxyType;
+import be.shad.tsqb.proxy.TypeSafeQuerySelectionProxy;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.query.TypeSafeRootQuery;
 import be.shad.tsqb.query.TypeSafeRootQueryImpl;
 import be.shad.tsqb.query.TypeSafeRootQueryInternal;
+import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroup;
 import be.shad.tsqb.values.HqlQueryValue;
 import be.shad.tsqb.values.HqlQueryValueImpl;
 
@@ -97,9 +100,11 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
      * {@inheritDoc}
      */
     @Override
-    public <T> T createTypeSafeSelectProxy(final TypeSafeRootQueryInternal query, Class<T> clazz) {
+    public <T> T createTypeSafeSelectProxy(final TypeSafeRootQueryInternal query, Class<T> clazz, TypeSafeQuerySelectionGroup group) {
         final T proxy = proxyFactory.getProxy(clazz, SelectionDtoType);
-        setSelectionDtoMethodHandler(query, proxy, null);
+        TypeSafeQuerySelectionProxyData data = new TypeSafeQuerySelectionProxyData(
+                null, null, clazz, group, (TypeSafeQuerySelectionProxy) proxy);
+        setSelectionDtoMethodHandler(query, data);
         query.getProjections().setResultClass(clazz);
         return proxy;
     }
@@ -107,22 +112,43 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
     /**
      * Build nested property path when values are retrieved, link to projections when values are set.
      */
-    private void setSelectionDtoMethodHandler(final TypeSafeRootQueryInternal query, Object selectionDto, final String parentPath) {
-        ((ProxyObject) selectionDto).setHandler(new MethodHandler() {
+    private void setSelectionDtoMethodHandler(final TypeSafeRootQueryInternal query, 
+            final TypeSafeQuerySelectionProxyData data) {
+        ((ProxyObject) data.getProxy()).setHandler(new MethodHandler() {
             public Object invoke(Object self, Method m, Method proceed, Object[] args) throws Throwable {
-                String propertyName = method2PropertyName(m);
-                if( parentPath != null ) {
-                    propertyName = parentPath + "." + propertyName;
+                if (m.getReturnType().equals(TypeSafeQuerySelectionProxyData.class)) {
+                    return data;
                 }
+                
+                boolean setter = m.getName().startsWith("set");
+                String propertyName = method2PropertyName(m);
+                TypeSafeQuerySelectionProxyData childData = data.getChild(propertyName);
+                if (childData == null) {
+                    Class<?> propertyType = m.getReturnType();
+                    if (setter) {
+                        propertyType = m.getParameterTypes()[0];
+                    }
+                    childData = new TypeSafeQuerySelectionProxyData(
+                            data, propertyName, propertyType, data.getGroup(), null);
+                }
+                
                 Object childDto = null;
                 if( m.getName().startsWith("set") ) {
-                    query.getProjections().project(args[0], propertyName);
+                    query.getProjections().project(args[0], childData);
                 } else if (isBasicType(m.getReturnType())) {
-                    query.queueInvokedProjectionPath(propertyName);
+                    query.queueInvokedProjectionPath(childData.getPropertyPath());
                     return getDummyValue(m.getReturnType());
                 } else {
-                    childDto = proxyFactory.getProxy(m.getReturnType(), SelectionDtoType);
-                    setSelectionDtoMethodHandler(query, childDto, propertyName);
+                    if (childData.getProxy() == null) {
+                        TypeSafeQuerySelectionProxy childProxy = null;
+                        if (!isBasicType(childData.getPropertyType())) {
+                            childProxy = (TypeSafeQuerySelectionProxy) proxyFactory.getProxy(
+                                    childData.getPropertyType(), SelectionDtoType);
+                            childData.setProxy(childProxy);
+                        }
+                    }
+                    setSelectionDtoMethodHandler(query, childData);
+                    childDto = childData.getProxy();
                 }
 
                 return childDto;
