@@ -15,15 +15,14 @@
  */
 package be.shad.tsqb.selection.parallel;
 
-import org.apache.commons.lang3.mutable.MutableObject;
 
-public abstract class ParallelSelectionMerger1<RESULT, A> implements ParallelSelectionMerger<RESULT, MutableObject<A>> {
+public abstract class ParallelSelectionMerger1<RESULT, A> implements ParallelSelectionMerger<RESULT, SelectValue<A>> {
 
     /**
      * Delegates to {@link #mergeValueIntoResult(Object, Object)} with the single selected value.
      */
     @Override
-    public final void mergeIntoResult(RESULT partialResult, MutableObject<A> parallelDto) {
+    public final void mergeIntoResult(RESULT partialResult, SelectValue<A> parallelDto) {
         mergeValueIntoResult(partialResult, parallelDto.getValue());
     }
 

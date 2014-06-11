@@ -19,13 +19,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import org.apache.commons.lang3.mutable.MutableInt;
-import org.apache.commons.lang3.mutable.MutableObject;
 import org.junit.Test;
 
 import be.shad.tsqb.domain.Town;
 import be.shad.tsqb.domain.people.Person;
 import be.shad.tsqb.dto.PersonDto;
 import be.shad.tsqb.selection.parallel.ParallelSelectionMerger1;
+import be.shad.tsqb.selection.parallel.SelectValue;
 
 public class ParallelSelectionMergerTest extends TypeSafeQueryTest {
 
@@ -43,7 +43,7 @@ public class ParallelSelectionMergerTest extends TypeSafeQueryTest {
         personDtoProxy.setPersonAge(personProxy.getAge());
 
         final MutableInt counter = new MutableInt();
-        MutableObject<String> subselectProxy = query.selectParallel(personDtoProxy, 
+        SelectValue<String> subselectProxy = query.selectParallel(personDtoProxy, 
                 new ParallelSelectionMerger1<PersonDto, String>() {
             @Override
             public void mergeValueIntoResult(PersonDto partialResult, String personName) {
@@ -77,7 +77,7 @@ public class ParallelSelectionMergerTest extends TypeSafeQueryTest {
         personDtoProxy.setPersonAge(personProxy.getAge());
 
         final MutableInt counter = new MutableInt();
-        MutableObject<String> subselectProxy = query.selectParallel(personDtoProxy, 
+        SelectValue<String> subselectProxy = query.selectParallel(personDtoProxy, 
                 new ParallelSelectionMerger1<PersonDto, String>() {
             @Override
             public void mergeValueIntoResult(PersonDto partialResult, String personName) {
@@ -90,7 +90,7 @@ public class ParallelSelectionMergerTest extends TypeSafeQueryTest {
         subselectProxy.setValue(personProxy.getName());
 
         final MutableInt counter2 = new MutableInt();
-        MutableObject<Integer> subselectProxy2 = query.selectParallel(personDtoProxy, 
+        SelectValue<Integer> subselectProxy2 = query.selectParallel(personDtoProxy, 
                 new ParallelSelectionMerger1<PersonDto, Integer>() {
             @Override
             public void mergeValueIntoResult(PersonDto partialResult, Integer personAge) {

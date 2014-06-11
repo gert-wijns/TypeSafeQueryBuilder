@@ -15,19 +15,18 @@
  */
 package be.shad.tsqb.selection.parallel;
 
-import org.apache.commons.lang3.tuple.MutableTriple;
 
 /**
  * 
  */
-public abstract class ParallelSelectionMerger3<RESULT, A, B, C> implements ParallelSelectionMerger<RESULT, MutableTriple<A, B, C>> {
+public abstract class ParallelSelectionMerger3<RESULT, A, B, C> implements ParallelSelectionMerger<RESULT, SelectTriplet<A, B, C>> {
 
     /**
      * Delegates to {@link #mergeValuesIntoResult(Object, Object, Object, Object)} with the triple of selected values.
      */
     @Override
-    public final void mergeIntoResult(RESULT partialResult, MutableTriple<A, B, C> parallelDto) {
-        mergeValuesIntoResult(partialResult, parallelDto.getLeft(), parallelDto.getMiddle(), parallelDto.getRight());
+    public final void mergeIntoResult(RESULT partialResult, SelectTriplet<A, B, C> parallelDto) {
+        mergeValuesIntoResult(partialResult, parallelDto.getFirst(), parallelDto.getSecond(), parallelDto.getThird());
     }
 
     /**

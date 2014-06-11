@@ -15,20 +15,20 @@
  */
 package be.shad.tsqb.selection.parallel;
 
+/**
+ * Container for a value to be used in the parallel selection.
+ * Not suitable for compares/equals and such, suitable for projection binding.
+ */
+public class SelectValue<A> {
 
-public abstract class ParallelSelectionMerger2<RESULT, A, B> implements ParallelSelectionMerger<RESULT, SelectPair<A, B>> {
+    private A value;
 
-    /**
-     * Delegates to {@link #mergeValuesIntoResult(Object, Object, Object)} with the pair of selected values.
-     */
-    @Override
-    public final void mergeIntoResult(RESULT partialResult, SelectPair<A, B> parallelDto) {
-        mergeValuesIntoResult(partialResult, parallelDto.getFirst(), parallelDto.getSecond());
+    public A getValue() {
+        return value;
     }
 
-    /**
-     * Merge two parallel selected values into the result dto manually.
-     */
-    public abstract void mergeValuesIntoResult(RESULT partialResult, A left, B right);
+    public void setValue(A value) {
+        this.value = value;
+    }
     
 }

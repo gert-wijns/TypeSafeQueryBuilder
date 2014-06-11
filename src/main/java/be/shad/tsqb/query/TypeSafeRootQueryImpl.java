@@ -20,20 +20,19 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.mutable.MutableObject;
-import org.apache.commons.lang3.tuple.MutablePair;
-import org.apache.commons.lang3.tuple.MutableTriple;
-
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.helper.TypeSafeQueryHelper;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
 import be.shad.tsqb.selection.SelectionValueTransformer;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroup;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroupImpl;
+import be.shad.tsqb.selection.parallel.SelectPair;
 import be.shad.tsqb.selection.parallel.ParallelSelectionMerger;
 import be.shad.tsqb.selection.parallel.ParallelSelectionMerger1;
 import be.shad.tsqb.selection.parallel.ParallelSelectionMerger2;
 import be.shad.tsqb.selection.parallel.ParallelSelectionMerger3;
+import be.shad.tsqb.selection.parallel.SelectTriplet;
+import be.shad.tsqb.selection.parallel.SelectValue;
 import be.shad.tsqb.values.TypeSafeValue;
 
 /**
@@ -241,8 +240,8 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
      */
     @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public <T, A> MutableObject<A> selectParallel(T resultDto, ParallelSelectionMerger1<T, A> merger) {
-        return selectParallel(resultDto, MutableObject.class, (ParallelSelectionMerger) merger);
+    public <T, A> SelectValue<A> selectParallel(T resultDto, ParallelSelectionMerger1<T, A> merger) {
+        return selectParallel(resultDto, SelectValue.class, (ParallelSelectionMerger) merger);
     }
 
     /**
@@ -250,8 +249,8 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
      */
     @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public <T, A, B> MutablePair<A, B> selectParallel(T resultDto, ParallelSelectionMerger2<T, A, B> merger) {
-        return selectParallel(resultDto, MutablePair.class, (ParallelSelectionMerger) merger);
+    public <T, A, B> SelectPair<A, B> selectParallel(T resultDto, ParallelSelectionMerger2<T, A, B> merger) {
+        return selectParallel(resultDto, SelectPair.class, (ParallelSelectionMerger) merger);
     }
 
     /**
@@ -259,8 +258,8 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
      */
     @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public <T, A, B, C> MutableTriple<A, B, C> selectParallel(T resultDto, ParallelSelectionMerger3<T, A, B, C> merger) {
-        return selectParallel(resultDto, MutableTriple.class, (ParallelSelectionMerger) merger);
+    public <T, A, B, C> SelectTriplet<A, B, C> selectParallel(T resultDto, ParallelSelectionMerger3<T, A, B, C> merger) {
+        return selectParallel(resultDto, SelectTriplet.class, (ParallelSelectionMerger) merger);
     }
 
 }

@@ -15,20 +15,37 @@
  */
 package be.shad.tsqb.selection.parallel;
 
+/**
+ * Container for three values to be used in the parallel selection.
+ * Not suitable for compares/equals and such, suitable for projection binding.
+ */
+public class SelectTriplet<A, B, C> {
+    private A first;
+    private B second;
+    private C third;
 
-public abstract class ParallelSelectionMerger2<RESULT, A, B> implements ParallelSelectionMerger<RESULT, SelectPair<A, B>> {
-
-    /**
-     * Delegates to {@link #mergeValuesIntoResult(Object, Object, Object)} with the pair of selected values.
-     */
-    @Override
-    public final void mergeIntoResult(RESULT partialResult, SelectPair<A, B> parallelDto) {
-        mergeValuesIntoResult(partialResult, parallelDto.getFirst(), parallelDto.getSecond());
+    public A getFirst() {
+        return first;
     }
 
-    /**
-     * Merge two parallel selected values into the result dto manually.
-     */
-    public abstract void mergeValuesIntoResult(RESULT partialResult, A left, B right);
+    public void setFirst(A first) {
+        this.first = first;
+    }
+
+    public B getSecond() {
+        return second;
+    }
+
+    public void setSecond(B second) {
+        this.second = second;
+    }
+
+    public C getThird() {
+        return third;
+    }
+
+    public void setThird(C third) {
+        this.third = third;
+    }
     
 }
