@@ -15,9 +15,12 @@
  */
 package be.shad.tsqb.test;
 
+import java.util.Date;
+
 import org.junit.Test;
 
 import be.shad.tsqb.domain.Building;
+import be.shad.tsqb.values.CustomTypeSafeValue;
 
 public class GroupingTest extends TypeSafeQueryTest {
 
@@ -42,5 +45,15 @@ public class GroupingTest extends TypeSafeQueryTest {
                 + "from Building hobj1 "
                 + "group by hobj1.constructionDate, hobj1.style");
     }
-    
+
+    @Test
+    public void testGroupByCustomTypeSafeValue() {
+        Building building = query.from(Building.class);
+        
+        query.selectValue(building.getConstructionDate());
+        query.registerCustomAliasForProxy(building, "b");
+        query.groupBy(new CustomTypeSafeValue<Date>(query, Date.class, "b.constructionDate", null));
+        
+        validate("select b.constructionDate from Building b group by b.constructionDate");
+    }
 }

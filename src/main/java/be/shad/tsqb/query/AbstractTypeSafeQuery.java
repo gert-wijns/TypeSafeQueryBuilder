@@ -397,6 +397,9 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      */
     @Override
     public <VAL> TypeSafeValue<VAL> toValue(VAL value) {
+        if (value instanceof TypeSafeValue<?>) {
+            throw new IllegalArgumentException(String.format("The value [%s] is already a type safe value.", value));
+        }
         List<TypeSafeQueryProxyData> invocations = dequeueInvocations();
         if( invocations.isEmpty() ) {
             // direct selection
@@ -410,7 +413,8 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
             return new ReferenceTypeSafeValue<VAL>(this, invocations.get(0));
         } else {
             // invalid call, only expected one invocation
-            throw new IllegalStateException();
+            throw new IllegalStateException(String.format("[%d] invocations were "
+                    + "made before transforming it to a value.", invocations.size()));
         }
     }
 

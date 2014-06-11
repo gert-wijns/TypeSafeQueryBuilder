@@ -87,7 +87,8 @@ public class TypeSafeQueryGroupBys implements HqlQueryBuilder, OnGoingGroupBy {
      */
     @Override
     public OnGoingGroupBy and(TypeSafeValue<?> val) {
-        return add(val);
+        values.add(val);
+        return this;
     }
     
     /**

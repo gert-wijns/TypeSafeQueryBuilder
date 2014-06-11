@@ -18,16 +18,20 @@ package be.shad.tsqb.factories;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.restrictions.RestrictionsGroupFactory;
 import be.shad.tsqb.restrictions.RestrictionsGroupFactoryImpl;
+import be.shad.tsqb.values.TypeSafeValueFactory;
+import be.shad.tsqb.values.TypeSafeValueFactoryImpl;
 import be.shad.tsqb.values.arithmetic.ArithmeticTypeSafeValueFactory;
 import be.shad.tsqb.values.arithmetic.ArithmeticTypeSafeValueFactoryImpl;
 
 public class TypeSafeQueryFactories {
+    private final TypeSafeValueFactory typeSafeValueFactory;
     private final RestrictionsGroupFactory restrictionsGroupFactory;
     private final ArithmeticTypeSafeValueFactory arithmeticTypeSafeValueFactory;
 
     public TypeSafeQueryFactories(TypeSafeQueryInternal query) {
         this.restrictionsGroupFactory = new RestrictionsGroupFactoryImpl(query);
         this.arithmeticTypeSafeValueFactory = new ArithmeticTypeSafeValueFactoryImpl(query);
+        this.typeSafeValueFactory = new TypeSafeValueFactoryImpl(query);
     }
 
     public RestrictionsGroupFactory getRestrictionsGroupFactory() {
@@ -36,6 +40,10 @@ public class TypeSafeQueryFactories {
     
     public ArithmeticTypeSafeValueFactory getArithmeticTypeSafeValueFactory() {
         return arithmeticTypeSafeValueFactory;
+    }
+    
+    public TypeSafeValueFactory getTypeSafeValueFactory() {
+        return typeSafeValueFactory;
     }
     
 }
