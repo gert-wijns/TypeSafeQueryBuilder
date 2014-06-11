@@ -1,8 +1,12 @@
 package be.shad.tsqb.test;
 
+import java.math.BigDecimal;
+
 import org.hibernate.SessionFactory;
 
+import be.shad.tsqb.domain.Apartment;
 import be.shad.tsqb.domain.GeographicCoordinate;
+import be.shad.tsqb.domain.House;
 import be.shad.tsqb.domain.Town;
 import be.shad.tsqb.domain.people.Person;
 import be.shad.tsqb.domain.people.Relation;
@@ -45,6 +49,25 @@ public class TestDataCreator {
         person.setTown(town);
         sessionFactory.getCurrentSession().save(person);
         return person;
+    }
+
+    public House createTestHouse(Town town, String name, int floors) {
+        House house = new House();
+        house.setTown(town);
+        house.setId(idGen++);
+        house.setName(name);
+        house.setFloors(floors);
+        sessionFactory.getCurrentSession().save(house);
+        return house;
+    }
+
+    public Apartment createTestApartment(Town town, BigDecimal revenue) {
+        Apartment apartment = new Apartment();
+        apartment.setTown(town);
+        apartment.setId(idGen++);
+        apartment.setRevenue(revenue);
+        sessionFactory.getCurrentSession().save(apartment);
+        return apartment;
     }
 
 }

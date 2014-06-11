@@ -42,6 +42,7 @@
         <mapping class="be.shad.tsqb.domain.Town" />
         <mapping class="be.shad.tsqb.domain.TownProperty" />
         <mapping class="be.shad.tsqb.domain.Building" />
+        <mapping class="be.shad.tsqb.domain.Apartment" />
         <mapping class="be.shad.tsqb.domain.House" />
         <mapping class="be.shad.tsqb.domain.School" />
         <mapping class="be.shad.tsqb.domain.Product" />

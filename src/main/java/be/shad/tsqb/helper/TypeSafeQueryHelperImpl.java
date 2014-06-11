@@ -164,11 +164,32 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
      * {@inheritDoc}
      */
     @Override
+    public <S, T extends S> T createTypeSafeSubtypeProxy(TypeSafeQueryInternal query, S proxy, Class<T> subtype) {
+        if (!(proxy instanceof TypeSafeQueryProxy)) {
+            throw new IllegalArgumentException(String.format("The provided proxy [%s] is not a TypeSafeQueryProxy.", proxy));
+        }
+        ClassMetadata subtypeMeta = sessionFactory.getClassMetadata(subtype);
+        if (subtypeMeta == null) {
+            throw new IllegalArgumentException(String.format("The subtype [%s] is not "
+                    + "known in hibernate. Maybe you forgot to map it?.", subtype));
+        }
+        // we now know the subtype is a hibernate type and it should be a subclass of the proxy,
+        // bind the same data object to the subtype:
+        T subtypeProxy = proxyFactory.getProxy(subtype, EntityType);
+        TypeSafeQueryProxyData data = ((TypeSafeQueryProxy) proxy).getTypeSafeProxyData();
+        setEntityProxyMethodListener(query, (TypeSafeQueryProxy) subtypeProxy, data);
+        return subtypeProxy;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public <T> T createTypeSafeFromProxy(TypeSafeQueryInternal query, Class<T> clazz) {
         T proxy = proxyFactory.getProxy(clazz, EntityType);
         TypeSafeQueryProxyData data = query.getDataTree().createData(null, 
                 null, clazz, EntityType, null, (TypeSafeQueryProxy) proxy);
-        setEntityProxyMethodListener(query, data);
+        setEntityProxyMethodListener(query, (TypeSafeQueryProxy) proxy, data);
         return proxy;
     }
 
@@ -176,8 +197,9 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
      * Sets the method handler on the proxy to create new proxies when 
      * hibernate entities are traversed via the getter/setters.
      */
-    private void setEntityProxyMethodListener(final TypeSafeQueryInternal query, final TypeSafeQueryProxyData data) {
-        ((ProxyObject) data.getProxy()).setHandler(new MethodHandler() {
+    private void setEntityProxyMethodListener(final TypeSafeQueryInternal query, 
+            final TypeSafeQueryProxy proxy, final TypeSafeQueryProxyData data) {
+        ((ProxyObject) proxy).setHandler(new MethodHandler() {
             public Object invoke(Object self, Method m, Method proceed, Object[] args) throws Throwable {
                 if( m.getReturnType().equals(TypeSafeQueryProxyData.class) ) {
                     return data;
@@ -217,7 +239,7 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
         TypeSafeQueryProxy proxy = (TypeSafeQueryProxy) proxyFactory.getProxy(targetClass, proxyType);
         TypeSafeQueryProxyData data = query.getDataTree().createData(parent, property, targetClass, 
                 proxyType, metadata == null ? null: metadata.getIdentifierPropertyName(), proxy);
-        setEntityProxyMethodListener(query, data);
+        setEntityProxyMethodListener(query, proxy, data);
         return data;
     }
     

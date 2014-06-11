@@ -18,6 +18,7 @@ package be.shad.tsqb.test;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -41,6 +42,7 @@ public class TypeSafeQueryTest {
     private SessionFactory sessionFactory;
     private TypeSafeQueryHelperImpl helper;
     protected TypeSafeRootQuery query;
+    protected List<?> doQueryResult;
 
     /**
      * Initialize the sessionFactory and helper.
@@ -98,7 +100,7 @@ public class TypeSafeQueryTest {
         
         // call the list, this is the moment of truth:
         query.setResultTransformer(hqlQuery.getResultTransformer());
-        query.list();
+        doQueryResult = query.list();
         
         // return for additional checks:
         return hqlQuery;
