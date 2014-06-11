@@ -19,6 +19,7 @@ import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.query.TypeSafeRootQuery;
 import be.shad.tsqb.query.TypeSafeRootQueryInternal;
+import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroup;
 import be.shad.tsqb.values.HqlQueryValue;
 
 public interface TypeSafeQueryHelper {
@@ -43,7 +44,8 @@ public interface TypeSafeQueryHelper {
      * Uses the type safe query factory and adds method handling to delegate
      * calls to the given query.
      */
-    <T> T createTypeSafeSelectProxy(TypeSafeRootQueryInternal query, Class<T> clazz);
+    <T> T createTypeSafeSelectProxy(TypeSafeRootQueryInternal query, 
+            Class<T> clazz, TypeSafeQuerySelectionGroup group);
 
     /**
      * Creates a proxy, adds it to the query' dataTree and sets its method listener.

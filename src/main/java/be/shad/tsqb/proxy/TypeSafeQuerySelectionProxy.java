@@ -15,6 +15,8 @@
  */
 package be.shad.tsqb.proxy;
 
+import be.shad.tsqb.data.TypeSafeQuerySelectionProxyData;
+
 /**
  * Marker interface for selection proxies generated
  * during query selection.
@@ -23,4 +25,14 @@ package be.shad.tsqb.proxy;
  */
 public interface TypeSafeQuerySelectionProxy {
 
+    /**
+     * Retrieve all relevant data of this proxy.
+     * <p>
+     * It is expected this method name will not clash with any
+     * existing domain object wherever this library may be used.
+     * <p>
+     * This could in theory be a restriction, but won't be in practice.
+     */
+    TypeSafeQuerySelectionProxyData getTypeSafeQuerySelectionProxyData();
+     
 }

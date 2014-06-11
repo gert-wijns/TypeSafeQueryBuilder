@@ -28,12 +28,12 @@ import be.shad.tsqb.values.HqlQueryValue;
  */
 public class OrderByProjection implements OrderBy {
     private final TypeSafeQuery query;
-    private final String alias;
+    private final String propertyPath;
     private boolean descending;
 
-    public OrderByProjection(TypeSafeQuery query, String alias, boolean descending) {
+    public OrderByProjection(TypeSafeQuery query, String propertyPath, boolean descending) {
         this.query = query;
-        this.alias = alias;
+        this.propertyPath = propertyPath;
         this.descending = descending;
     }
 
@@ -53,7 +53,7 @@ public class OrderByProjection implements OrderBy {
         TypeSafeRootQueryInternal query = (TypeSafeRootQueryInternal) this.query;
         TypeSafeQueryProjections projections = query.getProjections();
         for(TypeSafeValueProjection projection: projections.getProjections()) {
-            if (alias.equals(projection.getAlias())) {
+            if (propertyPath.equals(projection.getPropertyPath())) {
                 if (projection.getValue() instanceof TypeSafeSubQuery<?>) {
                     // if sorting by alias index is supported, this can be a workaround
                     // when trying to order by a column which is a subquery result

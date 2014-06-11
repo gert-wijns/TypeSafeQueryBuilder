@@ -189,20 +189,6 @@ public class SelectTests extends TypeSafeQueryTest {
     }
 
     /**
-     * Test max function
-     */
-    @Test
-    public void selectMax() {
-        House house = query.from(House.class);
-
-        House houseResult = query.select(House.class);
-        houseResult.setFloors(query.function().max(house.getFloors()).select());
-
-        validate("select max(hobj1.floors) as floors from House hobj1");
-        
-    }
-
-    /**
      * Test distinct function
      */
     @Test
