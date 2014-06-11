@@ -109,6 +109,14 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
     public <T> T from(Class<T> fromClass) {
         return helper.createTypeSafeFromProxy(this, fromClass);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <S, T extends S> T getAsSubtype(S proxy, Class<T> subtype) {
+        return helper.createTypeSafeSubtypeProxy(this, proxy, subtype);
+    }
     
     /**
      * {@inheritDoc}
@@ -407,7 +415,12 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
                 throw new IllegalArgumentException("No invocation was queued and the provided value is null. "
                         + "When using restrictions, don't use .eq(null), use .isNull() instead.");
             }
-            return new DirectTypeSafeValue<VAL>(this, value);
+            if (value instanceof TypeSafeQueryProxy) {
+                // required when selecting full hibernate objects (for example when using select distinct hobj)
+                return new ReferenceTypeSafeValue<VAL>(this, ((TypeSafeQueryProxy) value).getTypeSafeProxyData());
+            } else {
+                return new DirectTypeSafeValue<VAL>(this, value);
+            }
         } else if( invocations.size() == 1 ) {
             // invoked with proxy
             return new ReferenceTypeSafeValue<VAL>(this, invocations.get(0));

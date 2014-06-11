@@ -67,6 +67,14 @@ public interface TypeSafeQuery extends WhereRestrictions {
     <T> T from(Class<T> fromClass);
 
     /**
+     * Get a new proxy for the same entity to gain access to the subtype methods
+     * 
+     * @throws IllegalArgumentException when hibernate doesn't know the subtype 
+     *         or the proxy is not a TypeSafeQueryProxy.
+     */
+    <S, T extends S> T getAsSubtype(S proxy, Class<T> subtype) throws IllegalArgumentException;
+    
+    /**
      * Delegates to {@link #join(Collection, JoinType)} with {@link JoinType#Inner}
      */
     <T> T join(Collection<T> anyCollection);

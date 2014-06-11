@@ -39,6 +39,14 @@ public interface TypeSafeQueryHelper {
      * calls to the given query.
      */
     <T> T createTypeSafeFromProxy(TypeSafeQueryInternal query, Class<T> clazz);
+
+    /**
+     * Get a new proxy for the same entity to gain access to the subtype methods
+     * 
+     * @throws IllegalArgumentException when hibernate doesn't know the subtype 
+     *         or the proxy is not a TypeSafeQueryProxy.
+     */
+    <S, T extends S> T createTypeSafeSubtypeProxy(TypeSafeQueryInternal query, S proxy, Class<T> subtype) throws IllegalArgumentException;
     
     /**
      * Uses the type safe query factory and adds method handling to delegate
