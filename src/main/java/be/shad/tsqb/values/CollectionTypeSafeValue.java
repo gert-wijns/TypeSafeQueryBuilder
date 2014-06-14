@@ -24,32 +24,43 @@ import be.shad.tsqb.query.TypeSafeQuery;
  * These values are added to the query as params.
  */
 public class CollectionTypeSafeValue<T> extends TypeSafeValueImpl<T> {
-    private Collection<T> value;
+    private Object[] values;
     
     public CollectionTypeSafeValue(TypeSafeQuery query, Collection<T> value) {
         super(query, null);
-        this.value = value;
+        setValues(value);
     }
 
-    public Collection<T> getValue() {
-        return value;
-    }
-
-    public void setValue(Collection<T> value) {
-        this.value = value;
+    /**
+     * Validate the values are not null or empty.
+     */
+    public void setValues(Collection<T> values) {
+        if (values == null) {
+            throw new IllegalArgumentException("Value may not be null.");
+        }
+        if (values.isEmpty()) {
+            throw new IllegalArgumentException("Value may not be empty.");
+        }
+        for(T value: values) {
+            if(value == null) {
+                throw new IllegalArgumentException(String.format("Null value in "
+                        + "collection is not allowed. Collection: %s.", values));
+            }
+        }
+        this.values = values.toArray();
     }
 
     @Override
     public HqlQueryValueImpl toHqlQueryValue() {
         StringBuilder sb = new StringBuilder("(");
-        for(int i=0; i < value.size(); i++) {
+        for(int i=0; i < values.length; i++) {
             if( sb.length() > 1 ) {
                 sb.append(", ");
             }
             sb.append("?");
         }
         sb.append(")");
-        return new HqlQueryValueImpl(sb.toString(), value.toArray());
+        return new HqlQueryValueImpl(sb.toString(), values);
     }
 
 }
