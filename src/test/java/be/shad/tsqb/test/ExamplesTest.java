@@ -39,6 +39,7 @@ import be.shad.tsqb.joins.TypeSafeQueryJoin;
 import be.shad.tsqb.ordering.OrderByProjection;
 import be.shad.tsqb.query.JoinType;
 import be.shad.tsqb.query.TypeSafeSubQuery;
+import be.shad.tsqb.restrictions.OnGoingTextRestriction;
 import be.shad.tsqb.restrictions.RestrictionsGroup;
 import be.shad.tsqb.restrictions.RestrictionsGroupFactory;
 import be.shad.tsqb.values.CustomTypeSafeValue;
@@ -156,6 +157,37 @@ public class ExamplesTest extends TypeSafeQueryTest {
 
         validate(" from Person hobj1 where hobj1.name like ? and ((hobj1.age < ? and hobj1.name like ?) or (hobj1.age > ? and hobj1.name like ?))", 
                 "Jef%", 10, "John%", 20, "Emily%");
+    }
+    
+    @Test
+    public void testRestrictionsGroupFactoryAlternative2() {
+        RestrictionsGroupFactory rb = query.factories().getRestrictionsGroupFactory();
+        Person person = query.from(Person.class);
+        
+//        RestrictionsGroup ageCheck = rb.or(
+//            rb.where(person.getAge()).gt(80), 
+//            rb.where(person.getAge()).lt(10));
+
+        query.where(person.getName()).startsWith("G").and(
+                rb.where(person.getAge()).gt(80).or(person.getAge()).lt(10));
+        
+        validate(" from Person hobj1 where hobj1.name like ? and (hobj1.age > ? or hobj1.age < ?)", "G%", 80, 10);
+    }
+    
+    /**
+     * Reuse a query and replace a captured restriction 
+     */
+    @Test
+    public void testOngoingRestrictionsCapture() {
+        Person person = query.from(Person.class);
+
+        OnGoingTextRestriction nameCheck = query.where(person.getName());
+        
+        nameCheck.in(Arrays.asList("Josh", "Emily"));
+        validate(" from Person hobj1 where hobj1.name in (?, ?)", "Josh", "Emily");
+
+        nameCheck.isNull();
+        validate(" from Person hobj1 where hobj1.name is null ");
     }
 
     /**
@@ -376,8 +408,8 @@ public class ExamplesTest extends TypeSafeQueryTest {
         query.selectValue(person.getName());
         query.selectValue(person.getAge());
         
-        query.groupBy(person.getName()).
-              and(person.getAge());
+        query.groupBy(person.getName());
+        query.groupBy(person.getAge());
 
         validate("select hobj1.name, hobj1.age from Person hobj1 group by hobj1.name, hobj1.age");
     }

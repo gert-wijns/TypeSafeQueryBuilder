@@ -38,8 +38,8 @@ public class GroupingTest extends TypeSafeQueryTest {
         Building building = query.from(Building.class);
         query.selectValue(building.getConstructionDate());
         query.selectValue(building.getStyle());
-        query.groupBy(building.getConstructionDate()).
-              and(building.getStyle());
+        query.groupBy(building.getConstructionDate());
+        query.groupBy(building.getStyle());
 
         validate("select hobj1.constructionDate, hobj1.style "
                 + "from Building hobj1 "

@@ -24,6 +24,7 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import be.shad.tsqb.domain.DomainObject;
@@ -48,6 +49,10 @@ public class Person extends DomainObject {
 
     @OneToMany(fetch = LAZY, mappedBy = "person", targetEntity = PersonProperty.class)
     private Set<PersonProperty> properties;
+    
+    @OneToOne
+    @JoinColumn(name = "SpouseId")
+    private Person spouse;
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "TownId", nullable = false)
@@ -65,6 +70,14 @@ public class Person extends DomainObject {
     @Column
     private boolean married;
 
+    public Person getSpouse() {
+        return spouse;
+    }
+    
+    public void setSpouse(Person spouse) {
+        this.spouse = spouse;
+    }
+    
     public String getName() {
         return name;
     }

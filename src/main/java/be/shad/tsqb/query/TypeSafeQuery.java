@@ -19,7 +19,6 @@ import java.util.Collection;
 import java.util.Date;
 
 import be.shad.tsqb.factories.TypeSafeQueryFactories;
-import be.shad.tsqb.grouping.OnGoingGroupBy;
 import be.shad.tsqb.helper.TypeSafeQueryHelper;
 import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.joins.TypeSafeQueryJoin;
@@ -141,34 +140,40 @@ public interface TypeSafeQuery extends WhereRestrictions {
     OnGoingOrderBy orderBy();
 
     /**
-     * Converts to a TypeSafeValue and delegates to {@link #groupBy(TypeSafeValue)}.
+     * Groups by the value and returns the converted type safe value 
+     * so that it can be used for selection purposes.
      */
-    OnGoingGroupBy groupBy(Number val);
+    <N extends Number> TypeSafeValue<N> groupBy(N val);
 
     /**
-     * Converts to a TypeSafeValue and delegates to {@link #groupBy(TypeSafeValue)}.
+     * Groups by the value and returns the converted type safe value 
+     * so that it can be used for selection purposes.
      */
-    OnGoingGroupBy groupBy(String val);
+    TypeSafeValue<String> groupBy(String val);
 
     /**
-     * Converts to a TypeSafeValue and delegates to {@link #groupBy(TypeSafeValue)}.
+     * Groups by the value and returns the converted type safe value 
+     * so that it can be used for selection purposes.
      */
-    OnGoingGroupBy groupBy(Enum<?> val);
+    <E extends Enum<E>> TypeSafeValue<E> groupBy(E val);
 
     /**
-     * Converts to a TypeSafeValue and delegates to {@link #groupBy(TypeSafeValue)}.
+     * Groups by the value and returns the converted type safe value 
+     * so that it can be used for selection purposes.
      */
-    OnGoingGroupBy groupBy(Boolean val);
+    TypeSafeValue<Boolean> groupBy(Boolean val);
 
     /**
-     * Converts to a TypeSafeValue and delegates to {@link #groupBy(TypeSafeValue)}.
+     * Groups by the value and returns the converted type safe value 
+     * so that it can be used for selection purposes.
      */
-    OnGoingGroupBy groupBy(Date val);
+    TypeSafeValue<Date> groupBy(Date val);
 
     /**
-     * Adds the value to the list of values to group by.
+     * Groups by the value and returns the converted type safe value 
+     * so that it can be used for selection purposes.
      */
-    OnGoingGroupBy groupBy(TypeSafeValue<?> val);
+    <T> TypeSafeValue<T> groupBy(TypeSafeValue<T> val);
     
     /**
      * Creates a subquery which will select a value of the <code>resultClass</code>.

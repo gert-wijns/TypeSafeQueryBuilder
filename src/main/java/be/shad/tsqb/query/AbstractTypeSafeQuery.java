@@ -24,7 +24,6 @@ import be.shad.tsqb.data.TypeSafeQueryProxyDataTree;
 import be.shad.tsqb.exceptions.JoinException;
 import be.shad.tsqb.exceptions.ValueNotInScopeException;
 import be.shad.tsqb.factories.TypeSafeQueryFactories;
-import be.shad.tsqb.grouping.OnGoingGroupBy;
 import be.shad.tsqb.grouping.TypeSafeQueryGroupBys;
 import be.shad.tsqb.helper.TypeSafeQueryHelper;
 import be.shad.tsqb.hql.HqlQuery;
@@ -63,7 +62,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
     private final TypeSafeQueryProjections projections = new TypeSafeQueryProjections(this); 
     private final RestrictionsGroupInternal restrictions = new RestrictionsGroupImpl(
             this, null, RestrictionsGroupBracketsPolicy.Never);
-    private final TypeSafeQueryGroupBys groupBys = new TypeSafeQueryGroupBys(this);
+    private final TypeSafeQueryGroupBys groupBys = new TypeSafeQueryGroupBys();
     private final TypeSafeQueryOrderBys orderBys = new TypeSafeQueryOrderBys(this);
     
     public AbstractTypeSafeQuery(TypeSafeQueryHelper helper) {
@@ -356,48 +355,45 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      * {@inheritDoc}
      */
     @Override
-    public OnGoingGroupBy groupBy(Number val) {
-        return groupBys.and(val);
+    public TypeSafeValue<Boolean> groupBy(Boolean val) {
+        return groupBys.add(toValue(val));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public OnGoingGroupBy groupBy(String val) {
-        return groupBys.and(val);
+    public TypeSafeValue<Date> groupBy(Date val) {
+        return groupBys.add(toValue(val));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public OnGoingGroupBy groupBy(Enum<?> val) {
-        return groupBys.and(val);
+    public <E extends Enum<E>> TypeSafeValue<E> groupBy(E val) {
+        return groupBys.add(toValue(val));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public OnGoingGroupBy groupBy(Boolean val) {
-        return groupBys.and(val);
+    public <N extends Number> TypeSafeValue<N> groupBy(N val) {
+        return groupBys.add(toValue(val));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public OnGoingGroupBy groupBy(Date val) {
-        return groupBys.and(val);
+    public TypeSafeValue<String> groupBy(String val) {
+        return groupBys.add(toValue(val));
     }
-
-    /**
-     * {@inheritDoc}
-     */
+    
     @Override
-    public OnGoingGroupBy groupBy(TypeSafeValue<?> val) {
-        return groupBys.and(val);
+    public <T> TypeSafeValue<T> groupBy(TypeSafeValue<T> val) {
+        return groupBys.add(val);
     }
     
     /**
