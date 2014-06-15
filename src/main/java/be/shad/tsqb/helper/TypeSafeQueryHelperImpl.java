@@ -216,7 +216,7 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
                 }
                 // remember the method invocation, to be used later...
                 query.invocationWasMade(child);
-                return proceed.invoke(self, args);
+                return getDummyValue(m.getReturnType());
             }
 
 
