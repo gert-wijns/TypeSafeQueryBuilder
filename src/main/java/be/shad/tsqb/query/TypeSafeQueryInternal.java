@@ -69,6 +69,11 @@ public interface TypeSafeQueryInternal extends TypeSafeQuery {
     String createEntityAlias();
     
     /**
+     * Generates a new named param name.
+     */
+    String createNamedParam();
+    
+    /**
      * Checks if the data is available in the query or one of its parents.
      * And before <code>join<code> in case <code>join</code> is not null.
      */

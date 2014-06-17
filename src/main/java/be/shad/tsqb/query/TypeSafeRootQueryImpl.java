@@ -26,11 +26,11 @@ import be.shad.tsqb.proxy.TypeSafeQueryProxy;
 import be.shad.tsqb.selection.SelectionValueTransformer;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroup;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroupImpl;
-import be.shad.tsqb.selection.parallel.SelectPair;
 import be.shad.tsqb.selection.parallel.ParallelSelectionMerger;
 import be.shad.tsqb.selection.parallel.ParallelSelectionMerger1;
 import be.shad.tsqb.selection.parallel.ParallelSelectionMerger2;
 import be.shad.tsqb.selection.parallel.ParallelSelectionMerger3;
+import be.shad.tsqb.selection.parallel.SelectPair;
 import be.shad.tsqb.selection.parallel.SelectTriplet;
 import be.shad.tsqb.selection.parallel.SelectValue;
 import be.shad.tsqb.values.TypeSafeValue;
@@ -45,6 +45,7 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     private TypeSafeValue<?> lastSelectedValue;
     private String lastInvokedProjectionPath;
     private int entityAliasCount = 1;
+    private int namedParamCount = 1;
     private int selectionGroupAliasCount = 1;
 
     public TypeSafeRootQueryImpl(TypeSafeQueryHelper helper) {
@@ -155,6 +156,17 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
         return "hobj"+ entityAliasCount++;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String createNamedParam() {
+        return "np"+ namedParamCount++;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String createSelectGroupAlias() {
         return "g" + selectionGroupAliasCount++;

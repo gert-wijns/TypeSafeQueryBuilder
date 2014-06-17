@@ -15,32 +15,34 @@
  */
 package be.shad.tsqb.values;
 
-import java.util.LinkedList;
 import java.util.List;
+
+import be.shad.tsqb.param.QueryParameter;
+import be.shad.tsqb.param.QueryParameters;
 
 /**
  * Wraps an hql stringbuilder and params and provides 
  * convenient methods to append to them.
  */
 public class HqlQueryValueImpl implements HqlQueryValue {
-    private List<Object> params = new LinkedList<>();
+    private QueryParameters queryParameters = new QueryParameters();
     private StringBuilder hql;
     
     public HqlQueryValueImpl() {
         this("");
     }
     
-    public HqlQueryValueImpl(String hql, List<Object> params) {
+    public HqlQueryValueImpl(String hql, QueryParameter... params) {
         this.hql = new StringBuilder(hql);
         if( params != null ) {
-            this.params.addAll(params);
+            addParams(params);
         }
     }
 
-    public HqlQueryValueImpl(String hql, Object... params) {
+    public HqlQueryValueImpl(String hql, List<QueryParameter> params) {
         this.hql = new StringBuilder(hql);
         if( params != null ) {
-            for(Object param: params) {
+            for(QueryParameter param: params) {
                 addParam(param);
             }
         }
@@ -59,18 +61,16 @@ public class HqlQueryValueImpl implements HqlQueryValue {
         return this.hql;
     }
     
-    public Object[] getParams() {
-        return params.toArray();
+    public QueryParameter[] getParams() {
+        return queryParameters.getParams();
     }
     
-    public void addParam(Object param) {
-        params.add(param);
+    public void addParam(QueryParameter param) {
+        queryParameters.addParam(param);
     }
 
-    public void addParams(Object[] params) {
-        for(Object param: params) {
-            this.params.add(param);
-        }
+    public void addParams(QueryParameter[] params) {
+        queryParameters.addParams(params);
     }
     
 }

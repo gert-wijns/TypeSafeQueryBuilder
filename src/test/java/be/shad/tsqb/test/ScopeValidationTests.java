@@ -120,7 +120,7 @@ public class ScopeValidationTests extends TypeSafeQueryTest {
         Relation relation = query.join(parent.getChildRelations());
         Person child = query.join(relation.getChild());
         query.getJoin(child).with(child.getName()).eq("Josh");
-        validate(" from Person hobj1 join hobj1.childRelations hobj2 join hobj2.child hobj3 with hobj3.name = ?", "Josh");
+        validate(" from Person hobj1 join hobj1.childRelations hobj2 join hobj2.child hobj3 with hobj3.name = :np1", "Josh");
     }
 
     @Test(expected=RuntimeException.class)

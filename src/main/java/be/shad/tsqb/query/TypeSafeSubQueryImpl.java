@@ -126,6 +126,14 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
         return getRootQuery().createEntityAlias();
     }
 
+    /**
+     * Delegate to root.
+     */
+    @Override
+    public String createNamedParam() {
+        return getRootQuery().createNamedParam();
+    }
+
     @Override
     public T select() {
         return getRootQuery().queueValueSelected(this);

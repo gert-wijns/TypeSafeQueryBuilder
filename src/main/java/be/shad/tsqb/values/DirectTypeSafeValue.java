@@ -15,6 +15,7 @@
  */
 package be.shad.tsqb.values;
 
+import be.shad.tsqb.param.QueryParameter;
 import be.shad.tsqb.query.TypeSafeQuery;
 
 /**
@@ -22,11 +23,13 @@ import be.shad.tsqb.query.TypeSafeQuery;
  * This value is added as param to the query.
  */
 public class DirectTypeSafeValue<T> extends TypeSafeValueImpl<T> {
+    private final String parameterName;
     private T value;
     
     @SuppressWarnings("unchecked")
     public DirectTypeSafeValue(TypeSafeQuery query, T value) {
         super(query, (Class<T>) value.getClass());
+        this.parameterName = this.query.createNamedParam();
         this.value = value;
     }
 
@@ -40,7 +43,7 @@ public class DirectTypeSafeValue<T> extends TypeSafeValueImpl<T> {
 
     @Override
     public HqlQueryValueImpl toHqlQueryValue() {
-        return new HqlQueryValueImpl("?", value);
+        return new HqlQueryValueImpl(":" + parameterName, new QueryParameter(parameterName, value));
     }
 
 }

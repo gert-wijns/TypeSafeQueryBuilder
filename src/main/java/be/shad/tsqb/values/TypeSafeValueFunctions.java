@@ -38,7 +38,7 @@ public class TypeSafeValueFunctions {
     }
 
     public TypeSafeValue<Long> count() {
-        return new CustomTypeSafeValue<>(query, Long.class, "count(*)", null);
+        return new CustomTypeSafeValue<>(query, Long.class, "count(*)");
     }
     
     public <VAL> TypeSafeValue<Long> countDistinct(VAL val) {

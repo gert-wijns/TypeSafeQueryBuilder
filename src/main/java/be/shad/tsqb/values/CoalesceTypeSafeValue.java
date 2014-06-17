@@ -18,6 +18,7 @@ package be.shad.tsqb.values;
 import java.util.LinkedList;
 import java.util.List;
 
+import be.shad.tsqb.param.QueryParameter;
 import be.shad.tsqb.query.TypeSafeQuery;
 import be.shad.tsqb.query.TypeSafeQueryScopeValidator;
 
@@ -44,7 +45,7 @@ public class CoalesceTypeSafeValue<T> extends TypeSafeValueImpl<T> implements Ty
     @Override
     public HqlQueryValue toHqlQueryValue() {
         StringBuilder coalesce = new StringBuilder();
-        List<Object> params = new LinkedList<>();
+        List<QueryParameter> params = new LinkedList<>();
         for(TypeSafeValue<T> value: values) {
             if( coalesce.length() > 0 ) {
                 coalesce.append(",");
@@ -53,7 +54,7 @@ public class CoalesceTypeSafeValue<T> extends TypeSafeValueImpl<T> implements Ty
             }
             HqlQueryValue valueHql = value.toHqlQueryValue();
             coalesce.append(valueHql.getHql());
-            for(Object param: valueHql.getParams()) {
+            for(QueryParameter param: valueHql.getParams()) {
                 params.add(param);
             }
         }

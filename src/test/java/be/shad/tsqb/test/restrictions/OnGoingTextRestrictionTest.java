@@ -27,35 +27,35 @@ public class OnGoingTextRestrictionTest extends TypeSafeQueryTest {
     public void likeValueTest() {
         Person person = query.from(Person.class);
         query.where(person.getName()).like(new DirectTypeSafeValue<String>(query, "Jos%h"));
-        validate(" from Person hobj1 where hobj1.name like ?", "Jos%h");
+        validate(" from Person hobj1 where hobj1.name like :np1", "Jos%h");
     }
 
     @Test
     public void containsTest() {
         Person person = query.from(Person.class);
         query.where(person.getName()).contains("isto"); // Kristof, Christophe, ...
-        validate(" from Person hobj1 where hobj1.name like ?", "%isto%");
+        validate(" from Person hobj1 where hobj1.name like :np1", "%isto%");
     }
 
     @Test
     public void startsWithTest() {
         Person person = query.from(Person.class);
         query.where(person.getName()).startsWith("Kris");
-        validate(" from Person hobj1 where hobj1.name like ?", "Kris%");
+        validate(" from Person hobj1 where hobj1.name like :np1", "Kris%");
     }
     
     @Test
     public void endsWithTest() {
         Person person = query.from(Person.class);
         query.where(person.getName()).endsWith("e");
-        validate(" from Person hobj1 where hobj1.name like ?", "%e");
+        validate(" from Person hobj1 where hobj1.name like :np1", "%e");
     }
 
     @Test
     public void startsWithOrStartsWithTest() {
         Person person = query.from(Person.class);
         query.where(person.getName()).startsWith("Jos").or().startsWith("Kris");
-        validate(" from Person hobj1 where hobj1.name like ? or hobj1.name like ?", "Jos%", "Kris%");
+        validate(" from Person hobj1 where hobj1.name like :np1 or hobj1.name like :np2", "Jos%", "Kris%");
     }
     
 }

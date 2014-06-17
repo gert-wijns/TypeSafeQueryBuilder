@@ -38,6 +38,7 @@ import org.hibernate.type.Type;
 
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.data.TypeSafeQuerySelectionProxyData;
+import be.shad.tsqb.param.QueryParameter;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
 import be.shad.tsqb.proxy.TypeSafeQueryProxyFactory;
 import be.shad.tsqb.proxy.TypeSafeQueryProxyType;
@@ -303,8 +304,23 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
     public HqlQueryValue replaceParamsWithLiterals(HqlQueryValue value) {
         if( value.getParams().length > 0 ) {
             String hql = value.getHql();
-            for(Object param: value.getParams()) {
-                hql = hql.replaceFirst("\\?", toLiteral(param));
+            for(QueryParameter param: value.getParams()) {
+                String name = param.getName();
+                String literal = null;
+                if (param.getValue() instanceof Collection) {
+                    Collection<?> collection = (Collection<?>) param.getValue();
+                    StringBuilder sb = new StringBuilder("(");
+                    for(Object val: collection) {
+                        if( sb.length() > 1 ) {
+                            sb.append(", ");
+                        }
+                        sb.append(toLiteral(val));
+                    }
+                    sb.append(")");
+                } else {
+                    literal = toLiteral(param.getValue());
+                }
+                hql = hql.replaceFirst(":" + name, literal);
             }
             value = new HqlQueryValueImpl(hql);
         }

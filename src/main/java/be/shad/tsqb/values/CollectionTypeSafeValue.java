@@ -15,8 +15,11 @@
  */
 package be.shad.tsqb.values;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
+import be.shad.tsqb.param.QueryParameter;
 import be.shad.tsqb.query.TypeSafeQuery;
 
 /**
@@ -24,11 +27,13 @@ import be.shad.tsqb.query.TypeSafeQuery;
  * These values are added to the query as params.
  */
 public class CollectionTypeSafeValue<T> extends TypeSafeValueImpl<T> {
-    private Object[] values;
+    private final String parameterName;
+    private List<T> values;
     
     public CollectionTypeSafeValue(TypeSafeQuery query, Collection<T> value) {
         super(query, null);
         setValues(value);
+        this.parameterName = this.query.createNamedParam();
     }
 
     /**
@@ -47,20 +52,12 @@ public class CollectionTypeSafeValue<T> extends TypeSafeValueImpl<T> {
                         + "collection is not allowed. Collection: %s.", values));
             }
         }
-        this.values = values.toArray();
+        this.values = new ArrayList<>(values);
     }
 
     @Override
     public HqlQueryValueImpl toHqlQueryValue() {
-        StringBuilder sb = new StringBuilder("(");
-        for(int i=0; i < values.length; i++) {
-            if( sb.length() > 1 ) {
-                sb.append(", ");
-            }
-            sb.append("?");
-        }
-        sb.append(")");
-        return new HqlQueryValueImpl(sb.toString(), values);
+        return new HqlQueryValueImpl(":" + parameterName, new QueryParameter(parameterName, values));
     }
 
 }

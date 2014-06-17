@@ -330,8 +330,8 @@ public class SelectTests extends TypeSafeQueryTest {
         
         validate("select hobj1.id as left, hobj2.propertyValue as middle, hobj3.propertyValue as right "
                 + "from Person hobj1 "
-                + "join hobj1.properties hobj2 with hobj2.propertyKey = ? "
-                + "join hobj1.properties hobj3 with hobj3.propertyKey = ?",
+                + "join hobj1.properties hobj2 with hobj2.propertyKey = :np1 "
+                + "join hobj1.properties hobj3 with hobj3.propertyKey = :np2",
                 "FavoriteColor", "FavoriteDish");
     }
     

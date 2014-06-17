@@ -26,14 +26,14 @@ public class OnGoingBooleanRestrictionTest extends TypeSafeQueryTest {
     public void testIsFalse() {
         Person person = query.from(Person.class);
         query.where(person.isMarried()).isFalse();
-        validate(" from Person hobj1 where hobj1.married = ?", Boolean.FALSE);
+        validate(" from Person hobj1 where hobj1.married = :np1", Boolean.FALSE);
     }
 
     @Test
     public void testIsTrue() {
         Person person = query.from(Person.class);
         query.where(person.isMarried()).isTrue();
-        validate(" from Person hobj1 where hobj1.married = ?", Boolean.TRUE);
+        validate(" from Person hobj1 where hobj1.married = :np1", Boolean.TRUE);
     }
     
 }

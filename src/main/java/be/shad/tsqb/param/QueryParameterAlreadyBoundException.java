@@ -13,21 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.shad.tsqb.values;
+package be.shad.tsqb.param;
 
-import be.shad.tsqb.param.QueryParameter;
+public class QueryParameterAlreadyBoundException extends RuntimeException {
+    private static final long serialVersionUID = -3026588720898823281L;
 
+    public QueryParameterAlreadyBoundException(String message) {
+        super(message);
+    }
 
-public interface HqlQueryValue {
-
-    /**
-     * The hql to append to an hqlQuery.
-     */
-    String getHql();
-    
-    /**
-     * The params to append to an hqlQuery.
-     */
-    QueryParameter[] getParams();
-    
 }

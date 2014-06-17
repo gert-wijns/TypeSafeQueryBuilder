@@ -15,10 +15,10 @@
  */
 package be.shad.tsqb.hql;
 
-import java.util.LinkedList;
-
 import org.hibernate.transform.ResultTransformer;
 
+import be.shad.tsqb.param.QueryParameter;
+import be.shad.tsqb.param.QueryParameters;
 import be.shad.tsqb.values.HqlQueryValue;
 
 public class HqlQuery implements HqlQueryValue {
@@ -27,7 +27,7 @@ public class HqlQuery implements HqlQueryValue {
     private StringBuilder where = new StringBuilder();
     private StringBuilder groupBy = new StringBuilder();
     private StringBuilder orderBy = new StringBuilder();
-    private LinkedList<Object> params = new LinkedList<>();
+    private QueryParameters queryParameters = new QueryParameters();
     private ResultTransformer resultTransformer;
 
     public ResultTransformer getResultTransformer() {
@@ -38,6 +38,11 @@ public class HqlQuery implements HqlQueryValue {
         this.resultTransformer = resultTransformer;
     }
 
+    @Override
+    public QueryParameter[] getParams() {
+        return queryParameters.getParams();
+    }
+    
     public String getSelect() {
         if( select.length() > 0 ) {
             return "select " + select.toString();
@@ -105,20 +110,10 @@ public class HqlQuery implements HqlQueryValue {
         orderBy.append(orderByPart);
     }
 
-    public Object[] getParams() {
-        return params.toArray();
+    public void addParams(QueryParameter[] params) {
+        queryParameters.addParams(params);
     }
 
-    public void addParam(Object param) {
-        params.add(param);
-    }
-
-    public void addParams(Object[] params) {
-        for(Object param: params) {
-            this.params.add(param);
-        }
-    }
-    
     public String getHql() {
         return getSelect() + getFrom() + getWhere() + getGroupBy() + getOrderBy();
     }
@@ -151,12 +146,25 @@ public class HqlQuery implements HqlQueryValue {
                 depth--;
             }
         }
-        return format + "\n --- with params: " + params;
+        return format + "\n --- with params: " + queryParameters;
+    }
+
+    public String toFormattedStringPlus() {
+        String formatted = toFormattedStringSub(getHql());
+        return formatted + "\n --- with params: " + queryParameters;
+    }
+    
+    public String toFormattedStringSub(String hql) {
+        StringBuilder format = new StringBuilder();
+        for(int i=0; i < hql.length(); i++) {
+            
+        }
+        return format.toString();
     }
     
     @Override
     public String toString() {
-        return getHql() + " --- with params: " + params;
+        return getHql() + " --- with params: " + queryParameters;
     }
     
 }

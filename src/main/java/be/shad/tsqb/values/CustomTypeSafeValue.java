@@ -15,8 +15,10 @@
  */
 package be.shad.tsqb.values;
 
+import java.util.Collections;
 import java.util.List;
 
+import be.shad.tsqb.param.QueryParameter;
 import be.shad.tsqb.query.TypeSafeQuery;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 
@@ -27,8 +29,12 @@ import be.shad.tsqb.query.TypeSafeQueryInternal;
 public class CustomTypeSafeValue<T> extends TypeSafeValueImpl<T> {
     private final HqlQueryValue value;
 
+    public CustomTypeSafeValue(TypeSafeQuery query, Class<T> valueType, String hql) {
+        this(query, valueType, hql, Collections.<QueryParameter>emptyList());
+    }
+    
     public CustomTypeSafeValue(TypeSafeQuery query, Class<T> valueType, 
-            String hql, List<Object> params) {
+            String hql, List<QueryParameter> params) {
         this(query, valueType, new HqlQueryValueImpl(hql, params));
     }
 
