@@ -41,7 +41,7 @@ class TypeSafeQueryScopeValidatorImpl implements TypeSafeQueryScopeValidator {
         }
         if( value instanceof TypeSafeQueryInternal ) {
             TypeSafeQueryInternal valueQuery = (TypeSafeQueryInternal) value;
-            if( valueQuery.getParentQuery() != query) {
+            if( valueQuery.getParentQuery() != query && value != query) {
                 throw new ValueNotInScopeException(
                         "Subqueries may only be used as direct child of their parent."
                         + query.getRootQuery().toString());

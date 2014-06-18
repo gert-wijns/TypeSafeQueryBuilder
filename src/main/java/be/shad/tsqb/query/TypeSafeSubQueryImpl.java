@@ -20,6 +20,7 @@ import java.util.List;
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.helper.TypeSafeQueryHelper;
 import be.shad.tsqb.hql.HqlQuery;
+import be.shad.tsqb.values.CaseTypeSafeValue;
 import be.shad.tsqb.values.HqlQueryValue;
 import be.shad.tsqb.values.HqlQueryValueImpl;
 import be.shad.tsqb.values.TypeSafeValue;
@@ -144,6 +145,28 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
     @Override
     public <V> V getProxyByCustomEntityAlias(String alias) {
         return getRootQuery().getProxyByCustomEntityAlias(alias);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean selectExists() {
+        CaseTypeSafeValue<Boolean> caseValue = new CaseTypeSafeValue<Boolean>(this, Boolean.class);
+        caseValue.is(Boolean.TRUE).whenExists(this);
+        caseValue.is(Boolean.FALSE).otherwise();
+        return caseValue.select();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean selectNotExists() {
+        CaseTypeSafeValue<Boolean> caseValue = new CaseTypeSafeValue<Boolean>(this, Boolean.class);
+        caseValue.is(Boolean.FALSE).whenExists(this);
+        caseValue.is(Boolean.TRUE).otherwise();
+        return caseValue.select();
     }
     
 }

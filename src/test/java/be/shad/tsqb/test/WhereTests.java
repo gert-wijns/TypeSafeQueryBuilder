@@ -79,6 +79,20 @@ public class WhereTests extends TypeSafeQueryTest {
     }
 
     @Test
+    public void selectSubQueryExists() {
+        House house = query.from(House.class);
+        
+        TypeSafeSubQuery<Style> houseSQ = query.subquery(Style.class);
+        House houseSQV = houseSQ.from(House.class);
+        houseSQ.where(houseSQV.getName()).eq(house.getName()).
+                  and(houseSQV.getId()).not(house.getId());
+        
+        query.selectValue(houseSQ.selectExists());
+
+        validate("select (case when (exists ( from House hobj2 where hobj2.name = hobj1.name and hobj2.id <> hobj1.id)) then true else false end) from House hobj1");
+    }
+    
+    @Test
     public void whereGroupMultiOrTest() {
         House house = query.from(House.class);
         

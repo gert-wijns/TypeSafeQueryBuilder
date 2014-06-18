@@ -25,6 +25,20 @@ import be.shad.tsqb.values.TypeSafeValue;
 public interface TypeSafeSubQuery<T> extends TypeSafeValue<T>, TypeSafeQuery {
     
     /**
+     * Creates a type safe value which will check for exists.
+     * <p>
+     * Wraps the query in a case when(exists...) then true else false.
+     */
+    boolean selectExists();
+    
+    /**
+     * Creates a type safe value which will check for not exists.
+     * <p>
+     * Wraps the query in a case when(exists...) then false else true.
+     */
+    boolean selectNotExists();
+    
+    /**
      * Set the value to select.
      * <p>
      * Converts the value to a TypeSafeValue and delegates to {@link #select(TypeSafeValue)}.
