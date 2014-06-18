@@ -138,8 +138,8 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
      * Delegate to root.
      */
     @Override
-    public void bindAlias(QueryParameter<?> param, String alias) {
-        getRootQuery().bindAlias(param, alias);
+    public void setAlias(QueryParameter<?> param, String alias) {
+        getRootQuery().setAlias(param, alias);
     }
 
     /**

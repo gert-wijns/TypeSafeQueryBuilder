@@ -15,10 +15,19 @@
  */
 package be.shad.tsqb.param;
 
+
 public interface QueryParameterSingle<T> extends QueryParameter<T> {
 
+    /**
+     * The currently set value, may be updated by setValue.
+     * Must not be null before the query is transformed to hql.
+     */
     T getValue();
-    
-    void setValue(T value);
+
+    /**
+     * Sets the value of this parameter, the value will have to be null or it
+     * must be assignable from the value class.
+     */
+    void setValue(T object);
     
 }

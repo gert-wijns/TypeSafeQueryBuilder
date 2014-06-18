@@ -30,33 +30,58 @@ public final class QueryParameterCollectionImpl<T> implements QueryParameterColl
         this.name = queryAlias;
         this.valueClass = valueClass;
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public String getName() {
         return name;
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getAlias() {
         return alias;
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void setAlias(String alias) {
         this.alias = alias;
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Class<T> getValueClass() {
         return valueClass;
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Collection<T> getValues() {
         return values;
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isCollectionRepresentative() {
         return true;
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setValue(T object) {
         if (object != null) {
@@ -66,6 +91,9 @@ public final class QueryParameterCollectionImpl<T> implements QueryParameterColl
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public <ST extends T> void setValue(Collection<ST> values) {
         if (values != null) {

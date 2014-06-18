@@ -15,13 +15,12 @@
  */
 package be.shad.tsqb.param;
 
-import java.util.Collection;
 
 
 public class QueryParameterSingleImpl<T> implements QueryParameterSingle<T> {
     private final String name;
     private final Class<T> valueClass;
-    private String userAlias;
+    private String alias;
     private T value;
     
     public QueryParameterSingleImpl(String name, 
@@ -30,37 +29,58 @@ public class QueryParameterSingleImpl<T> implements QueryParameterSingle<T> {
         this.valueClass = valueClass;
         this.value = value;
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isCollectionRepresentative() {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getName() {
         return name;
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getAlias() {
-        return userAlias;
+        return alias;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void setAlias(String userAlias) {
-        this.userAlias = userAlias;
+    public void setAlias(String alias) {
+        this.alias = alias;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Class<T> getValueClass() {
         return valueClass;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public T getValue() {
         return value;
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setValue(T value) {
         if (value != null && !valueClass.isAssignableFrom(value.getClass())) {
@@ -68,12 +88,6 @@ public class QueryParameterSingleImpl<T> implements QueryParameterSingle<T> {
                     + "[%s] but was of type [%s].", valueClass, value.getClass()));
         }
         this.value = value;
-    }
-
-    @Override
-    public <ST extends T> void setValue(Collection<ST> values) {
-        throw new IllegalArgumentException("Cannot set a collection. "
-                + "This is not a collection representative.");
     }
     
     @Override
@@ -103,7 +117,7 @@ public class QueryParameterSingleImpl<T> implements QueryParameterSingle<T> {
     
     @Override
     public String toString() {
-        return String.format("PARAM [%s, %s]", name, value);
+        return String.format("PARAM [%s, %s, %s]", name, alias, value);
     }
 
 }

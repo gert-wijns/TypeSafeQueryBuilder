@@ -18,6 +18,7 @@ package be.shad.tsqb.restrictions.named;
 import java.util.Collection;
 
 import be.shad.tsqb.param.QueryParameter;
+import be.shad.tsqb.param.QueryParameters;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.restrictions.ContinuedOnGoingRestriction;
 import be.shad.tsqb.restrictions.OnGoingRestriction;
@@ -40,21 +41,30 @@ public class NamedParameterBinderImpl<VAL, CONTINUED extends
         this.query = query;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public CONTINUED named(String alias) {
-        query.bindAlias(parameter, alias);
+        query.setAlias(parameter, alias);
         return chainable;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public CONTINUED named(String alias, VAL value) {
-        parameter.setValue(value);
+        QueryParameters.setValue(parameter, value);
         return named(alias);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public <T extends VAL> CONTINUED named(String alias, Collection<T> value) {
-        parameter.setValue(value);
+        QueryParameters.setValue(parameter, value);
         return named(alias);
     }
     

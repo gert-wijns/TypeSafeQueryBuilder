@@ -134,6 +134,7 @@ public interface TypeSafeQuery extends WhereRestrictions {
      * This must be done separately.
      */
     RestrictionsGroup whereGroup();
+    
     /**
      * Get the orderBy, allowing to add descending and ascending order bys.
      */

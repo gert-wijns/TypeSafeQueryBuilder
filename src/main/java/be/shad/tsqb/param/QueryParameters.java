@@ -26,8 +26,8 @@ import be.shad.tsqb.exceptions.QueryParameterAlreadyBoundException;
  * case the named parameter was already bound.
  */
 public class QueryParameters {
-    private Map<String, QueryParameter<?>> paramsByQyeryAlias = new HashMap<>();
-    private Map<String, QueryParameter<?>> paramsByUserAlias = new HashMap<>();
+    private Map<String, QueryParameter<?>> paramsByNames = new HashMap<>();
+    private Map<String, QueryParameter<?>> paramsByAliases = new HashMap<>();
     
     public void addParams(Collection<QueryParameter<?>> params) {
         if (params != null) {
@@ -38,11 +38,11 @@ public class QueryParameters {
     }
 
     public Collection<QueryParameter<?>> getParams() {
-        return paramsByQyeryAlias.values();
+        return paramsByNames.values();
     }
     
     public void addParam(QueryParameter<?> param) {
-        QueryParameter<?> previous = this.paramsByQyeryAlias.put(
+        QueryParameter<?> previous = this.paramsByNames.put(
                 param.getName(), param);
         if (previous != null) {
             throw new QueryParameterAlreadyBoundException(String.format(
@@ -50,16 +50,16 @@ public class QueryParameters {
                     param));
         }
         if (param.getAlias() != null) {
-            setUserAlias(param, param.getAlias());
+            setAlias(param, param.getAlias());
         }
     }
 
-    public void setUserAlias(QueryParameter<?> param, String userAlias) {
+    public void setAlias(QueryParameter<?> param, String userAlias) {
         if (param.getAlias() != null) {
-            paramsByUserAlias.remove(userAlias);
+            paramsByAliases.remove(userAlias);
         }
         param.setAlias(userAlias);
-        QueryParameter<?> previous = paramsByUserAlias.put(userAlias, param);
+        QueryParameter<?> previous = paramsByAliases.put(userAlias, param);
         if (previous != null) {
             throw new QueryParameterAlreadyBoundException(String.format(
                     "Parameter with user alias [%s] is already bound.", 
@@ -68,7 +68,25 @@ public class QueryParameters {
     }
 
     public QueryParameter<?> getParamForAlias(String paramAlias) {
-        return paramsByUserAlias.get(paramAlias);
+        return paramsByAliases.get(paramAlias);
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public static final void setValue(QueryParameter<?> param, Object value) {
+        if (param instanceof QueryParameterCollection<?>) {
+            QueryParameterCollection collectionParam = (QueryParameterCollection) param;
+            if (value instanceof Collection<?>) {
+                collectionParam.setValue((Collection) value);
+            } else {
+                collectionParam.setValue(value);
+            }
+        } else {
+            if (param instanceof Collection<?>) {
+                throw new IllegalArgumentException(String.format("Can't set "
+                        + "a collection on parameter [%s]", param));
+            }
+            ((QueryParameterSingle) param).setValue(value);
+        }
     }
     
 }

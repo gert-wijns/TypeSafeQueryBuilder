@@ -15,11 +15,14 @@
  */
 package be.shad.tsqb.param;
 
-import java.util.Collection;
 
 
 public interface QueryParameter<T> {
     
+    /**
+     * The class which must be assignable from all/any 
+     * value(s) set on this parameter.
+     */
     Class<T> getValueClass();
     
     /**
@@ -43,33 +46,6 @@ public interface QueryParameter<T> {
      * when binding the parameter to the session query object.
      */
     String getName();
-    
-    /**
-     * Sets the value of this parameter, the value will have to be null or it
-     * must be assignable from the value class.
-     * <p>
-     * If this parameter is a collection representative, the value will be wrapped 
-     * in a collection and delegated to {@link #setValue(Collection)}.
-     */
-    void setValue(T object);
-
-    /**
-     * Sets the collection value of this parameter, 
-     * the collection will have to be null or the elements in 
-     * the collection will have to be assignable from the value class.
-     * The collection will be validated:
-     * <ul>
-     * <li>Null is allowed as collection value. Though presense of a value will be
-     *     checked when the query is transformed to HQL.</li>
-     * <li>When a collection is set, all of its elements must be assignable from the value class.</li>
-     * <li>Elements must not be null.</li>
-     * <li>When a collection is set, it must not be empty. A defensive copy is taken, 
-     *     so adding elements to a referenced list will not work.</li>
-     * </ul>
-     * 
-     * @throws IllegalArgumentException when {@link #isCollectionRepresentative()} is false.
-     */
-    <ST extends T> void setValue(Collection<ST> collection);
     
     /**
      * Whether this parameter represents a collection.

@@ -15,7 +15,6 @@
  */
 package be.shad.tsqb.query;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -200,8 +199,8 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
      * {@inheritDoc}
      */
     @Override
-    public void bindAlias(QueryParameter<?> param, String alias) {
-        queryParameters.setUserAlias(param, alias);
+    public void setAlias(QueryParameter<?> param, String alias) {
+        queryParameters.setAlias(param, alias);
     }
 
     /**
@@ -318,20 +317,14 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
      * {@inheritDoc}
      */
     @Override
-    @SuppressWarnings("unchecked")
     public void namedValue(String alias, Object value) {
-        @SuppressWarnings("rawtypes")
-        QueryParameter param = queryParameters.getParamForAlias(alias);
+        QueryParameter<?> param = queryParameters.getParamForAlias(alias);
         if (param == null) {
             throw new IllegalArgumentException(String.format(
                     "Attempting to set value for parameter with alias [%s]. "
                     + "But no parameter exists with this alias.", alias));
         }
-        if (value instanceof Collection<?>) {
-            param.setValue((Collection<?>) value);
-        } else {
-            param.setValue(value);
-        }
+        QueryParameters.setValue(param, value);
     }
 
 }

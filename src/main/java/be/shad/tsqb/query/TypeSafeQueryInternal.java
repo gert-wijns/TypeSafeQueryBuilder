@@ -72,14 +72,15 @@ public interface TypeSafeQueryInternal extends TypeSafeQuery {
     String createEntityAlias();
     
     /**
-     * Binds a parameter to a custom user name.
-     * <p>
-     * It makes it available for setParam(name, value) on TypeSafeQuery
+     * Sets the alias of the parameter parameter.
+     * The parameter can now be used with {@link #namedValue(String, Object)}.
      */
-    void bindAlias(QueryParameter<?> param, String name);
+    void setAlias(QueryParameter<?> param, String name);
     
     /**
      * Generates a new named param for one value.
+     * <p>
+     * In case the valueClass is String, a string specific param is created.
      */
     <T> QueryParameterSingle<T> createSingleNamedParam(Class<T> valueClass);
 
