@@ -13,8 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.shad.tsqb.domain;
+package be.shad.tsqb.param;
 
-public enum Style {
-    the1980s, the1990s
+import java.util.Collection;
+
+public interface QueryParameterCollection<T> extends QueryParameter<T> {
+
+    Collection<T> getValues();
+    
 }

@@ -218,4 +218,15 @@ public interface TypeSafeQuery extends WhereRestrictions {
      */
     <T> T getProxyByCustomEntityAlias(String alias);
     
+    /**
+     * Sets the value of a named parameter.
+     * The value will be checked with the value type required
+     * by the named param, unless it is null.
+     * <p>
+     * paramAlias can be set by using where(entity.getName()).eq().named("paramAlias");
+     * 
+     * @param paramAlias must be one which was set before calling this method
+     */
+    void namedValue(String paramAlias, Object value);
+    
 }

@@ -15,6 +15,7 @@
  */
 package be.shad.tsqb.restrictions;
 
+import be.shad.tsqb.restrictions.named.SingleNamedParameterBinder;
 import be.shad.tsqb.values.TypeSafeValue;
 
 /**
@@ -22,6 +23,21 @@ import be.shad.tsqb.values.TypeSafeValue;
  */
 public interface OnGoingTextRestriction extends OnGoingRestriction<String, ContinuedOnGoingTextRestriction, OnGoingTextRestriction> {
 
+    /**
+     * @return binder with a method to set an alias for the parameter
+     */
+    SingleNamedParameterBinder<String, ContinuedOnGoingTextRestriction, OnGoingTextRestriction> endsWith();
+
+    /**
+     * @return binder with a method to set an alias for the parameter
+     */
+    SingleNamedParameterBinder<String, ContinuedOnGoingTextRestriction, OnGoingTextRestriction> startsWith();
+
+    /**
+     * @return binder with a method to set an alias for the parameter
+     */
+    SingleNamedParameterBinder<String, ContinuedOnGoingTextRestriction, OnGoingTextRestriction> contains();
+    
     /**
      * Generates: left like ? with (? = '%value')
      */

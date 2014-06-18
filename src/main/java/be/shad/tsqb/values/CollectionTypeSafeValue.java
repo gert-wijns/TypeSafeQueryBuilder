@@ -15,49 +15,51 @@
  */
 package be.shad.tsqb.values;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
-import be.shad.tsqb.param.QueryParameter;
+import be.shad.tsqb.param.QueryParameterCollection;
 import be.shad.tsqb.query.TypeSafeQuery;
+import be.shad.tsqb.query.TypeSafeQueryInternal;
 
 /**
  * The value is a collection of actual values, not proxies or property paths.
  * These values are added to the query as params.
  */
 public class CollectionTypeSafeValue<T> extends TypeSafeValueImpl<T> {
-    private final String parameterName;
-    private List<T> values;
+    private final QueryParameterCollection<T> parameter;
     
-    public CollectionTypeSafeValue(TypeSafeQuery query, Collection<T> value) {
-        super(query, null);
+    public CollectionTypeSafeValue(TypeSafeQuery query, Class<T> valueClass, Collection<T> value) {
+        this(query, ((TypeSafeQueryInternal) query).createCollectionNamedParam(valueClass));
         setValues(value);
-        this.parameterName = this.query.createNamedParam();
+    }
+    
+    public CollectionTypeSafeValue(TypeSafeQuery query, Class<T> valueClass) {
+        this(query, ((TypeSafeQueryInternal) query).createCollectionNamedParam(valueClass));
+    }
+
+    public CollectionTypeSafeValue(TypeSafeQuery query, QueryParameterCollection<T> parameter) {
+        super(query, parameter.getValueClass());
+        this.parameter = parameter;
+    }
+    
+    public QueryParameterCollection<T> getParameter() {
+        return parameter;
     }
 
     /**
      * Validate the values are not null or empty.
      */
     public void setValues(Collection<T> values) {
-        if (values == null) {
-            throw new IllegalArgumentException("Value may not be null.");
-        }
-        if (values.isEmpty()) {
-            throw new IllegalArgumentException("Value may not be empty.");
-        }
-        for(T value: values) {
-            if(value == null) {
-                throw new IllegalArgumentException(String.format("Null value in "
-                        + "collection is not allowed. Collection: %s.", values));
-            }
-        }
-        this.values = new ArrayList<>(values);
+        parameter.setValue(values);
     }
 
     @Override
     public HqlQueryValueImpl toHqlQueryValue() {
-        return new HqlQueryValueImpl(":" + parameterName, new QueryParameter(parameterName, values));
+        if (parameter.getValues() == null) {
+            throw new IllegalStateException("The value must be set before calling toHqlQueryValue. "
+                    + "This was not the case for parameter: " + parameter);
+        }
+        return new HqlQueryValueImpl(":" + parameter.getName(), parameter);
     }
 
 }

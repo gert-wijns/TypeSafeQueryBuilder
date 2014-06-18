@@ -15,6 +15,7 @@
  */
 package be.shad.tsqb.query;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -22,6 +23,13 @@ import java.util.Map;
 
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.helper.TypeSafeQueryHelper;
+import be.shad.tsqb.param.QueryParameter;
+import be.shad.tsqb.param.QueryParameterCollection;
+import be.shad.tsqb.param.QueryParameterCollectionImpl;
+import be.shad.tsqb.param.QueryParameterSingle;
+import be.shad.tsqb.param.QueryParameterSingleImpl;
+import be.shad.tsqb.param.QueryParameterStringImpl;
+import be.shad.tsqb.param.QueryParameters;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
 import be.shad.tsqb.selection.SelectionValueTransformer;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroup;
@@ -44,6 +52,7 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     private Map<String, TypeSafeQueryProxy> customAliasedProxies = new HashMap<>();
     private TypeSafeValue<?> lastSelectedValue;
     private String lastInvokedProjectionPath;
+    private QueryParameters queryParameters = new QueryParameters();
     private int entityAliasCount = 1;
     private int namedParamCount = 1;
     private int selectionGroupAliasCount = 1;
@@ -160,8 +169,39 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
      * {@inheritDoc}
      */
     @Override
-    public String createNamedParam() {
+    public <T> QueryParameterCollection<T> createCollectionNamedParam(Class<T> valueClass) {
+        return putNamedParam(new QueryParameterCollectionImpl<T>(createNamedParam(), valueClass, null));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <T> QueryParameterSingle<T> createSingleNamedParam(Class<T> valueClass) {
+        if (valueClass == String.class) {
+            @SuppressWarnings({ "rawtypes", "unchecked" }) // just checked if T == string, so these warnings can be suppressed
+            QueryParameterSingle<T> param = (QueryParameterSingle) new QueryParameterStringImpl(createNamedParam(), null);
+            return putNamedParam(param);
+        } else {
+            return putNamedParam(new QueryParameterSingleImpl<T>(createNamedParam(), valueClass, null));
+        }
+    }
+    
+    private <T extends QueryParameter<?>> T putNamedParam(T param) {
+        queryParameters.addParam(param);
+        return param;
+    }
+    
+    private String createNamedParam() {
         return "np"+ namedParamCount++;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void bindAlias(QueryParameter<?> param, String alias) {
+        queryParameters.setUserAlias(param, alias);
     }
 
     /**
@@ -272,6 +312,26 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public <T, A, B, C> SelectTriplet<A, B, C> selectParallel(T resultDto, ParallelSelectionMerger3<T, A, B, C> merger) {
         return selectParallel(resultDto, SelectTriplet.class, (ParallelSelectionMerger) merger);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public void namedValue(String alias, Object value) {
+        @SuppressWarnings("rawtypes")
+        QueryParameter param = queryParameters.getParamForAlias(alias);
+        if (param == null) {
+            throw new IllegalArgumentException(String.format(
+                    "Attempting to set value for parameter with alias [%s]. "
+                    + "But no parameter exists with this alias.", alias));
+        }
+        if (value instanceof Collection<?>) {
+            param.setValue((Collection<?>) value);
+        } else {
+            param.setValue(value);
+        }
     }
 
 }

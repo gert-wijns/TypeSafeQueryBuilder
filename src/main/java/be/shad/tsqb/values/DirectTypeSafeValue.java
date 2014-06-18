@@ -15,35 +15,51 @@
  */
 package be.shad.tsqb.values;
 
-import be.shad.tsqb.param.QueryParameter;
+import be.shad.tsqb.param.QueryParameterSingle;
 import be.shad.tsqb.query.TypeSafeQuery;
+import be.shad.tsqb.query.TypeSafeQueryInternal;
 
 /**
  * The value is an actual value, not a proxy or property path.
  * This value is added as param to the query.
  */
 public class DirectTypeSafeValue<T> extends TypeSafeValueImpl<T> {
-    private final String parameterName;
-    private T value;
+    private final QueryParameterSingle<T> parameter;
     
     @SuppressWarnings("unchecked")
     public DirectTypeSafeValue(TypeSafeQuery query, T value) {
-        super(query, (Class<T>) value.getClass());
-        this.parameterName = this.query.createNamedParam();
-        this.value = value;
+        this(query, ((TypeSafeQueryInternal) query).createSingleNamedParam((Class<T>) value.getClass()));
+        setValue(value);
+    }
+    
+    public DirectTypeSafeValue(TypeSafeQuery query, Class<T> valueClass) {
+        this(query, ((TypeSafeQueryInternal) query).createSingleNamedParam(valueClass));
+    }
+
+    public DirectTypeSafeValue(TypeSafeQuery query, QueryParameterSingle<T> parameter) {
+        super(query, parameter.getValueClass());
+        this.parameter = parameter;
+    }
+    
+    public QueryParameterSingle<T> getParameter() {
+        return parameter;
     }
 
     public T getValue() {
-        return value;
+        return parameter.getValue();
     }
 
     public void setValue(T value) {
-        this.value = value;
+        parameter.setValue(value);
     }
 
     @Override
     public HqlQueryValueImpl toHqlQueryValue() {
-        return new HqlQueryValueImpl(":" + parameterName, new QueryParameter(parameterName, value));
+        if (parameter.getValue() == null) {
+            throw new IllegalStateException("The value must be set before calling toHqlQueryValue. "
+                    + "This was not the case for parameter: " + parameter);
+        }
+        return new HqlQueryValueImpl(":" + parameter.getName(), parameter);
     }
 
 }

@@ -26,8 +26,13 @@ import static be.shad.tsqb.restrictions.RestrictionNodeType.Or;
 
 import java.util.Collection;
 
+import be.shad.tsqb.param.QueryParameter;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
+import be.shad.tsqb.restrictions.named.CollectionNamedParameterBinder;
+import be.shad.tsqb.restrictions.named.NamedParameterBinderImpl;
+import be.shad.tsqb.restrictions.named.SingleNamedParameterBinder;
 import be.shad.tsqb.values.CollectionTypeSafeValue;
+import be.shad.tsqb.values.DirectTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
 
 /**
@@ -62,6 +67,11 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
     }
     
     /**
+     * The required value class, which will be checked in the type safe values later.
+     */
+    protected abstract Class<VAL> getSupportedValueClass();
+    
+    /**
      * Delegates to subclass to create the correct type.
      */
     protected abstract CONTINUED createContinuedOnGoingRestriction(
@@ -75,6 +85,12 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
             RestrictionNodeType restrictionNodeType, 
             TypeSafeValue<VAL> previousValue);
 
+    protected NamedParameterBinderImpl<VAL, CONTINUED, ORIGINAL> createNamedParameterBinder(
+            QueryParameter<VAL> queryParameter, CONTINUED next) {
+        return new NamedParameterBinderImpl<VAL, CONTINUED, ORIGINAL>(
+                group.getQuery(), queryParameter, next);
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -128,8 +144,10 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
      * {@inheritDoc}
      */
     @Override
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public <T extends VAL> CONTINUED in(Collection<T> values) {
-        return in(new CollectionTypeSafeValue<>(group.getQuery(), values));
+        // suppressing warnings because we know T is a kind of VAL, and we won't be changing the collection internally
+        return in(new CollectionTypeSafeValue<>(group.getQuery(), getSupportedValueClass(), (Collection) values));
     }
 
     /**
@@ -144,8 +162,10 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
      * {@inheritDoc}
      */
     @Override
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public <T extends VAL> CONTINUED notIn(Collection<T> values) {
-        return notIn(new CollectionTypeSafeValue<>(group.getQuery(), values));
+        // suppressing warnings because we know T is a kind of VAL, and we won't be changing the collection internally
+        return notIn(new CollectionTypeSafeValue<>(group.getQuery(), getSupportedValueClass(), (Collection) values));
     }
 
     /**
@@ -178,6 +198,56 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
     @Override
     public CONTINUED not(VAL value) {
         return not(toValue(value));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SingleNamedParameterBinder<VAL, CONTINUED, ORIGINAL> eq() {
+        DirectTypeSafeValue<VAL> value = createDirectValue();
+        return createNamedParameterBinder(value.getParameter(), eq(value));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SingleNamedParameterBinder<VAL, CONTINUED, ORIGINAL> not() {
+        DirectTypeSafeValue<VAL> value = createDirectValue();
+        return createNamedParameterBinder(value.getParameter(), not(value));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public CollectionNamedParameterBinder<VAL, CONTINUED, ORIGINAL> in() {
+        CollectionTypeSafeValue<VAL> value = createCollectionValue();
+        return createNamedParameterBinder(value.getParameter(), in(value));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public CollectionNamedParameterBinder<VAL, CONTINUED, ORIGINAL> notIn() {
+        CollectionTypeSafeValue<VAL> value = createCollectionValue();
+        return createNamedParameterBinder(value.getParameter(), notIn(value));
+    }
+    
+    /**
+     * Create a new unbound single value.
+     */
+    protected DirectTypeSafeValue<VAL> createDirectValue() {
+        return new DirectTypeSafeValue<>(group.getQuery(), getSupportedValueClass());
+    }
+
+    /**
+     * Create a new unbound collection value.
+     */
+    protected CollectionTypeSafeValue<VAL> createCollectionValue() {
+        return new CollectionTypeSafeValue<>(group.getQuery(), getSupportedValueClass());
     }
 
     /**

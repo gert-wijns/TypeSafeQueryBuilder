@@ -22,11 +22,21 @@ import be.shad.tsqb.test.TypeSafeQueryTest;
 import be.shad.tsqb.values.DirectTypeSafeValue;
 
 public class OnGoingNumberRestrictionTest extends TypeSafeQueryTest {
+    private String NAMED_PARAM_1 = "NAMED_PARAM_1";
 
     @Test
     public void testLt() {
         Person person = query.from(Person.class);
         query.where(person.getAge()).lt(40);
+        validate(" from Person hobj1 where hobj1.age < :np1", 40);
+    }
+
+    @Test
+    public void testLtNamed() {
+        Person person = query.from(Person.class);
+        query.where(person.getAge()).lt().named(NAMED_PARAM_1);
+        
+        query.namedValue(NAMED_PARAM_1, 40);
         validate(" from Person hobj1 where hobj1.age < :np1", 40);
     }
 
@@ -47,6 +57,16 @@ public class OnGoingNumberRestrictionTest extends TypeSafeQueryTest {
 
         validate(" from Person hobj1 where hobj1.age > :np1", 40);
     }
+    
+    @Test
+    public void testGtNamed() {
+        Person person = query.from(Person.class);
+        
+        query.where(person.getAge()).gt().named(NAMED_PARAM_1);
+
+        query.namedValue(NAMED_PARAM_1, 40);
+        validate(" from Person hobj1 where hobj1.age > :np1", 40);
+    }
 
     @Test
     public void testTypeSafeValueGt() {
@@ -63,6 +83,15 @@ public class OnGoingNumberRestrictionTest extends TypeSafeQueryTest {
     }
 
     @Test
+    public void testLteNamed() {
+        Person person = query.from(Person.class);
+        query.where(person.getAge()).lte().named(NAMED_PARAM_1);
+
+        query.namedValue(NAMED_PARAM_1, 40);
+        validate(" from Person hobj1 where hobj1.age <= :np1", 40);
+    }
+
+    @Test
     public void testTypeSafeValueLte() {
         Person person = query.from(Person.class);
         query.where(person.getAge()).lte(new DirectTypeSafeValue<Number>(query, 40));
@@ -73,6 +102,15 @@ public class OnGoingNumberRestrictionTest extends TypeSafeQueryTest {
     public void testGte() {
         Person person = query.from(Person.class);
         query.where(person.getAge()).gte(40);
+        validate(" from Person hobj1 where hobj1.age >= :np1", 40);
+    }
+    
+    @Test
+    public void testGteNamed() {
+        Person person = query.from(Person.class);
+        query.where(person.getAge()).gte().named(NAMED_PARAM_1);
+
+        query.namedValue(NAMED_PARAM_1, 40);
         validate(" from Person hobj1 where hobj1.age >= :np1", 40);
     }
 

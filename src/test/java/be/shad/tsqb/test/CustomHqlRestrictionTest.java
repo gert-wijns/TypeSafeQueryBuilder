@@ -18,7 +18,7 @@ package be.shad.tsqb.test;
 import org.junit.Test;
 
 import be.shad.tsqb.domain.people.Person;
-import be.shad.tsqb.param.QueryParameter;
+import be.shad.tsqb.param.QueryParameterSingleImpl;
 import be.shad.tsqb.values.HqlQueryValueImpl;
 
 public class CustomHqlRestrictionTest extends TypeSafeQueryTest {
@@ -31,7 +31,7 @@ public class CustomHqlRestrictionTest extends TypeSafeQueryTest {
     public void testInjectCustomHqlRestriction() {
         Person person = query.from(Person.class);
         query.registerCustomAliasForProxy(person, PARENT_CUSTOM_ALIAS);
-        query.where().and(new HqlQueryValueImpl("parentAlias.id = :parentAliasId", new QueryParameter("parentAliasId", 1L)));
+        query.where().and(new HqlQueryValueImpl("parentAlias.id = :parentAliasId", new QueryParameterSingleImpl<Long>("parentAliasId", Long.class, 1L)));
         validate(" from Person parentAlias where parentAlias.id = :parentAliasId", 1L);
     }
 
@@ -42,8 +42,8 @@ public class CustomHqlRestrictionTest extends TypeSafeQueryTest {
     public void testInjectMultipleCustomHqlRestriction() {
         Person person = query.from(Person.class);
         query.registerCustomAliasForProxy(person, PARENT_CUSTOM_ALIAS);
-        query.where().and(new HqlQueryValueImpl("parentAlias.id = :parentAliasId", new QueryParameter("parentAliasId",  1L)));
-        query.where().and(new HqlQueryValueImpl("parentAlias.name like :parentAliasName", new QueryParameter("parentAliasName",  "Josh%")));
+        query.where().and(new HqlQueryValueImpl("parentAlias.id = :parentAliasId", new QueryParameterSingleImpl<Long>("parentAliasId", Long.class,  1L)));
+        query.where().and(new HqlQueryValueImpl("parentAlias.name like :parentAliasName", new QueryParameterSingleImpl<String>("parentAliasName", String.class, "Josh%")));
         validate(" from Person parentAlias where parentAlias.id = :parentAliasId "
                 + "and parentAlias.name like :parentAliasName", 1L, "Josh%");
     }

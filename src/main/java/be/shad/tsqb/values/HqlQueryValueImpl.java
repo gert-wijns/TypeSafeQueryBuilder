@@ -15,7 +15,7 @@
  */
 package be.shad.tsqb.values;
 
-import java.util.List;
+import java.util.Collection;
 
 import be.shad.tsqb.param.QueryParameter;
 import be.shad.tsqb.param.QueryParameters;
@@ -32,17 +32,19 @@ public class HqlQueryValueImpl implements HqlQueryValue {
         this("");
     }
     
-    public HqlQueryValueImpl(String hql, QueryParameter... params) {
+    public HqlQueryValueImpl(String hql) {
         this.hql = new StringBuilder(hql);
-        if( params != null ) {
-            addParams(params);
-        }
     }
 
-    public HqlQueryValueImpl(String hql, List<QueryParameter> params) {
-        this.hql = new StringBuilder(hql);
+    public HqlQueryValueImpl(String hql, QueryParameter<?> param) {
+        this(hql);
+        addParam(param);
+    }
+
+    public HqlQueryValueImpl(String hql, Collection<QueryParameter<?>> params) {
+        this(hql);
         if( params != null ) {
-            for(QueryParameter param: params) {
+            for(QueryParameter<?> param: params) {
                 addParam(param);
             }
         }
@@ -61,15 +63,15 @@ public class HqlQueryValueImpl implements HqlQueryValue {
         return this.hql;
     }
     
-    public QueryParameter[] getParams() {
+    public Collection<QueryParameter<?>> getParams() {
         return queryParameters.getParams();
     }
     
-    public void addParam(QueryParameter param) {
+    public void addParam(QueryParameter<?> param) {
         queryParameters.addParam(param);
     }
 
-    public void addParams(QueryParameter[] params) {
+    public void addParams(Collection<QueryParameter<?>> params) {
         queryParameters.addParams(params);
     }
     

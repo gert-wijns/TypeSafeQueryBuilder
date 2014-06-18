@@ -39,6 +39,8 @@ import org.hibernate.type.Type;
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.data.TypeSafeQuerySelectionProxyData;
 import be.shad.tsqb.param.QueryParameter;
+import be.shad.tsqb.param.QueryParameterCollection;
+import be.shad.tsqb.param.QueryParameterSingle;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
 import be.shad.tsqb.proxy.TypeSafeQueryProxyFactory;
 import be.shad.tsqb.proxy.TypeSafeQueryProxyType;
@@ -302,13 +304,13 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
      */
     @Override
     public HqlQueryValue replaceParamsWithLiterals(HqlQueryValue value) {
-        if( value.getParams().length > 0 ) {
+        if (!value.getParams().isEmpty()) {
             String hql = value.getHql();
-            for(QueryParameter param: value.getParams()) {
-                String name = param.getName();
+            for(QueryParameter<?> param: value.getParams()) {
+                String queryAlias = param.getName();
                 String literal = null;
-                if (param.getValue() instanceof Collection) {
-                    Collection<?> collection = (Collection<?>) param.getValue();
+                if (param instanceof QueryParameterCollection<?>) {
+                    Collection<?> collection = ((QueryParameterCollection<?>) param).getValues();
                     StringBuilder sb = new StringBuilder("(");
                     for(Object val: collection) {
                         if( sb.length() > 1 ) {
@@ -318,9 +320,9 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
                     }
                     sb.append(")");
                 } else {
-                    literal = toLiteral(param.getValue());
+                    literal = toLiteral(((QueryParameterSingle<?>) param).getValue());
                 }
-                hql = hql.replaceFirst(":" + name, literal);
+                hql = hql.replaceFirst(":" + queryAlias, literal);
             }
             value = new HqlQueryValueImpl(hql);
         }

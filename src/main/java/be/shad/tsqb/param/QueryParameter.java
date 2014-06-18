@@ -15,54 +15,65 @@
  */
 package be.shad.tsqb.param;
 
-public final class QueryParameter {
-    private final String name;
-    private Object value;
-    
-    public QueryParameter(String name, Object value) {
-        this.name = name;
-        this.value = value;
-    }
-    
-    public String getName() {
-        return name;
-    }
-    
-    public Object getValue() {
-        return value;
-    }
-    
-    public void setValue(Object value) {
-        this.value = value;
-    }
-    
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((name == null) ? 0 : name.hashCode());
-        return result;
-    }
+import java.util.Collection;
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        QueryParameter other = (QueryParameter) obj;
-        if (name == null) {
-            if (other.name != null)
-                return false;
-        } else if (!name.equals(other.name))
-            return false;
-        return true;
-    }
+
+public interface QueryParameter<T> {
     
-    @Override
-    public String toString() {
-        return String.format("PARAM [%s, %s]", name, value);
-    }
+    Class<T> getValueClass();
+    
+    /**
+     * The alias for this parameter.
+     * 
+     * This will not be in the resulting hql, it is used to find 
+     * a parameter which was named by the user. 
+     */
+    String getAlias();
+
+    /**
+     * Sets the alias on the parameter.
+     * This should not be called outside QueryParameters,
+     * otherwise the mapping to look up aliased parameters
+     * will break.
+     */
+    void setAlias(String alias);
+
+    /**
+     * The name used in the resulting hql, and the name to be used
+     * when binding the parameter to the session query object.
+     */
+    String getName();
+    
+    /**
+     * Sets the value of this parameter, the value will have to be null or it
+     * must be assignable from the value class.
+     * <p>
+     * If this parameter is a collection representative, the value will be wrapped 
+     * in a collection and delegated to {@link #setValue(Collection)}.
+     */
+    void setValue(T object);
+
+    /**
+     * Sets the collection value of this parameter, 
+     * the collection will have to be null or the elements in 
+     * the collection will have to be assignable from the value class.
+     * The collection will be validated:
+     * <ul>
+     * <li>Null is allowed as collection value. Though presense of a value will be
+     *     checked when the query is transformed to HQL.</li>
+     * <li>When a collection is set, all of its elements must be assignable from the value class.</li>
+     * <li>Elements must not be null.</li>
+     * <li>When a collection is set, it must not be empty. A defensive copy is taken, 
+     *     so adding elements to a referenced list will not work.</li>
+     * </ul>
+     * 
+     * @throws IllegalArgumentException when {@link #isCollectionRepresentative()} is false.
+     */
+    <ST extends T> void setValue(Collection<ST> collection);
+    
+    /**
+     * Whether this parameter represents a collection.
+     */
+    boolean isCollectionRepresentative();
+    
 }

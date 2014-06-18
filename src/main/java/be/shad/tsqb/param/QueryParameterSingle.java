@@ -15,11 +15,10 @@
  */
 package be.shad.tsqb.param;
 
-public class QueryParameterAlreadyBoundException extends RuntimeException {
-    private static final long serialVersionUID = -3026588720898823281L;
+public interface QueryParameterSingle<T> extends QueryParameter<T> {
 
-    public QueryParameterAlreadyBoundException(String message) {
-        super(message);
-    }
-
+    T getValue();
+    
+    void setValue(T value);
+    
 }

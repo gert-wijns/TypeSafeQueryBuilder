@@ -45,7 +45,7 @@ public class CoalesceTypeSafeValue<T> extends TypeSafeValueImpl<T> implements Ty
     @Override
     public HqlQueryValue toHqlQueryValue() {
         StringBuilder coalesce = new StringBuilder();
-        List<QueryParameter> params = new LinkedList<>();
+        List<QueryParameter<?>> params = new LinkedList<>();
         for(TypeSafeValue<T> value: values) {
             if( coalesce.length() > 0 ) {
                 coalesce.append(",");
@@ -54,7 +54,7 @@ public class CoalesceTypeSafeValue<T> extends TypeSafeValueImpl<T> implements Ty
             }
             HqlQueryValue valueHql = value.toHqlQueryValue();
             coalesce.append(valueHql.getHql());
-            for(QueryParameter param: valueHql.getParams()) {
+            for(QueryParameter<?> param: valueHql.getParams()) {
                 params.add(param);
             }
         }

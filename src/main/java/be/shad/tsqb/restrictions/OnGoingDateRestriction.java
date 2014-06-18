@@ -17,6 +17,7 @@ package be.shad.tsqb.restrictions;
 
 import java.util.Date;
 
+import be.shad.tsqb.restrictions.named.SingleNamedParameterBinder;
 import be.shad.tsqb.values.TypeSafeValue;
 
 /**
@@ -63,5 +64,25 @@ public interface OnGoingDateRestriction extends OnGoingRestriction<Date, Continu
      * Generates: left < (referencedValue or actualValue)
      */
     ContinuedOnGoingDateRestriction before(Date value);
+
+    /**
+     * @return binder with a method to set an alias for the parameter
+     */
+    SingleNamedParameterBinder<Date, ContinuedOnGoingDateRestriction, OnGoingDateRestriction> notBefore();
+
+    /**
+     * @return binder with a method to set an alias for the parameter
+     */
+    SingleNamedParameterBinder<Date, ContinuedOnGoingDateRestriction, OnGoingDateRestriction> notAfter();
+
+    /**
+     * @return binder with a method to set an alias for the parameter
+     */
+    SingleNamedParameterBinder<Date, ContinuedOnGoingDateRestriction, OnGoingDateRestriction> after();
+
+    /**
+     * @return binder with a method to set an alias for the parameter
+     */
+    SingleNamedParameterBinder<Date, ContinuedOnGoingDateRestriction, OnGoingDateRestriction> before();
 
 }

@@ -55,6 +55,11 @@ public class OnGoingBooleanRestrictionImpl
         return createContinuedOnGoingRestriction(restrictionNodeType, startValue);
     }
     
+    @Override
+    protected Class<Boolean> getSupportedValueClass() {
+        return Boolean.class;
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -71,6 +76,17 @@ public class OnGoingBooleanRestrictionImpl
         TypeSafeValue<Boolean> falseValue = new DirectTypeSafeValue<>(group.getQuery(), Boolean.TRUE);
         addRestrictionAndContinue(startValue, EQUAL, falseValue);
         return getRestrictionsGroup();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ContinuedOnGoingBooleanRestriction isNamed(String alias) {
+        DirectTypeSafeValue<Boolean> value = new DirectTypeSafeValue<>(group.getQuery(), Boolean.class);
+        ContinuedOnGoingBooleanRestriction continued = addRestrictionAndContinue(startValue, EQUAL, value);
+        createNamedParameterBinder(value.getParameter(), continued).named(alias);
+        return continued;
     }
 
     /**

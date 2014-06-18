@@ -15,34 +15,60 @@
  */
 package be.shad.tsqb.param;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
+import be.shad.tsqb.exceptions.QueryParameterAlreadyBoundException;
 
 /**
  * Map of params, has addParam which throws an exception in 
  * case the named parameter was already bound.
  */
 public class QueryParameters {
-    private Map<String, QueryParameter> params = new HashMap<>();
+    private Map<String, QueryParameter<?>> paramsByQyeryAlias = new HashMap<>();
+    private Map<String, QueryParameter<?>> paramsByUserAlias = new HashMap<>();
     
-    public void addParams(QueryParameter[] params) {
+    public void addParams(Collection<QueryParameter<?>> params) {
         if (params != null) {
-            for(QueryParameter param: params) {
+            for(QueryParameter<?> param: params) {
                 addParam(param);
             }
         }
     }
 
-    public QueryParameter[] getParams() {
-        return params.values().toArray(new QueryParameter[params.size()]);
+    public Collection<QueryParameter<?>> getParams() {
+        return paramsByQyeryAlias.values();
     }
-
-    public void addParam(QueryParameter param) {
-        QueryParameter previous = this.params.put(param.getName(), param);
+    
+    public void addParam(QueryParameter<?> param) {
+        QueryParameter<?> previous = this.paramsByQyeryAlias.put(
+                param.getName(), param);
         if (previous != null) {
             throw new QueryParameterAlreadyBoundException(String.format(
-                    "Parameter with name [%s] is already bound.", 
-                    param.getName()));
+                    "Parameter with query alias [%s] is already bound.", 
+                    param));
+        }
+        if (param.getAlias() != null) {
+            setUserAlias(param, param.getAlias());
         }
     }
+
+    public void setUserAlias(QueryParameter<?> param, String userAlias) {
+        if (param.getAlias() != null) {
+            paramsByUserAlias.remove(userAlias);
+        }
+        param.setAlias(userAlias);
+        QueryParameter<?> previous = paramsByUserAlias.put(userAlias, param);
+        if (previous != null) {
+            throw new QueryParameterAlreadyBoundException(String.format(
+                    "Parameter with user alias [%s] is already bound.", 
+                    param));
+        }
+    }
+
+    public QueryParameter<?> getParamForAlias(String paramAlias) {
+        return paramsByUserAlias.get(paramAlias);
+    }
+    
 }

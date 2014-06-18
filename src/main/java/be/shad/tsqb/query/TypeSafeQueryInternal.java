@@ -22,6 +22,9 @@ import be.shad.tsqb.data.TypeSafeQueryProxyDataTree;
 import be.shad.tsqb.grouping.TypeSafeQueryGroupBys;
 import be.shad.tsqb.helper.TypeSafeQueryHelper;
 import be.shad.tsqb.ordering.TypeSafeQueryOrderBys;
+import be.shad.tsqb.param.QueryParameter;
+import be.shad.tsqb.param.QueryParameterCollection;
+import be.shad.tsqb.param.QueryParameterSingle;
 import be.shad.tsqb.restrictions.RestrictionsGroup;
 import be.shad.tsqb.values.TypeSafeValue;
 
@@ -69,9 +72,21 @@ public interface TypeSafeQueryInternal extends TypeSafeQuery {
     String createEntityAlias();
     
     /**
-     * Generates a new named param name.
+     * Binds a parameter to a custom user name.
+     * <p>
+     * It makes it available for setParam(name, value) on TypeSafeQuery
      */
-    String createNamedParam();
+    void bindAlias(QueryParameter<?> param, String name);
+    
+    /**
+     * Generates a new named param for one value.
+     */
+    <T> QueryParameterSingle<T> createSingleNamedParam(Class<T> valueClass);
+
+    /**
+     * Generates a new named param for a collection of values.
+     */
+    <T> QueryParameterCollection<T> createCollectionNamedParam(Class<T> valueClass);
     
     /**
      * Checks if the data is available in the query or one of its parents.

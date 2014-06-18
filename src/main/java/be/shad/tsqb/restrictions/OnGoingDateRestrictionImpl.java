@@ -17,6 +17,8 @@ package be.shad.tsqb.restrictions;
 
 import java.util.Date;
 
+import be.shad.tsqb.restrictions.named.SingleNamedParameterBinder;
+import be.shad.tsqb.values.DirectTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
 
 /**
@@ -53,6 +55,11 @@ public class OnGoingDateRestrictionImpl
     protected OnGoingDateRestriction createOriginalOnGoingRestriction(
             RestrictionNodeType restrictionNodeType, TypeSafeValue<Date> previousValue) {
         return createContinuedOnGoingRestriction(restrictionNodeType, previousValue);
+    }
+    
+    @Override
+    protected Class<Date> getSupportedValueClass() {
+        return Date.class;
     }
     
     /**
@@ -117,6 +124,42 @@ public class OnGoingDateRestrictionImpl
     @Override
     public ContinuedOnGoingDateRestriction notBefore(TypeSafeValue<Date> value) {
         return addRestrictionAndContinue(startValue, GREATER_THAN_EQUAL, value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SingleNamedParameterBinder<Date, ContinuedOnGoingDateRestriction, OnGoingDateRestriction> notBefore() {
+        DirectTypeSafeValue<Date> value = createDirectValue();
+        return createNamedParameterBinder(value.getParameter(), notBefore(value));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SingleNamedParameterBinder<Date, ContinuedOnGoingDateRestriction, OnGoingDateRestriction> notAfter() {
+        DirectTypeSafeValue<Date> value = createDirectValue();
+        return createNamedParameterBinder(value.getParameter(), notAfter(value));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SingleNamedParameterBinder<Date, ContinuedOnGoingDateRestriction, OnGoingDateRestriction> after() {
+        DirectTypeSafeValue<Date> value = createDirectValue();
+        return createNamedParameterBinder(value.getParameter(), after(value));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SingleNamedParameterBinder<Date, ContinuedOnGoingDateRestriction, OnGoingDateRestriction> before() {
+        DirectTypeSafeValue<Date> value = createDirectValue();
+        return createNamedParameterBinder(value.getParameter(), before(value));
     }
 
 }

@@ -15,6 +15,8 @@
  */
 package be.shad.tsqb.hql;
 
+import java.util.Collection;
+
 import org.hibernate.transform.ResultTransformer;
 
 import be.shad.tsqb.param.QueryParameter;
@@ -39,7 +41,7 @@ public class HqlQuery implements HqlQueryValue {
     }
 
     @Override
-    public QueryParameter[] getParams() {
+    public Collection<QueryParameter<?>> getParams() {
         return queryParameters.getParams();
     }
     
@@ -110,7 +112,7 @@ public class HqlQuery implements HqlQueryValue {
         orderBy.append(orderByPart);
     }
 
-    public void addParams(QueryParameter[] params) {
+    public void addParams(Collection<QueryParameter<?>> params) {
         queryParameters.addParams(params);
     }
 
@@ -147,19 +149,6 @@ public class HqlQuery implements HqlQueryValue {
             }
         }
         return format + "\n --- with params: " + queryParameters;
-    }
-
-    public String toFormattedStringPlus() {
-        String formatted = toFormattedStringSub(getHql());
-        return formatted + "\n --- with params: " + queryParameters;
-    }
-    
-    public String toFormattedStringSub(String hql) {
-        StringBuilder format = new StringBuilder();
-        for(int i=0; i < hql.length(); i++) {
-            
-        }
-        return format.toString();
     }
     
     @Override
