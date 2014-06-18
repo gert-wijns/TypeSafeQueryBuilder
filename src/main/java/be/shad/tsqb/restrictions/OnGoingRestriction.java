@@ -28,21 +28,25 @@ public interface OnGoingRestriction<VAL, CONTINUED extends ContinuedOnGoingRestr
         ORIGINAL extends OnGoingRestriction<VAL, CONTINUED, ORIGINAL>> {
     
     /**
+     * @see #not(VAL)
      * @return binder with a method to set an alias for the parameter
      */
     SingleNamedParameterBinder<VAL, CONTINUED, ORIGINAL> not();
 
     /**
+     * @see #eq(VAL)
      * @return binder with a method to set an alias for the parameter
      */
     SingleNamedParameterBinder<VAL, CONTINUED, ORIGINAL> eq();
     
     /**
+     * @see #notIn(Collection)
      * @return binder with a method to set an alias for the parameter
      */
     CollectionNamedParameterBinder<VAL, CONTINUED, ORIGINAL> notIn();
     
     /**
+     * @see #in(Collection)
      * @return binder with a method to set an alias for the parameter
      */
     CollectionNamedParameterBinder<VAL, CONTINUED, ORIGINAL> in();

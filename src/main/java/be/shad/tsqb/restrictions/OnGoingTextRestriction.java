@@ -24,16 +24,19 @@ import be.shad.tsqb.values.TypeSafeValue;
 public interface OnGoingTextRestriction extends OnGoingRestriction<String, ContinuedOnGoingTextRestriction, OnGoingTextRestriction> {
 
     /**
+     * @see #endsWith(String)
      * @return binder with a method to set an alias for the parameter
      */
     SingleNamedParameterBinder<String, ContinuedOnGoingTextRestriction, OnGoingTextRestriction> endsWith();
 
     /**
+     * @see #startsWith(String)
      * @return binder with a method to set an alias for the parameter
      */
     SingleNamedParameterBinder<String, ContinuedOnGoingTextRestriction, OnGoingTextRestriction> startsWith();
 
     /**
+     * @see #contains(String)
      * @return binder with a method to set an alias for the parameter
      */
     SingleNamedParameterBinder<String, ContinuedOnGoingTextRestriction, OnGoingTextRestriction> contains();
