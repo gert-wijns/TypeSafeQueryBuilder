@@ -17,7 +17,11 @@ package be.shad.tsqb.param;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import be.shad.tsqb.exceptions.QueryParameterAlreadyBoundException;
 
@@ -26,8 +30,9 @@ import be.shad.tsqb.exceptions.QueryParameterAlreadyBoundException;
  * case the named parameter was already bound.
  */
 public class QueryParameters {
-    private Map<String, QueryParameter<?>> paramsByNames = new HashMap<>();
     private Map<String, QueryParameter<?>> paramsByAliases = new HashMap<>();
+    private List<QueryParameter<?>> params = new LinkedList<>();
+    private Set<String> names = new HashSet<>();
     
     public void addParams(Collection<QueryParameter<?>> params) {
         if (params != null) {
@@ -38,17 +43,16 @@ public class QueryParameters {
     }
 
     public Collection<QueryParameter<?>> getParams() {
-        return paramsByNames.values();
+        return params;
     }
     
     public void addParam(QueryParameter<?> param) {
-        QueryParameter<?> previous = this.paramsByNames.put(
-                param.getName(), param);
-        if (previous != null) {
+        if (param.getName() != null && !names.add(param.getName())) {
             throw new QueryParameterAlreadyBoundException(String.format(
                     "Parameter with query alias [%s] is already bound.", 
                     param));
         }
+        params.add(param);
         if (param.getAlias() != null) {
             setAlias(param, param.getAlias());
         }
@@ -92,7 +96,7 @@ public class QueryParameters {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("Params [");
-        for(QueryParameter<?> param: paramsByNames.values()) {
+        for(QueryParameter<?> param: params) {
             sb.append(param);
         }
         sb.append("]");

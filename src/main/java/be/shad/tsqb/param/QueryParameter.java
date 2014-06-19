@@ -48,8 +48,9 @@ public interface QueryParameter<T> {
     String getName();
     
     /**
-     * Whether this parameter represents a collection.
+     * Method for easy assignment during the parameter binding phase
+     * when the hql query is created to list results.
      */
-    boolean isCollectionRepresentative();
+    Object getParameterValue();
     
 }

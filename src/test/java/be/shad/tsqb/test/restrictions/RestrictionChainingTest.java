@@ -22,7 +22,9 @@ import static java.math.BigDecimal.ZERO;
 import org.junit.Test;
 
 import be.shad.tsqb.domain.House;
+import be.shad.tsqb.param.NamelessQueryParameter;
 import be.shad.tsqb.test.TypeSafeQueryTest;
+import be.shad.tsqb.values.HqlQueryValueImpl;
 
 public class RestrictionChainingTest extends TypeSafeQueryTest {
 
@@ -70,6 +72,13 @@ public class RestrictionChainingTest extends TypeSafeQueryTest {
 
         validate(" from House hobj1 where (hobj1.floors > :np1 and (hobj1.occupied = :np2 or hobj1.price = :np3) and (hobj1.name like :np4 or hobj1.name like :np5))", 
                 4, FALSE, ZERO, "Cas%", "Chu%");
+    }
+    
+    @Test
+    public void testWhereCustomHql() {
+        query.from(House.class);
+        query.where(new HqlQueryValueImpl("hobj1.floors > ?", new NamelessQueryParameter(10)));
+        validate(" from House hobj1 where hobj1.floors > ?", 10);
     }
     
 }
