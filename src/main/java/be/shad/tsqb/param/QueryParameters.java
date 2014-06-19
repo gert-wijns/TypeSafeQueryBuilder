@@ -89,4 +89,14 @@ public class QueryParameters {
         }
     }
     
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("Params [");
+        for(QueryParameter<?> param: paramsByNames.values()) {
+            sb.append(param);
+        }
+        sb.append("]");
+        return sb.toString();
+    }
+    
 }
