@@ -55,10 +55,44 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     private int entityAliasCount = 1;
     private int namedParamCount = 1;
     private int selectionGroupAliasCount = 1;
+    private int firstResult = -1;
+    private int maxResults = -1;
 
     public TypeSafeRootQueryImpl(TypeSafeQueryHelper helper) {
         super(helper);
         setRootQuery(this);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getFirstResult() {
+        return firstResult;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setFirstResult(int firstResult) {
+        this.firstResult = firstResult;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getMaxResults() {
+        return maxResults;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setMaxResults(int maxResults) {
+        this.maxResults = maxResults;
     }
 
     /**

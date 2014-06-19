@@ -16,11 +16,11 @@
 package be.shad.tsqb.query;
 
 import be.shad.tsqb.selection.SelectionValueTransformer;
-import be.shad.tsqb.selection.parallel.SelectPair;
 import be.shad.tsqb.selection.parallel.ParallelSelectionMerger;
 import be.shad.tsqb.selection.parallel.ParallelSelectionMerger1;
 import be.shad.tsqb.selection.parallel.ParallelSelectionMerger2;
 import be.shad.tsqb.selection.parallel.ParallelSelectionMerger3;
+import be.shad.tsqb.selection.parallel.SelectPair;
 import be.shad.tsqb.selection.parallel.SelectTriplet;
 import be.shad.tsqb.selection.parallel.SelectValue;
 import be.shad.tsqb.values.TypeSafeValue;
@@ -129,5 +129,25 @@ public interface TypeSafeRootQuery extends TypeSafeQuery {
      * Calls query.function().distinct(value).select().
      */
     <VAL> VAL distinct(TypeSafeValue<VAL> value);
+
+    /**
+     * Purpose: {@link org.hibernate.Query#setFirstResult}
+     */
+    void setFirstResult(int firstResult);
+
+    /**
+     * The first result to fetch, default is -1, see {@link org.hibernate.Query#setFirstResult}
+     */
+    int getFirstResult();
+    
+    /**
+     * Purpose: {@link org.hibernate.Query#setMaxResults}
+     */
+    void setMaxResults(int maxResults);
+
+    /**
+     * The amount of results to fetch, default is -1, see {@link org.hibernate.Query#setMaxResults}
+     */
+    int getMaxResults();
     
 }

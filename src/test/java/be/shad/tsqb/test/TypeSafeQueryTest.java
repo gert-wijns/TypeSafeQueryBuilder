@@ -26,7 +26,6 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.junit.After;
@@ -34,11 +33,11 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
 
+import be.shad.tsqb.dao.TypeSafeQueryDao;
+import be.shad.tsqb.dao.TypeSafeQueryDaoImpl;
 import be.shad.tsqb.helper.TypeSafeQueryHelperImpl;
 import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.param.QueryParameter;
-import be.shad.tsqb.param.QueryParameterCollection;
-import be.shad.tsqb.param.QueryParameterSingle;
 import be.shad.tsqb.query.TypeSafeRootQuery;
 
 public class TypeSafeQueryTest {
@@ -47,6 +46,7 @@ public class TypeSafeQueryTest {
     @Rule public TestName name = new TestName();
     
     private SessionFactory sessionFactory;
+    private TypeSafeQueryDao typeSafeQueryDao;
     private TypeSafeQueryHelperImpl helper;
     protected TypeSafeRootQuery query;
     protected List<?> doQueryResult;
@@ -61,6 +61,7 @@ public class TypeSafeQueryTest {
         Configuration config = new Configuration();
         config.configure("be/shad/tsqb/tests/hibernate.cfg.xml");
         sessionFactory = config.buildSessionFactory();
+        typeSafeQueryDao = new TypeSafeQueryDaoImpl(sessionFactory);
         helper = new TypeSafeQueryHelperImpl(sessionFactory) {
             // trim package for readability:
             @Override
@@ -95,22 +96,9 @@ public class TypeSafeQueryTest {
     protected HqlQuery doQuery(TypeSafeRootQuery typeSafeQuery) {
         HqlQuery hqlQuery = typeSafeQuery.toHqlQuery();
         
-        // Create a hibernate query object using the generated hql+params:
-        Query query = sessionFactory.getCurrentSession().createQuery(hqlQuery.getHql());
-        for(QueryParameter<?> param: hqlQuery.getParams()) {
-            if (param instanceof QueryParameterCollection<?>) {
-                query.setParameterList(param.getName(), ((QueryParameterCollection<?>) param).getValues());
-            } else {
-                query.setParameter(param.getName(), ((QueryParameterSingle<?>) param).getValue());
-            }
-        }
-        
+        doQueryResult = typeSafeQueryDao.doQuery(typeSafeQuery);
         logger.debug(String.format("%s:\n%s\n--- params: %s\n", name.getMethodName(), 
                 hqlQuery.getHql(), hqlQuery.getParams()));
-        
-        // call the list, this is the moment of truth:
-        query.setResultTransformer(hqlQuery.getResultTransformer());
-        doQueryResult = query.list();
         
         // return for additional checks:
         return hqlQuery;
@@ -138,11 +126,7 @@ public class TypeSafeQueryTest {
                 }
             });
             for(QueryParameter<?> queryParam: queryParams) {
-                if (queryParam instanceof QueryParameterCollection<?>) {
-                    actualParams.add(((QueryParameterCollection<?>) queryParam).getValues());
-                } else {
-                    actualParams.add(((QueryParameterSingle<?>) queryParam).getValue());
-                }
+                actualParams.add(queryParam.getParameterValue());
             }
             assertTrue(expected + result, actualParams.equals(Arrays.asList(params)));
         }
