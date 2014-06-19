@@ -55,10 +55,6 @@ public class CollectionTypeSafeValue<T> extends TypeSafeValueImpl<T> {
 
     @Override
     public HqlQueryValueImpl toHqlQueryValue() {
-        if (parameter.getValues() == null) {
-            throw new IllegalStateException("The value must be set before calling toHqlQueryValue. "
-                    + "This was not the case for parameter: " + parameter);
-        }
         return new HqlQueryValueImpl(":" + parameter.getName(), parameter);
     }
 

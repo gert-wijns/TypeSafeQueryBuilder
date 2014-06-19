@@ -28,16 +28,6 @@ import be.shad.tsqb.exceptions.QueryParameterAlreadyBoundException;
  */
 public class NamedParamTest extends TypeSafeQueryTest {
     private String NAMED_PARAM_1 = "NAMED_PARAM_1";
-
-    /**
-     * The values must be set before toHqlQuery is called.
-     */
-    @Test(expected=IllegalStateException.class)
-    public void testNamedParamNotNullWhenToHqlQueryValue() {
-        Person personProxy = query.from(Person.class);
-        query.where(personProxy.getId()).in().named(NAMED_PARAM_1);
-        query.toHqlQuery();
-    }
     
     /**
      * The collection should expect a number, because ID is a number.

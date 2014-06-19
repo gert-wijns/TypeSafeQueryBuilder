@@ -55,10 +55,6 @@ public class DirectTypeSafeValue<T> extends TypeSafeValueImpl<T> {
 
     @Override
     public HqlQueryValueImpl toHqlQueryValue() {
-        if (parameter.getValue() == null) {
-            throw new IllegalStateException("The value must be set before calling toHqlQueryValue. "
-                    + "This was not the case for parameter: " + parameter);
-        }
         return new HqlQueryValueImpl(":" + parameter.getName(), parameter);
     }
 
