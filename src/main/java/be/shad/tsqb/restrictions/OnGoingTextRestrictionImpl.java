@@ -15,9 +15,14 @@
  */
 package be.shad.tsqb.restrictions;
 
+import static be.shad.tsqb.param.QueryParameterStringImpl.EMPTY;
+
 import java.util.List;
 
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
+import be.shad.tsqb.param.QueryParameterStringImpl;
+import be.shad.tsqb.restrictions.named.SingleNamedParameterBinder;
+import be.shad.tsqb.values.DirectTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
 
 /**
@@ -28,9 +33,8 @@ import be.shad.tsqb.values.TypeSafeValue;
 public class OnGoingTextRestrictionImpl 
         extends OnGoingRestrictionImpl<String, ContinuedOnGoingTextRestriction, OnGoingTextRestriction> 
         implements OnGoingTextRestriction, ContinuedOnGoingTextRestriction {
-    
+
     private final static String WILDCARD = "%";
-    private final static String EMPTY = "";
     private final static String LIKE = "like";
 
     public OnGoingTextRestrictionImpl(RestrictionsGroupInternal group, 
@@ -53,6 +57,11 @@ public class OnGoingTextRestrictionImpl
     protected OnGoingTextRestriction createOriginalOnGoingRestriction(
             RestrictionNodeType restrictionNodeType, TypeSafeValue<String> startValue) {
         return createContinuedOnGoingRestriction(restrictionNodeType, startValue);
+    }
+    
+    @Override
+    protected Class<String> getSupportedValueClass() {
+        return String.class;
     }
     
     /**
@@ -86,16 +95,44 @@ public class OnGoingTextRestrictionImpl
     public ContinuedOnGoingTextRestriction endsWith(String value) {
         return like(toValue(WILDCARD, value, EMPTY));
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SingleNamedParameterBinder<String, ContinuedOnGoingTextRestriction, OnGoingTextRestriction> contains() {
+        DirectTypeSafeValue<String> value = createDirectValue(WILDCARD, WILDCARD);
+        return createNamedParameterBinder(value.getParameter(), like(value));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SingleNamedParameterBinder<String, ContinuedOnGoingTextRestriction, OnGoingTextRestriction> endsWith() {
+        DirectTypeSafeValue<String> value = createDirectValue(WILDCARD, EMPTY);
+        return createNamedParameterBinder(value.getParameter(), like(value));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SingleNamedParameterBinder<String, ContinuedOnGoingTextRestriction, OnGoingTextRestriction> startsWith() {
+        DirectTypeSafeValue<String> value = createDirectValue(EMPTY, WILDCARD);
+        return createNamedParameterBinder(value.getParameter(), like(value));
+    }
     
     /**
      * Adds wildcards to the value in case it is a direct value.
      * Validates no wildcards are used otherwise.
      */
-    private TypeSafeValue<String> toValue(String left, String value, String right) {
+    private TypeSafeValue<String> toValue(String prefix, String value, String postfix) {
         if( value instanceof String ) {
-            return toValue(left + value + right);
+            DirectTypeSafeValue<String> toValue = (DirectTypeSafeValue<String>) toValue(value);
+            return setWildCards(prefix, toValue, postfix);
         }
-        if( left.length() != 0 || right.length() != 0 ) {
+        if( !prefix.isEmpty() || !postfix.isEmpty()) {
             List<TypeSafeQueryProxyData> dequeued = group.getQuery().dequeueInvocations();
             if( !dequeued.isEmpty() ) {
                 throw new UnsupportedOperationException("Like not supported for "
@@ -103,6 +140,25 @@ public class OnGoingTextRestrictionImpl
             }
         }
         TypeSafeValue<String> toValue = toValue(value);
+        return toValue;
+    }
+    
+    /**
+     * Creates an empty value and sets the prefix and postfix.
+     */
+    private DirectTypeSafeValue<String> createDirectValue(String prefix, String postfix) {
+        DirectTypeSafeValue<String> directValue = createDirectValue();
+        return setWildCards(prefix, directValue, postfix);
+    }
+    
+    /**
+     * Sets the prefix and postfix of the string parameter.
+     */
+    private DirectTypeSafeValue<String> setWildCards(String prefix, 
+            DirectTypeSafeValue<String> toValue, String postfix) {
+        QueryParameterStringImpl parameter = (QueryParameterStringImpl) toValue.getParameter();
+        parameter.setPrefix(prefix);
+        parameter.setPostfix(postfix);
         return toValue;
     }
 

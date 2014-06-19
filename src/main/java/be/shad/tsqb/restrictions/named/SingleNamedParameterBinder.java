@@ -13,26 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.shad.tsqb.restrictions;
+package be.shad.tsqb.restrictions.named;
 
-/**
- * Exposes boolean related restrictions in addition to the basic restrictions.
- */
-public interface OnGoingBooleanRestriction 
-    extends RestrictionChainable, OnGoingRestriction<Boolean, ContinuedOnGoingBooleanRestriction, OnGoingBooleanRestriction> {
+import be.shad.tsqb.restrictions.ContinuedOnGoingRestriction;
+import be.shad.tsqb.restrictions.OnGoingRestriction;
 
-    /**
-     * Generates: left == false
-     */
-    RestrictionChainable isFalse();
+public interface SingleNamedParameterBinder<VAL, CONTINUED extends 
+    ContinuedOnGoingRestriction<VAL, CONTINUED, ORIGINAL>, 
+    ORIGINAL extends OnGoingRestriction<VAL, CONTINUED, ORIGINAL>> {
 
     /**
-     * Generates: left == true
+     * Creates a QueryParameter with an alias and leaves the value blank.
      */
-    RestrictionChainable isTrue();
+    CONTINUED named(String alias);
 
     /**
-     * @return binds an alias to a value, which can be set by chaining.
+     * Creates a QueryParameter value with an alias and sets the value to it.
      */
-    ContinuedOnGoingBooleanRestriction isNamed(String alias);
+    CONTINUED named(String alias, VAL value);
+    
 }

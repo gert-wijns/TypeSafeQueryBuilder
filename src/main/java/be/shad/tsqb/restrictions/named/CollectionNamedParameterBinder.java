@@ -13,23 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.shad.tsqb.values;
+package be.shad.tsqb.restrictions.named;
 
 import java.util.Collection;
 
-import be.shad.tsqb.param.QueryParameter;
+import be.shad.tsqb.restrictions.ContinuedOnGoingRestriction;
+import be.shad.tsqb.restrictions.OnGoingRestriction;
 
-
-public interface HqlQueryValue {
+public interface CollectionNamedParameterBinder<VAL, CONTINUED extends 
+        ContinuedOnGoingRestriction<VAL, CONTINUED, ORIGINAL>, 
+        ORIGINAL extends OnGoingRestriction<VAL, CONTINUED, ORIGINAL>> {
 
     /**
-     * The hql to append to an hqlQuery.
+     * Creates a QueryParameter with an alias and leaves the value blank.
      */
-    String getHql();
-    
+    CONTINUED named(String alias);
+
     /**
-     * The params to append to an hqlQuery.
+     * Creates a QueryParameter with an alias and sets the value to values.
      */
-    Collection<QueryParameter<?>> getParams();
+    <T extends VAL> CONTINUED named(String alias, Collection<T> values);
     
 }

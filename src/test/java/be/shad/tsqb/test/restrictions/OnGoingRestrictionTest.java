@@ -28,6 +28,7 @@ import be.shad.tsqb.test.TypeSafeQueryTest;
 import be.shad.tsqb.values.DirectTypeSafeValue;
 
 public class OnGoingRestrictionTest extends TypeSafeQueryTest {
+    private String NAMED_PARAM_1 = "NAMED_PARAM_1";
 
     @Test
     public void testIsNull() {
@@ -48,7 +49,21 @@ public class OnGoingRestrictionTest extends TypeSafeQueryTest {
         Person person = query.from(Person.class);
         List<String> names = Arrays.asList("Jos", "Marie", "Katrien");
         query.where(person.getName()).in(names);
-        validate(" from Person hobj1 where hobj1.name in (?, ?, ?)", names.toArray());
+        validate(" from Person hobj1 where hobj1.name in :np1", names);
+    }
+
+    @Test
+    public void testTypeSafeValueInNamedCollection() {
+        Person person = query.from(Person.class);
+        query.where(person.getName()).in().named(NAMED_PARAM_1);
+
+        List<String> names1 = Arrays.asList("Jos", "Marie", "Katrien");
+        query.namedValue(NAMED_PARAM_1, names1);
+        validate(" from Person hobj1 where hobj1.name in :np1", names1);
+
+        List<String> names2 = Arrays.asList("Marie", "Joseph");
+        query.namedValue(NAMED_PARAM_1, names2);
+        validate(" from Person hobj1 where hobj1.name in :np1", names2);
     }
     
     @Test
@@ -66,7 +81,7 @@ public class OnGoingRestrictionTest extends TypeSafeQueryTest {
 
         validate(" from Person hobj1 where hobj1.id in ("
                 + "select hobj2.parent.id from Relation hobj2 "
-                + "join hobj2.child hobj4 where hobj4.married = ?"
+                + "join hobj2.child hobj4 where hobj4.married = :np1"
                 + ")", Boolean.TRUE);
     }
 
@@ -75,8 +90,21 @@ public class OnGoingRestrictionTest extends TypeSafeQueryTest {
         Person person = query.from(Person.class);
         List<String> names = Arrays.asList("Jos", "Marie", "Katrien");
         query.where(person.getName()).notIn(names);
-        validate(" from Person hobj1 where hobj1.name not in (?, ?, ?)", 
-                "Jos", "Marie", "Katrien");
+        validate(" from Person hobj1 where hobj1.name not in :np1", names);
+    }
+
+    @Test
+    public void testNotInNamedCollection() {
+        Person person = query.from(Person.class);
+        query.where(person.getName()).notIn().named(NAMED_PARAM_1);
+
+        List<String> names1 = Arrays.asList("Jos", "Marie", "Katrien");
+        query.namedValue(NAMED_PARAM_1, names1);
+        validate(" from Person hobj1 where hobj1.name not in :np1", names1);
+
+        List<String> names2 = Arrays.asList("Marie", "Joseph");
+        query.namedValue(NAMED_PARAM_1, names2);
+        validate(" from Person hobj1 where hobj1.name not in :np1", names2);
     }
 
     @Test
@@ -94,7 +122,7 @@ public class OnGoingRestrictionTest extends TypeSafeQueryTest {
 
         validate(" from Person hobj1 where hobj1.id not in ("
                 + "select hobj2.parent.id from Relation hobj2 "
-                + "join hobj2.child hobj4 where hobj4.married = ?"
+                + "join hobj2.child hobj4 where hobj4.married = :np1"
                 + ")", Boolean.TRUE);
     }
 
@@ -102,28 +130,46 @@ public class OnGoingRestrictionTest extends TypeSafeQueryTest {
     public void testEq() {
         Person person = query.from(Person.class);
         query.where(person.getAge()).eq(40);
-        validate(" from Person hobj1 where hobj1.age = ?", 40);
+        validate(" from Person hobj1 where hobj1.age = :np1", 40);
+    }
+
+    @Test
+    public void testEqNamed() {
+        Person person = query.from(Person.class);
+        query.where(person.getAge()).eq().named(NAMED_PARAM_1);
+        
+        query.namedValue(NAMED_PARAM_1, 40);
+        validate(" from Person hobj1 where hobj1.age = :np1", 40);
     }
 
     @Test
     public void testTypeSafeValueEq() {
         Person person = query.from(Person.class);
         query.where(person.getAge()).eq(new DirectTypeSafeValue<Number>(query, 40));
-        validate(" from Person hobj1 where hobj1.age = ?", 40);
+        validate(" from Person hobj1 where hobj1.age = :np1", 40);
     }
 
     @Test
     public void testNot() {
         Person person = query.from(Person.class);
         query.where(person.getAge()).not(40);
-        validate(" from Person hobj1 where hobj1.age <> ?", 40);
+        validate(" from Person hobj1 where hobj1.age <> :np1", 40);
+    }
+
+    @Test
+    public void testNotNamed() {
+        Person person = query.from(Person.class);
+        query.where(person.getAge()).not().named(NAMED_PARAM_1);
+        
+        query.namedValue(NAMED_PARAM_1, 40);
+        validate(" from Person hobj1 where hobj1.age <> :np1", 40);
     }
 
     @Test
     public void testTypeSafeValueNot() {
         Person person = query.from(Person.class);
         query.where(person.getAge()).not(new DirectTypeSafeValue<Number>(query, 40));
-        validate(" from Person hobj1 where hobj1.age <> ?", 40);
+        validate(" from Person hobj1 where hobj1.age <> :np1", 40);
     }
     
 }

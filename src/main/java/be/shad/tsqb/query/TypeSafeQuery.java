@@ -134,6 +134,7 @@ public interface TypeSafeQuery extends WhereRestrictions {
      * This must be done separately.
      */
     RestrictionsGroup whereGroup();
+    
     /**
      * Get the orderBy, allowing to add descending and ascending order bys.
      */
@@ -217,5 +218,16 @@ public interface TypeSafeQuery extends WhereRestrictions {
      * Returns null if no proxy was registered with the custom alias.
      */
     <T> T getProxyByCustomEntityAlias(String alias);
+    
+    /**
+     * Sets the value of a named parameter.
+     * The value will be checked with the value type required
+     * by the named param, unless it is null.
+     * <p>
+     * paramAlias can be set by using where(entity.getName()).eq().named("paramAlias");
+     * 
+     * @param paramAlias must be one which was set before calling this method
+     */
+    void namedValue(String paramAlias, Object value);
     
 }

@@ -13,8 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.shad.tsqb.domain;
+package be.shad.tsqb.exceptions;
 
-public enum Style {
-    the1980s, the1990s
+public class QueryParameterAlreadyBoundException extends RuntimeException {
+    private static final long serialVersionUID = -3026588720898823281L;
+
+    public QueryParameterAlreadyBoundException(String message) {
+        super(message);
+    }
+
 }

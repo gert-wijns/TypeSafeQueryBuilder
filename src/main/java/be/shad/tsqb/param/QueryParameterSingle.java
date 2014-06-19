@@ -13,8 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.shad.tsqb.domain;
+package be.shad.tsqb.param;
 
-public enum Style {
-    the1980s, the1990s
+
+public interface QueryParameterSingle<T> extends QueryParameter<T> {
+
+    /**
+     * The currently set value, may be updated by setValue.
+     * Must not be null before the query is transformed to hql.
+     */
+    T getValue();
+
+    /**
+     * Sets the value of this parameter, the value will have to be null or it
+     * must be assignable from the value class.
+     */
+    void setValue(T object);
+    
 }

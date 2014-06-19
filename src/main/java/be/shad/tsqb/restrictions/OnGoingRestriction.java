@@ -17,6 +17,8 @@ package be.shad.tsqb.restrictions;
 
 import java.util.Collection;
 
+import be.shad.tsqb.restrictions.named.CollectionNamedParameterBinder;
+import be.shad.tsqb.restrictions.named.SingleNamedParameterBinder;
 import be.shad.tsqb.values.TypeSafeValue;
 
 /**
@@ -24,7 +26,31 @@ import be.shad.tsqb.values.TypeSafeValue;
  */
 public interface OnGoingRestriction<VAL, CONTINUED extends ContinuedOnGoingRestriction<VAL, CONTINUED, ORIGINAL>, 
         ORIGINAL extends OnGoingRestriction<VAL, CONTINUED, ORIGINAL>> {
+    
+    /**
+     * @see #not(VAL)
+     * @return binder with a method to set an alias for the parameter
+     */
+    SingleNamedParameterBinder<VAL, CONTINUED, ORIGINAL> not();
 
+    /**
+     * @see #eq(VAL)
+     * @return binder with a method to set an alias for the parameter
+     */
+    SingleNamedParameterBinder<VAL, CONTINUED, ORIGINAL> eq();
+    
+    /**
+     * @see #notIn(Collection)
+     * @return binder with a method to set an alias for the parameter
+     */
+    CollectionNamedParameterBinder<VAL, CONTINUED, ORIGINAL> notIn();
+    
+    /**
+     * @see #in(Collection)
+     * @return binder with a method to set an alias for the parameter
+     */
+    CollectionNamedParameterBinder<VAL, CONTINUED, ORIGINAL> in();
+    
     /**
      * Generates: left <> (referencedValue or actualValue)
      */

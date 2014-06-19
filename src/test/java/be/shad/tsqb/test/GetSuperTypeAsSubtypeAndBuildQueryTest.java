@@ -55,7 +55,7 @@ public class GetSuperTypeAsSubtypeAndBuildQueryTest extends TypeSafeQueryTest {
         Apartment apartmentProxy = query.getAsSubtype(buildingProxy, Apartment.class);
         query.where(apartmentProxy.getRevenue()).gt(argument);
         
-        validate(" from Building hobj1 where hobj1.revenue > ?", argument);
+        validate(" from Building hobj1 where hobj1.revenue > :np1", argument);
     }
     
     @Test
@@ -80,7 +80,7 @@ public class GetSuperTypeAsSubtypeAndBuildQueryTest extends TypeSafeQueryTest {
         
         validate("select distinct hobj2 from Town hobj1 "
                 + "left join hobj1.buildings hobj2 "
-                + "where hobj2.revenue > ? or hobj2.floors > ?", revenue, 5);
+                + "where hobj2.revenue > :np1 or hobj2.floors > :np2", revenue, 5);
         
         assertEquals("Exected the first house and the apartment", 2, doQueryResult.size());
         assertTrue("Expected house1 in the result.", doQueryResult.contains(house1));

@@ -22,15 +22,22 @@ import java.util.Map;
 
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.helper.TypeSafeQueryHelper;
+import be.shad.tsqb.param.QueryParameter;
+import be.shad.tsqb.param.QueryParameterCollection;
+import be.shad.tsqb.param.QueryParameterCollectionImpl;
+import be.shad.tsqb.param.QueryParameterSingle;
+import be.shad.tsqb.param.QueryParameterSingleImpl;
+import be.shad.tsqb.param.QueryParameterStringImpl;
+import be.shad.tsqb.param.QueryParameters;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
 import be.shad.tsqb.selection.SelectionValueTransformer;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroup;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroupImpl;
-import be.shad.tsqb.selection.parallel.SelectPair;
 import be.shad.tsqb.selection.parallel.ParallelSelectionMerger;
 import be.shad.tsqb.selection.parallel.ParallelSelectionMerger1;
 import be.shad.tsqb.selection.parallel.ParallelSelectionMerger2;
 import be.shad.tsqb.selection.parallel.ParallelSelectionMerger3;
+import be.shad.tsqb.selection.parallel.SelectPair;
 import be.shad.tsqb.selection.parallel.SelectTriplet;
 import be.shad.tsqb.selection.parallel.SelectValue;
 import be.shad.tsqb.values.TypeSafeValue;
@@ -44,7 +51,9 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     private Map<String, TypeSafeQueryProxy> customAliasedProxies = new HashMap<>();
     private TypeSafeValue<?> lastSelectedValue;
     private String lastInvokedProjectionPath;
+    private QueryParameters queryParameters = new QueryParameters();
     private int entityAliasCount = 1;
+    private int namedParamCount = 1;
     private int selectionGroupAliasCount = 1;
 
     public TypeSafeRootQueryImpl(TypeSafeQueryHelper helper) {
@@ -155,6 +164,48 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
         return "hobj"+ entityAliasCount++;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <T> QueryParameterCollection<T> createCollectionNamedParam(Class<T> valueClass) {
+        return putNamedParam(new QueryParameterCollectionImpl<T>(createNamedParam(), valueClass, null));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <T> QueryParameterSingle<T> createSingleNamedParam(Class<T> valueClass) {
+        if (valueClass == String.class) {
+            @SuppressWarnings({ "rawtypes", "unchecked" }) // just checked if T == string, so these warnings can be suppressed
+            QueryParameterSingle<T> param = (QueryParameterSingle) new QueryParameterStringImpl(createNamedParam(), null);
+            return putNamedParam(param);
+        } else {
+            return putNamedParam(new QueryParameterSingleImpl<T>(createNamedParam(), valueClass, null));
+        }
+    }
+    
+    private <T extends QueryParameter<?>> T putNamedParam(T param) {
+        queryParameters.addParam(param);
+        return param;
+    }
+    
+    private String createNamedParam() {
+        return "np"+ namedParamCount++;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setAlias(QueryParameter<?> param, String alias) {
+        queryParameters.setAlias(param, alias);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String createSelectGroupAlias() {
         return "g" + selectionGroupAliasCount++;
@@ -260,6 +311,20 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public <T, A, B, C> SelectTriplet<A, B, C> selectParallel(T resultDto, ParallelSelectionMerger3<T, A, B, C> merger) {
         return selectParallel(resultDto, SelectTriplet.class, (ParallelSelectionMerger) merger);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void namedValue(String alias, Object value) {
+        QueryParameter<?> param = queryParameters.getParamForAlias(alias);
+        if (param == null) {
+            throw new IllegalArgumentException(String.format(
+                    "Attempting to set value for parameter with alias [%s]. "
+                    + "But no parameter exists with this alias.", alias));
+        }
+        QueryParameters.setValue(param, value);
     }
 
 }

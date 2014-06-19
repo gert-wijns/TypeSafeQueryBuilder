@@ -48,4 +48,9 @@ public class OnGoingEnumRestrictionImpl<E extends Enum<E>>
         return createContinuedOnGoingRestriction(restrictionNodeType, previousValue);
     }
 
+    @Override
+    protected Class<E> getSupportedValueClass() {
+        return startValue.getValueClass();
+    }
+
 }

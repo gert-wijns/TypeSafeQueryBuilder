@@ -32,7 +32,7 @@ public class WhereTests extends TypeSafeQueryTest {
     public void whereEnumValueEquals() {
         House house = query.from(House.class);
         query.where(house.getStyle()).eq(Style.the1980s);
-        validate(" from House hobj1 where hobj1.style = ?", Style.the1980s);
+        validate(" from House hobj1 where hobj1.style = :np1", Style.the1980s);
     }
 
     /**
@@ -102,7 +102,7 @@ public class WhereTests extends TypeSafeQueryTest {
         
         query.where(group).and(house.getName()).startsWith("Castle");
         
-        validate(" from House hobj1 where (hobj1.style = ? or hobj1.floors > ?) and hobj1.name like ?", 
+        validate(" from House hobj1 where (hobj1.style = :np1 or hobj1.floors > :np2) and hobj1.name like :np3", 
                 Style.the1980s, 2, "Castle%");
     }
 
@@ -117,7 +117,7 @@ public class WhereTests extends TypeSafeQueryTest {
                 rb.where(house.getFloors()).gt(2)),
             rb.where(house.getName()).startsWith("Castle"));
 
-        validate(" from House hobj1 where (hobj1.style = ? or hobj1.floors > ?) and hobj1.name like ?", 
+        validate(" from House hobj1 where (hobj1.style = :np1 or hobj1.floors > :np2) and hobj1.name like :np3", 
                 Style.the1980s, 2, "Castle%");
     }
 

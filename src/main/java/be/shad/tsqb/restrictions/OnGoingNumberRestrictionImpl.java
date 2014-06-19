@@ -15,6 +15,8 @@
  */
 package be.shad.tsqb.restrictions;
 
+import be.shad.tsqb.restrictions.named.SingleNamedParameterBinder;
+import be.shad.tsqb.values.DirectTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
 
 /**
@@ -54,6 +56,11 @@ public class OnGoingNumberRestrictionImpl
         return createContinuedOnGoingRestriction(restrictionNodeType, previousValue);
     }
 
+    @Override
+    protected Class<Number> getSupportedValueClass() {
+        return Number.class;
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -116,6 +123,42 @@ public class OnGoingNumberRestrictionImpl
     @Override
     public ContinuedOnGoingNumberRestriction gte(TypeSafeValue<Number> value) {
         return addRestrictionAndContinue(startValue, GREATER_THAN_EQUAL, value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SingleNamedParameterBinder<Number, ContinuedOnGoingNumberRestriction, OnGoingNumberRestriction> gte() {
+        DirectTypeSafeValue<Number> value = createDirectValue();
+        return createNamedParameterBinder(value.getParameter(), gte(value));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SingleNamedParameterBinder<Number, ContinuedOnGoingNumberRestriction, OnGoingNumberRestriction> lte() {
+        DirectTypeSafeValue<Number> value = createDirectValue();
+        return createNamedParameterBinder(value.getParameter(), lte(value));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SingleNamedParameterBinder<Number, ContinuedOnGoingNumberRestriction, OnGoingNumberRestriction> gt() {
+        DirectTypeSafeValue<Number> value = createDirectValue();
+        return createNamedParameterBinder(value.getParameter(), gt(value));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SingleNamedParameterBinder<Number, ContinuedOnGoingNumberRestriction, OnGoingNumberRestriction> lt() {
+        DirectTypeSafeValue<Number> value = createDirectValue();
+        return createNamedParameterBinder(value.getParameter(), lt(value));
     }
 
 }

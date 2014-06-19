@@ -15,6 +15,7 @@
  */
 package be.shad.tsqb.restrictions;
 
+import be.shad.tsqb.restrictions.named.SingleNamedParameterBinder;
 import be.shad.tsqb.values.TypeSafeValue;
 
 /**
@@ -62,4 +63,28 @@ public interface OnGoingNumberRestriction extends OnGoingRestriction<Number, Con
      */
     ContinuedOnGoingNumberRestriction lt(Number value);
 
+    /**
+     * @see #gte(Number)
+     * @return binder with a method to set an alias for the parameter
+     */
+    SingleNamedParameterBinder<Number, ContinuedOnGoingNumberRestriction, OnGoingNumberRestriction> gte();
+
+    /**
+     * @see #lte(Number)
+     * @return binder with a method to set an alias for the parameter
+     */
+    SingleNamedParameterBinder<Number, ContinuedOnGoingNumberRestriction, OnGoingNumberRestriction> lte();
+
+    /**
+     * @see #gt(Number)
+     * @return binder with a method to set an alias for the parameter
+     */
+    SingleNamedParameterBinder<Number, ContinuedOnGoingNumberRestriction, OnGoingNumberRestriction> gt();
+
+    /**
+     * @see #lt(Number)
+     * @return binder with a method to set an alias for the parameter
+     */
+    SingleNamedParameterBinder<Number, ContinuedOnGoingNumberRestriction, OnGoingNumberRestriction> lt();
+    
 }

@@ -21,19 +21,32 @@ import be.shad.tsqb.domain.people.Person;
 import be.shad.tsqb.test.TypeSafeQueryTest;
 
 public class OnGoingBooleanRestrictionTest extends TypeSafeQueryTest {
+    private String NAMED_PARAM_1 = "NAMED_PARAM_1";
     
     @Test
     public void testIsFalse() {
         Person person = query.from(Person.class);
         query.where(person.isMarried()).isFalse();
-        validate(" from Person hobj1 where hobj1.married = ?", Boolean.FALSE);
+        validate(" from Person hobj1 where hobj1.married = :np1", Boolean.FALSE);
     }
 
     @Test
     public void testIsTrue() {
         Person person = query.from(Person.class);
         query.where(person.isMarried()).isTrue();
-        validate(" from Person hobj1 where hobj1.married = ?", Boolean.TRUE);
+        validate(" from Person hobj1 where hobj1.married = :np1", Boolean.TRUE);
+    }
+
+    @Test
+    public void testIsNamed() {
+        Person person = query.from(Person.class);
+        query.where(person.isMarried()).isNamed(NAMED_PARAM_1);
+        
+        query.namedValue(NAMED_PARAM_1, Boolean.TRUE);
+        validate(" from Person hobj1 where hobj1.married = :np1", Boolean.TRUE);
+
+        query.namedValue(NAMED_PARAM_1, Boolean.FALSE);
+        validate(" from Person hobj1 where hobj1.married = :np1", Boolean.FALSE);
     }
     
 }

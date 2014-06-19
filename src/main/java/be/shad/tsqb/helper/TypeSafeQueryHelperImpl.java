@@ -38,6 +38,9 @@ import org.hibernate.type.Type;
 
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.data.TypeSafeQuerySelectionProxyData;
+import be.shad.tsqb.param.QueryParameter;
+import be.shad.tsqb.param.QueryParameterCollection;
+import be.shad.tsqb.param.QueryParameterSingle;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
 import be.shad.tsqb.proxy.TypeSafeQueryProxyFactory;
 import be.shad.tsqb.proxy.TypeSafeQueryProxyType;
@@ -301,10 +304,25 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
      */
     @Override
     public HqlQueryValue replaceParamsWithLiterals(HqlQueryValue value) {
-        if( value.getParams().length > 0 ) {
+        if (!value.getParams().isEmpty()) {
             String hql = value.getHql();
-            for(Object param: value.getParams()) {
-                hql = hql.replaceFirst("\\?", toLiteral(param));
+            for(QueryParameter<?> param: value.getParams()) {
+                String queryAlias = param.getName();
+                String literal = null;
+                if (param instanceof QueryParameterCollection<?>) {
+                    Collection<?> collection = ((QueryParameterCollection<?>) param).getValues();
+                    StringBuilder sb = new StringBuilder("(");
+                    for(Object val: collection) {
+                        if( sb.length() > 1 ) {
+                            sb.append(", ");
+                        }
+                        sb.append(toLiteral(val));
+                    }
+                    sb.append(")");
+                } else {
+                    literal = toLiteral(((QueryParameterSingle<?>) param).getValue());
+                }
+                hql = hql.replaceFirst(":" + queryAlias, literal);
             }
             value = new HqlQueryValueImpl(hql);
         }

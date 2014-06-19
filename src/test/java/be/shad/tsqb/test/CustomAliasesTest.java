@@ -41,7 +41,7 @@ public class CustomAliasesTest extends TypeSafeQueryTest {
     public void testUseRegisteredAlias() {
         Person child = query.getProxyByCustomEntityAlias(CHILD_CUSTOM_ALIAS);
         query.where(child.getName()).startsWith("Josh");
-        validate(" from Person parentAlias join parentAlias.childRelations hobj2 join hobj2.child childAlias where childAlias.name like ?", "Josh%");
+        validate(" from Person parentAlias join parentAlias.childRelations hobj2 join hobj2.child childAlias where childAlias.name like :np1", "Josh%");
     }
 
     /**

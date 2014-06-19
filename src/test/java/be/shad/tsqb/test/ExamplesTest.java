@@ -18,6 +18,7 @@ package be.shad.tsqb.test;
 import java.text.DateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.commons.lang3.time.DateUtils;
 import org.hibernate.Session;
@@ -66,7 +67,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
         
         query.where(person.getAge()).gt(50);
 
-        validate(" from Person hobj1 where hobj1.age > ?", 50);
+        validate(" from Person hobj1 where hobj1.age > :np1", 50);
     }
     
     /**
@@ -79,7 +80,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
         query.where(person.isMarried()).  // type based checks available
                 and(person.getSex()).eq(Sex.Male); // can chain restrictions
 
-        validate(" from Person hobj1 where hobj1.married = ? and hobj1.sex = ?", Boolean.TRUE, Sex.Male);
+        validate(" from Person hobj1 where hobj1.married = :np1 and hobj1.sex = :np2", Boolean.TRUE, Sex.Male);
     }
 
     /**
@@ -94,8 +95,8 @@ public class ExamplesTest extends TypeSafeQueryTest {
             rb.where(person.getName()).startsWith("Jef").or().startsWith("John")
         );
 
-        validate(" from Person hobj1 where hobj1.married = ? and (hobj1.name like ? or hobj1.name like ?)", 
-                Boolean.TRUE, "Jef%", "John%");
+        validate(" from Person hobj1 where hobj1.married = :np3 and (hobj1.name like :np1 or hobj1.name like :np2)", 
+                "Jef%", "John%", Boolean.TRUE);
     }
     
     /**
@@ -111,8 +112,8 @@ public class ExamplesTest extends TypeSafeQueryTest {
         
         query.where(person.isMarried()).and(nameOrs);
 
-        validate(" from Person hobj1 where hobj1.married = ? and (hobj1.name like ? or hobj1.name like ?)", 
-                Boolean.TRUE, "Jef%", "John%");
+        validate(" from Person hobj1 where hobj1.married = :np3 and (hobj1.name like :np1 or hobj1.name like :np2)", 
+                "Jef%", "John%", Boolean.TRUE);
     }
 
     /**
@@ -138,7 +139,9 @@ public class ExamplesTest extends TypeSafeQueryTest {
             )
         );
 
-        validate(" from Person hobj1 where hobj1.name like ? and ((hobj1.age < ? and hobj1.name like ?) or (hobj1.age > ? and hobj1.name like ?))", 
+        validate(" from Person hobj1 where hobj1.name like :np1 and "
+                + "((hobj1.age < :np2 and hobj1.name like :np3) or "
+                + "(hobj1.age > :np4 and hobj1.name like :np5))", 
                 "Jef%", 10, "John%", 20, "Emily%");
     }
 
@@ -155,7 +158,9 @@ public class ExamplesTest extends TypeSafeQueryTest {
             rb.where(person.getAge()).lt(10).and(person.getName()).startsWith("John"),
             rb.where(person.getAge()).gt(20).and(person.getName()).startsWith("Emily")));
 
-        validate(" from Person hobj1 where hobj1.name like ? and ((hobj1.age < ? and hobj1.name like ?) or (hobj1.age > ? and hobj1.name like ?))", 
+        validate(" from Person hobj1 where hobj1.name like :np1 and "
+                + "((hobj1.age < :np2 and hobj1.name like :np3) or "
+                + "(hobj1.age > :np4 and hobj1.name like :np5))", 
                 "Jef%", 10, "John%", 20, "Emily%");
     }
     
@@ -171,7 +176,8 @@ public class ExamplesTest extends TypeSafeQueryTest {
         query.where(person.getName()).startsWith("G").and(
                 rb.where(person.getAge()).gt(80).or(person.getAge()).lt(10));
         
-        validate(" from Person hobj1 where hobj1.name like ? and (hobj1.age > ? or hobj1.age < ?)", "G%", 80, 10);
+        validate(" from Person hobj1 where hobj1.name like :np1 and "
+                + "(hobj1.age > :np2 or hobj1.age < :np3)", "G%", 80, 10);
     }
     
     /**
@@ -179,12 +185,13 @@ public class ExamplesTest extends TypeSafeQueryTest {
      */
     @Test
     public void testOngoingRestrictionsCapture() {
+        List<String> names = Arrays.asList("Josh", "Emily");
         Person person = query.from(Person.class);
 
         OnGoingTextRestriction nameCheck = query.where(person.getName());
         
-        nameCheck.in(Arrays.asList("Josh", "Emily"));
-        validate(" from Person hobj1 where hobj1.name in (?, ?)", "Josh", "Emily");
+        nameCheck.in(names);
+        validate(" from Person hobj1 where hobj1.name in :np1", names);
 
         nameCheck.isNull();
         validate(" from Person hobj1 where hobj1.name is null ");
@@ -251,7 +258,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
         TypeSafeQueryJoin<Person> childJoin = query.getJoin(child);
         childJoin.with(child.getName()).eq("Bob");
 
-        validate(" from Person hobj1 join hobj1.childRelations hobj2 join hobj2.child hobj3 with hobj3.name = ?", "Bob");
+        validate(" from Person hobj1 join hobj1.childRelations hobj2 join hobj2.child hobj3 with hobj3.name = :np1", "Bob");
     }
 
     @Test
@@ -271,7 +278,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
         query.where(person.getAge()).lt(20).
                 and(person.getName()).startsWith("Alex");
 
-        validate(" from Person hobj1 where hobj1.age < ? and hobj1.name like ?", 20, "Alex%");
+        validate(" from Person hobj1 where hobj1.age < :np1 and hobj1.name like :np2", 20, "Alex%");
     }
 
     @Test
@@ -289,7 +296,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
         query.selectValue(person);
         query.selectValue(favoriteColorSQ);
 
-        validate("select hobj1, (select hobj2.propertyValue from PersonProperty hobj2 where hobj1.id = hobj2.person.id and hobj2.propertyKey = ?) from Person hobj1", 
+        validate("select hobj1, (select hobj2.propertyValue from PersonProperty hobj2 where hobj1.id = hobj2.person.id and hobj2.propertyKey = :np1) from Person hobj1", 
                 "FavColorKey");
     }
 
@@ -307,7 +314,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
 
         query.whereString(favoriteColorSQ).eq("Blue");
         
-        validate(" from Person hobj1 where (select hobj2.propertyValue from PersonProperty hobj2 where hobj1.id = hobj2.person.id and hobj2.propertyKey = ?) = ?",
+        validate(" from Person hobj1 where (select hobj2.propertyValue from PersonProperty hobj2 where hobj1.id = hobj2.person.id and hobj2.propertyKey = :np1) = :np2",
                 "FavColorKey", "Blue");
     }
     
@@ -321,7 +328,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
         Person parent = query.join(relation.getParent(), JoinType.None);
         query.where(parent.getId()).eq(1L);
         
-        validate(" from Relation hobj1 where hobj1.parent.id = ?", 1L);
+        validate(" from Relation hobj1 where hobj1.parent.id = :np1", 1L);
     }
 
     /**
@@ -339,7 +346,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
         // construction date will be used for the 'after' and the 'before' date check.
         query.where(building.getConstructionDate()).after(date1).before(date2);
 
-        validate(" from Building hobj1 where hobj1.constructionDate > ? and hobj1.constructionDate < ?", date1, date2);
+        validate(" from Building hobj1 where hobj1.constructionDate > :np1 and hobj1.constructionDate < :np2", date1, date2);
     }
 
     /**
@@ -352,7 +359,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
         Relation relation = query.from(Relation.class);
         query.where(relation.getParent().getId()).eq(1L);
         
-        validate(" from Relation hobj1 where hobj1.parent.id = ?", 1L);
+        validate(" from Relation hobj1 where hobj1.parent.id = :np1", 1L);
     }
 
     /**
@@ -365,7 +372,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
         query.where(relation.getParent().getId()).eq(1L);
         query.where(relation.getParent().getName()).eq("Iain");
         
-        validate(" from Relation hobj1 join hobj1.parent hobj2 where hobj2.id = ? and hobj2.name = ?", 1L, "Iain");
+        validate(" from Relation hobj1 join hobj1.parent hobj2 where hobj2.id = :np1 and hobj2.name = :np2", 1L, "Iain");
     }
     
     @Test
@@ -399,7 +406,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
         PersonDto dto = query.select(PersonDto.class);
         dto.setThePersonsName(query.function().coalesce(person.getName()).or("Bert").select());
 
-        validate("select coalesce (hobj1.name,?) as thePersonsName from Person hobj1", "Bert");
+        validate("select coalesce (hobj1.name,:np1) as thePersonsName from Person hobj1", "Bert");
     }
 
     @Test
@@ -444,7 +451,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
         
         query.whereString(query.function().upper(person.getName())).eq("TOM");
 
-        validate(" from Person hobj1 where upper(hobj1.name) = ?", "TOM");
+        validate(" from Person hobj1 where upper(hobj1.name) = :np1", "TOM");
     }
 
     @Test
@@ -452,7 +459,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
         Relation relation = query.from(Relation.class);
         query.where(relation.getParent().getName()).startsWith("Sam"); // implicit join on parent
 
-        validate(" from Relation hobj1 join hobj1.parent hobj2 where hobj2.name like ?", "Sam%");
+        validate(" from Relation hobj1 join hobj1.parent hobj2 where hobj2.name like :np1", "Sam%");
     }
 
     @Test
@@ -460,7 +467,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
         Relation relation = query.from(Relation.class);
         query.where(relation.getParent().getId()).eq(1L); // implicit join on parent
 
-        validate(" from Relation hobj1 where hobj1.parent.id = ?", 1L);
+        validate(" from Relation hobj1 where hobj1.parent.id = :np1", 1L);
     }
 
     @Test
@@ -507,7 +514,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
         
         // when no function is available and the value can't be retrieved another way it's still possible to just inject hql
         // it doesn't look pretty, and it isn't supposed to.. because you probably shouldn't do this!
-        dto.setCustomString(new CustomTypeSafeValue<>(query, String.class, "'SomeCustomHql'", Arrays.asList()).select());
+        dto.setCustomString(new CustomTypeSafeValue<>(query, String.class, "'SomeCustomHql'").select());
 
         validate("select " + 
                  "(select count(*) from Person hobj3 where hobj3.town.id = hobj1.id) as inhabitants, " +
@@ -515,7 +522,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
                  "upper(hobj1.name) as name, " +
                  "hobj2.propertyValue as lastUfoSpottingDate, " +
                  "'SomeCustomHql' as customString " +
-                 "from Town hobj1 left join hobj1.properties hobj2 with hobj2.propertyKey = ?", "LastUfoSpottingDate");
+                 "from Town hobj1 left join hobj1.properties hobj2 with hobj2.propertyKey = :np1", "LastUfoSpottingDate");
     }
     
 }

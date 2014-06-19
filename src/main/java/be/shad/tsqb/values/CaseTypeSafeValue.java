@@ -55,7 +55,7 @@ public class CaseTypeSafeValue<T> extends TypeSafeValueImpl<T> implements OnGoin
             // query.toValue because it should never be used that way.
             TypeSafeQueryProxyData data = query.dequeueInvocation();
             if( data == null ) {
-                return is(new CustomTypeSafeValue<T>(query, getValueClass(), "null", null));
+                return is(new CustomTypeSafeValue<T>(query, getValueClass(), "null"));
             }
             query.invocationWasMade(data); // add it back to the query.
         }
