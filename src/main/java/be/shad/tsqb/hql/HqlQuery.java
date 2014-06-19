@@ -17,6 +17,7 @@ package be.shad.tsqb.hql;
 
 import java.util.Collection;
 
+import org.hibernate.engine.jdbc.internal.BasicFormatterImpl;
 import org.hibernate.transform.ResultTransformer;
 
 import be.shad.tsqb.param.QueryParameter;
@@ -124,36 +125,15 @@ public class HqlQuery implements HqlQueryValue {
      * String with newlines and spaces to outline the query in a pretty format.
      */
     public String toFormattedString() {
-        String str = getHql().
-                replace("select", "\nselect").
-                replace("from", "\nfrom").
-                replace("join hobj", "\n  join hobj").
-                replace("where", "\n  where").
-                replace(" and ", "\n    and ").
-                replace(" or ", "\n   or ").
-                replace("order by","\norder by").
-                replace("group by","\ngroup by");
-        
-        StringBuilder format = new StringBuilder();
-        int depth = 0;
-        for(int i=0; i < str.length(); i++) {
-            format.append(str.charAt(i));
-            if( str.charAt(i) == '\n' ) {
-                for(int d=0; d < depth; d++) {
-                    format.append("  ");
-                }
-            } else if ( str.charAt(i) == '(' ) {
-                depth++;
-            } else if ( str.charAt(i) == ')' ) {
-                depth--;
-            }
-        }
-        return format + "\n --- with params: " + queryParameters;
+        BasicFormatterImpl formatter = new BasicFormatterImpl();
+        String prettyHql = formatter.format(getHql());
+        prettyHql = prettyHql.replaceAll("((from|join|select|where)\\n\\s*)", "$2 ");
+        return prettyHql + "\n --- with: " + queryParameters.toString().replace("PARAM [", "\n[");
     }
     
     @Override
     public String toString() {
-        return getHql() + " --- with params: " + queryParameters;
+        return getHql() + " --- with: " + queryParameters;
     }
     
 }
