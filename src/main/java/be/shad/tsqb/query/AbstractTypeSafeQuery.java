@@ -44,7 +44,9 @@ import be.shad.tsqb.restrictions.RestrictionsGroup.RestrictionsGroupBracketsPoli
 import be.shad.tsqb.restrictions.RestrictionsGroupImpl;
 import be.shad.tsqb.restrictions.RestrictionsGroupInternal;
 import be.shad.tsqb.selection.TypeSafeQueryProjections;
+import be.shad.tsqb.values.DirectTypeSafeStringValue;
 import be.shad.tsqb.values.DirectTypeSafeValue;
+import be.shad.tsqb.values.HqlQueryBuilderParams;
 import be.shad.tsqb.values.HqlQueryValue;
 import be.shad.tsqb.values.ReferenceTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
@@ -414,6 +416,11 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
             if (value instanceof TypeSafeQueryProxy) {
                 // required when selecting full hibernate objects (for example when using select distinct hobj)
                 return new ReferenceTypeSafeValue<VAL>(this, ((TypeSafeQueryProxy) value).getTypeSafeProxyData());
+            } else if (value instanceof String) {
+                @SuppressWarnings("unchecked")
+                DirectTypeSafeValue<VAL> directValue = (DirectTypeSafeValue<VAL>) 
+                        new DirectTypeSafeStringValue(this, (String) value);
+                return directValue;
             } else {
                 return new DirectTypeSafeValue<VAL>(this, value);
             }
@@ -505,25 +512,25 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
     /**
      * Compose a query object with the selections, from, wheres, group bys and order bys.
      */
-    public HqlQuery toHqlQuery() {
+    protected HqlQuery toHqlQuery(HqlQueryBuilderParams params) {
         HqlQuery query = new HqlQuery();
         
         // append select part:
-        projections.appendTo(query);
+        projections.appendTo(query, params);
         
         // append from part + their joins:
-        dataTree.appendTo(query);
+        dataTree.appendTo(query, params);
         
         // append where part:
-        HqlQueryValue hqlRestrictions = restrictions.toHqlQueryValue();
+        HqlQueryValue hqlRestrictions = restrictions.toHqlQueryValue(params);
         query.appendWhere(hqlRestrictions.getHql());
         query.addParams(hqlRestrictions.getParams());
         
         // append group part:
-        groupBys.appendTo(query);
+        groupBys.appendTo(query, params);
         
         // append order part:
-        orderBys.appendTo(query);
+        orderBys.appendTo(query, params);
         
         return query;
     }

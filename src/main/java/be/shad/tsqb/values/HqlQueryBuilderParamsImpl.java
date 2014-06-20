@@ -15,24 +15,24 @@
  */
 package be.shad.tsqb.values;
 
-import be.shad.tsqb.query.TypeSafeQuery;
-
-public class CastTypeSafeValue<T> extends TypeSafeValueImpl<T> {
+public class HqlQueryBuilderParamsImpl implements HqlQueryBuilderParams {
+    private int namedParamCount = 1;
+    private boolean requiresLiterals;
     
-    private TypeSafeValue<?> value;
-
-    protected CastTypeSafeValue(TypeSafeQuery query, 
-            Class<T> valueType, TypeSafeValue<?> value) {
-        super(query, valueType);
-        this.value = value;
+    @Override
+    public boolean isRequiresLiterals() {
+        return requiresLiterals;
+    }
+    
+    public boolean setRequiresLiterals(boolean requiresLiterals) {
+        boolean previous = this.requiresLiterals;
+        this.requiresLiterals = requiresLiterals;
+        return previous;
     }
 
     @Override
-    public HqlQueryValue toHqlQueryValue(HqlQueryBuilderParams params) {
-        HqlQueryValue value = this.value.toHqlQueryValue(params);
-        return new HqlQueryValueImpl(String.format("cast(%s as %s)", value.getHql(), 
-                query.getHelper().getResolvedTypeName(getValueClass())), 
-                value.getParams());
+    public String createNamedParameter() {
+        return "np" + namedParamCount++;
     }
 
 }

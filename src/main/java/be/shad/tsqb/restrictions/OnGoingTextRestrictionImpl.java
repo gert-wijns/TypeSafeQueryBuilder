@@ -15,13 +15,11 @@
  */
 package be.shad.tsqb.restrictions;
 
-import static be.shad.tsqb.param.QueryParameterStringImpl.EMPTY;
-
 import java.util.List;
 
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
-import be.shad.tsqb.param.QueryParameterStringImpl;
 import be.shad.tsqb.restrictions.named.SingleNamedParameterBinder;
+import be.shad.tsqb.values.DirectTypeSafeStringValue;
 import be.shad.tsqb.values.DirectTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
 
@@ -34,6 +32,7 @@ public class OnGoingTextRestrictionImpl
         extends OnGoingRestrictionImpl<String, ContinuedOnGoingTextRestriction, OnGoingTextRestriction> 
         implements OnGoingTextRestriction, ContinuedOnGoingTextRestriction {
 
+    private final static String EMPTY = "";
     private final static String WILDCARD = "%";
     private final static String LIKE = "like";
 
@@ -102,7 +101,7 @@ public class OnGoingTextRestrictionImpl
     @Override
     public SingleNamedParameterBinder<String, ContinuedOnGoingTextRestriction, OnGoingTextRestriction> contains() {
         DirectTypeSafeValue<String> value = createDirectValue(WILDCARD, WILDCARD);
-        return createNamedParameterBinder(value.getParameter(), like(value));
+        return createNamedParameterBinder(value, like(value));
     }
 
     /**
@@ -111,7 +110,7 @@ public class OnGoingTextRestrictionImpl
     @Override
     public SingleNamedParameterBinder<String, ContinuedOnGoingTextRestriction, OnGoingTextRestriction> endsWith() {
         DirectTypeSafeValue<String> value = createDirectValue(WILDCARD, EMPTY);
-        return createNamedParameterBinder(value.getParameter(), like(value));
+        return createNamedParameterBinder(value, like(value));
     }
 
     /**
@@ -120,7 +119,7 @@ public class OnGoingTextRestrictionImpl
     @Override
     public SingleNamedParameterBinder<String, ContinuedOnGoingTextRestriction, OnGoingTextRestriction> startsWith() {
         DirectTypeSafeValue<String> value = createDirectValue(EMPTY, WILDCARD);
-        return createNamedParameterBinder(value.getParameter(), like(value));
+        return createNamedParameterBinder(value, like(value));
     }
     
     /**
@@ -129,7 +128,7 @@ public class OnGoingTextRestrictionImpl
      */
     private TypeSafeValue<String> toValue(String prefix, String value, String postfix) {
         if( value instanceof String ) {
-            DirectTypeSafeValue<String> toValue = (DirectTypeSafeValue<String>) toValue(value);
+            DirectTypeSafeStringValue toValue = (DirectTypeSafeStringValue) toValue(value);
             return setWildCards(prefix, toValue, postfix);
         }
         if( !prefix.isEmpty() || !postfix.isEmpty()) {
@@ -144,10 +143,18 @@ public class OnGoingTextRestrictionImpl
     }
     
     /**
+     * Override to create a specialized value.
+     */
+    @Override
+    protected DirectTypeSafeStringValue createDirectValue() {
+        return new DirectTypeSafeStringValue(group.getQuery());
+    }
+    
+    /**
      * Creates an empty value and sets the prefix and postfix.
      */
     private DirectTypeSafeValue<String> createDirectValue(String prefix, String postfix) {
-        DirectTypeSafeValue<String> directValue = createDirectValue();
+        DirectTypeSafeStringValue directValue = createDirectValue();
         return setWildCards(prefix, directValue, postfix);
     }
     
@@ -155,11 +162,10 @@ public class OnGoingTextRestrictionImpl
      * Sets the prefix and postfix of the string parameter.
      */
     private DirectTypeSafeValue<String> setWildCards(String prefix, 
-            DirectTypeSafeValue<String> toValue, String postfix) {
-        QueryParameterStringImpl parameter = (QueryParameterStringImpl) toValue.getParameter();
+            DirectTypeSafeStringValue parameter, String postfix) {
         parameter.setPrefix(prefix);
         parameter.setPostfix(postfix);
-        return toValue;
+        return parameter;
     }
 
 }

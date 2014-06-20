@@ -26,7 +26,6 @@ import static be.shad.tsqb.restrictions.RestrictionNodeType.Or;
 
 import java.util.Collection;
 
-import be.shad.tsqb.param.QueryParameter;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.restrictions.named.CollectionNamedParameterBinder;
 import be.shad.tsqb.restrictions.named.NamedParameterBinderImpl;
@@ -86,9 +85,9 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
             TypeSafeValue<VAL> previousValue);
 
     protected NamedParameterBinderImpl<VAL, CONTINUED, ORIGINAL> createNamedParameterBinder(
-            QueryParameter<VAL> queryParameter, CONTINUED next) {
+            TypeSafeValue<VAL> value, CONTINUED next) {
         return new NamedParameterBinderImpl<VAL, CONTINUED, ORIGINAL>(
-                group.getQuery(), queryParameter, next);
+                group.getQuery(), value, next);
     }
     
     /**
@@ -206,7 +205,7 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
     @Override
     public SingleNamedParameterBinder<VAL, CONTINUED, ORIGINAL> eq() {
         DirectTypeSafeValue<VAL> value = createDirectValue();
-        return createNamedParameterBinder(value.getParameter(), eq(value));
+        return createNamedParameterBinder(value, eq(value));
     }
 
     /**
@@ -215,7 +214,7 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
     @Override
     public SingleNamedParameterBinder<VAL, CONTINUED, ORIGINAL> not() {
         DirectTypeSafeValue<VAL> value = createDirectValue();
-        return createNamedParameterBinder(value.getParameter(), not(value));
+        return createNamedParameterBinder(value, not(value));
     }
 
     /**
@@ -224,7 +223,7 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
     @Override
     public CollectionNamedParameterBinder<VAL, CONTINUED, ORIGINAL> in() {
         CollectionTypeSafeValue<VAL> value = createCollectionValue();
-        return createNamedParameterBinder(value.getParameter(), in(value));
+        return createNamedParameterBinder(value, in(value));
     }
 
     /**
@@ -233,7 +232,7 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
     @Override
     public CollectionNamedParameterBinder<VAL, CONTINUED, ORIGINAL> notIn() {
         CollectionTypeSafeValue<VAL> value = createCollectionValue();
-        return createNamedParameterBinder(value.getParameter(), notIn(value));
+        return createNamedParameterBinder(value, notIn(value));
     }
     
     /**

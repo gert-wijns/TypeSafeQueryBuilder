@@ -15,6 +15,7 @@
  */
 package be.shad.tsqb.query;
 
+import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.selection.SelectionValueTransformer;
 import be.shad.tsqb.selection.parallel.ParallelSelectionMerger;
 import be.shad.tsqb.selection.parallel.ParallelSelectionMerger1;
@@ -51,6 +52,14 @@ import be.shad.tsqb.values.TypeSafeValue;
  * </pre>
  */
 public interface TypeSafeRootQuery extends TypeSafeQuery {
+    
+    /**
+     * Converts this query to an hqlQuery. 
+     * <p>
+     * The hqlQuery can be used to get the hql and the 
+     * params to create a hibernate query object.
+     */
+    HqlQuery toHqlQuery();
     
     /**
      * Can be used when not selecting into a result type,

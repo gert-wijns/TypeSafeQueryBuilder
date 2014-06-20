@@ -38,9 +38,6 @@ import org.hibernate.type.Type;
 
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.data.TypeSafeQuerySelectionProxyData;
-import be.shad.tsqb.param.QueryParameter;
-import be.shad.tsqb.param.QueryParameterCollection;
-import be.shad.tsqb.param.QueryParameterSingle;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
 import be.shad.tsqb.proxy.TypeSafeQueryProxyFactory;
 import be.shad.tsqb.proxy.TypeSafeQueryProxyType;
@@ -50,8 +47,6 @@ import be.shad.tsqb.query.TypeSafeRootQuery;
 import be.shad.tsqb.query.TypeSafeRootQueryImpl;
 import be.shad.tsqb.query.TypeSafeRootQueryInternal;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroup;
-import be.shad.tsqb.values.HqlQueryValue;
-import be.shad.tsqb.values.HqlQueryValueImpl;
 
 public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
     private final SessionFactory sessionFactory;
@@ -278,11 +273,10 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
     }
 
     /**
-     * Convert a value to a string. This is only used when hibernate would fail if params are used.
-     * <p>
-     * Uses the hibernate Type object to convert to a literal.
+     * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
+    @Override
     public String toLiteral(Object value) {
         if( value == null ) {
             return "null";
@@ -297,36 +291,6 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
         } else {
             throw new IllegalArgumentException("Failed to convert: " + value);
         }
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public HqlQueryValue replaceParamsWithLiterals(HqlQueryValue value) {
-        if (!value.getParams().isEmpty()) {
-            String hql = value.getHql();
-            for(QueryParameter<?> param: value.getParams()) {
-                String queryAlias = param.getName();
-                String literal = null;
-                if (param instanceof QueryParameterCollection<?>) {
-                    Collection<?> collection = ((QueryParameterCollection<?>) param).getValues();
-                    StringBuilder sb = new StringBuilder("(");
-                    for(Object val: collection) {
-                        if( sb.length() > 1 ) {
-                            sb.append(", ");
-                        }
-                        sb.append(toLiteral(val));
-                    }
-                    sb.append(")");
-                } else {
-                    literal = toLiteral(((QueryParameterSingle<?>) param).getValue());
-                }
-                hql = hql.replaceFirst(":" + queryAlias, literal);
-            }
-            value = new HqlQueryValueImpl(hql);
-        }
-        return value;
     }
 
     /**

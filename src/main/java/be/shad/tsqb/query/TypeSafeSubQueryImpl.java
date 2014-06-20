@@ -20,10 +20,8 @@ import java.util.List;
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.helper.TypeSafeQueryHelper;
 import be.shad.tsqb.hql.HqlQuery;
-import be.shad.tsqb.param.QueryParameter;
-import be.shad.tsqb.param.QueryParameterCollection;
-import be.shad.tsqb.param.QueryParameterSingle;
 import be.shad.tsqb.values.CaseTypeSafeValue;
+import be.shad.tsqb.values.HqlQueryBuilderParams;
 import be.shad.tsqb.values.HqlQueryValue;
 import be.shad.tsqb.values.HqlQueryValueImpl;
 import be.shad.tsqb.values.TypeSafeValue;
@@ -81,8 +79,8 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
      * Create an hql query as value for this subquery.
      */
     @Override
-    public HqlQueryValue toHqlQueryValue() {
-        HqlQuery query = toHqlQuery();
+    public HqlQueryValue toHqlQueryValue(HqlQueryBuilderParams params) {
+        HqlQuery query = toHqlQuery(params);
         return new HqlQueryValueImpl("(" +query.getHql() + ")", query.getParams());
     }
 
@@ -138,26 +136,10 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
      * Delegate to root.
      */
     @Override
-    public void setAlias(QueryParameter<?> param, String alias) {
+    public void setAlias(TypeSafeValue<?> param, String alias) {
         getRootQuery().setAlias(param, alias);
     }
 
-    /**
-     * Delegate to root.
-     */
-    @Override
-    public <QP> QueryParameterCollection<QP> createCollectionNamedParam(Class<QP> valueClass) {
-        return getRootQuery().createCollectionNamedParam(valueClass);
-    }
-
-    /**
-     * Delegate to root.
-     */
-    @Override
-    public <QP> QueryParameterSingle<QP> createSingleNamedParam(Class<QP> valueClass) {
-        return getRootQuery().createSingleNamedParam(valueClass);
-    }
-    
     @Override
     public T select() {
         return getRootQuery().queueValueSelected(this);

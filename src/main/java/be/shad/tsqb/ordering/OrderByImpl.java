@@ -16,6 +16,7 @@
 package be.shad.tsqb.ordering;
 
 import be.shad.tsqb.hql.HqlQuery;
+import be.shad.tsqb.values.HqlQueryBuilderParams;
 import be.shad.tsqb.values.TypeSafeValue;
 
 public class OrderByImpl implements OrderBy {
@@ -28,10 +29,10 @@ public class OrderByImpl implements OrderBy {
     }
 
     @Override
-    public void appendTo(HqlQuery query) {
+    public void appendTo(HqlQuery query, HqlQueryBuilderParams params) {
         //ascending is the default
         String order = descending ? " desc": "";
-        query.appendOrderBy(value.toHqlQueryValue().getHql() + order);
+        query.appendOrderBy(value.toHqlQueryValue(params).getHql() + order);
     }
     
 }

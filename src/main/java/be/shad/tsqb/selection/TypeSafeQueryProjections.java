@@ -26,6 +26,7 @@ import be.shad.tsqb.hql.HqlQueryBuilder;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.values.DirectTypeSafeValue;
+import be.shad.tsqb.values.HqlQueryBuilderParams;
 import be.shad.tsqb.values.HqlQueryValue;
 import be.shad.tsqb.values.IsMaybeDistinct;
 import be.shad.tsqb.values.ReferenceTypeSafeValue;
@@ -148,14 +149,18 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
     }
 
     @Override
-    public void appendTo(HqlQuery query) {
+    public void appendTo(HqlQuery query, HqlQueryBuilderParams params) {
         List<TypeSafeQuerySelectionProxyData> selectionDatas = new ArrayList<>(projections.size());
         List<SelectionValueTransformer<?, ?>> transformers = new ArrayList<>(projections.size());
         boolean hasTransformer = false;
         for(TypeSafeValueProjection projection: projections) {
-            HqlQueryValue val = projection.getValue().toHqlQueryValue();
+            HqlQueryValue val;
             if( projection.getValue() instanceof DirectTypeSafeValue<?> ) {
-                val = this.query.getHelper().replaceParamsWithLiterals(val);
+                boolean previous = params.setRequiresLiterals(true);
+                val = projection.getValue().toHqlQueryValue(params);
+                params.setRequiresLiterals(previous);
+            } else {
+                val = projection.getValue().toHqlQueryValue(params);
             }
             String alias = "";
             TypeSafeQuerySelectionProxyData selectionData = projection.getSelectionData();

@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.shad.tsqb.exceptions;
+package be.shad.tsqb.values;
 
-public class QueryParameterAlreadyBoundException extends RuntimeException {
-    private static final long serialVersionUID = -3026588720898823281L;
+public interface NamedValueEnabled {
 
-    public QueryParameterAlreadyBoundException(String message) {
-        super(message);
-    }
-
+    /**
+     * Type safe values may be named value enabled.
+     * When this method is called, the value should
+     * be checked explicitely for type safety.
+     */
+    void setNamedValue(Object value);
+    
 }

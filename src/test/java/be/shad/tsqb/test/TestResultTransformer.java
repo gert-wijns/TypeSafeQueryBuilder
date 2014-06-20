@@ -36,6 +36,8 @@ import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.query.TypeSafeRootQueryInternal;
 import be.shad.tsqb.selection.TypeSafeQueryProjections;
 import be.shad.tsqb.selection.TypeSafeQueryResultTransformer;
+import be.shad.tsqb.values.HqlQueryBuilderParams;
+import be.shad.tsqb.values.HqlQueryBuilderParamsImpl;
 
 public class TestResultTransformer extends TypeSafeQueryTest {
     protected final Logger logger = LogManager.getLogger(getClass());
@@ -56,9 +58,10 @@ public class TestResultTransformer extends TypeSafeQueryTest {
         Product selectProxy = query.select(Product.class);
         selectProxy.setName("Name");
         selectProxy.getProperties().getPlanning().setAlgorithm("Algo");
-        
+
+        HqlQueryBuilderParams params = new HqlQueryBuilderParamsImpl();
         HqlQuery query = new HqlQuery();
-        getProjections().appendTo(query);
+        getProjections().appendTo(query, params);
         
         TypeSafeQueryResultTransformer tf = (TypeSafeQueryResultTransformer) query.getResultTransformer();
         Object transformTuple = tf.transformTuple(new Object[] {"Name", "Algo"}, new String[paths.size()]);
@@ -82,8 +85,9 @@ public class TestResultTransformer extends TypeSafeQueryTest {
                 fromProxy.getProperties().getPlanning().getAlgorithm(), 
                 new StringToPlanningPropertiesTransformer()));
 
+        HqlQueryBuilderParams params = new HqlQueryBuilderParamsImpl();
         HqlQuery query = new HqlQuery();
-        getProjections().appendTo(query);
+        getProjections().appendTo(query, params);
         
         TypeSafeQueryResultTransformer tf = (TypeSafeQueryResultTransformer) query.getResultTransformer();
         Object transformTuple = tf.transformTuple(new Object[] {"Name", "Algo"}, new String[2]);
@@ -130,8 +134,9 @@ public class TestResultTransformer extends TypeSafeQueryTest {
         
         time = System.currentTimeMillis();
         for(int i=0; i < outer; i++) {
+            HqlQueryBuilderParams params = new HqlQueryBuilderParamsImpl();
             HqlQuery query = new HqlQuery();
-            getProjections().appendTo(query);
+            getProjections().appendTo(query, params);
             for(int j=0; j < inner; j++) {
                 query.getResultTransformer().transformTuple(valuesArray, aliasesArray);
             }

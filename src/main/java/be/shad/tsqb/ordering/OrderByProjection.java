@@ -21,6 +21,7 @@ import be.shad.tsqb.query.TypeSafeRootQueryInternal;
 import be.shad.tsqb.query.TypeSafeSubQuery;
 import be.shad.tsqb.selection.TypeSafeQueryProjections;
 import be.shad.tsqb.selection.TypeSafeValueProjection;
+import be.shad.tsqb.values.HqlQueryBuilderParams;
 import be.shad.tsqb.values.HqlQueryValue;
 
 /**
@@ -44,7 +45,7 @@ public class OrderByProjection implements OrderBy {
      * by the hql of the projected value may also cause problems when it is a subquery.
      */
     @Override
-    public void appendTo(HqlQuery hqlQuery) {
+    public void appendTo(HqlQuery hqlQuery, HqlQueryBuilderParams params) {
         //ascending is the default
         String order = descending ? " desc": "";
         
@@ -59,8 +60,9 @@ public class OrderByProjection implements OrderBy {
                     // when trying to order by a column which is a subquery result
                     hqlQuery.appendOrderBy(aliasIndex + order);
                 } else {
-                    HqlQueryValue value = projection.getValue().toHqlQueryValue();
-                    value = query.getHelper().replaceParamsWithLiterals(value);
+                    boolean previous = params.setRequiresLiterals(true);
+                    HqlQueryValue value = projection.getValue().toHqlQueryValue(params);
+                    params.setRequiresLiterals(previous);
                     hqlQuery.appendOrderBy(value.getHql() + order);
                 }
                 return;

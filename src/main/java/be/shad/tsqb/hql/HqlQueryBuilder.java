@@ -15,8 +15,10 @@
  */
 package be.shad.tsqb.hql;
 
+import be.shad.tsqb.values.HqlQueryBuilderParams;
+
 public interface HqlQueryBuilder {
 
-    void appendTo(HqlQuery query);
+    void appendTo(HqlQuery query, HqlQueryBuilderParams params);
     
 }

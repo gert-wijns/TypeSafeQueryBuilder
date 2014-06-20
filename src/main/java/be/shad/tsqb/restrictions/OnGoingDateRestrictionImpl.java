@@ -132,7 +132,7 @@ public class OnGoingDateRestrictionImpl
     @Override
     public SingleNamedParameterBinder<Date, ContinuedOnGoingDateRestriction, OnGoingDateRestriction> notBefore() {
         DirectTypeSafeValue<Date> value = createDirectValue();
-        return createNamedParameterBinder(value.getParameter(), notBefore(value));
+        return createNamedParameterBinder(value, notBefore(value));
     }
 
     /**
@@ -141,7 +141,7 @@ public class OnGoingDateRestrictionImpl
     @Override
     public SingleNamedParameterBinder<Date, ContinuedOnGoingDateRestriction, OnGoingDateRestriction> notAfter() {
         DirectTypeSafeValue<Date> value = createDirectValue();
-        return createNamedParameterBinder(value.getParameter(), notAfter(value));
+        return createNamedParameterBinder(value, notAfter(value));
     }
 
     /**
@@ -150,7 +150,7 @@ public class OnGoingDateRestrictionImpl
     @Override
     public SingleNamedParameterBinder<Date, ContinuedOnGoingDateRestriction, OnGoingDateRestriction> after() {
         DirectTypeSafeValue<Date> value = createDirectValue();
-        return createNamedParameterBinder(value.getParameter(), after(value));
+        return createNamedParameterBinder(value, after(value));
     }
 
     /**
@@ -159,7 +159,7 @@ public class OnGoingDateRestrictionImpl
     @Override
     public SingleNamedParameterBinder<Date, ContinuedOnGoingDateRestriction, OnGoingDateRestriction> before() {
         DirectTypeSafeValue<Date> value = createDirectValue();
-        return createNamedParameterBinder(value.getParameter(), before(value));
+        return createNamedParameterBinder(value, before(value));
     }
 
 }

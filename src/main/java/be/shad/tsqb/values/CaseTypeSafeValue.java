@@ -63,15 +63,16 @@ public class CaseTypeSafeValue<T> extends TypeSafeValueImpl<T> implements OnGoin
     }
 
     @Override
-    public HqlQueryValue toHqlQueryValue() {
+    public HqlQueryValue toHqlQueryValue(HqlQueryBuilderParams params) {
         HqlQueryValueImpl value = new HqlQueryValueImpl();
         if(cases.size() > 0 ) {
             value.appendHql("(");
         }
+        boolean previous = params.setRequiresLiterals(true);
         for(int i=0; i < cases.size(); i++) {
             OnGoingCaseImpl<T> ongoingCase = cases.get(i);
             RestrictionsGroupInternal restrictions = ongoingCase.getRestrictionsGroup();
-            HqlQueryValue then = ongoingCase.getValue().toHqlQueryValue();
+            HqlQueryValue then = ongoingCase.getValue().toHqlQueryValue(params);
             if (restrictions.isEmpty()) {
                 value.appendHql(" else ");
             } else {
@@ -80,7 +81,7 @@ public class CaseTypeSafeValue<T> extends TypeSafeValueImpl<T> implements OnGoin
                 } else {
                     value.appendHql(" when (");
                 }
-                HqlQueryValue when = restrictions.toHqlQueryValue();
+                HqlQueryValue when = restrictions.toHqlQueryValue(params);
                 value.appendHql(when.getHql());
                 value.addParams(when.getParams());
                 value.appendHql(") then ");
@@ -92,7 +93,8 @@ public class CaseTypeSafeValue<T> extends TypeSafeValueImpl<T> implements OnGoin
         if(cases.size() > 0 ) {
             value.appendHql(" end)");
         }
-        return query.getHelper().replaceParamsWithLiterals(value);
+        params.setRequiresLiterals(previous);
+        return value;
     }
     
     @Override

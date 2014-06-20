@@ -1,21 +1,8 @@
-/*
- * Copyright Gert Wijns gert.wijns@gmail.com
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *      http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-package be.shad.tsqb.param;
+package be.shad.tsqb.values;
 
-public class QueryParameterStringImpl extends QueryParameterSingleImpl<String> {
+import be.shad.tsqb.query.TypeSafeQuery;
+
+public class DirectTypeSafeStringValue extends DirectTypeSafeValue<String> {
 
     public final static String EMPTY = "";
     
@@ -23,11 +10,16 @@ public class QueryParameterStringImpl extends QueryParameterSingleImpl<String> {
     private boolean lower;
     private String prefix = EMPTY;
     private String postfix = EMPTY;
-
-    public QueryParameterStringImpl(String name, String value) {
-        super(name, String.class, value);
-    }
     
+    public DirectTypeSafeStringValue(TypeSafeQuery query, String value) {
+        this(query);
+        setValue(value);
+    }
+
+    public DirectTypeSafeStringValue(TypeSafeQuery query) {
+        super(query, String.class);
+    }
+
     /**
      * When set, value.toUpperCase is applied when returning the value.
      */
@@ -94,4 +86,5 @@ public class QueryParameterStringImpl extends QueryParameterSingleImpl<String> {
         }
         return wrapped;
     }
+
 }

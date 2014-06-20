@@ -22,7 +22,6 @@ import static java.math.BigDecimal.ZERO;
 import org.junit.Test;
 
 import be.shad.tsqb.domain.House;
-import be.shad.tsqb.param.NamelessQueryParameter;
 import be.shad.tsqb.test.TypeSafeQueryTest;
 import be.shad.tsqb.values.HqlQueryValueImpl;
 
@@ -77,7 +76,7 @@ public class RestrictionChainingTest extends TypeSafeQueryTest {
     @Test
     public void testWhereCustomHql() {
         query.from(House.class);
-        query.where(new HqlQueryValueImpl("hobj1.floors > ?", new NamelessQueryParameter(10)));
+        query.where(new HqlQueryValueImpl("hobj1.floors > ?", 10));
         validate(" from House hobj1 where hobj1.floors > ?", 10);
     }
     

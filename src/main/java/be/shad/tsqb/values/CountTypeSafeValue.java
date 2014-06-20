@@ -32,8 +32,8 @@ public class CountTypeSafeValue extends TypeSafeValueImpl<Long> implements IsMay
     }
 
     @Override
-    public HqlQueryValue toHqlQueryValue() {
-        HqlQueryValue value = this.value.toHqlQueryValue();
+    public HqlQueryValue toHqlQueryValue(HqlQueryBuilderParams params) {
+        HqlQueryValue value = this.value.toHqlQueryValue(params);
         return new HqlQueryValueImpl("count("+value.getHql()+")", value.getParams());
     }
 
