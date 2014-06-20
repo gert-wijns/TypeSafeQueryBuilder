@@ -22,9 +22,8 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
+import be.shad.tsqb.NamedParameter;
 import be.shad.tsqb.hql.HqlQuery;
-import be.shad.tsqb.param.NamelessQueryParameter;
-import be.shad.tsqb.param.QueryParameter;
 import be.shad.tsqb.query.TypeSafeRootQuery;
 
 public class TypeSafeQueryDaoImpl implements TypeSafeQueryDao {
@@ -45,14 +44,16 @@ public class TypeSafeQueryDaoImpl implements TypeSafeQueryDao {
         Session currentSession = sessionFactory.getCurrentSession();
         Query query = currentSession.createQuery(hqlQuery.getHql());
         int position = 0;
-        for(QueryParameter<?> param: hqlQuery.getParams()) {
-            Object parameterValue = param.getParameterValue();
-            if (param instanceof NamelessQueryParameter) {
-                query.setParameter(position++, parameterValue);
-            } else if (parameterValue instanceof Collection<?>) {
-                query.setParameterList(param.getName(), (Collection<?>) parameterValue);
+        for(Object param: hqlQuery.getParams()) {
+            if (param instanceof NamedParameter) {
+                NamedParameter named = (NamedParameter) param;
+                if (named.getValue() instanceof Collection<?>) {
+                    query.setParameterList(named.getName(), (Collection<?>) named.getValue());
+                } else {
+                    query.setParameter(named.getName(), named.getValue());
+                }
             } else {
-                query.setParameter(param.getName(), parameterValue);
+                query.setParameter(position++, param);
             }
         }
         if (tsqbQuery.getFirstResult() >= 0) {

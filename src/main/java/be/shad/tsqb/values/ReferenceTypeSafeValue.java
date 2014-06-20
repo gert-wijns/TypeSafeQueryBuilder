@@ -38,7 +38,7 @@ public class ReferenceTypeSafeValue<T> extends TypeSafeValueImpl<T> {
     }
     
     @Override
-    public HqlQueryValue toHqlQueryValue() {
+    public HqlQueryValue toHqlQueryValue(HqlQueryBuilderParams params) {
         return new HqlQueryValueImpl(data.getAlias());
     }
 

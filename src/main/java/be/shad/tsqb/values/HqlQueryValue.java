@@ -17,8 +17,6 @@ package be.shad.tsqb.values;
 
 import java.util.Collection;
 
-import be.shad.tsqb.param.QueryParameter;
-
 
 public interface HqlQueryValue {
 
@@ -30,6 +28,6 @@ public interface HqlQueryValue {
     /**
      * The params to append to an hqlQuery.
      */
-    Collection<QueryParameter<?>> getParams();
+    Collection<Object> getParams();
     
 }

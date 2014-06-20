@@ -16,12 +16,12 @@
 package be.shad.tsqb.hql;
 
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.hibernate.engine.jdbc.internal.BasicFormatterImpl;
 import org.hibernate.transform.ResultTransformer;
 
-import be.shad.tsqb.param.QueryParameter;
-import be.shad.tsqb.param.QueryParameters;
 import be.shad.tsqb.values.HqlQueryValue;
 
 public class HqlQuery implements HqlQueryValue {
@@ -30,7 +30,7 @@ public class HqlQuery implements HqlQueryValue {
     private StringBuilder where = new StringBuilder();
     private StringBuilder groupBy = new StringBuilder();
     private StringBuilder orderBy = new StringBuilder();
-    private QueryParameters queryParameters = new QueryParameters();
+    private List<Object> params = new LinkedList<Object>();
     private ResultTransformer resultTransformer;
 
     public ResultTransformer getResultTransformer() {
@@ -42,8 +42,8 @@ public class HqlQuery implements HqlQueryValue {
     }
 
     @Override
-    public Collection<QueryParameter<?>> getParams() {
-        return queryParameters.getParams();
+    public Collection<Object> getParams() {
+        return params;
     }
     
     public String getSelect() {
@@ -113,8 +113,8 @@ public class HqlQuery implements HqlQueryValue {
         orderBy.append(orderByPart);
     }
 
-    public void addParams(Collection<QueryParameter<?>> params) {
-        queryParameters.addParams(params);
+    public void addParams(Collection<Object> params) {
+        this.params.addAll(params);
     }
 
     public String getHql() {
@@ -128,12 +128,12 @@ public class HqlQuery implements HqlQueryValue {
         BasicFormatterImpl formatter = new BasicFormatterImpl();
         String prettyHql = formatter.format(getHql());
         prettyHql = prettyHql.replaceAll("((from|join|select|where)\\n\\s*)", "$2 ");
-        return prettyHql + "\n --- with: " + queryParameters.toString().replace("PARAM [", "\n[");
+        return prettyHql + "\n --- with: " + params.toString().replace("PARAM [", "\n[");
     }
     
     @Override
     public String toString() {
-        return getHql() + " --- with: " + queryParameters;
+        return getHql() + " --- with: " + params;
     }
     
 }

@@ -85,7 +85,7 @@ public class OnGoingBooleanRestrictionImpl
     public ContinuedOnGoingBooleanRestriction isNamed(String alias) {
         DirectTypeSafeValue<Boolean> value = new DirectTypeSafeValue<>(group.getQuery(), Boolean.class);
         ContinuedOnGoingBooleanRestriction continued = addRestrictionAndContinue(startValue, EQUAL, value);
-        createNamedParameterBinder(value.getParameter(), continued).named(alias);
+        createNamedParameterBinder(value, continued).named(alias);
         return continued;
     }
 

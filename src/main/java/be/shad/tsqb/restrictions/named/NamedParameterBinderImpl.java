@@ -17,11 +17,11 @@ package be.shad.tsqb.restrictions.named;
 
 import java.util.Collection;
 
-import be.shad.tsqb.param.QueryParameter;
-import be.shad.tsqb.param.QueryParameters;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.restrictions.ContinuedOnGoingRestriction;
 import be.shad.tsqb.restrictions.OnGoingRestriction;
+import be.shad.tsqb.values.NamedValueEnabled;
+import be.shad.tsqb.values.TypeSafeValue;
 
 public class NamedParameterBinderImpl<VAL, CONTINUED extends 
         ContinuedOnGoingRestriction<VAL, CONTINUED, ORIGINAL>, 
@@ -30,11 +30,11 @@ public class NamedParameterBinderImpl<VAL, CONTINUED extends
                CollectionNamedParameterBinder<VAL, CONTINUED, ORIGINAL> {
     
     private final TypeSafeQueryInternal query;
-    private final QueryParameter<VAL> parameter;
+    private final TypeSafeValue<VAL> parameter;
     private final CONTINUED chainable;
     
     public NamedParameterBinderImpl(TypeSafeQueryInternal query, 
-            QueryParameter<VAL> parameter,
+            TypeSafeValue<VAL> parameter,
             CONTINUED chainable) {
         this.parameter = parameter;
         this.chainable = chainable;
@@ -55,7 +55,7 @@ public class NamedParameterBinderImpl<VAL, CONTINUED extends
      */
     @Override
     public CONTINUED named(String alias, VAL value) {
-        QueryParameters.setValue(parameter, value);
+        ((NamedValueEnabled) parameter).setNamedValue(value);
         return named(alias);
     }
 
@@ -64,7 +64,7 @@ public class NamedParameterBinderImpl<VAL, CONTINUED extends
      */
     @Override
     public <T extends VAL> CONTINUED named(String alias, Collection<T> value) {
-        QueryParameters.setValue(parameter, value);
+        ((NamedValueEnabled) parameter).setNamedValue(value);
         return named(alias);
     }
     

@@ -16,16 +16,15 @@
 package be.shad.tsqb.values;
 
 import java.util.Collection;
-
-import be.shad.tsqb.param.QueryParameter;
-import be.shad.tsqb.param.QueryParameters;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Wraps an hql stringbuilder and params and provides 
  * convenient methods to append to them.
  */
 public class HqlQueryValueImpl implements HqlQueryValue {
-    private QueryParameters queryParameters = new QueryParameters();
+    private List<Object> params = new LinkedList<>();
     private StringBuilder hql;
     
     public HqlQueryValueImpl() {
@@ -36,15 +35,19 @@ public class HqlQueryValueImpl implements HqlQueryValue {
         this.hql = new StringBuilder(hql);
     }
 
-    public HqlQueryValueImpl(String hql, QueryParameter<?> param) {
+    public HqlQueryValueImpl(String hql, Object... params) {
         this(hql);
-        addParam(param);
+        if (params != null) {
+            for(Object param: params) {
+                addParam(param);
+            }
+        }
     }
 
-    public HqlQueryValueImpl(String hql, Collection<QueryParameter<?>> params) {
+    public HqlQueryValueImpl(String hql, Collection<Object> params) {
         this(hql);
         if( params != null ) {
-            for(QueryParameter<?> param: params) {
+            for(Object param: params) {
                 addParam(param);
             }
         }
@@ -63,16 +66,16 @@ public class HqlQueryValueImpl implements HqlQueryValue {
         return this.hql;
     }
     
-    public Collection<QueryParameter<?>> getParams() {
-        return queryParameters.getParams();
+    public Collection<Object> getParams() {
+        return params;
     }
     
-    public void addParam(QueryParameter<?> param) {
-        queryParameters.addParam(param);
+    public void addParam(Object param) {
+        params.add(param);
     }
 
-    public void addParams(Collection<QueryParameter<?>> params) {
-        queryParameters.addParams(params);
+    public void addParams(Collection<Object> params) {
+        this.params.addAll(params);
     }
     
 }

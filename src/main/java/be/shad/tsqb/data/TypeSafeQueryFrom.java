@@ -25,6 +25,7 @@ import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.hql.HqlQueryBuilder;
 import be.shad.tsqb.joins.TypeSafeQueryJoin;
 import be.shad.tsqb.query.JoinType;
+import be.shad.tsqb.values.HqlQueryBuilderParams;
 import be.shad.tsqb.values.HqlQueryValue;
 import be.shad.tsqb.values.HqlQueryValueImpl;
 
@@ -53,7 +54,7 @@ public class TypeSafeQueryFrom implements HqlQueryBuilder {
     }
 
     @Override
-    public void appendTo(HqlQuery query) {
+    public void appendTo(HqlQuery query, HqlQueryBuilderParams params) {
         HqlQueryValueImpl from = new HqlQueryValueImpl();
         from.appendHql(helper.getEntityName(root.getPropertyType()));
         from.appendHql(" ").append(root.getAlias());
@@ -70,7 +71,7 @@ public class TypeSafeQueryFrom implements HqlQueryBuilder {
                 // example: 'left join fetch' 'hobj1'.'propertyPath' 'hobj2' 
                 from.appendHql(format(" %s %s.%s %s", getJoinTypeString(data.getEffectiveJoinType()), 
                         data.getParent().getAlias(), data.getPropertyPath(), data.getAlias()));
-                HqlQueryValue hqlQueryValue = join.getRestrictions().toHqlQueryValue();
+                HqlQueryValue hqlQueryValue = join.getRestrictions().toHqlQueryValue(params);
                 String withHql = hqlQueryValue.getHql();
                 if( withHql.length() > 0 ) {
                     from.appendHql(" with ").append(withHql);

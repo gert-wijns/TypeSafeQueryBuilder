@@ -20,7 +20,6 @@ import java.util.Date;
 
 import be.shad.tsqb.factories.TypeSafeQueryFactories;
 import be.shad.tsqb.helper.TypeSafeQueryHelper;
-import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.joins.TypeSafeQueryJoin;
 import be.shad.tsqb.ordering.OnGoingOrderBy;
 import be.shad.tsqb.restrictions.RestrictionChainable;
@@ -190,14 +189,6 @@ public interface TypeSafeQuery extends WhereRestrictions {
      * Retrieve the various factories available for restrictions or value building.
      */
     TypeSafeQueryFactories factories();
-    
-    /**
-     * Converts this query to an hqlQuery. 
-     * <p>
-     * The hqlQuery can be used to get the hql and the 
-     * params to create a hibernate query object.
-     */
-    HqlQuery toHqlQuery();
     
     /**
      * Remembers a custom alias for a proxy.

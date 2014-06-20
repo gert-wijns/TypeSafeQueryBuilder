@@ -21,7 +21,6 @@ import java.util.List;
 import org.junit.Test;
 
 import be.shad.tsqb.domain.people.Person;
-import be.shad.tsqb.exceptions.QueryParameterAlreadyBoundException;
 
 /**
  * Extra named param tests, basic chainables with naming params is tested in the OnGoing...Tests
@@ -83,7 +82,7 @@ public class NamedParamTest extends TypeSafeQueryTest {
     /**
      * Check that duplicate aliases are not allowed.
      */
-    @Test(expected=QueryParameterAlreadyBoundException.class)
+    @Test(expected=IllegalStateException.class)
     public void testNamedValueNotDuplicateValidation() { 
         Person personProxy = query.from(Person.class);
         query.where(personProxy.getId()).eq().named(NAMED_PARAM_1);

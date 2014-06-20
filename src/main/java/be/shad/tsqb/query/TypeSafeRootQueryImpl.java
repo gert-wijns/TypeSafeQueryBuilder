@@ -22,13 +22,7 @@ import java.util.Map;
 
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.helper.TypeSafeQueryHelper;
-import be.shad.tsqb.param.QueryParameter;
-import be.shad.tsqb.param.QueryParameterCollection;
-import be.shad.tsqb.param.QueryParameterCollectionImpl;
-import be.shad.tsqb.param.QueryParameterSingle;
-import be.shad.tsqb.param.QueryParameterSingleImpl;
-import be.shad.tsqb.param.QueryParameterStringImpl;
-import be.shad.tsqb.param.QueryParameters;
+import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
 import be.shad.tsqb.selection.SelectionValueTransformer;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroup;
@@ -40,6 +34,8 @@ import be.shad.tsqb.selection.parallel.ParallelSelectionMerger3;
 import be.shad.tsqb.selection.parallel.SelectPair;
 import be.shad.tsqb.selection.parallel.SelectTriplet;
 import be.shad.tsqb.selection.parallel.SelectValue;
+import be.shad.tsqb.values.HqlQueryBuilderParamsImpl;
+import be.shad.tsqb.values.NamedValueEnabled;
 import be.shad.tsqb.values.TypeSafeValue;
 
 /**
@@ -49,11 +45,10 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     
     private List<TypeSafeQueryProxyData> invocationQueue = new LinkedList<>();
     private Map<String, TypeSafeQueryProxy> customAliasedProxies = new HashMap<>();
+    private Map<String, NamedValueEnabled> aliasedValues = new HashMap<>();
     private TypeSafeValue<?> lastSelectedValue;
     private String lastInvokedProjectionPath;
-    private QueryParameters queryParameters = new QueryParameters();
     private int entityAliasCount = 1;
-    private int namedParamCount = 1;
     private int selectionGroupAliasCount = 1;
     private int firstResult = -1;
     private int maxResults = -1;
@@ -202,39 +197,17 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
      * {@inheritDoc}
      */
     @Override
-    public <T> QueryParameterCollection<T> createCollectionNamedParam(Class<T> valueClass) {
-        return putNamedParam(new QueryParameterCollectionImpl<T>(createNamedParam(), valueClass, null));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public <T> QueryParameterSingle<T> createSingleNamedParam(Class<T> valueClass) {
-        if (valueClass == String.class) {
-            @SuppressWarnings({ "rawtypes", "unchecked" }) // just checked if T == string, so these warnings can be suppressed
-            QueryParameterSingle<T> param = (QueryParameterSingle) new QueryParameterStringImpl(createNamedParam(), null);
-            return putNamedParam(param);
+    public void setAlias(TypeSafeValue<?> param, String alias) {
+        if (param instanceof NamedValueEnabled) {
+            NamedValueEnabled previous = aliasedValues.put(alias, (NamedValueEnabled) param);
+            if (previous != null) {
+                throw new IllegalStateException(String.format(
+                        "Attempting to bind alias [%s], but it was already bound.", 
+                        alias));
+            }
         } else {
-            return putNamedParam(new QueryParameterSingleImpl<T>(createNamedParam(), valueClass, null));
+            throw new IllegalArgumentException("Aliasing is only allowed if the value is NamedValueEnabled");
         }
-    }
-    
-    private <T extends QueryParameter<?>> T putNamedParam(T param) {
-        queryParameters.addParam(param);
-        return param;
-    }
-    
-    private String createNamedParam() {
-        return "np"+ namedParamCount++;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setAlias(QueryParameter<?> param, String alias) {
-        queryParameters.setAlias(param, alias);
     }
 
     /**
@@ -346,19 +319,24 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     public <T, A, B, C> SelectTriplet<A, B, C> selectParallel(T resultDto, ParallelSelectionMerger3<T, A, B, C> merger) {
         return selectParallel(resultDto, SelectTriplet.class, (ParallelSelectionMerger) merger);
     }
+    
+    @Override
+    public HqlQuery toHqlQuery() {
+        return super.toHqlQuery(new HqlQueryBuilderParamsImpl());
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
     public void namedValue(String alias, Object value) {
-        QueryParameter<?> param = queryParameters.getParamForAlias(alias);
+        NamedValueEnabled param = aliasedValues.get(alias);
         if (param == null) {
             throw new IllegalArgumentException(String.format(
                     "Attempting to set value for parameter with alias [%s]. "
                     + "But no parameter exists with this alias.", alias));
         }
-        QueryParameters.setValue(param, value);
+        ((NamedValueEnabled) param).setNamedValue(value);
     }
 
 }

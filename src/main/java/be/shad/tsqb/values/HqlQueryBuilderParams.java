@@ -15,12 +15,18 @@
  */
 package be.shad.tsqb.values;
 
-public interface HqlQueryValueBuilder {
+public interface HqlQueryBuilderParams {
+    
+    String createNamedParameter();
+
+    /**
+     * When set, values need to be transformed to literals.
+     */
+    boolean isRequiresLiterals();
     
     /**
-     * Convert an object to a HqlQueryValue,
-     * so it can be appended to an HqlQuery.
+     * Returns the previous value.
      */
-    HqlQueryValue toHqlQueryValue(HqlQueryBuilderParams params);
-
+    boolean setRequiresLiterals(boolean requiresLiterals);
+    
 }

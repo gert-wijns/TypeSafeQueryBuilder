@@ -24,6 +24,7 @@ import be.shad.tsqb.hql.HqlQueryBuilder;
 import be.shad.tsqb.proxy.TypeSafeQuerySelectionProxy;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.query.TypeSafeRootQueryInternal;
+import be.shad.tsqb.values.HqlQueryBuilderParams;
 import be.shad.tsqb.values.TypeSafeValue;
 
 public class TypeSafeQueryOrderBys implements OnGoingOrderBy, HqlQueryBuilder {
@@ -157,9 +158,9 @@ public class TypeSafeQueryOrderBys implements OnGoingOrderBy, HqlQueryBuilder {
     }
     
     @Override
-    public void appendTo(HqlQuery query) {
+    public void appendTo(HqlQuery query, HqlQueryBuilderParams params) {
         for(OrderBy orderBy: orderBys) {
-            orderBy.appendTo(query);
+            orderBy.appendTo(query, params);
         }
     }
 

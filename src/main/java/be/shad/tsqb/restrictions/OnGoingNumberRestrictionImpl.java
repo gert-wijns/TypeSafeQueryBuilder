@@ -131,7 +131,7 @@ public class OnGoingNumberRestrictionImpl
     @Override
     public SingleNamedParameterBinder<Number, ContinuedOnGoingNumberRestriction, OnGoingNumberRestriction> gte() {
         DirectTypeSafeValue<Number> value = createDirectValue();
-        return createNamedParameterBinder(value.getParameter(), gte(value));
+        return createNamedParameterBinder(value, gte(value));
     }
 
     /**
@@ -140,7 +140,7 @@ public class OnGoingNumberRestrictionImpl
     @Override
     public SingleNamedParameterBinder<Number, ContinuedOnGoingNumberRestriction, OnGoingNumberRestriction> lte() {
         DirectTypeSafeValue<Number> value = createDirectValue();
-        return createNamedParameterBinder(value.getParameter(), lte(value));
+        return createNamedParameterBinder(value, lte(value));
     }
 
     /**
@@ -149,7 +149,7 @@ public class OnGoingNumberRestrictionImpl
     @Override
     public SingleNamedParameterBinder<Number, ContinuedOnGoingNumberRestriction, OnGoingNumberRestriction> gt() {
         DirectTypeSafeValue<Number> value = createDirectValue();
-        return createNamedParameterBinder(value.getParameter(), gt(value));
+        return createNamedParameterBinder(value, gt(value));
     }
 
     /**
@@ -158,7 +158,7 @@ public class OnGoingNumberRestrictionImpl
     @Override
     public SingleNamedParameterBinder<Number, ContinuedOnGoingNumberRestriction, OnGoingNumberRestriction> lt() {
         DirectTypeSafeValue<Number> value = createDirectValue();
-        return createNamedParameterBinder(value.getParameter(), lt(value));
+        return createNamedParameterBinder(value, lt(value));
     }
 
 }

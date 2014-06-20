@@ -27,6 +27,7 @@ import be.shad.tsqb.query.TypeSafeQuery;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.query.TypeSafeSubQuery;
 import be.shad.tsqb.values.CustomTypeSafeValue;
+import be.shad.tsqb.values.HqlQueryBuilderParams;
 import be.shad.tsqb.values.HqlQueryValue;
 import be.shad.tsqb.values.HqlQueryValueImpl;
 import be.shad.tsqb.values.TypeSafeValue;
@@ -142,14 +143,14 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
      * Loops the restrictions and links them together with ands and ors.
      */
     @Override
-    public HqlQueryValueImpl toHqlQueryValue() {
+    public HqlQueryValueImpl toHqlQueryValue(HqlQueryBuilderParams params) {
         HqlQueryValueImpl value = new HqlQueryValueImpl();
         boolean addBrackets = isAddBrackets();
         if (addBrackets) {
             value.appendHql("(");
         }
         for(RestrictionNode item: restrictions) {
-            HqlQueryValue nextValue = item.getRestriction().toHqlQueryValue();
+            HqlQueryValue nextValue = item.getRestriction().toHqlQueryValue(params);
             if( item.getType() == RestrictionNodeType.And ) {
                 value.appendHql(" and ");
             } else if( item.getType() == RestrictionNodeType.Or ) {

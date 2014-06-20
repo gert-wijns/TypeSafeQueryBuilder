@@ -17,10 +17,7 @@ package be.shad.tsqb.test;
 
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -33,11 +30,11 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
 
+import be.shad.tsqb.NamedParameter;
 import be.shad.tsqb.dao.TypeSafeQueryDao;
 import be.shad.tsqb.dao.TypeSafeQueryDaoImpl;
 import be.shad.tsqb.helper.TypeSafeQueryHelperImpl;
 import be.shad.tsqb.hql.HqlQuery;
-import be.shad.tsqb.param.QueryParameter;
 import be.shad.tsqb.query.TypeSafeRootQuery;
 
 public class TypeSafeQueryTest {
@@ -107,27 +104,24 @@ public class TypeSafeQueryTest {
     protected void validate(String hql, Object... params) {
         HqlQuery hqlQuery = doQuery(query);
 
+        List<Object> actualParams = new LinkedList<>();
+        if (hqlQuery.getParams() != null) {
+            for(Object queryParam: hqlQuery.getParams()) {
+                if (queryParam instanceof NamedParameter) {
+                    actualParams.add(((NamedParameter) queryParam).getValue());
+                } else {
+                    actualParams.add(queryParam);
+                }
+            }
+        }
+        
         String expected = String.format("\nExpected:\n%s\n--- params: %s\n", hql, Arrays.toString(params));
-        String result = String.format("\nResult:\n%s\n--- params: %s\n", hqlQuery.getHql(), hqlQuery.getParams());
+        String result = String.format("\nResult:\n%s\n--- params: %s\n", hqlQuery.getHql(), actualParams);
         
         assertTrue(expected + result, hqlQuery.getHql().equals(hql));
         if( params == null || params.length == 0 ){
             assertTrue(expected + result, hqlQuery.getParams().size() == 0);
         } else {
-            List<Object> actualParams = new LinkedList<>();
-            List<QueryParameter<?>> queryParams = new ArrayList<>();
-            for(QueryParameter<?> queryParam: hqlQuery.getParams()) {
-                queryParams.add(queryParam);
-            }
-            Collections.sort(queryParams, new Comparator<QueryParameter<?>>() {
-                @Override
-                public int compare(QueryParameter<?> o1, QueryParameter<?> o2) {
-                    return o1.getName().compareTo(o2.getName());
-                }
-            });
-            for(QueryParameter<?> queryParam: queryParams) {
-                actualParams.add(queryParam.getParameterValue());
-            }
             assertTrue(expected + result, actualParams.equals(Arrays.asList(params)));
         }
     }

@@ -95,8 +95,8 @@ public class ExamplesTest extends TypeSafeQueryTest {
             rb.where(person.getName()).startsWith("Jef").or().startsWith("John")
         );
 
-        validate(" from Person hobj1 where hobj1.married = :np3 and (hobj1.name like :np1 or hobj1.name like :np2)", 
-                "Jef%", "John%", Boolean.TRUE);
+        validate(" from Person hobj1 where hobj1.married = :np1 and (hobj1.name like :np2 or hobj1.name like :np3)", 
+                Boolean.TRUE, "Jef%", "John%");
     }
     
     /**
@@ -112,8 +112,8 @@ public class ExamplesTest extends TypeSafeQueryTest {
         
         query.where(person.isMarried()).and(nameOrs);
 
-        validate(" from Person hobj1 where hobj1.married = :np3 and (hobj1.name like :np1 or hobj1.name like :np2)", 
-                "Jef%", "John%", Boolean.TRUE);
+        validate(" from Person hobj1 where hobj1.married = :np1 and (hobj1.name like :np2 or hobj1.name like :np3)", 
+                Boolean.TRUE, "Jef%", "John%");
     }
 
     /**

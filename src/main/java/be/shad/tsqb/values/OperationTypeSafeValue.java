@@ -57,7 +57,7 @@ public class OperationTypeSafeValue<T> extends TypeSafeValueImpl<T> implements T
     }
 
     @Override
-    public HqlQueryValue toHqlQueryValue() {
+    public HqlQueryValue toHqlQueryValue(HqlQueryBuilderParams params) {
         boolean addBrackets = isAddBrackets();
         HqlQueryValueImpl combined = new HqlQueryValueImpl();
         if (addBrackets) {
@@ -67,12 +67,12 @@ public class OperationTypeSafeValue<T> extends TypeSafeValueImpl<T> implements T
         Iterator<TypeSafeValue<? extends T>> valuesIt = values.iterator();
         Iterator<String> operationsIt = operations.iterator();
         
-        HqlQueryValue valueHql = valuesIt.next().toHqlQueryValue();
+        HqlQueryValue valueHql = valuesIt.next().toHqlQueryValue(params);
         combined.appendHql(valueHql.getHql());
         combined.addParams(valueHql.getParams());
         
         while (valuesIt.hasNext()) {
-            valueHql = valuesIt.next().toHqlQueryValue();
+            valueHql = valuesIt.next().toHqlQueryValue(params);
             String operation = operationsIt.next();
             combined.appendHql(" ").append(operation).append(" ");
             combined.appendHql(valueHql.getHql());

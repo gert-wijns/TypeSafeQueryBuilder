@@ -17,6 +17,7 @@ package be.shad.tsqb.restrictions;
 
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.values.CastTypeSafeValue;
+import be.shad.tsqb.values.HqlQueryBuilderParams;
 import be.shad.tsqb.values.HqlQueryValue;
 import be.shad.tsqb.values.HqlQueryValueImpl;
 import be.shad.tsqb.values.TypeSafeValue;
@@ -94,12 +95,16 @@ public class RestrictionImpl<VAL> implements Restriction {
     }
     
     @Override
-    public HqlQueryValue toHqlQueryValue() {
+    public HqlQueryValue toHqlQueryValue(HqlQueryBuilderParams params) {
         HqlQueryValueImpl value = new HqlQueryValueImpl();
         if( left != null ) {
-            HqlQueryValue hqlQueryValue = left.toHqlQueryValue();
-            if( leftSideRequiresLiterals() ) {
-                hqlQueryValue = query.getHelper().replaceParamsWithLiterals(hqlQueryValue);
+            HqlQueryValue hqlQueryValue;
+            if( leftSideRequiresLiterals() && !params.isRequiresLiterals()) {
+                params.setRequiresLiterals(true);
+                hqlQueryValue = left.toHqlQueryValue(params);
+                params.setRequiresLiterals(false);
+            } else {
+                hqlQueryValue = left.toHqlQueryValue(params);
             }
             value.appendHql(hqlQueryValue.getHql());
             value.addParams(hqlQueryValue.getParams());
@@ -111,9 +116,13 @@ public class RestrictionImpl<VAL> implements Restriction {
             value.appendHql(operator + " ");
         }
         if( right != null ) {
-            HqlQueryValue hqlQueryValue = right.toHqlQueryValue();
-            if( rightSideRequiresLiterals() ) {
-                hqlQueryValue = query.getHelper().replaceParamsWithLiterals(hqlQueryValue);
+            HqlQueryValue hqlQueryValue;
+            if( rightSideRequiresLiterals() && !params.isRequiresLiterals()) {
+                params.setRequiresLiterals(true);
+                hqlQueryValue = right.toHqlQueryValue(params);
+                params.setRequiresLiterals(false);
+            } else {
+                hqlQueryValue = right.toHqlQueryValue(params);
             }
             value.appendHql(hqlQueryValue.getHql());
             value.addParams(hqlQueryValue.getParams());

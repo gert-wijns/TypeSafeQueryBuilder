@@ -17,6 +17,7 @@ package be.shad.tsqb.values.arithmetic;
 
 import be.shad.tsqb.query.TypeSafeQuery;
 import be.shad.tsqb.query.TypeSafeQueryScopeValidator;
+import be.shad.tsqb.values.HqlQueryBuilderParams;
 import be.shad.tsqb.values.HqlQueryValue;
 import be.shad.tsqb.values.OperationTypeSafeValue;
 import be.shad.tsqb.values.OperationTypeSafeValue.OperationTypeSafeValueBracketsPolicy;
@@ -78,10 +79,13 @@ public class ArithmeticTypeSafeValueImpl extends TypeSafeValueImpl<Number> imple
     }
 
     @Override
-    public HqlQueryValue toHqlQueryValue() {
+    public HqlQueryValue toHqlQueryValue(HqlQueryBuilderParams params) {
         // when calculating a value, hibernate checks if all number types are exactly the same,
         // this problem is avoided by replacing the values with literals 
-        return query.getHelper().replaceParamsWithLiterals(combinedValue.toHqlQueryValue());
+        boolean previous = params.setRequiresLiterals(true);
+        HqlQueryValue hqlQueryValue = combinedValue.toHqlQueryValue(params);
+        params.setRequiresLiterals(previous);
+        return hqlQueryValue;
     }
 
     @Override

@@ -22,9 +22,6 @@ import be.shad.tsqb.data.TypeSafeQueryProxyDataTree;
 import be.shad.tsqb.grouping.TypeSafeQueryGroupBys;
 import be.shad.tsqb.helper.TypeSafeQueryHelper;
 import be.shad.tsqb.ordering.TypeSafeQueryOrderBys;
-import be.shad.tsqb.param.QueryParameter;
-import be.shad.tsqb.param.QueryParameterCollection;
-import be.shad.tsqb.param.QueryParameterSingle;
 import be.shad.tsqb.restrictions.RestrictionsGroup;
 import be.shad.tsqb.values.TypeSafeValue;
 
@@ -75,19 +72,7 @@ public interface TypeSafeQueryInternal extends TypeSafeQuery {
      * Sets the alias of the parameter parameter.
      * The parameter can now be used with {@link #namedValue(String, Object)}.
      */
-    void setAlias(QueryParameter<?> param, String name);
-    
-    /**
-     * Generates a new named param for one value.
-     * <p>
-     * In case the valueClass is String, a string specific param is created.
-     */
-    <T> QueryParameterSingle<T> createSingleNamedParam(Class<T> valueClass);
-
-    /**
-     * Generates a new named param for a collection of values.
-     */
-    <T> QueryParameterCollection<T> createCollectionNamedParam(Class<T> valueClass);
+    void setAlias(TypeSafeValue<?> param, String name);
     
     /**
      * Checks if the data is available in the query or one of its parents.

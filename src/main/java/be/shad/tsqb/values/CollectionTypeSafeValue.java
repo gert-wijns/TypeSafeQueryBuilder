@@ -16,46 +16,102 @@
 package be.shad.tsqb.values;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
-import be.shad.tsqb.param.QueryParameterCollection;
+import be.shad.tsqb.NamedParameter;
 import be.shad.tsqb.query.TypeSafeQuery;
-import be.shad.tsqb.query.TypeSafeQueryInternal;
 
 /**
  * The value is a collection of actual values, not proxies or property paths.
  * These values are added to the query as params.
  */
-public class CollectionTypeSafeValue<T> extends TypeSafeValueImpl<T> {
-    private final QueryParameterCollection<T> parameter;
+public class CollectionTypeSafeValue<T> extends TypeSafeValueImpl<T> implements NamedValueEnabled {
+    private Collection<T> values;
     
     public CollectionTypeSafeValue(TypeSafeQuery query, Class<T> valueClass, Collection<T> value) {
-        this(query, ((TypeSafeQueryInternal) query).createCollectionNamedParam(valueClass));
+        this(query, valueClass);
         setValues(value);
     }
     
     public CollectionTypeSafeValue(TypeSafeQuery query, Class<T> valueClass) {
-        this(query, ((TypeSafeQueryInternal) query).createCollectionNamedParam(valueClass));
-    }
-
-    public CollectionTypeSafeValue(TypeSafeQuery query, QueryParameterCollection<T> parameter) {
-        super(query, parameter.getValueClass());
-        this.parameter = parameter;
+        super(query, valueClass);
     }
     
-    public QueryParameterCollection<T> getParameter() {
-        return parameter;
+    public Collection<T> getValues() {
+        return values;
     }
 
     /**
-     * Validate the values are not null or empty.
+     * Validate the values are not empty.
      */
     public void setValues(Collection<T> values) {
-        parameter.setValue(values);
+        setNamedValue(values);
     }
 
     @Override
-    public HqlQueryValueImpl toHqlQueryValue() {
-        return new HqlQueryValueImpl(":" + parameter.getName(), parameter);
+    public HqlQueryValueImpl toHqlQueryValue(HqlQueryBuilderParams params) {
+        if (params.isRequiresLiterals()) {
+            StringBuilder sb = new StringBuilder("(");
+            for(Object val: values) {
+                if( sb.length() > 1 ) {
+                    sb.append(", ");
+                }
+                sb.append(query.getHelper().toLiteral(val));
+            }
+            sb.append(")");
+            return new HqlQueryValueImpl(sb.toString());
+        } else {
+            String name = params.createNamedParameter();
+            return new HqlQueryValueImpl(":" + name, new NamedParameter(name, values));
+        }
+    }
+
+    /**
+     * Sets the collection value of this parameter, 
+     * the collection will have to be null or the elements in 
+     * the collection will have to be assignable from the value class.
+     * The collection will be validated:
+     * <ul>
+     * <li>Null is allowed as collection value. Though presense of a value will be
+     *     checked when the query is transformed to HQL.</li>
+     * <li>When a collection is set, all of its elements must be assignable from the value class.</li>
+     * <li>Elements must not be null.</li>
+     * <li>When a collection is set, it must not be empty. A defensive copy is taken, 
+     *     so adding elements to a referenced list will not work.</li>
+     * </ul>
+     */
+    @Override
+    public void setNamedValue(Object namedValue) {
+        if (namedValue == null) {
+            this.values = null;
+            return;
+        }
+        
+        Collection<?> values = null;
+        if (namedValue instanceof Collection<?>) {
+            values = (Collection<?>) namedValue;
+            if (values.isEmpty()) {
+                throw new IllegalArgumentException("Collection may not be empty when set.");
+            }
+        } else {
+            values = Collections.singleton(namedValue);
+        }
+        
+        List<T> namedValues = new LinkedList<T>();
+        for(Object value: values) {
+            if (value == null) {
+                throw new IllegalArgumentException(String.format("Null value in "
+                        + "collection is not allowed. Collection: %s.", values));
+            }
+            if (!getValueClass().isAssignableFrom(value.getClass())) {
+                throw new IllegalArgumentException(String.format("The value must be of type "
+                        + "[%s] but was of type [%s].", getValueClass(), value.getClass()));
+            }
+            namedValues.add(getValueClass().cast(value));
+        }
+        this.values = namedValues;
     }
 
 }

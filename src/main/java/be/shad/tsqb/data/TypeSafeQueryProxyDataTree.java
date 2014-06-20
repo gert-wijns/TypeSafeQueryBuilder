@@ -31,6 +31,7 @@ import be.shad.tsqb.proxy.TypeSafeQueryProxy;
 import be.shad.tsqb.proxy.TypeSafeQueryProxyType;
 import be.shad.tsqb.query.JoinType;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
+import be.shad.tsqb.values.HqlQueryBuilderParams;
 
 /**
  * Contains the proxy data, the from and the joined entities data known in the query.
@@ -158,9 +159,9 @@ public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder {
     }
 
     @Override
-    public void appendTo(HqlQuery query) {
+    public void appendTo(HqlQuery query, HqlQueryBuilderParams params) {
         for(TypeSafeQueryFrom from: froms) {
-            from.appendTo(query);
+            from.appendTo(query, params);
         }
     }
     

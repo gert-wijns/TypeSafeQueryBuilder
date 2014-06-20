@@ -15,47 +15,51 @@
  */
 package be.shad.tsqb.values;
 
-import be.shad.tsqb.param.QueryParameterSingle;
+import be.shad.tsqb.NamedParameter;
 import be.shad.tsqb.query.TypeSafeQuery;
-import be.shad.tsqb.query.TypeSafeQueryInternal;
 
 /**
  * The value is an actual value, not a proxy or property path.
  * This value is added as param to the query.
  */
-public class DirectTypeSafeValue<T> extends TypeSafeValueImpl<T> {
-    private final QueryParameterSingle<T> parameter;
+public class DirectTypeSafeValue<T> extends TypeSafeValueImpl<T> implements NamedValueEnabled {
+    private T value;
     
     @SuppressWarnings("unchecked")
     public DirectTypeSafeValue(TypeSafeQuery query, T value) {
-        this(query, ((TypeSafeQueryInternal) query).createSingleNamedParam((Class<T>) value.getClass()));
+        this(query, (Class<T>) value.getClass());
         setValue(value);
     }
     
     public DirectTypeSafeValue(TypeSafeQuery query, Class<T> valueClass) {
-        this(query, ((TypeSafeQueryInternal) query).createSingleNamedParam(valueClass));
-    }
-
-    public DirectTypeSafeValue(TypeSafeQuery query, QueryParameterSingle<T> parameter) {
-        super(query, parameter.getValueClass());
-        this.parameter = parameter;
+        super(query, valueClass);
     }
     
-    public QueryParameterSingle<T> getParameter() {
-        return parameter;
-    }
-
     public T getValue() {
-        return parameter.getValue();
+        return value;
     }
 
     public void setValue(T value) {
-        parameter.setValue(value);
+        this.value = value;
     }
 
     @Override
-    public HqlQueryValueImpl toHqlQueryValue() {
-        return new HqlQueryValueImpl(":" + parameter.getName(), parameter);
+    public HqlQueryValueImpl toHqlQueryValue(HqlQueryBuilderParams params) {
+        if (params.isRequiresLiterals()) {
+            return new HqlQueryValueImpl(query.getHelper().toLiteral(getValue()));
+        } else {
+            String name = params.createNamedParameter();
+            return new HqlQueryValueImpl(":" + name, new NamedParameter(name, getValue()));
+        }
+    }
+
+    @Override
+    public void setNamedValue(Object value) {
+        if (value != null && !getValueClass().isAssignableFrom(value.getClass())) {
+            throw new IllegalArgumentException(String.format("The value must be of type "
+                    + "[%s] but was of type [%s].", getValueClass(), value.getClass()));
+        }
+        this.value = getValueClass().cast(value);
     }
 
 }

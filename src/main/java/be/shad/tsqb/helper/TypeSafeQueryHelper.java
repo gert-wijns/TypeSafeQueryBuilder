@@ -20,7 +20,6 @@ import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.query.TypeSafeRootQuery;
 import be.shad.tsqb.query.TypeSafeRootQueryInternal;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroup;
-import be.shad.tsqb.values.HqlQueryValue;
 
 public interface TypeSafeQueryHelper {
     
@@ -60,11 +59,13 @@ public interface TypeSafeQueryHelper {
      */
     TypeSafeQueryProxyData createTypeSafeJoinProxy(TypeSafeQueryInternal query, 
             TypeSafeQueryProxyData parent, String propertyName, Class<?> targetClass);
-    
+
     /**
-     * Replaces the '?'s with 'valueToLiteral's.
+     * Convert a value to a string. This is only used when hibernate would fail if params are used.
+     * <p>
+     * Uses the hibernate Type object to convert to a literal.
      */
-    HqlQueryValue replaceParamsWithLiterals(HqlQueryValue value);
+    String toLiteral(Object value);
     
     /**
      * Uses the type resolver to get the name of the type for the given class.

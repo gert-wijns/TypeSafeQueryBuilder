@@ -20,6 +20,7 @@ import java.util.List;
 
 import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.hql.HqlQueryBuilder;
+import be.shad.tsqb.values.HqlQueryBuilderParams;
 import be.shad.tsqb.values.HqlQueryValue;
 import be.shad.tsqb.values.TypeSafeValue;
 
@@ -27,9 +28,9 @@ public class TypeSafeQueryGroupBys implements HqlQueryBuilder {
     private final List<TypeSafeValue<?>> values = new LinkedList<>();
 
     @Override
-    public void appendTo(HqlQuery query) {
+    public void appendTo(HqlQuery query, HqlQueryBuilderParams params) {
         for(TypeSafeValue<?> value: values) {
-            HqlQueryValue hqlQueryValue = value.toHqlQueryValue();
+            HqlQueryValue hqlQueryValue = value.toHqlQueryValue(params);
             query.appendGroupBy(hqlQueryValue.getHql());
             query.addParams(hqlQueryValue.getParams());
         }

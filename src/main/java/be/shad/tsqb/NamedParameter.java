@@ -13,21 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.shad.tsqb.param;
+package be.shad.tsqb;
 
-
-public interface QueryParameterSingle<T> extends QueryParameter<T> {
-
-    /**
-     * The currently set value, may be updated by setValue.
-     * Must not be null before the query is transformed to hql.
-     */
-    T getValue();
-
-    /**
-     * Sets the value of this parameter, the value will have to be null or it
-     * must be assignable from the value class.
-     */
-    void setValue(T object);
+public class NamedParameter {
+    private final String name;
+    private final Object value;
     
+    public NamedParameter(String name, Object value) {
+        this.name = name;
+        this.value = value;
+    }
+    
+    public String getName() {
+        return name;
+    }
+    
+    public Object getValue() {
+        return value;
+    }
 }
