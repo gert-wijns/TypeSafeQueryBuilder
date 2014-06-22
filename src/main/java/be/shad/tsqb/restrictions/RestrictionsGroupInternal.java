@@ -17,11 +17,12 @@ package be.shad.tsqb.restrictions;
 
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
+import be.shad.tsqb.query.copy.Copyable;
 
 /**
  * Extend to include extra interfaces
  */
-public interface RestrictionsGroupInternal extends RestrictionsGroup, Restriction, RestrictionChainable {
+public interface RestrictionsGroupInternal extends RestrictionsGroup, Restriction, RestrictionChainable, Copyable {
 
     /**
      * Get the join, for scope testing.

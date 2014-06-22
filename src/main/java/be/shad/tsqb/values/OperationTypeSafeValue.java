@@ -21,6 +21,8 @@ import java.util.List;
 
 import be.shad.tsqb.query.TypeSafeQuery;
 import be.shad.tsqb.query.TypeSafeQueryScopeValidator;
+import be.shad.tsqb.query.copy.CopyContext;
+import be.shad.tsqb.query.copy.Copyable;
 
 /**
  * TypeSafeValue to build a value using other values.
@@ -36,6 +38,20 @@ public class OperationTypeSafeValue<T> extends TypeSafeValueImpl<T> implements T
     private List<String> operations = new LinkedList<>();
     private OperationTypeSafeValueBracketsPolicy bracketsPolicy;
 
+    /**
+     * Copy constructor
+     */
+    protected OperationTypeSafeValue(CopyContext context, OperationTypeSafeValue<T> original) {
+        super(context, original);
+        this.bracketsPolicy = original.bracketsPolicy;
+        for(TypeSafeValue<? extends T> value: original.values) {
+            this.values.add(context.get(value));
+        }
+        for(String operation: original.operations) {
+            this.operations.add(operation);
+        }
+    }
+    
     public OperationTypeSafeValue(TypeSafeQuery query, TypeSafeValue<T> firstValue, 
             OperationTypeSafeValueBracketsPolicy bracketsPolicy) {
         super(query, firstValue.getValueClass());
@@ -96,6 +112,10 @@ public class OperationTypeSafeValue<T> extends TypeSafeValueImpl<T> implements T
             default:              return true;
         }
     }
-
+    
+    @Override
+    public Copyable copy(CopyContext context) {
+        return new OperationTypeSafeValue<>(context, this);
+    }
 
 }

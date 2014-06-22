@@ -17,11 +17,14 @@ package be.shad.tsqb.values;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
 import be.shad.tsqb.NamedParameter;
 import be.shad.tsqb.query.TypeSafeQuery;
+import be.shad.tsqb.query.copy.CopyContext;
+import be.shad.tsqb.query.copy.Copyable;
 
 /**
  * The value is a collection of actual values, not proxies or property paths.
@@ -29,6 +32,19 @@ import be.shad.tsqb.query.TypeSafeQuery;
  */
 public class CollectionTypeSafeValue<T> extends TypeSafeValueImpl<T> implements NamedValueEnabled {
     private Collection<T> values;
+
+    /**
+     * Copy constructor
+     */
+    protected CollectionTypeSafeValue(CopyContext context, CollectionTypeSafeValue<T> original) {
+        super(context, original);
+        if (original.values != null) {
+            values = new HashSet<T>();
+            for(T value: original.values){
+                values.add(context.getOrOriginal(value));
+            }
+        }
+    }
     
     public CollectionTypeSafeValue(TypeSafeQuery query, Class<T> valueClass, Collection<T> value) {
         this(query, valueClass);
@@ -112,6 +128,11 @@ public class CollectionTypeSafeValue<T> extends TypeSafeValueImpl<T> implements 
             namedValues.add(getValueClass().cast(value));
         }
         this.values = namedValues;
+    }
+
+    @Override
+    public Copyable copy(CopyContext context) {
+        return new CollectionTypeSafeValue<>(context, this);
     }
 
 }

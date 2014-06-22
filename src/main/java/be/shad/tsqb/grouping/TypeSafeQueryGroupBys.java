@@ -20,12 +20,27 @@ import java.util.List;
 
 import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.hql.HqlQueryBuilder;
+import be.shad.tsqb.query.copy.CopyContext;
+import be.shad.tsqb.query.copy.Copyable;
 import be.shad.tsqb.values.HqlQueryBuilderParams;
 import be.shad.tsqb.values.HqlQueryValue;
 import be.shad.tsqb.values.TypeSafeValue;
 
-public class TypeSafeQueryGroupBys implements HqlQueryBuilder {
+public class TypeSafeQueryGroupBys implements HqlQueryBuilder, Copyable {
     private final List<TypeSafeValue<?>> values = new LinkedList<>();
+
+    /**
+     * Copy constructor
+     */
+    protected TypeSafeQueryGroupBys(CopyContext context, TypeSafeQueryGroupBys original) {
+        for(TypeSafeValue<?> value: original.values) {
+            values.add(context.get(value));
+        }
+    }
+    
+    public TypeSafeQueryGroupBys() {
+        // default constructor for regular query creation
+    }
 
     @Override
     public void appendTo(HqlQuery query, HqlQueryBuilderParams params) {
@@ -39,6 +54,14 @@ public class TypeSafeQueryGroupBys implements HqlQueryBuilder {
     public <T> TypeSafeValue<T> add(TypeSafeValue<T> val) {
         values.add(val);
         return val;
+    }
+
+    /**
+     * Delegates to copy constructor
+     */
+    @Override
+    public Copyable copy(CopyContext context) {
+        return new TypeSafeQueryGroupBys(context, this);
     }
 
 }

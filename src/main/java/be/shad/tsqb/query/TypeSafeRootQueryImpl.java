@@ -19,11 +19,14 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.helper.TypeSafeQueryHelper;
 import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
+import be.shad.tsqb.query.copy.CopyContext;
+import be.shad.tsqb.query.copy.Copyable;
 import be.shad.tsqb.selection.SelectionValueTransformer;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroup;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroupImpl;
@@ -52,6 +55,38 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     private int selectionGroupAliasCount = 1;
     private int firstResult = -1;
     private int maxResults = -1;
+    
+    @Override
+    public TypeSafeRootQuery copy() {
+        return new CopyContext().get(this);
+    }
+    
+    @Override
+    public Copyable copy(CopyContext context) {
+        return new TypeSafeRootQueryImpl(context, this);
+    }
+
+    /**
+     * Copy constructor
+     */
+    protected TypeSafeRootQueryImpl(CopyContext context, TypeSafeRootQueryImpl original) {
+        super(context, original);
+        for(TypeSafeQueryProxyData data: original.invocationQueue) {
+            invocationQueue.add(context.get(data));
+        }
+        for(Entry<String, NamedValueEnabled> aliasedValue: original.aliasedValues.entrySet()) {
+            aliasedValues.put(aliasedValue.getKey(), context.get(aliasedValue.getValue()));
+        }
+        for(Entry<String, TypeSafeQueryProxy> customAliasedProxy: original.customAliasedProxies.entrySet()) {
+            customAliasedProxies.put(customAliasedProxy.getKey(), context.get(customAliasedProxy.getValue()));
+        }
+        lastSelectedValue = context.get(original.lastSelectedValue);
+        lastInvokedProjectionPath = original.lastInvokedProjectionPath;
+        entityAliasCount = original.entityAliasCount;
+        selectionGroupAliasCount = original.selectionGroupAliasCount;
+        firstResult = original.firstResult;
+        maxResults = original.maxResults;
+    }
 
     public TypeSafeRootQueryImpl(TypeSafeQueryHelper helper) {
         super(helper);

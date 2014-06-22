@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.shad.tsqb.ordering;
+package be.shad.tsqb.query.copy;
 
-import be.shad.tsqb.hql.HqlQueryBuilder;
-import be.shad.tsqb.query.copy.Copyable;
+public interface Copyable {
 
-public interface OrderBy extends HqlQueryBuilder, Copyable {
-
+    /**
+     * @return this as a copy
+     */
+    Copyable copy(CopyContext context);
+    
 }

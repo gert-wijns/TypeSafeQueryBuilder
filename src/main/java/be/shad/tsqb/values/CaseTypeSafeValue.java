@@ -21,6 +21,8 @@ import java.util.List;
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.query.TypeSafeQuery;
 import be.shad.tsqb.query.TypeSafeQueryScopeValidator;
+import be.shad.tsqb.query.copy.CopyContext;
+import be.shad.tsqb.query.copy.Copyable;
 import be.shad.tsqb.restrictions.RestrictionsGroupImpl;
 import be.shad.tsqb.restrictions.RestrictionsGroupInternal;
 
@@ -30,6 +32,16 @@ import be.shad.tsqb.restrictions.RestrictionsGroupInternal;
 public class CaseTypeSafeValue<T> extends TypeSafeValueImpl<T> implements OnGoingCaseWhen<T>, TypeSafeValueContainer {
     private List<OnGoingCaseImpl<T>> cases = new LinkedList<>();
 
+    /**
+     * Copy constructor
+     */
+    protected CaseTypeSafeValue(CopyContext context, CaseTypeSafeValue<T> original) {
+        super(context, original);
+        for(OnGoingCaseImpl<T> c: cases) {
+            cases.add(context.get(c));
+        }
+    }
+    
     public CaseTypeSafeValue(TypeSafeQuery query, Class<T> valueType) {
         super(query, valueType);
     }
@@ -103,4 +115,10 @@ public class CaseTypeSafeValue<T> extends TypeSafeValueImpl<T> implements OnGoin
             validator.validateInScope(ongoingCase.getValue());
         }
     }
+    
+    @Override
+    public Copyable copy(CopyContext context) {
+        return new CaseTypeSafeValue<>(context, this);
+    }
+    
 }

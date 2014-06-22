@@ -16,6 +16,8 @@
 package be.shad.tsqb.restrictions;
 
 import be.shad.tsqb.query.TypeSafeQueryInternal;
+import be.shad.tsqb.query.copy.CopyContext;
+import be.shad.tsqb.query.copy.Copyable;
 import be.shad.tsqb.values.CastTypeSafeValue;
 import be.shad.tsqb.values.HqlQueryBuilderParams;
 import be.shad.tsqb.values.HqlQueryValue;
@@ -61,6 +63,17 @@ public class RestrictionImpl<VAL> implements Restriction {
         setLeft(left);
         setOperator(operator);
         setRight(right);
+    }
+
+    /**
+     * Copy constructor
+     */
+    public RestrictionImpl(CopyContext context, RestrictionImpl<VAL> original) {
+        this.group = context.get(original.group);
+        this.query = context.get(original.query);
+        this.left = context.get(original.left);
+        this.right = context.get(original.right);
+        this.operator = original.operator;
     }
 
     public void setOperator(String operator) {
@@ -155,4 +168,10 @@ public class RestrictionImpl<VAL> implements Restriction {
     private boolean rightSideRequiresLiterals() {
         return left instanceof CastTypeSafeValue<?>;
     }
+    
+    @Override
+    public Copyable copy(CopyContext context) {
+        return new RestrictionImpl<VAL>(context, this);
+    }
+    
 }

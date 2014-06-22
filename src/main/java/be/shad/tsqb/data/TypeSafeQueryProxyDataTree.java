@@ -31,12 +31,14 @@ import be.shad.tsqb.proxy.TypeSafeQueryProxy;
 import be.shad.tsqb.proxy.TypeSafeQueryProxyType;
 import be.shad.tsqb.query.JoinType;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
+import be.shad.tsqb.query.copy.CopyContext;
+import be.shad.tsqb.query.copy.Copyable;
 import be.shad.tsqb.values.HqlQueryBuilderParams;
 
 /**
  * Contains the proxy data, the from and the joined entities data known in the query.
  */
-public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder {
+public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder, Copyable {
     private final List<TypeSafeQueryFrom> froms = new ArrayList<>();
     private final Map<TypeSafeQueryProxyData, TypeSafeQueryJoin<?>> joins = new HashMap<>();
     private final Set<TypeSafeQueryProxyData> queryData = new LinkedHashSet<>();
@@ -48,6 +50,33 @@ public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder {
         this.query = query;
     }
     
+    /**
+     * Copy constructor
+     */
+    protected TypeSafeQueryProxyDataTree(CopyContext context, TypeSafeQueryProxyDataTree original) {
+        this(original.helper, context.get(original.query));
+        // query data contains the history of created proxy data, 
+        // so replaying this results in the same data tree.
+        for(TypeSafeQueryProxyData originalData: original.queryData) {
+            TypeSafeQueryProxyData copyData;
+            if (originalData.getParent() == null) {
+                // is a from:
+                copyData = ((TypeSafeQueryProxy) helper.createTypeSafeFromProxy(query, 
+                        originalData.getPropertyType())).getTypeSafeProxyData();
+            } else {
+                // is a join or select, both call the 'join' method:
+                TypeSafeQueryProxyData parent = context.get(originalData.getParent());
+                copyData = helper.createTypeSafeJoinProxy(query, parent, 
+                        originalData.getPropertyPath(), 
+                        originalData.getPropertyType());
+                // alias and jointype may have been changed:
+                copyData.setJoinType(originalData.getJoinType());
+            }
+            copyData.setCustomAlias(originalData.getCustomAlias());
+            context.put(originalData, copyData);
+        }
+    }
+
     @SuppressWarnings("unchecked")
     public <T> TypeSafeQueryJoin<T> getJoin(TypeSafeQueryProxyData data) {
         return (TypeSafeQueryJoin<T>) joins.get(data);
@@ -163,6 +192,11 @@ public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder {
         for(TypeSafeQueryFrom from: froms) {
             from.appendTo(query, params);
         }
+    }
+
+    @Override
+    public Copyable copy(CopyContext context) {
+        return new TypeSafeQueryProxyDataTree(context, this);
     }
     
 }

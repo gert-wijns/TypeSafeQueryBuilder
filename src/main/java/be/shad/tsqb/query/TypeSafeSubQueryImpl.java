@@ -20,6 +20,8 @@ import java.util.List;
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.helper.TypeSafeQueryHelper;
 import be.shad.tsqb.hql.HqlQuery;
+import be.shad.tsqb.query.copy.CopyContext;
+import be.shad.tsqb.query.copy.Copyable;
 import be.shad.tsqb.values.CaseTypeSafeValue;
 import be.shad.tsqb.values.HqlQueryBuilderParams;
 import be.shad.tsqb.values.HqlQueryValue;
@@ -44,6 +46,20 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
         this.valueClass = valueClass;
         this.parentQuery = parentQuery;
         setRootQuery(parentQuery.getRootQuery());
+    }
+    
+    @Override
+    public Copyable copy(CopyContext context) {
+        return new TypeSafeSubQueryImpl<T>(context, this);
+    }
+
+    /**
+     * Copy constructor
+     */
+    protected TypeSafeSubQueryImpl(CopyContext context, TypeSafeSubQueryImpl<T> original) {
+        super(context, original);
+        this.valueClass = original.valueClass;
+        this.parentQuery = context.get(parentQuery);
     }
 
     /**

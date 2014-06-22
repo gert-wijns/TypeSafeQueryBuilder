@@ -17,6 +17,8 @@ package be.shad.tsqb.values;
 
 import be.shad.tsqb.NamedParameter;
 import be.shad.tsqb.query.TypeSafeQuery;
+import be.shad.tsqb.query.copy.CopyContext;
+import be.shad.tsqb.query.copy.Copyable;
 
 /**
  * The value is an actual value, not a proxy or property path.
@@ -35,6 +37,14 @@ public class DirectTypeSafeValue<T> extends TypeSafeValueImpl<T> implements Name
         super(query, valueClass);
     }
     
+    /**
+     * Copy constructor
+     */
+    protected DirectTypeSafeValue(CopyContext context, DirectTypeSafeValue<T> original) {
+        super(context, original);
+        value = context.getOrOriginal(original.value);
+    }
+
     public T getValue() {
         return value;
     }
@@ -60,6 +70,11 @@ public class DirectTypeSafeValue<T> extends TypeSafeValueImpl<T> implements Name
                     + "[%s] but was of type [%s].", getValueClass(), value.getClass()));
         }
         this.value = getValueClass().cast(value);
+    }
+
+    @Override
+    public Copyable copy(CopyContext context) {
+        return new DirectTypeSafeValue<>(context, this);
     }
 
 }

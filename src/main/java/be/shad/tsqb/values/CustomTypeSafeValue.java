@@ -20,6 +20,8 @@ import java.util.Collections;
 
 import be.shad.tsqb.query.TypeSafeQuery;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
+import be.shad.tsqb.query.copy.CopyContext;
+import be.shad.tsqb.query.copy.Copyable;
 
 /**
  * When the TypeSafeQueryBuilder doesn't support a certain hql construction,
@@ -28,6 +30,14 @@ import be.shad.tsqb.query.TypeSafeQueryInternal;
 public class CustomTypeSafeValue<T> extends TypeSafeValueImpl<T> {
     private final HqlQueryValue value;
 
+    /**
+     * Copy constructor
+     */
+    protected CustomTypeSafeValue(CopyContext context, CustomTypeSafeValue<T> original) {
+        super(context, original);
+        this.value = context.get(original.value);
+    }
+    
     public CustomTypeSafeValue(TypeSafeQuery query, Class<T> valueType, String hql) {
         this(query, valueType, hql, Collections.emptyList());
     }
@@ -46,6 +56,11 @@ public class CustomTypeSafeValue<T> extends TypeSafeValueImpl<T> {
     @Override
     public HqlQueryValue toHqlQueryValue(HqlQueryBuilderParams params) {
         return value;
+    }
+
+    @Override
+    public Copyable copy(CopyContext context) {
+        return new CustomTypeSafeValue<>(context, this);
     }
 
 }

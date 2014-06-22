@@ -18,6 +18,8 @@ package be.shad.tsqb.values;
 import java.util.Date;
 
 import be.shad.tsqb.query.TypeSafeSubQuery;
+import be.shad.tsqb.query.copy.CopyContext;
+import be.shad.tsqb.query.copy.Copyable;
 import be.shad.tsqb.restrictions.OnGoingBooleanRestriction;
 import be.shad.tsqb.restrictions.OnGoingDateRestriction;
 import be.shad.tsqb.restrictions.OnGoingEnumRestriction;
@@ -29,12 +31,20 @@ import be.shad.tsqb.restrictions.RestrictionChainableDelegatingImpl;
 import be.shad.tsqb.restrictions.RestrictionsGroup;
 import be.shad.tsqb.restrictions.RestrictionsGroupInternal;
 
-public class OnGoingCaseImpl<T> extends RestrictionChainableDelegatingImpl implements OnGoingCase<T> {
+public class OnGoingCaseImpl<T> extends RestrictionChainableDelegatingImpl implements OnGoingCase<T>, Copyable {
     private final TypeSafeValue<T> value;
 
     public OnGoingCaseImpl(RestrictionsGroupInternal group, TypeSafeValue<T> value) {
         super(group);
         this.value = value;
+    }
+
+    /**
+     * Copy constructor
+     */
+    protected OnGoingCaseImpl(CopyContext context, OnGoingCaseImpl<T> original) {
+        super(context, original);
+        this.value = context.get(original.value);
     }
 
     public TypeSafeValue<T> getValue() {
@@ -164,6 +174,11 @@ public class OnGoingCaseImpl<T> extends RestrictionChainableDelegatingImpl imple
     @Override
     public TypeSafeValue<T> otherwise() {
         return value;
+    }
+
+    @Override
+    public Copyable copy(CopyContext context) {
+        return new OnGoingCaseImpl<>(context, this);
     }
     
 }

@@ -17,6 +17,8 @@ package be.shad.tsqb.values;
 
 import be.shad.tsqb.query.TypeSafeQuery;
 import be.shad.tsqb.query.TypeSafeQueryScopeValidator;
+import be.shad.tsqb.query.copy.CopyContext;
+import be.shad.tsqb.query.copy.Copyable;
 
 /**
  * Wrap a value to put inside the count function.
@@ -26,6 +28,14 @@ import be.shad.tsqb.query.TypeSafeQueryScopeValidator;
 public class CountTypeSafeValue extends TypeSafeValueImpl<Long> implements IsMaybeDistinct, TypeSafeValueContainer {
     private TypeSafeValue<?> value;
 
+    /**
+     * Copy constructor
+     */
+    protected CountTypeSafeValue(CopyContext context, CountTypeSafeValue original) {
+        super(context, original);
+        this.value = context.get(original.value);
+    }
+    
     public CountTypeSafeValue(TypeSafeQuery query, TypeSafeValue<?> value) {
         super(query, Long.class);
         this.value = value;
@@ -45,6 +55,11 @@ public class CountTypeSafeValue extends TypeSafeValueImpl<Long> implements IsMay
     @Override
     public void validateContainedInScope(TypeSafeQueryScopeValidator validator) {
         validator.validateInScope(value);
+    }
+
+    @Override
+    public Copyable copy(CopyContext context) {
+        return new CountTypeSafeValue(context, this);
     }
     
 }

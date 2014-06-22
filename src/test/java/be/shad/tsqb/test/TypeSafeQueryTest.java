@@ -116,7 +116,7 @@ public class TypeSafeQueryTest {
         }
         
         String expected = String.format("\nExpected:\n%s\n--- params: %s\n", hql, Arrays.toString(params));
-        String result = String.format("\nResult:\n%s\n--- params: %s\n", hqlQuery.getHql(), actualParams);
+        String result = String.format("\nResult:\n%s\n--- params: %s\n", hqlQuery.getHql(), hqlQuery.getParams());
         
         assertTrue(expected + result, hqlQuery.getHql().equals(hql));
         if( params == null || params.length == 0 ){

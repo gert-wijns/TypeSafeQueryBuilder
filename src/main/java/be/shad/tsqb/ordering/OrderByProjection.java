@@ -19,6 +19,8 @@ import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.query.TypeSafeQuery;
 import be.shad.tsqb.query.TypeSafeRootQueryInternal;
 import be.shad.tsqb.query.TypeSafeSubQuery;
+import be.shad.tsqb.query.copy.CopyContext;
+import be.shad.tsqb.query.copy.Copyable;
 import be.shad.tsqb.selection.TypeSafeQueryProjections;
 import be.shad.tsqb.selection.TypeSafeValueProjection;
 import be.shad.tsqb.values.HqlQueryBuilderParams;
@@ -36,6 +38,15 @@ public class OrderByProjection implements OrderBy {
         this.query = query;
         this.propertyPath = propertyPath;
         this.descending = descending;
+    }
+
+    /**
+     * Copy constructor
+     */
+    protected OrderByProjection(CopyContext context, OrderByProjection original) {
+        this.query = context.get(original.query);
+        this.propertyPath = original.propertyPath;
+        this.descending = original.descending;
     }
 
     /**
@@ -70,5 +81,10 @@ public class OrderByProjection implements OrderBy {
             aliasIndex++;
         }
     }
-
+    
+    @Override
+    public Copyable copy(CopyContext context) {
+        return new OrderByProjection(context, this);
+    }
+    
 }
