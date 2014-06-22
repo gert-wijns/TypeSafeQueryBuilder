@@ -46,7 +46,7 @@ public class NamedParameterBinderImpl<VAL, CONTINUED extends
      */
     @Override
     public CONTINUED named(String alias) {
-        query.setAlias(parameter, alias);
+        query.named().name(parameter, alias);
         return chainable;
     }
 

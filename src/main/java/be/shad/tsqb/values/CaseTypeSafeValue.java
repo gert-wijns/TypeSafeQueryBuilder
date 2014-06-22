@@ -37,7 +37,7 @@ public class CaseTypeSafeValue<T> extends TypeSafeValueImpl<T> implements OnGoin
      */
     protected CaseTypeSafeValue(CopyContext context, CaseTypeSafeValue<T> original) {
         super(context, original);
-        for(OnGoingCaseImpl<T> c: cases) {
+        for(OnGoingCaseImpl<T> c: original.cases) {
             cases.add(context.get(c));
         }
     }

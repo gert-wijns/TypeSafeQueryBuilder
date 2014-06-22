@@ -13,24 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.shad.tsqb.test;
+package be.shad.tsqb.test.copy;
 
 import org.junit.Test;
 
 import be.shad.tsqb.domain.people.Person;
-import be.shad.tsqb.dto.PersonDto;
 
-public class WithDataTest extends TypeSafeQueryTest {
+public class FromsCopyTest extends TypeSafeQueryCopyTest {
 
+    /**
+     * Test from on the original is copied and extending 
+     * the query doesn't extend the original query.
+     */
     @Test
-    public void testFindPerson() {
-        TestDataCreator creator = new TestDataCreator(getSessionFactory());
-        creator.createTestPerson(creator.createTestTown(), "Josh");
+    public void testCopyFrom() {
+        Person personProxy = query.from(Person.class);
+        query.named().name(personProxy, PERSON_OBJ);
         
-        Person fromProxy = query.from(Person.class);
-        PersonDto selectProxy = query.select(PersonDto.class);
-        selectProxy.setId(fromProxy.getId());
-        validate("select hobj1.id as id from Person hobj1");
+        Person copiedPersonProxy = validateAndCopy(PERSON_OBJ,
+                " from Person hobj1");
+        
+        // add something to the copy query and validate the change
+        copy.where(copiedPersonProxy.getName()).eq("Test");
+        validateChangedCopy(" from Person hobj1 where hobj1.name = :np1", "Test");
     }
+
     
 }

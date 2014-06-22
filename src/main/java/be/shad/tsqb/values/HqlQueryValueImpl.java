@@ -30,6 +30,22 @@ public class HqlQueryValueImpl implements HqlQueryValue, Copyable {
     private List<Object> params = new LinkedList<>();
     private StringBuilder hql;
     
+    /**
+     * Factory method for shorthand hql query value creation.
+     * Use hql(...) + static import to make shorter code.
+     */
+    public static final HqlQueryValue hql(String hql, Object... params) {
+        return new HqlQueryValueImpl(hql, params);
+    }
+
+    /**
+     * Factory method for shorthand hql query value creation.
+     * Use hql(...) + static import to make shorter code.
+     */
+    public static final HqlQueryValue hql(String hql, Collection<Object> params) {
+        return new HqlQueryValueImpl(hql, params);
+    }
+    
     public HqlQueryValueImpl() {
         this("");
     }

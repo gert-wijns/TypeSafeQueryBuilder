@@ -15,9 +15,9 @@
  */
 package be.shad.tsqb.restrictions;
 
-import static be.shad.tsqb.restrictions.RestrictionImpl.EXISTS;
 import static be.shad.tsqb.restrictions.RestrictionNodeType.And;
 import static be.shad.tsqb.restrictions.RestrictionNodeType.Or;
+import static be.shad.tsqb.restrictions.RestrictionOperator.EXISTS;
 
 import java.util.Date;
 

@@ -18,6 +18,7 @@ package be.shad.tsqb.data;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,19 +30,21 @@ import be.shad.tsqb.hql.HqlQueryBuilder;
 import be.shad.tsqb.joins.TypeSafeQueryJoin;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
 import be.shad.tsqb.proxy.TypeSafeQueryProxyType;
+import be.shad.tsqb.proxy.TypeSafeQuerySelectionProxy;
 import be.shad.tsqb.query.JoinType;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.query.copy.CopyContext;
-import be.shad.tsqb.query.copy.Copyable;
+import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroup;
 import be.shad.tsqb.values.HqlQueryBuilderParams;
 
 /**
  * Contains the proxy data, the from and the joined entities data known in the query.
  */
-public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder, Copyable {
+public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder {
     private final List<TypeSafeQueryFrom> froms = new ArrayList<>();
     private final Map<TypeSafeQueryProxyData, TypeSafeQueryJoin<?>> joins = new HashMap<>();
     private final Set<TypeSafeQueryProxyData> queryData = new LinkedHashSet<>();
+    private final List<TypeSafeQuerySelectionProxyData> selectionData = new LinkedList<>();
     private final TypeSafeQueryHelper helper;
     private final TypeSafeQueryInternal query;
 
@@ -51,10 +54,13 @@ public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder, Copyable {
     }
     
     /**
-     * Copy constructor
+     * Replays the original data tree into this datatree.
+     * This data tree should still be empty when replay is called.
      */
-    protected TypeSafeQueryProxyDataTree(CopyContext context, TypeSafeQueryProxyDataTree original) {
-        this(original.helper, context.get(original.query));
+    public void replay(CopyContext context, TypeSafeQueryProxyDataTree original) {
+        if (!queryData.isEmpty()) {
+            throw new IllegalStateException("Replaying on a non-empty tree is not supported.");
+        }
         // query data contains the history of created proxy data, 
         // so replaying this results in the same data tree.
         for(TypeSafeQueryProxyData originalData: original.queryData) {
@@ -74,15 +80,45 @@ public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder, Copyable {
             }
             copyData.setCustomAlias(originalData.getCustomAlias());
             context.put(originalData, copyData);
+            if (originalData.getProxy() != null) {
+                context.put(originalData.getProxy(), copyData.getProxy());
+            }
+        }
+        for(TypeSafeQuerySelectionProxyData originalData: original.selectionData) {
+            TypeSafeQuerySelectionProxyData copyData = null;
+            if (originalData.getParent() == null) {
+                copyData = ((TypeSafeQuerySelectionProxy) helper.createTypeSafeSelectProxy(
+                        query.getRootQuery(), originalData.getPropertyType(), 
+                        context.get(originalData.getGroup()))).getTypeSafeQuerySelectionProxyData();
+                context.put(originalData.getProxy(), copyData.getProxy());
+            } else {
+                copyData = helper.createTypeSafeSelectSubProxy(query.getRootQuery(), 
+                        context.get(originalData.getParent()),
+                        originalData.getPropertyPath(), 
+                        originalData.getPropertyType(), 
+                        originalData.getProxy() != null);
+            }
+            context.put(originalData, copyData);
         }
     }
 
     @SuppressWarnings("unchecked")
     public <T> TypeSafeQueryJoin<T> getJoin(TypeSafeQueryProxyData data) {
         return (TypeSafeQueryJoin<T>) joins.get(data);
-        
     }
 
+    /**
+     * Create the selection proxy data, store it in the list of created datas and return.
+     */
+    public TypeSafeQuerySelectionProxyData createSelectionData(TypeSafeQuerySelectionProxyData parent,
+            String propertyPath, Class<?> propertyType, TypeSafeQuerySelectionGroup group,
+            TypeSafeQuerySelectionProxy proxy) {
+        TypeSafeQuerySelectionProxyData selectionProxyData = new TypeSafeQuerySelectionProxyData(
+                parent, propertyPath, propertyType, group, proxy);
+        selectionData.add(selectionProxyData);
+        return selectionProxyData;
+    }
+    
     /**
      * Create proxy data for the given proxy.
      * <p>
@@ -192,11 +228,6 @@ public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder, Copyable {
         for(TypeSafeQueryFrom from: froms) {
             from.appendTo(query, params);
         }
-    }
-
-    @Override
-    public Copyable copy(CopyContext context) {
-        return new TypeSafeQueryProxyDataTree(context, this);
     }
     
 }

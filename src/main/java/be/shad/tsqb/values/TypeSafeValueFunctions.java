@@ -29,6 +29,10 @@ public class TypeSafeValueFunctions {
         this.query = query;
     }
     
+    public <VAL> CaseTypeSafeValue<VAL> caseWhen(Class<VAL> valueClass) {
+        return new CaseTypeSafeValue<>(query, valueClass);
+    }
+    
     public <VAL> TypeSafeValue<VAL> distinct(VAL val) {
         return distinct(query.toValue(val));
     }

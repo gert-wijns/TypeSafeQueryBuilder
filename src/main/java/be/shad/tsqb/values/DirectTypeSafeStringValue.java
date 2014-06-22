@@ -1,8 +1,15 @@
 package be.shad.tsqb.values;
 
+import static be.shad.tsqb.restrictions.RestrictionOperator.EQUAL;
+import static be.shad.tsqb.restrictions.RestrictionOperator.LIKE;
+import static be.shad.tsqb.restrictions.RestrictionOperator.NOT_EQUAL;
+import static be.shad.tsqb.restrictions.RestrictionOperator.NOT_LIKE;
 import be.shad.tsqb.query.TypeSafeQuery;
+import be.shad.tsqb.query.copy.CopyContext;
+import be.shad.tsqb.query.copy.Copyable;
+import be.shad.tsqb.restrictions.RestrictionOperator;
 
-public class DirectTypeSafeStringValue extends DirectTypeSafeValue<String> {
+public class DirectTypeSafeStringValue extends DirectTypeSafeValue<String> implements OperatorAwareValue {
 
     public final static String EMPTY = "";
     
@@ -21,6 +28,17 @@ public class DirectTypeSafeStringValue extends DirectTypeSafeValue<String> {
     }
 
     /**
+     * Copy constructor
+     */
+    protected DirectTypeSafeStringValue(CopyContext context, DirectTypeSafeStringValue original) {
+        super(context, original);
+        this.upper = original.upper;
+        this.lower = original.lower;
+        this.prefix = original.prefix;
+        this.postfix = original.postfix;
+    }
+
+    /**
      * When set, value.toUpperCase is applied when returning the value.
      */
     public boolean isUpper() {
@@ -30,11 +48,12 @@ public class DirectTypeSafeStringValue extends DirectTypeSafeValue<String> {
     /**
      * Resets the lower flag when the upper flag is set.
      */
-    public void setUpper(boolean upper) {
+    public DirectTypeSafeStringValue setUpper(boolean upper) {
         this.upper = upper;
         if (upper) {
             lower = false;
         }
+        return this;
     }
 
     /**
@@ -47,27 +66,30 @@ public class DirectTypeSafeStringValue extends DirectTypeSafeValue<String> {
     /**
      * Resets the upper flag when the lower flag is set.
      */
-    public void setLower(boolean lower) {
+    public DirectTypeSafeStringValue setLower(boolean lower) {
         this.lower = lower;
         if (lower) {
             upper = false;
         }
+        return this;
     }
 
     public String getPrefix() {
         return prefix;
     }
 
-    public void setPrefix(String prefix) {
+    public DirectTypeSafeStringValue setPrefix(String prefix) {
         this.prefix = prefix;
+        return this;
     }
 
     public String getPostfix() {
         return postfix;
     }
 
-    public void setPostfix(String postfix) {
+    public DirectTypeSafeStringValue setPostfix(String postfix) {
         this.postfix = postfix;
+        return this;
     }
 
     /**
@@ -87,4 +109,29 @@ public class DirectTypeSafeStringValue extends DirectTypeSafeValue<String> {
         return wrapped;
     }
 
+    @Override
+    public Copyable copy(CopyContext context) {
+        return new DirectTypeSafeStringValue(context, this);
+    }
+
+    /**
+     * Use a more specific operator no wildcard is set.
+     */
+    @Override
+    public RestrictionOperator getOperator(RestrictionOperator original) {
+        switch (original) {
+            case EQUAL: return isLike() ? LIKE: EQUAL;
+            case NOT_EQUAL: return isLike() ? NOT_LIKE: NOT_EQUAL;
+            default: 
+        }
+        return original;
+    }
+    
+    /**
+     * Use like when a prefix or postfix was set.
+     */
+    private boolean isLike() {
+        return !EMPTY.equals(prefix) || !EMPTY.equals(postfix);
+    }
+    
 }

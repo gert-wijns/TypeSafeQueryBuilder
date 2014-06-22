@@ -82,7 +82,7 @@ public class NamedParamTest extends TypeSafeQueryTest {
     /**
      * Check that duplicate aliases are not allowed.
      */
-    @Test(expected=IllegalStateException.class)
+    @Test(expected=IllegalArgumentException.class)
     public void testNamedValueNotDuplicateValidation() { 
         Person personProxy = query.from(Person.class);
         query.where(personProxy.getId()).eq().named(NAMED_PARAM_1);

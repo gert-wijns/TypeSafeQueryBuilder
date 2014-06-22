@@ -70,7 +70,7 @@ public class TypeSafeValueProjection implements Copyable {
 
     public Object getPropertyPath() {
         if (selectionData != null) {
-            return selectionData.getPropertyPath();
+            return selectionData.getEffectivePropertyPath();
         }
         return null;
     }

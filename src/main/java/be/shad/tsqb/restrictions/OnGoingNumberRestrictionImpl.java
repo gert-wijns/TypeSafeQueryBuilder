@@ -15,6 +15,9 @@
  */
 package be.shad.tsqb.restrictions;
 
+import static be.shad.tsqb.restrictions.RestrictionOperator.GREATER_THAN;
+import static be.shad.tsqb.restrictions.RestrictionOperator.GREATER_THAN_EQUAL;
+import static be.shad.tsqb.restrictions.RestrictionOperator.LESS_THAN;
 import be.shad.tsqb.restrictions.named.SingleNamedParameterBinder;
 import be.shad.tsqb.values.DirectTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
@@ -28,11 +31,6 @@ public class OnGoingNumberRestrictionImpl
         extends OnGoingRestrictionImpl<Number, ContinuedOnGoingNumberRestriction, OnGoingNumberRestriction> 
         implements OnGoingNumberRestriction, ContinuedOnGoingNumberRestriction {
     
-    private final static String LESS_THAN_EQUAL = "<=";
-    private final static String LESS_THAN = "<";
-    private final static String GREATER_THAN = ">";
-    private final static String GREATER_THAN_EQUAL = ">=";
-
     public OnGoingNumberRestrictionImpl(RestrictionsGroupInternal group, 
             RestrictionNodeType restrictionNodeType, Number argument) {
         super(group, restrictionNodeType, argument);
@@ -106,7 +104,7 @@ public class OnGoingNumberRestrictionImpl
      */
     @Override
     public ContinuedOnGoingNumberRestriction lte(TypeSafeValue<Number> value) {
-        return addRestrictionAndContinue(startValue, LESS_THAN_EQUAL, value);
+        return addRestrictionAndContinue(startValue, RestrictionOperator.LESS_THAN_EQUAL, value);
     }
 
     /**

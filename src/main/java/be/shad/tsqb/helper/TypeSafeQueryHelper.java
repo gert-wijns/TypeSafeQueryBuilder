@@ -16,6 +16,7 @@
 package be.shad.tsqb.helper;
 
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
+import be.shad.tsqb.data.TypeSafeQuerySelectionProxyData;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.query.TypeSafeRootQuery;
 import be.shad.tsqb.query.TypeSafeRootQueryInternal;
@@ -54,6 +55,13 @@ public interface TypeSafeQueryHelper {
     <T> T createTypeSafeSelectProxy(TypeSafeRootQueryInternal query, 
             Class<T> clazz, TypeSafeQuerySelectionGroup group);
 
+    /**
+     * Creates a selection proxy, adds it to the query dataTree and sets its method listener if not a setter.
+     */
+    TypeSafeQuerySelectionProxyData createTypeSafeSelectSubProxy(TypeSafeRootQueryInternal query, 
+            TypeSafeQuerySelectionProxyData parent, String propertyName, 
+            Class<?> targetClass, boolean setter);
+    
     /**
      * Creates a proxy, adds it to the query' dataTree and sets its method listener.
      */

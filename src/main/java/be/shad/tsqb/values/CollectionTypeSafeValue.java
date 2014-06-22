@@ -17,7 +17,6 @@ package be.shad.tsqb.values;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -25,21 +24,28 @@ import be.shad.tsqb.NamedParameter;
 import be.shad.tsqb.query.TypeSafeQuery;
 import be.shad.tsqb.query.copy.CopyContext;
 import be.shad.tsqb.query.copy.Copyable;
+import be.shad.tsqb.restrictions.RestrictionOperator;
 
 /**
  * The value is a collection of actual values, not proxies or property paths.
  * These values are added to the query as params.
  */
-public class CollectionTypeSafeValue<T> extends TypeSafeValueImpl<T> implements NamedValueEnabled {
+public class CollectionTypeSafeValue<T> extends TypeSafeValueImpl<T> implements NamedValueEnabled, OperatorAwareValue {
     private Collection<T> values;
 
     /**
      * Copy constructor
      */
+    @SuppressWarnings("unchecked")
     protected CollectionTypeSafeValue(CopyContext context, CollectionTypeSafeValue<T> original) {
         super(context, original);
         if (original.values != null) {
-            values = new HashSet<T>();
+            try {
+                values = original.values.getClass().newInstance();
+            } catch (InstantiationException | IllegalAccessException e) {
+                throw new RuntimeException("Couldn't create same "
+                        + "collection as existing collection.", e);
+            }
             for(T value: original.values){
                 values.add(context.getOrOriginal(value));
             }
@@ -133,6 +139,21 @@ public class CollectionTypeSafeValue<T> extends TypeSafeValueImpl<T> implements 
     @Override
     public Copyable copy(CopyContext context) {
         return new CollectionTypeSafeValue<>(context, this);
+    }
+
+    /**
+     * Use more specific operator when the collections only contains a single value
+     */
+    @Override
+    public RestrictionOperator getOperator(RestrictionOperator original) {
+        if (values.size() == 1) {
+            switch (original) {
+                case IN: return RestrictionOperator.EQUAL;
+                case NOT_IN: return RestrictionOperator.NOT_EQUAL;
+                default:
+            }
+        }
+        return original;
     }
 
 }

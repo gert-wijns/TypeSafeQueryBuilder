@@ -70,12 +70,6 @@ public interface TypeSafeQueryInternal extends TypeSafeQuery, Copyable {
     String createEntityAlias();
     
     /**
-     * Sets the alias of the parameter parameter.
-     * The parameter can now be used with {@link #namedValue(String, Object)}.
-     */
-    void setAlias(TypeSafeValue<?> param, String name);
-    
-    /**
      * Checks if the data is available in the query or one of its parents.
      * And before <code>join<code> in case <code>join</code> is not null.
      */

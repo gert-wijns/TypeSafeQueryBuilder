@@ -193,7 +193,12 @@ public interface TypeSafeQuery extends WhereRestrictions {
     /**
      * Group value functions
      */
-    TypeSafeValues values();
+    TypeSafeQueryValues values();
+
+    /**
+     * Provide methods related to named objects.
+     */
+    TypeSafeNameds named();
     
     /**
      * Remembers a custom alias for a proxy.

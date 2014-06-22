@@ -49,6 +49,11 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
     }
     
     @Override
+    protected void initializeDefaults() {
+        // no defaults in subquery.
+    }
+    
+    @Override
     public Copyable copy(CopyContext context) {
         return new TypeSafeSubQueryImpl<T>(context, this);
     }
@@ -148,14 +153,6 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
         getRootQuery().namedValue(paramAlias, value);
     }
 
-    /**
-     * Delegate to root.
-     */
-    @Override
-    public void setAlias(TypeSafeValue<?> param, String alias) {
-        getRootQuery().setAlias(param, alias);
-    }
-
     @Override
     public T select() {
         return getRootQuery().queueValueSelected(this);
@@ -197,6 +194,11 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
         caseValue.is(Boolean.FALSE).whenExists(this);
         caseValue.is(Boolean.TRUE).otherwise();
         return caseValue.select();
+    }
+
+    @Override
+    public TypeSafeNameds named() {
+        return getRootQuery().named();
     }
     
 }

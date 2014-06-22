@@ -15,6 +15,11 @@
  */
 package be.shad.tsqb.restrictions;
 
+import static be.shad.tsqb.restrictions.RestrictionOperator.GREATER_THAN;
+import static be.shad.tsqb.restrictions.RestrictionOperator.GREATER_THAN_EQUAL;
+import static be.shad.tsqb.restrictions.RestrictionOperator.LESS_THAN;
+import static be.shad.tsqb.restrictions.RestrictionOperator.LESS_THAN_EQUAL;
+
 import java.util.Date;
 
 import be.shad.tsqb.restrictions.named.SingleNamedParameterBinder;
@@ -30,11 +35,6 @@ public class OnGoingDateRestrictionImpl
         extends OnGoingRestrictionImpl<Date, ContinuedOnGoingDateRestriction, OnGoingDateRestriction> 
         implements OnGoingDateRestriction, ContinuedOnGoingDateRestriction {
     
-    private final static String LESS_THAN_EQUAL = "<=";
-    private final static String LESS_THAN = "<";
-    private final static String GREATER_THAN = ">";
-    private final static String GREATER_THAN_EQUAL = ">=";
-
     public OnGoingDateRestrictionImpl(RestrictionsGroupInternal group, 
             RestrictionNodeType restrictionNodeType, Date argument) {
         super(group, restrictionNodeType, argument);

@@ -22,6 +22,7 @@ import be.shad.tsqb.values.CastTypeSafeValue;
 import be.shad.tsqb.values.HqlQueryBuilderParams;
 import be.shad.tsqb.values.HqlQueryValue;
 import be.shad.tsqb.values.HqlQueryValueImpl;
+import be.shad.tsqb.values.OperatorAwareValue;
 import be.shad.tsqb.values.TypeSafeValue;
 
 /**
@@ -39,24 +40,17 @@ import be.shad.tsqb.values.TypeSafeValue;
  * The rest requires both parts.
  */
 public class RestrictionImpl<VAL> implements Restriction {
-    public final static String EQUAL = "=";
-    public final static String IN = "in";
-    public final static String NOT_IN = "not in";
-    public final static String NOT_EQUAL = "<>";
-    public final static String IS_NULL = "is null";
-    public final static String IS_NOT_NULL = "is not null";
-    public final static String EXISTS = "exists";
     
     private final RestrictionsGroupInternal group;
     private final TypeSafeQueryInternal query;
     
     private TypeSafeValue<VAL> left;
-    private String operator;
+    private RestrictionOperator operator;
     private TypeSafeValue<VAL> right;
     
     public RestrictionImpl(RestrictionsGroupInternal group, 
             TypeSafeValue<VAL> left, 
-            String operator, 
+            RestrictionOperator operator, 
             TypeSafeValue<VAL> right) {
         this.group = group;
         this.query = group.getQuery();
@@ -69,6 +63,7 @@ public class RestrictionImpl<VAL> implements Restriction {
      * Copy constructor
      */
     public RestrictionImpl(CopyContext context, RestrictionImpl<VAL> original) {
+        context.put(original, this);
         this.group = context.get(original.group);
         this.query = context.get(original.query);
         this.left = context.get(original.left);
@@ -76,7 +71,7 @@ public class RestrictionImpl<VAL> implements Restriction {
         this.operator = original.operator;
     }
 
-    public void setOperator(String operator) {
+    public void setOperator(RestrictionOperator operator) {
         this.operator = operator;
     }
 
@@ -126,7 +121,12 @@ public class RestrictionImpl<VAL> implements Restriction {
             if( left != null ) {
                 value.appendHql(" ");
             }
-            value.appendHql(operator + " ");
+            if (right != null && right instanceof OperatorAwareValue) {
+                value.appendHql(((OperatorAwareValue) right).getOperator(operator).getOperator());
+            } else {
+                value.appendHql(operator.getOperator());
+            }
+            value.appendHql(" ");
         }
         if( right != null ) {
             HqlQueryValue hqlQueryValue;

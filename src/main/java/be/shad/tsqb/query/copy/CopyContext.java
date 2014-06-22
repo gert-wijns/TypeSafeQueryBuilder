@@ -47,7 +47,7 @@ public class CopyContext {
         }
         Object copy = data.get(originalOrCopy);
         if (copy == null) {
-            if (copy instanceof Copyable) {
+            if (originalOrCopy instanceof Copyable) {
                 // if no copy exists, create a copy and 
                 copy = ((Copyable) originalOrCopy).copy(this);
                 put(originalOrCopy, (T) copy);

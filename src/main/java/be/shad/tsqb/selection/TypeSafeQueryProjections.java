@@ -26,7 +26,6 @@ import be.shad.tsqb.hql.HqlQueryBuilder;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.query.copy.CopyContext;
-import be.shad.tsqb.query.copy.Copyable;
 import be.shad.tsqb.values.DirectTypeSafeValue;
 import be.shad.tsqb.values.HqlQueryBuilderParams;
 import be.shad.tsqb.values.HqlQueryValue;
@@ -40,7 +39,7 @@ import be.shad.tsqb.values.TypeSafeValue;
  * This method should not be called from outside the query builder,
  * but it would be allowed if needed.
  */
-public class TypeSafeQueryProjections implements HqlQueryBuilder, Copyable {
+public class TypeSafeQueryProjections implements HqlQueryBuilder {
     private final TypeSafeQueryInternal query;
     private final LinkedList<TypeSafeValueProjection> projections = new LinkedList<>();
     private SelectionValueTransformer<?, ?> transformerForNextProjection;
@@ -50,17 +49,14 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder, Copyable {
         this.query = query;
     }
 
-    /**
-     * Copy constructor
-     */
-    protected TypeSafeQueryProjections(CopyContext context, TypeSafeQueryProjections original) {
-        this.query = context.get(original.query);
+    public void replay(CopyContext context, TypeSafeQueryProjections original) {
         this.transformerForNextProjection = context.getOrOriginal(original.transformerForNextProjection);
         this.resultClass = original.resultClass;
         for(TypeSafeValueProjection projection: original.projections) {
             projections.add(context.get(projection));
         }
     }
+
 
     public void setResultClass(Class<?> resultClass) {
         this.resultClass = resultClass;
@@ -192,11 +188,6 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder, Copyable {
         } else if( hasTransformer ) {
             query.setResultTransformer(new WithoutAliasesQueryResultTransformer(transformers));
         }
-    }
-
-    @Override
-    public Copyable copy(CopyContext context) {
-        return new TypeSafeQueryProjections(context, this);
     }
 
 }

@@ -29,7 +29,7 @@ public class TypeSafeQuerySelectionProxyData {
     private final TypeSafeQuerySelectionGroup group;
     private TypeSafeQuerySelectionProxy proxy;
     
-    public TypeSafeQuerySelectionProxyData(TypeSafeQuerySelectionProxyData parent,
+    TypeSafeQuerySelectionProxyData(TypeSafeQuerySelectionProxyData parent,
             String propertyPath, Class<?> propertyType, TypeSafeQuerySelectionGroup group,
             TypeSafeQuerySelectionProxy proxy) {
         this.parent = parent;
@@ -54,10 +54,14 @@ public class TypeSafeQuerySelectionProxyData {
         return parent;
     }
     
-    public String getPropertyPath() {
+    public String getEffectivePropertyPath() {
         if (parent != null && parent.getParent() != null) {
-            return parent.getPropertyPath() + "." + propertyPath;
+            return parent.getEffectivePropertyPath() + "." + propertyPath;
         }
+        return propertyPath;
+    }
+    
+    public String getPropertyPath() {
         return propertyPath;
     }
     
@@ -78,7 +82,7 @@ public class TypeSafeQuerySelectionProxyData {
         if (!group.isResultGroup()) {
             alias.append(group.getAliasPrefix()).append("__");
         }
-        return alias.append(getPropertyPath().replace(".", "_")).toString();
+        return alias.append(getEffectivePropertyPath().replace(".", "_")).toString();
     }
 
     public TypeSafeQuerySelectionGroup getGroup() {

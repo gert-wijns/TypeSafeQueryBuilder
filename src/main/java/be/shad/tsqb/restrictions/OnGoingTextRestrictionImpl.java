@@ -15,6 +15,8 @@
  */
 package be.shad.tsqb.restrictions;
 
+import static be.shad.tsqb.restrictions.RestrictionOperator.LIKE;
+
 import java.util.List;
 
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
@@ -34,7 +36,6 @@ public class OnGoingTextRestrictionImpl
 
     private final static String EMPTY = "";
     private final static String WILDCARD = "%";
-    private final static String LIKE = "like";
 
     public OnGoingTextRestrictionImpl(RestrictionsGroupInternal group, 
             RestrictionNodeType restrictionNodeType, String argument) {

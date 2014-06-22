@@ -13,24 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.shad.tsqb.test;
+package be.shad.tsqb.values;
 
-import org.junit.Test;
+import be.shad.tsqb.restrictions.RestrictionOperator;
 
-import be.shad.tsqb.domain.people.Person;
-import be.shad.tsqb.dto.PersonDto;
+public interface OperatorAwareValue {
 
-public class WithDataTest extends TypeSafeQueryTest {
-
-    @Test
-    public void testFindPerson() {
-        TestDataCreator creator = new TestDataCreator(getSessionFactory());
-        creator.createTestPerson(creator.createTestTown(), "Josh");
-        
-        Person fromProxy = query.from(Person.class);
-        PersonDto selectProxy = query.select(PersonDto.class);
-        selectProxy.setId(fromProxy.getId());
-        validate("select hobj1.id as id from Person hobj1");
-    }
+    /**
+     * @return the operator, based on the context.
+     */
+    RestrictionOperator getOperator(RestrictionOperator original);
     
 }
