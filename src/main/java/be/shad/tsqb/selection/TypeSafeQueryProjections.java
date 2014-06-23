@@ -25,6 +25,7 @@ import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.hql.HqlQueryBuilder;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
+import be.shad.tsqb.query.copy.CopyContext;
 import be.shad.tsqb.values.DirectTypeSafeValue;
 import be.shad.tsqb.values.HqlQueryBuilderParams;
 import be.shad.tsqb.values.HqlQueryValue;
@@ -47,6 +48,15 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
     public TypeSafeQueryProjections(TypeSafeQueryInternal query) {
         this.query = query;
     }
+
+    public void replay(CopyContext context, TypeSafeQueryProjections original) {
+        this.transformerForNextProjection = context.getOrOriginal(original.transformerForNextProjection);
+        this.resultClass = original.resultClass;
+        for(TypeSafeValueProjection projection: original.projections) {
+            projections.add(context.get(projection));
+        }
+    }
+
 
     public void setResultClass(Class<?> resultClass) {
         this.resultClass = resultClass;

@@ -19,13 +19,32 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import be.shad.tsqb.query.copy.CopyContext;
+import be.shad.tsqb.query.copy.Copyable;
+
 /**
  * Wraps an hql stringbuilder and params and provides 
  * convenient methods to append to them.
  */
-public class HqlQueryValueImpl implements HqlQueryValue {
+public class HqlQueryValueImpl implements HqlQueryValue, Copyable {
     private List<Object> params = new LinkedList<>();
     private StringBuilder hql;
+    
+    /**
+     * Factory method for shorthand hql query value creation.
+     * Use hql(...) + static import to make shorter code.
+     */
+    public static final HqlQueryValue hql(String hql, Object... params) {
+        return new HqlQueryValueImpl(hql, params);
+    }
+
+    /**
+     * Factory method for shorthand hql query value creation.
+     * Use hql(...) + static import to make shorter code.
+     */
+    public static final HqlQueryValue hql(String hql, Collection<Object> params) {
+        return new HqlQueryValueImpl(hql, params);
+    }
     
     public HqlQueryValueImpl() {
         this("");
@@ -53,6 +72,16 @@ public class HqlQueryValueImpl implements HqlQueryValue {
         }
     }
     
+    /**
+     * Copy constructor
+     */
+    protected HqlQueryValueImpl(CopyContext context, HqlQueryValueImpl original) {
+        this.hql = original.hql;
+        for(Object param: original.params) {
+            params.add(context.getOrOriginal(param));
+        }
+    }
+
     public String getHql() {
         return hql.toString();
     }
@@ -76,6 +105,11 @@ public class HqlQueryValueImpl implements HqlQueryValue {
 
     public void addParams(Collection<Object> params) {
         this.params.addAll(params);
+    }
+
+    @Override
+    public Copyable copy(CopyContext context) {
+        return new HqlQueryValueImpl(context, this);
     }
     
 }

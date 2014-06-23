@@ -20,6 +20,8 @@ import java.util.List;
 
 import be.shad.tsqb.query.TypeSafeQuery;
 import be.shad.tsqb.query.TypeSafeQueryScopeValidator;
+import be.shad.tsqb.query.copy.CopyContext;
+import be.shad.tsqb.query.copy.Copyable;
 
 /**
  * Represents a coalesce function. A coalesce is a fallback where the first 
@@ -27,6 +29,16 @@ import be.shad.tsqb.query.TypeSafeQueryScopeValidator;
  */
 public class CoalesceTypeSafeValue<T> extends TypeSafeValueImpl<T> implements TypeSafeValueContainer {
     private List<TypeSafeValue<T>> values = new LinkedList<>();
+
+    /**
+     * Copy constructor
+     */
+    protected CoalesceTypeSafeValue(CopyContext context, CoalesceTypeSafeValue<T> original) {
+        super(context, original);
+        for(TypeSafeValue<T> value: original.values) {
+            values.add(context.get(value));
+        }
+    }
     
     public CoalesceTypeSafeValue(TypeSafeQuery query, Class<T> valueType) {
         super(query, valueType);
@@ -70,4 +82,10 @@ public class CoalesceTypeSafeValue<T> extends TypeSafeValueImpl<T> implements Ty
             validator.validateInScope(value);
         }
     }
+    
+    @Override
+    public Copyable copy(CopyContext context) {
+        return new CoalesceTypeSafeValue<>(context, this);
+    }
+    
 }

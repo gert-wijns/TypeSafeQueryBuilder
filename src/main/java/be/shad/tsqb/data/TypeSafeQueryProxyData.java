@@ -112,6 +112,10 @@ public class TypeSafeQueryProxyData {
         return customAlias == null ? alias: customAlias;
     }
     
+    public String getCustomAlias() {
+        return customAlias;
+    }
+    
     public void setCustomAlias(String customAlias) {
         if (this.customAlias != null && !this.customAlias.equals(customAlias)) {
             throw new IllegalArgumentException(String.format("A custom alias was already set. [%s, %s]", 
@@ -196,4 +200,5 @@ public class TypeSafeQueryProxyData {
         }
         return s;
     }
+    
 }

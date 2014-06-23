@@ -24,15 +24,24 @@ import be.shad.tsqb.hql.HqlQueryBuilder;
 import be.shad.tsqb.proxy.TypeSafeQuerySelectionProxy;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.query.TypeSafeRootQueryInternal;
+import be.shad.tsqb.query.copy.CopyContext;
+import be.shad.tsqb.query.copy.Copyable;
 import be.shad.tsqb.values.HqlQueryBuilderParams;
 import be.shad.tsqb.values.TypeSafeValue;
 
-public class TypeSafeQueryOrderBys implements OnGoingOrderBy, HqlQueryBuilder {
+public class TypeSafeQueryOrderBys implements OnGoingOrderBy, HqlQueryBuilder, Copyable {
     private final List<OrderBy> orderBys = new LinkedList<>();
     private final TypeSafeQueryInternal query;
 
     public TypeSafeQueryOrderBys(TypeSafeQueryInternal query) {
         this.query = query;
+    }
+
+    protected TypeSafeQueryOrderBys(CopyContext context, TypeSafeQueryOrderBys original) {
+        this.query = context.get(original.query);
+        for(OrderBy orderBy: original.orderBys) {
+            orderBys.add(context.get(orderBy));
+        }
     }
 
     private OnGoingOrderBy orderBy(Object val, boolean desc) {
@@ -162,6 +171,11 @@ public class TypeSafeQueryOrderBys implements OnGoingOrderBy, HqlQueryBuilder {
         for(OrderBy orderBy: orderBys) {
             orderBy.appendTo(query, params);
         }
+    }
+
+    @Override
+    public Copyable copy(CopyContext context) {
+        return new TypeSafeQueryOrderBys(context, this);
     }
 
 }

@@ -15,6 +15,7 @@
  */
 package be.shad.tsqb.restrictions;
 
+import be.shad.tsqb.query.copy.CopyContext;
 import be.shad.tsqb.values.HqlQueryValue;
 
 /**
@@ -26,6 +27,13 @@ public abstract class RestrictionChainableDelegatingImpl extends RestrictionChai
     
     public RestrictionChainableDelegatingImpl(RestrictionsGroupInternal group) {
         this.group = group;
+    }
+
+    /**
+     * Copy constructor
+     */
+    protected RestrictionChainableDelegatingImpl(CopyContext context, RestrictionChainableDelegatingImpl original) {
+        this.group = context.get(original.group);
     }
 
     public RestrictionsGroupInternal getRestrictionsGroup() {

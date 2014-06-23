@@ -54,6 +54,13 @@ import be.shad.tsqb.values.TypeSafeValue;
 public interface TypeSafeRootQuery extends TypeSafeQuery {
     
     /**
+     * Creates a copy of this query, any adjustments made to the copy
+     * will (or should, because we can't control everything) 
+     * not affect the original query.
+     */
+    TypeSafeRootQuery copy();
+    
+    /**
      * Converts this query to an hqlQuery. 
      * <p>
      * The hqlQuery can be used to get the hql and the 

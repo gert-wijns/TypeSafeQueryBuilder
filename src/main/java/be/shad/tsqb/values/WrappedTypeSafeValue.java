@@ -17,6 +17,8 @@ package be.shad.tsqb.values;
 
 import be.shad.tsqb.query.TypeSafeQuery;
 import be.shad.tsqb.query.TypeSafeQueryScopeValidator;
+import be.shad.tsqb.query.copy.CopyContext;
+import be.shad.tsqb.query.copy.Copyable;
 
 /**
  * Wraps a value in a function. 
@@ -26,6 +28,14 @@ import be.shad.tsqb.query.TypeSafeQueryScopeValidator;
 public class WrappedTypeSafeValue<T> extends TypeSafeValueImpl<T> implements TypeSafeValueContainer {
     private String function; // sum/max/min/trim/count/...
     private TypeSafeValue<T> value;
+
+    /**
+     * Copy constructor
+     */
+    protected WrappedTypeSafeValue(CopyContext context, WrappedTypeSafeValue<T> original) {
+        super(context, original);
+        this.value = context.get(original.value);
+    }
     
     public WrappedTypeSafeValue(TypeSafeQuery query, String function, TypeSafeValue<T> value) {
         super(query, value.getValueClass());
@@ -43,4 +53,10 @@ public class WrappedTypeSafeValue<T> extends TypeSafeValueImpl<T> implements Typ
     public void validateContainedInScope(TypeSafeQueryScopeValidator validator) {
         validator.validateInScope(value);
     }
+
+    @Override
+    public Copyable copy(CopyContext context) {
+        return new WrappedTypeSafeValue<>(context, this);
+    }
+    
 }

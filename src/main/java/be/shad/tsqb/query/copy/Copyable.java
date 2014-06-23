@@ -13,27 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.shad.tsqb;
+package be.shad.tsqb.query.copy;
 
-public class NamedParameter {
-    private final String name;
-    private final Object value;
+public interface Copyable {
+
+    /**
+     * @return this as a copy
+     */
+    Copyable copy(CopyContext context);
     
-    public NamedParameter(String name, Object value) {
-        this.name = name;
-        this.value = value;
-    }
-    
-    public String getName() {
-        return name;
-    }
-    
-    public Object getValue() {
-        return value;
-    }
-    
-    @Override
-    public String toString() {
-        return String.format("[:%s, %s]", name, value);
-    }
 }

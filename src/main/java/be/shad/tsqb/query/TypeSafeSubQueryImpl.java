@@ -20,6 +20,8 @@ import java.util.List;
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.helper.TypeSafeQueryHelper;
 import be.shad.tsqb.hql.HqlQuery;
+import be.shad.tsqb.query.copy.CopyContext;
+import be.shad.tsqb.query.copy.Copyable;
 import be.shad.tsqb.values.CaseTypeSafeValue;
 import be.shad.tsqb.values.HqlQueryBuilderParams;
 import be.shad.tsqb.values.HqlQueryValue;
@@ -44,6 +46,25 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
         this.valueClass = valueClass;
         this.parentQuery = parentQuery;
         setRootQuery(parentQuery.getRootQuery());
+    }
+    
+    @Override
+    protected void initializeDefaults() {
+        // no defaults in subquery.
+    }
+    
+    @Override
+    public Copyable copy(CopyContext context) {
+        return new TypeSafeSubQueryImpl<T>(context, this);
+    }
+
+    /**
+     * Copy constructor
+     */
+    protected TypeSafeSubQueryImpl(CopyContext context, TypeSafeSubQueryImpl<T> original) {
+        super(context, original);
+        this.valueClass = original.valueClass;
+        this.parentQuery = context.get(parentQuery);
     }
 
     /**
@@ -132,14 +153,6 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
         getRootQuery().namedValue(paramAlias, value);
     }
 
-    /**
-     * Delegate to root.
-     */
-    @Override
-    public void setAlias(TypeSafeValue<?> param, String alias) {
-        getRootQuery().setAlias(param, alias);
-    }
-
     @Override
     public T select() {
         return getRootQuery().queueValueSelected(this);
@@ -181,6 +194,11 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
         caseValue.is(Boolean.FALSE).whenExists(this);
         caseValue.is(Boolean.TRUE).otherwise();
         return caseValue.select();
+    }
+
+    @Override
+    public TypeSafeNameds named() {
+        return getRootQuery().named();
     }
     
 }

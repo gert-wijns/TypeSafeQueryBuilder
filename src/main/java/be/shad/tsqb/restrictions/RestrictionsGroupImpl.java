@@ -18,14 +18,16 @@ package be.shad.tsqb.restrictions;
 import static be.shad.tsqb.restrictions.RestrictionNodeType.And;
 import static be.shad.tsqb.restrictions.RestrictionNodeType.Or;
 
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.query.TypeSafeQuery;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.query.TypeSafeSubQuery;
+import be.shad.tsqb.query.copy.CopyContext;
+import be.shad.tsqb.query.copy.Copyable;
 import be.shad.tsqb.values.CustomTypeSafeValue;
 import be.shad.tsqb.values.HqlQueryBuilderParams;
 import be.shad.tsqb.values.HqlQueryValue;
@@ -40,7 +42,7 @@ import be.shad.tsqb.values.TypeSafeValue;
 public class RestrictionsGroupImpl extends RestrictionChainableImpl implements RestrictionAndChainable, RestrictionsGroupInternal {
     private final TypeSafeQueryInternal query;
     private final TypeSafeQueryProxyData join;
-    private List<RestrictionNode> restrictions;
+    private final List<RestrictionNode> restrictions = new LinkedList<>();
     private RestrictionsGroupBracketsPolicy bracketsPolicy;
 
     public RestrictionsGroupImpl(TypeSafeQueryInternal query,
@@ -49,7 +51,6 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
         this.query = query;
         this.join = join;
         this.bracketsPolicy = bracketsPolicy;
-        this.restrictions = new ArrayList<>();
     }
     
     public RestrictionsGroupImpl(TypeSafeQueryInternal query,
@@ -57,6 +58,15 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
         this(query, join, RestrictionsGroupBracketsPolicy.WhenMoreThanOne);
     }
     
+    public RestrictionsGroupImpl(CopyContext context, RestrictionsGroupImpl original) {
+        this.query = context.get(original.query);
+        this.join = context.get(original.join);
+        this.bracketsPolicy = original.bracketsPolicy;
+        for(RestrictionNode node: original.restrictions) {
+            restrictions.add(new RestrictionNode(context.get(node.getRestriction()), node.getType()));
+        }
+    }
+
     @Override
     public RestrictionsGroup or(RestrictionHolder first, RestrictionHolder... restrictions) {
         or(first.getRestriction());
@@ -378,6 +388,11 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
     @Override
     public void setBracketsPolicy(RestrictionsGroupBracketsPolicy bracketsPolicy) {
         this.bracketsPolicy = bracketsPolicy;
+    }
+
+    @Override
+    public Copyable copy(CopyContext context) {
+        return new RestrictionsGroupImpl(context, this);
     }
 
 }

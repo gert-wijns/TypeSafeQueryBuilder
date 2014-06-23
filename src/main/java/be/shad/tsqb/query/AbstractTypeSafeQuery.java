@@ -31,6 +31,7 @@ import be.shad.tsqb.joins.TypeSafeQueryJoin;
 import be.shad.tsqb.ordering.OnGoingOrderBy;
 import be.shad.tsqb.ordering.TypeSafeQueryOrderBys;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
+import be.shad.tsqb.query.copy.CopyContext;
 import be.shad.tsqb.restrictions.OnGoingBooleanRestriction;
 import be.shad.tsqb.restrictions.OnGoingDateRestriction;
 import be.shad.tsqb.restrictions.OnGoingEnumRestriction;
@@ -60,17 +61,49 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
     private TypeSafeRootQueryInternal rootQuery;
 
     private final TypeSafeQueryFactories factories;
+    private final TypeSafeQueryValues values;
     private final TypeSafeQueryProxyDataTree dataTree;
-    private final TypeSafeQueryProjections projections = new TypeSafeQueryProjections(this); 
-    private final RestrictionsGroupInternal restrictions = new RestrictionsGroupImpl(
-            this, null, RestrictionsGroupBracketsPolicy.Never);
-    private final TypeSafeQueryGroupBys groupBys = new TypeSafeQueryGroupBys();
-    private final TypeSafeQueryOrderBys orderBys = new TypeSafeQueryOrderBys(this);
+    private final TypeSafeQueryProjections projections; 
+    private final RestrictionsGroupInternal restrictions;
+    private final TypeSafeQueryGroupBys groupBys;
+    private final TypeSafeQueryOrderBys orderBys;
     
-    public AbstractTypeSafeQuery(TypeSafeQueryHelper helper) {
-        this.helper = helper;
-        this.dataTree = new TypeSafeQueryProxyDataTree(helper, this);;
+    /**
+     * Copy constructor
+     */
+    protected AbstractTypeSafeQuery(CopyContext context, AbstractTypeSafeQuery original) {
+        initializeDefaults();
+        context.put(original, this);
+        this.helper = original.helper;
         this.factories = new TypeSafeQueryFactories(this);
+        this.values = new TypeSafeQueryValuesImpl(this);
+        this.rootQuery = context.get(original.rootQuery);
+        this.dataTree = new TypeSafeQueryProxyDataTree(helper, this);
+        this.projections = new TypeSafeQueryProjections(this);
+        this.dataTree.replay(context, original.dataTree);
+        this.projections.replay(context, original.projections);
+        this.restrictions = context.get(original.restrictions);
+        this.groupBys = context.get(original.groupBys);
+        this.orderBys = context.get(original.orderBys);
+    }
+    
+    /**
+     * Provide the opportunity to initialize the empty lists/initial counters,
+     * required because super values are initialized before subclass values.
+     */
+    protected abstract void initializeDefaults();
+
+    public AbstractTypeSafeQuery(TypeSafeQueryHelper helper) {
+        initializeDefaults();
+        this.helper = helper;
+        this.dataTree = new TypeSafeQueryProxyDataTree(helper, this);
+        this.factories = new TypeSafeQueryFactories(this);
+        this.values = new TypeSafeQueryValuesImpl(this);
+        this.projections = new TypeSafeQueryProjections(this);
+        this.restrictions = new RestrictionsGroupImpl(
+                this, null, RestrictionsGroupBracketsPolicy.Never);
+        this.groupBys = new TypeSafeQueryGroupBys();
+        this.orderBys = new TypeSafeQueryOrderBys(this);
     }
 
     /**
@@ -256,6 +289,14 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
     @Override
     public TypeSafeQueryFactories factories() {
         return factories;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public TypeSafeQueryValues values() {
+        return values;
     }
     
     /**

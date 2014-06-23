@@ -17,6 +17,8 @@ package be.shad.tsqb.values;
 
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.query.TypeSafeQuery;
+import be.shad.tsqb.query.copy.CopyContext;
+import be.shad.tsqb.query.copy.Copyable;
 
 /**
  * The proxy data represents a getter on one of the proxies
@@ -26,6 +28,14 @@ import be.shad.tsqb.query.TypeSafeQuery;
  */
 public class ReferenceTypeSafeValue<T> extends TypeSafeValueImpl<T> {
     private final TypeSafeQueryProxyData data;
+
+    /**
+     * Copy constructor
+     */
+    protected ReferenceTypeSafeValue(CopyContext context, ReferenceTypeSafeValue<T> original) {
+        super(context, original);
+        this.data = context.get(original.data);
+    }
     
     @SuppressWarnings("unchecked")
     public ReferenceTypeSafeValue(TypeSafeQuery query, TypeSafeQueryProxyData data) {
@@ -40,6 +50,11 @@ public class ReferenceTypeSafeValue<T> extends TypeSafeValueImpl<T> {
     @Override
     public HqlQueryValue toHqlQueryValue(HqlQueryBuilderParams params) {
         return new HqlQueryValueImpl(data.getAlias());
+    }
+    
+    @Override
+    public Copyable copy(CopyContext context) {
+        return new ReferenceTypeSafeValue<>(context, this);
     }
 
 }

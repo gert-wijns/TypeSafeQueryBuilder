@@ -15,6 +15,7 @@
  */
 package be.shad.tsqb.restrictions;
 
+import be.shad.tsqb.query.copy.Copyable;
 import be.shad.tsqb.values.HqlQueryValueBuilder;
 
 /**
@@ -23,7 +24,7 @@ import be.shad.tsqb.values.HqlQueryValueBuilder;
  * All restrictions could be expressed using the {@link RestrictionImpl} so 
  * this interface currently only has one implementation.
  */
-public interface Restriction extends HqlQueryValueBuilder, RestrictionHolder {
+public interface Restriction extends HqlQueryValueBuilder, RestrictionHolder, Copyable {
     
     /**
      * Available to check whether or not to add enclosing brackets.

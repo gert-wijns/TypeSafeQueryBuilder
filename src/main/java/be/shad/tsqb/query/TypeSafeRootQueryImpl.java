@@ -19,11 +19,14 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.helper.TypeSafeQueryHelper;
 import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
+import be.shad.tsqb.query.copy.CopyContext;
+import be.shad.tsqb.query.copy.Copyable;
 import be.shad.tsqb.selection.SelectionValueTransformer;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroup;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroupImpl;
@@ -35,7 +38,6 @@ import be.shad.tsqb.selection.parallel.SelectPair;
 import be.shad.tsqb.selection.parallel.SelectTriplet;
 import be.shad.tsqb.selection.parallel.SelectValue;
 import be.shad.tsqb.values.HqlQueryBuilderParamsImpl;
-import be.shad.tsqb.values.NamedValueEnabled;
 import be.shad.tsqb.values.TypeSafeValue;
 
 /**
@@ -43,19 +45,65 @@ import be.shad.tsqb.values.TypeSafeValue;
  */
 public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements TypeSafeRootQuery, TypeSafeRootQueryInternal {
     
-    private List<TypeSafeQueryProxyData> invocationQueue = new LinkedList<>();
-    private Map<String, TypeSafeQueryProxy> customAliasedProxies = new HashMap<>();
-    private Map<String, NamedValueEnabled> aliasedValues = new HashMap<>();
+    private List<TypeSafeQueryProxyData> invocationQueue;
+    private Map<String, TypeSafeQueryProxy> customAliasedProxies;
+    private TypeSafeNameds namedObjects;
     private TypeSafeValue<?> lastSelectedValue;
     private String lastInvokedProjectionPath;
-    private int entityAliasCount = 1;
-    private int selectionGroupAliasCount = 1;
-    private int firstResult = -1;
-    private int maxResults = -1;
+    private int entityAliasCount;
+    private int selectionGroupAliasCount;
+    private int firstResult;
+    private int maxResults;
+    
+    @Override
+    public TypeSafeRootQuery copy() {
+        return new CopyContext().get(this);
+    }
+    
+    @Override
+    public Copyable copy(CopyContext context) {
+        return new TypeSafeRootQueryImpl(context, this);
+    }
+    
+    /**
+     * Initializes the empty lists/initial counters,
+     * was put into a separate method because super()
+     * is called before all predefined values are initialized.
+     */
+    @Override
+    protected void initializeDefaults() {
+        invocationQueue = new LinkedList<>();
+        customAliasedProxies = new HashMap<>();
+        entityAliasCount = 1;
+        selectionGroupAliasCount = 1;
+        firstResult = -1;
+        maxResults = -1;
+    }
+
+    /**
+     * Copy constructor
+     */
+    protected TypeSafeRootQueryImpl(CopyContext context, TypeSafeRootQueryImpl original) {
+        super(context, original);
+        for(TypeSafeQueryProxyData data: original.invocationQueue) {
+            invocationQueue.add(context.get(data));
+        }
+        namedObjects = context.get(original.namedObjects);
+        for(Entry<String, TypeSafeQueryProxy> customAliasedProxy: original.customAliasedProxies.entrySet()) {
+            customAliasedProxies.put(customAliasedProxy.getKey(), context.get(customAliasedProxy.getValue()));
+        }
+        lastSelectedValue = context.get(original.lastSelectedValue);
+        lastInvokedProjectionPath = original.lastInvokedProjectionPath;
+        entityAliasCount = original.entityAliasCount;
+        selectionGroupAliasCount = original.selectionGroupAliasCount;
+        firstResult = original.firstResult;
+        maxResults = original.maxResults;
+    }
 
     public TypeSafeRootQueryImpl(TypeSafeQueryHelper helper) {
         super(helper);
         setRootQuery(this);
+        namedObjects = new TypeSafeNamedsImpl();
     }
 
     /**
@@ -197,23 +245,6 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
      * {@inheritDoc}
      */
     @Override
-    public void setAlias(TypeSafeValue<?> param, String alias) {
-        if (param instanceof NamedValueEnabled) {
-            NamedValueEnabled previous = aliasedValues.put(alias, (NamedValueEnabled) param);
-            if (previous != null) {
-                throw new IllegalStateException(String.format(
-                        "Attempting to bind alias [%s], but it was already bound.", 
-                        alias));
-            }
-        } else {
-            throw new IllegalArgumentException("Aliasing is only allowed if the value is NamedValueEnabled");
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public String createSelectGroupAlias() {
         return "g" + selectionGroupAliasCount++;
     }
@@ -330,13 +361,15 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
      */
     @Override
     public void namedValue(String alias, Object value) {
-        NamedValueEnabled param = aliasedValues.get(alias);
-        if (param == null) {
-            throw new IllegalArgumentException(String.format(
-                    "Attempting to set value for parameter with alias [%s]. "
-                    + "But no parameter exists with this alias.", alias));
-        }
-        ((NamedValueEnabled) param).setNamedValue(value);
+        namedObjects.value(alias).setNamedValue(value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public TypeSafeNameds named() {
+        return namedObjects;
     }
 
 }

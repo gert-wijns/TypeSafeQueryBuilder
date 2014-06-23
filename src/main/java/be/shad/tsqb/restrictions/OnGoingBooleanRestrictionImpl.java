@@ -15,7 +15,7 @@
  */
 package be.shad.tsqb.restrictions;
 
-import static be.shad.tsqb.restrictions.RestrictionImpl.EQUAL;
+import static be.shad.tsqb.restrictions.RestrictionOperator.EQUAL;
 
 import java.util.Date;
 

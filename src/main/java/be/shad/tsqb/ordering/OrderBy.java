@@ -16,7 +16,8 @@
 package be.shad.tsqb.ordering;
 
 import be.shad.tsqb.hql.HqlQueryBuilder;
+import be.shad.tsqb.query.copy.Copyable;
 
-public interface OrderBy extends HqlQueryBuilder {
+public interface OrderBy extends HqlQueryBuilder, Copyable {
 
 }

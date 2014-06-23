@@ -17,13 +17,15 @@ package be.shad.tsqb.values;
 
 import be.shad.tsqb.query.TypeSafeQuery;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
+import be.shad.tsqb.query.copy.CopyContext;
+import be.shad.tsqb.query.copy.Copyable;
 
 /**
  * Base implementation of the TypeSafeValue.
  * 
  * It was created to reduce the amount of code duplication.
  */
-public abstract class TypeSafeValueImpl<T> implements TypeSafeValue<T> {
+public abstract class TypeSafeValueImpl<T> implements TypeSafeValue<T>, Copyable {
     protected final TypeSafeQueryInternal query;
     private final Class<T> valueType;
     
@@ -31,6 +33,14 @@ public abstract class TypeSafeValueImpl<T> implements TypeSafeValue<T> {
         // all queries are internal queries - the internal query just hides some methods from the API 
         this.query = (TypeSafeQueryInternal) query; 
         this.valueType = valueType;
+    }
+
+    /**
+     * Copy constructor
+     */
+    protected TypeSafeValueImpl(CopyContext context, TypeSafeValueImpl<T> original) {
+        this.query = context.get(original.query);
+        this.valueType = original.valueType;
     }
 
     /**

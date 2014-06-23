@@ -58,7 +58,7 @@ public class TypeSafeQueryResultTransformer extends BasicTransformerAdapter {
             LinkedHashMap<TypeSafeQuerySelectionGroup, SelectionTreeGroup> groups = new LinkedHashMap<>();
             int a = 0;
             for(TypeSafeQuerySelectionProxyData selectionData: selectionDatas) {
-                String propertyPath = selectionData.getPropertyPath();
+                String propertyPath = selectionData.getEffectivePropertyPath();
                 TypeSafeQuerySelectionGroup group = selectionData.getGroup();
                 SelectionTreeGroup tree = groups.get(group);
                 if (tree == null) {

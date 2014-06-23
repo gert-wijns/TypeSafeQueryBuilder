@@ -16,6 +16,8 @@
 package be.shad.tsqb.ordering;
 
 import be.shad.tsqb.hql.HqlQuery;
+import be.shad.tsqb.query.copy.CopyContext;
+import be.shad.tsqb.query.copy.Copyable;
 import be.shad.tsqb.values.HqlQueryBuilderParams;
 import be.shad.tsqb.values.TypeSafeValue;
 
@@ -28,11 +30,24 @@ public class OrderByImpl implements OrderBy {
         this.descending = descending;
     }
 
+    /**
+     * Copy constructor
+     */
+    protected OrderByImpl(CopyContext context, OrderByImpl original) {
+        this.value = context.get(original.value);
+        this.descending = original.descending;
+    }
+
     @Override
     public void appendTo(HqlQuery query, HqlQueryBuilderParams params) {
         //ascending is the default
         String order = descending ? " desc": "";
         query.appendOrderBy(value.toHqlQueryValue(params).getHql() + order);
+    }
+
+    @Override
+    public Copyable copy(CopyContext context) {
+        return new OrderByImpl(context, this);
     }
     
 }

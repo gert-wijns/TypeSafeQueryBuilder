@@ -2,6 +2,8 @@ package be.shad.tsqb.values;
 
 import be.shad.tsqb.query.TypeSafeQuery;
 import be.shad.tsqb.query.TypeSafeQueryScopeValidator;
+import be.shad.tsqb.query.copy.CopyContext;
+import be.shad.tsqb.query.copy.Copyable;
 
 /**
  * Couldn't use WrappedTypeSafeValue because that one adds brackets
@@ -19,6 +21,14 @@ public class DistinctTypeSafeValue<VAL> extends TypeSafeValueImpl<VAL> implement
         this.value = value;
     }
 
+    /**
+     * Copy constructor
+     */
+    protected DistinctTypeSafeValue(CopyContext context, DistinctTypeSafeValue<VAL> original) {
+        super(context, original);
+        this.value = context.get(original.value);
+    }
+
     @Override
     public HqlQueryValue toHqlQueryValue(HqlQueryBuilderParams params) {
         HqlQueryValue value = this.value.toHqlQueryValue(params);
@@ -33,6 +43,11 @@ public class DistinctTypeSafeValue<VAL> extends TypeSafeValueImpl<VAL> implement
     @Override
     public boolean isDistinct() {
         return true;
+    }
+
+    @Override
+    public Copyable copy(CopyContext context) {
+        return new DistinctTypeSafeValue<>(context, this);
     }
 
 }

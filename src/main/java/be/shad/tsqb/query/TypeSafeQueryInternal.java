@@ -22,10 +22,11 @@ import be.shad.tsqb.data.TypeSafeQueryProxyDataTree;
 import be.shad.tsqb.grouping.TypeSafeQueryGroupBys;
 import be.shad.tsqb.helper.TypeSafeQueryHelper;
 import be.shad.tsqb.ordering.TypeSafeQueryOrderBys;
+import be.shad.tsqb.query.copy.Copyable;
 import be.shad.tsqb.restrictions.RestrictionsGroup;
 import be.shad.tsqb.values.TypeSafeValue;
 
-public interface TypeSafeQueryInternal extends TypeSafeQuery {
+public interface TypeSafeQueryInternal extends TypeSafeQuery, Copyable {
 
     /**
      * @return the root query, may be the same instance if this query is the root query.
@@ -67,12 +68,6 @@ public interface TypeSafeQueryInternal extends TypeSafeQuery {
      * Generates a new entity alias.
      */
     String createEntityAlias();
-    
-    /**
-     * Sets the alias of the parameter parameter.
-     * The parameter can now be used with {@link #namedValue(String, Object)}.
-     */
-    void setAlias(TypeSafeValue<?> param, String name);
     
     /**
      * Checks if the data is available in the query or one of its parents.

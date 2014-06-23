@@ -15,14 +15,14 @@
  */
 package be.shad.tsqb.restrictions;
 
-import static be.shad.tsqb.restrictions.RestrictionImpl.EQUAL;
-import static be.shad.tsqb.restrictions.RestrictionImpl.IN;
-import static be.shad.tsqb.restrictions.RestrictionImpl.IS_NOT_NULL;
-import static be.shad.tsqb.restrictions.RestrictionImpl.IS_NULL;
-import static be.shad.tsqb.restrictions.RestrictionImpl.NOT_EQUAL;
-import static be.shad.tsqb.restrictions.RestrictionImpl.NOT_IN;
 import static be.shad.tsqb.restrictions.RestrictionNodeType.And;
 import static be.shad.tsqb.restrictions.RestrictionNodeType.Or;
+import static be.shad.tsqb.restrictions.RestrictionOperator.EQUAL;
+import static be.shad.tsqb.restrictions.RestrictionOperator.IN;
+import static be.shad.tsqb.restrictions.RestrictionOperator.IS_NOT_NULL;
+import static be.shad.tsqb.restrictions.RestrictionOperator.IS_NULL;
+import static be.shad.tsqb.restrictions.RestrictionOperator.NOT_EQUAL;
+import static be.shad.tsqb.restrictions.RestrictionOperator.NOT_IN;
 
 import java.util.Collection;
 
@@ -103,7 +103,7 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
      */
     @SuppressWarnings("unchecked")
     protected <L extends VAL, R extends VAL> CONTINUED addRestrictionAndContinue(
-            TypeSafeValue<L> left, String operator, TypeSafeValue<R> right) {
+            TypeSafeValue<L> left, RestrictionOperator operator, TypeSafeValue<R> right) {
         TypeSafeValue<VAL> leftVal = (TypeSafeValue<VAL>) left;
         TypeSafeValue<VAL> rightVal = (TypeSafeValue<VAL>) right;
         if (restriction == null) {

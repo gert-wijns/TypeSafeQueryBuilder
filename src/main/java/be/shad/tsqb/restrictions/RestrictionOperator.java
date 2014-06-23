@@ -15,28 +15,31 @@
  */
 package be.shad.tsqb.restrictions;
 
-import be.shad.tsqb.data.TypeSafeQueryProxyData;
-import be.shad.tsqb.query.TypeSafeQueryInternal;
-import be.shad.tsqb.query.copy.Copyable;
-
 /**
- * Extend to include extra interfaces
+ * Enum containing all allowed operators in the default implemented restriction.
  */
-public interface RestrictionsGroupInternal extends RestrictionsGroup, Restriction, RestrictionChainable, Copyable {
-
-    /**
-     * Get the join, for scope testing.
-     */
-    TypeSafeQueryProxyData getJoin();
+public enum RestrictionOperator {
+    EQUAL("="),
+    IN("in"),
+    NOT_IN("not in"),
+    NOT_EQUAL("<>"),
+    LIKE("like"),
+    NOT_LIKE("not like"),
+    IS_NULL("is null"),
+    IS_NOT_NULL("is not null"),
+    EXISTS("exists"),
+    LESS_THAN_EQUAL("<="),
+    LESS_THAN("<"),
+    GREATER_THAN(">"),
+    GREATER_THAN_EQUAL(">=");
     
-    /**
-     * Get the query, to convert none TypeSafeValue<VAL>s to them.
-     */
-    TypeSafeQueryInternal getQuery();
+    private final String operator;
     
-    /**
-     * @return true if the group doesn't contain restrictions
-     */
-    boolean isEmpty();
+    private RestrictionOperator(String operator) {
+        this.operator = operator;
+    }
     
+    public String getOperator() {
+        return operator;
+    }
 }

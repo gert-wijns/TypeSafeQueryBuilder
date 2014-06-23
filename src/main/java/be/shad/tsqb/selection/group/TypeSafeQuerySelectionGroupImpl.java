@@ -15,9 +15,11 @@
  */
 package be.shad.tsqb.selection.group;
 
+import be.shad.tsqb.query.copy.CopyContext;
+import be.shad.tsqb.query.copy.Copyable;
 import be.shad.tsqb.selection.parallel.ParallelSelectionMerger;
 
-public class TypeSafeQuerySelectionGroupImpl implements TypeSafeQuerySelectionGroup {
+public class TypeSafeQuerySelectionGroupImpl implements TypeSafeQuerySelectionGroup, Copyable {
 
     private final String aliasPrefix;
     private final Class<?> resultClass;
@@ -30,6 +32,16 @@ public class TypeSafeQuerySelectionGroupImpl implements TypeSafeQuerySelectionGr
         this.resultClass = resultClass;
         this.resultGroup = resultGroup;
         this.subselectValueMerger = subselectValueMerger;
+    }
+
+    /**
+     * Copy constructor
+     */
+    protected TypeSafeQuerySelectionGroupImpl(CopyContext context, TypeSafeQuerySelectionGroupImpl original) {
+        this.aliasPrefix = original.aliasPrefix;
+        this.resultClass = original.resultClass;
+        this.resultGroup = original.resultGroup;
+        this.subselectValueMerger = context.getOrOriginal(original.subselectValueMerger);
     }
 
     @Override
@@ -50,6 +62,11 @@ public class TypeSafeQuerySelectionGroupImpl implements TypeSafeQuerySelectionGr
     @Override
     public ParallelSelectionMerger<?, ?> getParallelSelectionMerger() {
         return subselectValueMerger;
+    }
+
+    @Override
+    public Copyable copy(CopyContext context) {
+        return new TypeSafeQuerySelectionGroupImpl(context, this);
     }
 
 }

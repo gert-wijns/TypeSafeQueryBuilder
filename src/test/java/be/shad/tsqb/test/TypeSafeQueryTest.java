@@ -15,9 +15,9 @@
  */
 package be.shad.tsqb.test;
 
-import static org.junit.Assert.assertTrue;
+import static be.shad.tsqb.values.HqlQueryValueImpl.hql;
+import static org.junit.Assert.assertEquals;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -36,6 +36,7 @@ import be.shad.tsqb.dao.TypeSafeQueryDaoImpl;
 import be.shad.tsqb.helper.TypeSafeQueryHelperImpl;
 import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.query.TypeSafeRootQuery;
+import be.shad.tsqb.values.HqlQueryValue;
 
 public class TypeSafeQueryTest {
     
@@ -94,14 +95,22 @@ public class TypeSafeQueryTest {
         HqlQuery hqlQuery = typeSafeQuery.toHqlQuery();
         
         doQueryResult = typeSafeQueryDao.doQuery(typeSafeQuery);
-        logger.debug(String.format("%s:\n%s\n--- params: %s\n", name.getMethodName(), 
-                hqlQuery.getHql(), hqlQuery.getParams()));
+        logger.debug("{}:\n{}\n--- params: {}\n", name.getMethodName(), 
+                hqlQuery.getHql(), hqlQuery.getParams());
         
         // return for additional checks:
         return hqlQuery;
     }
-    
+
+    protected void validate(HqlQueryValue expected) {
+        validate(expected.getHql(), expected.getParams());
+    }
+
     protected void validate(String hql, Object... params) {
+        validate(query, hql(hql, params));
+    }
+    
+    protected void validate(TypeSafeRootQuery query, HqlQueryValue expected) {
         HqlQuery hqlQuery = doQuery(query);
 
         List<Object> actualParams = new LinkedList<>();
@@ -115,15 +124,11 @@ public class TypeSafeQueryTest {
             }
         }
         
-        String expected = String.format("\nExpected:\n%s\n--- params: %s\n", hql, Arrays.toString(params));
-        String result = String.format("\nResult:\n%s\n--- params: %s\n", hqlQuery.getHql(), actualParams);
+        String expectedHql = String.format("\nExpected:\n%s\n--- params: %s\n", expected.getHql(), expected.getParams());
+        String result = String.format("\nResult:\n%s\n--- params: %s\n", hqlQuery.getHql(), hqlQuery.getParams());
         
-        assertTrue(expected + result, hqlQuery.getHql().equals(hql));
-        if( params == null || params.length == 0 ){
-            assertTrue(expected + result, hqlQuery.getParams().size() == 0);
-        } else {
-            assertTrue(expected + result, actualParams.equals(Arrays.asList(params)));
-        }
+        assertEquals(expectedHql + result, expected.getHql(), hqlQuery.getHql());
+        assertEquals(expectedHql + result, expected.getParams(), actualParams);
     }
 
 }

@@ -16,11 +16,21 @@
 package be.shad.tsqb.values;
 
 import be.shad.tsqb.query.TypeSafeQuery;
+import be.shad.tsqb.query.copy.CopyContext;
+import be.shad.tsqb.query.copy.Copyable;
 
 public class CastTypeSafeValue<T> extends TypeSafeValueImpl<T> {
     
     private TypeSafeValue<?> value;
 
+    /**
+     * Copy constructor
+     */
+    protected CastTypeSafeValue(CopyContext context, CastTypeSafeValue<T> original) {
+        super(context, original);
+        this.value = context.get(original.value);
+    }
+    
     protected CastTypeSafeValue(TypeSafeQuery query, 
             Class<T> valueType, TypeSafeValue<?> value) {
         super(query, valueType);
@@ -33,6 +43,11 @@ public class CastTypeSafeValue<T> extends TypeSafeValueImpl<T> {
         return new HqlQueryValueImpl(String.format("cast(%s as %s)", value.getHql(), 
                 query.getHelper().getResolvedTypeName(getValueClass())), 
                 value.getParams());
+    }
+    
+    @Override
+    public Copyable copy(CopyContext context) {
+        return new CastTypeSafeValue<>(context, this);
     }
 
 }

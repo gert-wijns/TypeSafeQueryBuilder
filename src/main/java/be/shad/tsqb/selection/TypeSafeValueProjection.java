@@ -16,6 +16,8 @@
 package be.shad.tsqb.selection;
 
 import be.shad.tsqb.data.TypeSafeQuerySelectionProxyData;
+import be.shad.tsqb.query.copy.CopyContext;
+import be.shad.tsqb.query.copy.Copyable;
 import be.shad.tsqb.values.TypeSafeValue;
 
 /**
@@ -25,7 +27,7 @@ import be.shad.tsqb.values.TypeSafeValue;
  * <p>
  * The propertyName represents the alias of this value in the select clause.
  */
-public class TypeSafeValueProjection {
+public class TypeSafeValueProjection implements Copyable {
     private final TypeSafeValue<?> value;
     private final TypeSafeQuerySelectionProxyData selectionData;
     private final SelectionValueTransformer<?, ?> transformer;
@@ -38,6 +40,15 @@ public class TypeSafeValueProjection {
         this.value = value;
     }
     
+    /**
+     * Copy constructor
+     */
+    protected TypeSafeValueProjection(CopyContext context, TypeSafeValueProjection original) {
+        this.value = context.get(original.value);
+        this.selectionData = context.get(original.selectionData);
+        this.transformer = context.getOrOriginal(original.transformer);
+    }
+
     public SelectionValueTransformer<?, ?> getTransformer() {
         return transformer;
     }
@@ -59,8 +70,14 @@ public class TypeSafeValueProjection {
 
     public Object getPropertyPath() {
         if (selectionData != null) {
-            return selectionData.getPropertyPath();
+            return selectionData.getEffectivePropertyPath();
         }
         return null;
     }
+
+    @Override
+    public Copyable copy(CopyContext context) {
+        return new TypeSafeValueProjection(context, this);
+    }
+    
 }

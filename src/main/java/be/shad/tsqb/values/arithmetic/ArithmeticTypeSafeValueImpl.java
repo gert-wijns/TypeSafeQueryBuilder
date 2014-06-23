@@ -17,6 +17,8 @@ package be.shad.tsqb.values.arithmetic;
 
 import be.shad.tsqb.query.TypeSafeQuery;
 import be.shad.tsqb.query.TypeSafeQueryScopeValidator;
+import be.shad.tsqb.query.copy.CopyContext;
+import be.shad.tsqb.query.copy.Copyable;
 import be.shad.tsqb.values.HqlQueryBuilderParams;
 import be.shad.tsqb.values.HqlQueryValue;
 import be.shad.tsqb.values.OperationTypeSafeValue;
@@ -32,6 +34,14 @@ public class ArithmeticTypeSafeValueImpl extends TypeSafeValueImpl<Number> imple
         super(query, firstValue.getValueClass());
         this.combinedValue = new OperationTypeSafeValue<>(query, firstValue, 
                 OperationTypeSafeValueBracketsPolicy.WhenMoreThanOne);
+    }
+
+    /**
+     * Copy constructor
+     */
+    protected ArithmeticTypeSafeValueImpl(CopyContext context, ArithmeticTypeSafeValueImpl original) {
+        super(context, original);
+        this.combinedValue = context.get(original.combinedValue);
     }
 
     @Override
@@ -122,6 +132,11 @@ public class ArithmeticTypeSafeValueImpl extends TypeSafeValueImpl<Number> imple
             TypeSafeValue<? extends Number> value2, 
             ArithmeticTypeSafeValue... values) {
         return query.factories().getArithmeticTypeSafeValueFactory().multiply(value1, value2, values);
+    }
+
+    @Override
+    public Copyable copy(CopyContext context) {
+        return new ArithmeticTypeSafeValueImpl(context, this);
     }
 
 }
