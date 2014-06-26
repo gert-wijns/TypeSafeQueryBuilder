@@ -23,11 +23,9 @@ import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.data.TypeSafeQueryProxyDataTree;
 import be.shad.tsqb.exceptions.JoinException;
 import be.shad.tsqb.exceptions.ValueNotInScopeException;
-import be.shad.tsqb.factories.TypeSafeQueryFactories;
 import be.shad.tsqb.grouping.TypeSafeQueryGroupBys;
 import be.shad.tsqb.helper.TypeSafeQueryHelper;
 import be.shad.tsqb.hql.HqlQuery;
-import be.shad.tsqb.joins.TypeSafeQueryJoin;
 import be.shad.tsqb.ordering.OnGoingOrderBy;
 import be.shad.tsqb.ordering.TypeSafeQueryOrderBys;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
@@ -42,16 +40,24 @@ import be.shad.tsqb.restrictions.RestrictionChainable;
 import be.shad.tsqb.restrictions.RestrictionHolder;
 import be.shad.tsqb.restrictions.RestrictionsGroup;
 import be.shad.tsqb.restrictions.RestrictionsGroup.RestrictionsGroupBracketsPolicy;
+import be.shad.tsqb.restrictions.RestrictionsGroupFactory;
+import be.shad.tsqb.restrictions.RestrictionsGroupFactoryImpl;
 import be.shad.tsqb.restrictions.RestrictionsGroupImpl;
 import be.shad.tsqb.restrictions.RestrictionsGroupInternal;
+import be.shad.tsqb.restrictions.WhereRestrictions;
 import be.shad.tsqb.selection.TypeSafeQueryProjections;
+import be.shad.tsqb.values.CaseTypeSafeValue;
+import be.shad.tsqb.values.CustomTypeSafeValue;
 import be.shad.tsqb.values.DirectTypeSafeStringValue;
 import be.shad.tsqb.values.DirectTypeSafeValue;
 import be.shad.tsqb.values.HqlQueryBuilderParams;
 import be.shad.tsqb.values.HqlQueryValue;
+import be.shad.tsqb.values.HqlQueryValueImpl;
 import be.shad.tsqb.values.ReferenceTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValueFunctions;
+import be.shad.tsqb.values.arithmetic.ArithmeticTypeSafeValueFactory;
+import be.shad.tsqb.values.arithmetic.ArithmeticTypeSafeValueFactoryImpl;
 
 /**
  * Collects the data and creates the hqlQuery based on this data.
@@ -60,8 +66,8 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
     protected final TypeSafeQueryHelper helper;
     private TypeSafeRootQueryInternal rootQuery;
 
-    private final TypeSafeQueryFactories factories;
-    private final TypeSafeQueryValues values;
+    private final RestrictionsGroupFactory groupedRestrictionsBuilder;
+    private final ArithmeticTypeSafeValueFactory arithmeticsBuilder;
     private final TypeSafeQueryProxyDataTree dataTree;
     private final TypeSafeQueryProjections projections; 
     private final RestrictionsGroupInternal restrictions;
@@ -75,8 +81,8 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
         initializeDefaults();
         context.put(original, this);
         this.helper = original.helper;
-        this.factories = new TypeSafeQueryFactories(this);
-        this.values = new TypeSafeQueryValuesImpl(this);
+        this.groupedRestrictionsBuilder = new RestrictionsGroupFactoryImpl(this);
+        this.arithmeticsBuilder = new ArithmeticTypeSafeValueFactoryImpl(this);
         this.rootQuery = context.get(original.rootQuery);
         this.dataTree = new TypeSafeQueryProxyDataTree(helper, this);
         this.projections = new TypeSafeQueryProjections(this);
@@ -97,8 +103,8 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
         initializeDefaults();
         this.helper = helper;
         this.dataTree = new TypeSafeQueryProxyDataTree(helper, this);
-        this.factories = new TypeSafeQueryFactories(this);
-        this.values = new TypeSafeQueryValuesImpl(this);
+        this.groupedRestrictionsBuilder = new RestrictionsGroupFactoryImpl(this);
+        this.arithmeticsBuilder = new ArithmeticTypeSafeValueFactoryImpl(this);
         this.projections = new TypeSafeQueryProjections(this);
         this.restrictions = new RestrictionsGroupImpl(
                 this, null, RestrictionsGroupBracketsPolicy.Never);
@@ -140,8 +146,21 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
     /**
      * {@inheritDoc}
      */
+    @Override
     public <T> T from(Class<T> fromClass) {
-        return helper.createTypeSafeFromProxy(this, fromClass);
+        return from(fromClass, null);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <T> T from(Class<T> fromClass, String name) {
+        T from = helper.createTypeSafeFromProxy(this, fromClass);
+        if (name != null) {
+            named().name(from, name);
+        }
+        return from;
     }
 
     /**
@@ -156,61 +175,108 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      * {@inheritDoc}
      */
     public <T> T join(Collection<T> anyCollection) {
-        return handleJoin(null, null, false);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public <T> T join(T anyObject) {
-        return handleJoin(anyObject, null, false);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public <T> T join(Collection<T> anyCollection, JoinType joinType) {
-        return handleJoin((T) null, joinType, false);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public <T> T join(T anyObject, JoinType joinType) {
-        return handleJoin(anyObject, joinType, false);
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public <T> T join(Collection<T> anyCollection, JoinType joinType, boolean createAdditionalJoin) {
-        return handleJoin((T) null, joinType, createAdditionalJoin);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public <T> T join(T anyObject, JoinType joinType, boolean createAdditionalJoin) {
-        return handleJoin(anyObject, joinType, createAdditionalJoin);
+        return handleJoin(null, null, null, false);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public <T> TypeSafeQueryJoin<T> getJoin(T obj) {
+    public <T> T join(Collection<T> anyCollection, String name) {
+        return handleJoin(null, null, name, false);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public <T> T join(T anyObject) {
+        return handleJoin(anyObject, null, null, false);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <T> T join(T anyObject, String name) {
+        return handleJoin(anyObject, null, name, false);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public <T> T join(Collection<T> anyCollection, JoinType joinType) {
+        return handleJoin((T) null, joinType, null, false);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <T> T join(Collection<T> anyCollection, JoinType joinType, String name) {
+        return handleJoin((T) null, joinType, name, false);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public <T> T join(T anyObject, JoinType joinType) {
+        return handleJoin(anyObject, joinType, null, false);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <T> T join(T anyObject, JoinType joinType, String name) {
+        return handleJoin(anyObject, joinType, name, false);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public <T> T join(Collection<T> anyCollection, JoinType joinType, boolean createAdditionalJoin) {
+        return handleJoin((T) null, joinType, null, createAdditionalJoin);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <T> T join(Collection<T> anyCollection, JoinType joinType, String name, boolean createAdditionalJoin) {
+        return handleJoin((T) null, joinType, name, createAdditionalJoin);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public <T> T join(T anyObject, JoinType joinType, boolean createAdditionalJoin) {
+        return handleJoin(anyObject, joinType, null, createAdditionalJoin);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <T> T join(T anyObject, JoinType joinType, String name, boolean createAdditionalJoin) {
+        return handleJoin(anyObject, joinType, name, createAdditionalJoin);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <T> WhereRestrictions joinWith(T obj) {
         if(!(obj instanceof TypeSafeQueryProxy)) {
             throw new IllegalArgumentException("Can only get the join using a TypeSafeQueryProxy instance.");
         }
-        return dataTree.getJoin(((TypeSafeQueryProxy) obj).getTypeSafeProxyData());
+        return dataTree.getJoinRestrictions(((TypeSafeQueryProxy) obj).getTypeSafeProxyData());
     }
 
     /**
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    private <T> T handleJoin(T obj, JoinType joinType, boolean createAdditionalJoin) {
+    private <T> T handleJoin(T obj, JoinType joinType, String name, boolean createAdditionalJoin) {
         TypeSafeQueryProxyData data = rootQuery.dequeueInvocation();
         if( obj instanceof TypeSafeQueryProxy ) {
             data = ((TypeSafeQueryProxy) obj).getTypeSafeProxyData();
@@ -224,6 +290,9 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
                     data.getPropertyPath(), data.getPropertyType());
         }
         data.setJoinType(joinType == null ? JoinType.Default: joinType);
+        if (name != null) {
+            named().name(data.getProxy(), name);
+        }
         return (T) data.getProxy();
     }
 
@@ -279,24 +348,16 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      * {@inheritDoc}
      */
     @Override
-    public RestrictionsGroup whereGroup() {
-        return new RestrictionsGroupImpl(this, null);
+    public ArithmeticTypeSafeValueFactory getArithmeticsBuilder() {
+        return arithmeticsBuilder;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public TypeSafeQueryFactories factories() {
-        return factories;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public TypeSafeQueryValues values() {
-        return values;
+    public RestrictionsGroupFactory getGroupedRestrictionsBuilder() {
+        return groupedRestrictionsBuilder;
     }
     
     /**
@@ -305,6 +366,14 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
     @Override
     public RestrictionChainable whereExists(TypeSafeSubQuery<?> subquery) {
         return restrictions.andExists(subquery);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public RestrictionChainable whereNotExists(TypeSafeSubQuery<?> subquery) {
+        return restrictions.andNotExists(subquery);
     }
     
     /**
@@ -474,6 +543,22 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
                     + "made before transforming it to a value.", invocations.size()));
         }
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <VAL> CustomTypeSafeValue<VAL> customValue(Class<VAL> valueClass, String hql, Object... params) {
+        return new CustomTypeSafeValue<>(this, valueClass, HqlQueryValueImpl.hql(hql, params));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <VAL> CaseTypeSafeValue<VAL> caseWhenValue(Class<VAL> valueClass) {
+        return new CaseTypeSafeValue<>(this, valueClass);
+    }
 
     /**
      * {@inheritDoc}
@@ -546,7 +631,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      * {@inheritDoc}
      */
     @Override
-    public TypeSafeValueFunctions function() {
+    public TypeSafeValueFunctions hqlFunction() {
         return new TypeSafeValueFunctions(this);
     }
 

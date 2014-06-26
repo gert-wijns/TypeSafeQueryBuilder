@@ -27,7 +27,7 @@ import org.hibernate.transform.BasicTransformerAdapter;
 import be.shad.tsqb.data.TypeSafeQuerySelectionProxyData;
 import be.shad.tsqb.selection.group.SelectionTreeGroup;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroup;
-import be.shad.tsqb.selection.parallel.ParallelSelectionMerger;
+import be.shad.tsqb.selection.parallel.SelectionMerger;
 
 /**
  * Implementation to set values on nested select dtos.
@@ -110,7 +110,7 @@ public class TypeSafeQueryResultTransformer extends BasicTransformerAdapter {
             
             for(i=1; i < groups.length; i++) {
                 @SuppressWarnings("rawtypes")
-                ParallelSelectionMerger merger = groups[i].getGroup().getParallelSelectionMerger();
+                SelectionMerger merger = groups[i].getGroup().getParallelSelectionMerger();
                 if (merger != null) {
                     merger.mergeIntoResult(resultArray[0], resultArray[i]);
                 }

@@ -59,6 +59,14 @@ public class TypeSafeNamedsImpl implements TypeSafeNameds, Copyable {
      * {@inheritDoc}
      */
     @Override
+    public void set(String name, Object value) {
+        value(name).setNamedValue(value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public NamedValueEnabled value(String name) throws IllegalArgumentException {
         return named(NamedValueEnabled.class, name);
     }

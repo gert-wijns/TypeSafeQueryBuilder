@@ -57,6 +57,11 @@ public interface OnGoingTextRestriction extends OnGoingRestriction<String, Conti
     ContinuedOnGoingTextRestriction contains(String value);
 
     /**
+     * Generates: left like ? with (? = 'value') (will require value to contain wildcards to be useful)
+     */
+    ContinuedOnGoingTextRestriction like(String value);
+    
+    /**
      * Generates: left like stringRepresentative
      */
     ContinuedOnGoingTextRestriction like(TypeSafeValue<String> value);

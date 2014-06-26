@@ -107,7 +107,7 @@ public class ArithmeticTypeSafeValueImpl extends TypeSafeValueImpl<Number> imple
     public ArithmeticTypeSafeValue divide(
             TypeSafeValue<? extends Number> numerator, 
             TypeSafeValue<? extends Number> denominator) {
-        return query.factories().getArithmeticTypeSafeValueFactory().divide(numerator, denominator);
+        return query.getArithmeticsBuilder().divide(numerator, denominator);
     }
 
     @Override
@@ -115,7 +115,7 @@ public class ArithmeticTypeSafeValueImpl extends TypeSafeValueImpl<Number> imple
             TypeSafeValue<? extends Number> value1, 
             TypeSafeValue<? extends Number> value2, 
             ArithmeticTypeSafeValue... values) {
-        return query.factories().getArithmeticTypeSafeValueFactory().add(value1, value2, values);
+        return query.getArithmeticsBuilder().add(value1, value2, values);
     }
 
     @Override
@@ -123,7 +123,7 @@ public class ArithmeticTypeSafeValueImpl extends TypeSafeValueImpl<Number> imple
             TypeSafeValue<? extends Number> value1, 
             TypeSafeValue<? extends Number> value2, 
             ArithmeticTypeSafeValue... values) {
-        return query.factories().getArithmeticTypeSafeValueFactory().subtract(value1, value2, values);
+        return query.getArithmeticsBuilder().subtract(value1, value2, values);
     }
 
     @Override
@@ -131,7 +131,7 @@ public class ArithmeticTypeSafeValueImpl extends TypeSafeValueImpl<Number> imple
             TypeSafeValue<? extends Number> value1, 
             TypeSafeValue<? extends Number> value2, 
             ArithmeticTypeSafeValue... values) {
-        return query.factories().getArithmeticTypeSafeValueFactory().multiply(value1, value2, values);
+        return query.getArithmeticsBuilder().multiply(value1, value2, values);
     }
 
     @Override

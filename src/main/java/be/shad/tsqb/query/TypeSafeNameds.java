@@ -28,6 +28,18 @@ public interface TypeSafeNameds {
     <T> T get(Class<T> clazz, String name) throws IllegalArgumentException;
     
     /**
+     * Sets the value of a NamedValueEnabled.
+     * The value will be checked with the value type required
+     * by the named param, unless it is null.
+     * <p>
+     * Name can be set by using where(entity.getName()).eq().named("paramAlias")
+     * or by naming using this instance.
+     * 
+     * @param name must be one which was set before calling this method
+     */
+    void set(String name, Object value);
+    
+    /**
      * @throws IllegalArgumentException if named object doesn't exist or is of the wrong type.
      */
     NamedValueEnabled value(String name) throws IllegalArgumentException;

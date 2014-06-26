@@ -67,7 +67,7 @@ public class GetSuperTypeAsSubtypeAndBuildQueryTest extends TypeSafeQueryTest {
         House house2 = creator.createTestHouse(town, "Housy", 4);
         Apartment apartment = creator.createTestApartment(town, revenue.add(new BigDecimal(1.0)));
         
-        RestrictionsGroupFactory res = query.factories().getRestrictionsGroupFactory();
+        RestrictionsGroupFactory res = query.getGroupedRestrictionsBuilder();
         Town townProxy = query.from(Town.class);
         Building buildingProxy = query.join(townProxy.getBuildings(), JoinType.Left);
 
@@ -76,7 +76,7 @@ public class GetSuperTypeAsSubtypeAndBuildQueryTest extends TypeSafeQueryTest {
         query.or(
             res.where(apartmentProxy.getRevenue()).gt(revenue),
             res.where(houseProxy.getFloors()).gt(5));
-        query.selectValue(query.function().distinct(buildingProxy));
+        query.select(query.hqlFunction().distinct(buildingProxy));
         
         validate("select distinct hobj2 from Town hobj1 "
                 + "left join hobj1.buildings hobj2 "

@@ -119,5 +119,10 @@ public interface WhereRestrictions {
      * Adds an exists restriction.
      */
     RestrictionChainable whereExists(TypeSafeSubQuery<?> subquery);
+
+    /**
+     * Adds a not exists restriction.
+     */
+    RestrictionChainable whereNotExists(TypeSafeSubQuery<?> subquery);
     
 }

@@ -46,6 +46,16 @@ public interface OnGoingDateRestriction extends OnGoingRestriction<Date, Continu
     ContinuedOnGoingDateRestriction notAfter(Date value);
 
     /**
+     * Generates: left >= (referencedValue or actualValue)
+     */
+    ContinuedOnGoingDateRestriction afterOrEq(Date value);
+
+    /**
+     * Generates: left >= dateRepresentative
+     */
+    ContinuedOnGoingDateRestriction afterOrEq(TypeSafeValue<Date> value);
+
+    /**
      * Generates: left > dateRepresentative
      */
     ContinuedOnGoingDateRestriction after(TypeSafeValue<Date> value);
@@ -54,6 +64,16 @@ public interface OnGoingDateRestriction extends OnGoingRestriction<Date, Continu
      * Generates: left > (referencedValue or actualValue)
      */
     ContinuedOnGoingDateRestriction after(Date value);
+
+    /**
+     * Generates: left <= (referencedValue or actualValue)
+     */
+    ContinuedOnGoingDateRestriction beforeOrEq(Date value);
+
+    /**
+     * Generates: left <= dateRepresentative
+     */
+    ContinuedOnGoingDateRestriction beforeOrEq(TypeSafeValue<Date> value);
 
     /**
      * Generates: left < dateRepresentative
@@ -65,6 +85,18 @@ public interface OnGoingDateRestriction extends OnGoingRestriction<Date, Continu
      */
     ContinuedOnGoingDateRestriction before(Date value);
 
+    /**
+     * @see #beforeOrEq(Date)
+     * @return binder with a method to set an alias for the parameter
+     */
+    SingleNamedParameterBinder<Date, ContinuedOnGoingDateRestriction, OnGoingDateRestriction> beforeOrEq();
+    
+    /**
+     * @see #afterOrEq(Date)
+     * @return binder with a method to set an alias for the parameter
+     */
+    SingleNamedParameterBinder<Date, ContinuedOnGoingDateRestriction, OnGoingDateRestriction> afterOrEq();
+    
     /**
      * @see #notBefore(Date)
      * @return binder with a method to set an alias for the parameter

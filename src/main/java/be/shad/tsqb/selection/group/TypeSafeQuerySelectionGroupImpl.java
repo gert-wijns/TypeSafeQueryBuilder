@@ -17,17 +17,17 @@ package be.shad.tsqb.selection.group;
 
 import be.shad.tsqb.query.copy.CopyContext;
 import be.shad.tsqb.query.copy.Copyable;
-import be.shad.tsqb.selection.parallel.ParallelSelectionMerger;
+import be.shad.tsqb.selection.parallel.SelectionMerger;
 
 public class TypeSafeQuerySelectionGroupImpl implements TypeSafeQuerySelectionGroup, Copyable {
 
     private final String aliasPrefix;
     private final Class<?> resultClass;
     private final boolean resultGroup;
-    private final ParallelSelectionMerger<?, ?> subselectValueMerger;
+    private final SelectionMerger<?, ?> subselectValueMerger;
     
     public TypeSafeQuerySelectionGroupImpl(String aliasPrefix, Class<?> resultClass, 
-            boolean resultGroup, ParallelSelectionMerger<?, ?> subselectValueMerger) {
+            boolean resultGroup, SelectionMerger<?, ?> subselectValueMerger) {
         this.aliasPrefix = aliasPrefix;
         this.resultClass = resultClass;
         this.resultGroup = resultGroup;
@@ -60,7 +60,7 @@ public class TypeSafeQuerySelectionGroupImpl implements TypeSafeQuerySelectionGr
     }
 
     @Override
-    public ParallelSelectionMerger<?, ?> getParallelSelectionMerger() {
+    public SelectionMerger<?, ?> getParallelSelectionMerger() {
         return subselectValueMerger;
     }
 

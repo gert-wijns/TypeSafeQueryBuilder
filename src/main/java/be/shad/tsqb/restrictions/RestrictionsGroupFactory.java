@@ -19,16 +19,8 @@ package be.shad.tsqb.restrictions;
 /**
  * Each where restriction method is implemented so that a whereGroup is created to wrap the chained restriction
  */
-public interface RestrictionsGroupFactory extends WhereRestrictions {
-
-    /**
-     * @return creates a restriction group in which all restrictions are or'ed.
-     */
-    RestrictionsGroup or(RestrictionHolder restriction, RestrictionHolder... restrictions);
-
-    /**
-     * @return creates a restriction group in which all restrictions are and'ed.
-     */
-    RestrictionsGroup and(RestrictionHolder restriction, RestrictionHolder... restrictions);
+public interface RestrictionsGroupFactory extends RestrictionsGroupBuilder {
+    
+    RestrictionsGroup createRestrictionsGroup();
     
 }

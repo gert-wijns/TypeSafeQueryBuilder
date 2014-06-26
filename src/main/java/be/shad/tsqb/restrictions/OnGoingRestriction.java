@@ -31,7 +31,7 @@ public interface OnGoingRestriction<VAL, CONTINUED extends ContinuedOnGoingRestr
      * @see #not(VAL)
      * @return binder with a method to set an alias for the parameter
      */
-    SingleNamedParameterBinder<VAL, CONTINUED, ORIGINAL> not();
+    SingleNamedParameterBinder<VAL, CONTINUED, ORIGINAL> notEq();
 
     /**
      * @see #eq(VAL)
@@ -59,7 +59,7 @@ public interface OnGoingRestriction<VAL, CONTINUED extends ContinuedOnGoingRestr
     /**
      * Generates: left <> valueRepresentative
      */
-    CONTINUED not(TypeSafeValue<VAL> value);
+    CONTINUED notEq(TypeSafeValue<VAL> value);
 
     /**
      * Generates: left = (referencedValue or actualValue)

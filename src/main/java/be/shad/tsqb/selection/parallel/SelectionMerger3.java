@@ -16,19 +16,22 @@
 package be.shad.tsqb.selection.parallel;
 
 
-public abstract class ParallelSelectionMerger2<RESULT, A, B> implements ParallelSelectionMerger<RESULT, SelectPair<A, B>> {
+/**
+ * 
+ */
+public abstract class SelectionMerger3<RESULT, A, B, C> implements SelectionMerger<RESULT, SelectTriplet<A, B, C>> {
 
     /**
-     * Delegates to {@link #mergeValuesIntoResult(Object, Object, Object)} with the pair of selected values.
+     * Delegates to {@link #mergeValuesIntoResult(Object, Object, Object, Object)} with the triple of selected values.
      */
     @Override
-    public final void mergeIntoResult(RESULT partialResult, SelectPair<A, B> parallelDto) {
-        mergeValuesIntoResult(partialResult, parallelDto.getFirst(), parallelDto.getSecond());
+    public final void mergeIntoResult(RESULT partialResult, SelectTriplet<A, B, C> parallelDto) {
+        mergeValuesIntoResult(partialResult, parallelDto.getFirst(), parallelDto.getSecond(), parallelDto.getThird());
     }
 
     /**
-     * Merge two parallel selected values into the result dto manually.
+     * Merge three parallel selected values into the result dto manually.
      */
-    public abstract void mergeValuesIntoResult(RESULT partialResult, A left, B right);
+    public abstract void mergeValuesIntoResult(RESULT partialResult, A left, B middle, C right);
     
 }

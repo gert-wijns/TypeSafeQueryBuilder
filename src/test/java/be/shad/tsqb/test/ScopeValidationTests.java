@@ -33,7 +33,7 @@ public class ScopeValidationTests extends TypeSafeQueryTest {
     public void testSubqueryProxyNotUsedInSelect() {
         TypeSafeSubQuery<Date> subquery = query.subquery(Date.class);
         Building building = subquery.from(Building.class);
-        query.selectValue(building.getConstructionDate());
+        query.select(building.getConstructionDate());
     }
 
     @Test(expected=ValueNotInScopeException.class)
@@ -52,7 +52,7 @@ public class ScopeValidationTests extends TypeSafeQueryTest {
         Building building = subquery.from(Building.class);
         
         // not proper use:, should select max in the subquery and use after(subquery):
-        query.where(house.getConstructionDate()).after(query.function().max(building.getConstructionDate()));
+        query.where(house.getConstructionDate()).after(query.hqlFunction().max(building.getConstructionDate()));
     }
     
     @Test(expected=ValueNotInScopeException.class)
@@ -60,7 +60,7 @@ public class ScopeValidationTests extends TypeSafeQueryTest {
         query.from(House.class);
         TypeSafeSubQuery<Date> subquery = query.subquery(Date.class);
         TypeSafeSubQuery<Date> subsubquery = subquery.subquery(Date.class);
-        query.selectValue(subsubquery.select());
+        query.select(subsubquery.select());
     }
 
     @Test(expected=ValueNotInScopeException.class)
@@ -84,8 +84,8 @@ public class ScopeValidationTests extends TypeSafeQueryTest {
         query.from(Town.class);
         TypeSafeSubQuery<Date> subquery = query.subquery(Date.class);
         Building building = subquery.from(Building.class);
-        subquery.select(subquery.function().max(building.getConstructionDate()));
-        query.selectValue(subquery);
+        subquery.select(subquery.hqlFunction().max(building.getConstructionDate()));
+        query.select(subquery);
         
         validate("select (select max(hobj2.constructionDate) from Building hobj2) from Town hobj1");
     }
@@ -101,7 +101,7 @@ public class ScopeValidationTests extends TypeSafeQueryTest {
         Relation relation2 = query.join(child.getChildRelations());
         Person grandChild = query.join(relation2.getChild());
         
-        query.getJoin(child).with(child.getName()).eq(grandChild.getName());
+        query.joinWith(child).where(child.getName()).eq(grandChild.getName());
     }
 
     @Test(expected=ValueNotInScopeException.class)
@@ -110,7 +110,7 @@ public class ScopeValidationTests extends TypeSafeQueryTest {
         Person child = query.from(Person.class);
         Relation relation = query.join(child.getChildRelations());
         
-        query.getJoin(relation).with(parent.getId()).eq(relation.getId());
+        query.joinWith(relation).where(parent.getId()).eq(relation.getId());
         validate("");
     }
     
@@ -119,7 +119,7 @@ public class ScopeValidationTests extends TypeSafeQueryTest {
         Person parent = query.from(Person.class);
         Relation relation = query.join(parent.getChildRelations());
         Person child = query.join(relation.getChild());
-        query.getJoin(child).with(child.getName()).eq("Josh");
+        query.joinWith(child).where(child.getName()).eq("Josh");
         validate(" from Person hobj1 join hobj1.childRelations hobj2 join hobj2.child hobj3 with hobj3.name = :np1", "Josh");
     }
 
@@ -128,7 +128,7 @@ public class ScopeValidationTests extends TypeSafeQueryTest {
         Person parent = query.from(Person.class);
         Relation relation = query.join(parent.getChildRelations());
         Person child = query.join(relation.getChild());
-        query.getJoin(child).with(child.getName()).eq(parent.getName());
+        query.joinWith(child).where(child.getName()).eq(parent.getName());
     }
     
 }

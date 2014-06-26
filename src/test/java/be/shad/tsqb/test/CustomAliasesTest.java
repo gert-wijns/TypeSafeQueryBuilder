@@ -30,8 +30,8 @@ public class CustomAliasesTest extends TypeSafeQueryTest {
     public void setupQuery() {
         Person person = query.from(Person.class);
         Relation children = query.join(person.getChildRelations());
-        query.registerCustomAliasForProxy(person, PARENT_CUSTOM_ALIAS);
-        query.registerCustomAliasForProxy(children.getChild(), CHILD_CUSTOM_ALIAS);
+        query.setHqlAlias(person, PARENT_CUSTOM_ALIAS);
+        query.setHqlAlias(children.getChild(), CHILD_CUSTOM_ALIAS);
     }
     
     /**
@@ -39,7 +39,7 @@ public class CustomAliasesTest extends TypeSafeQueryTest {
      */
     @Test
     public void testUseRegisteredAlias() {
-        Person child = query.getProxyByCustomEntityAlias(CHILD_CUSTOM_ALIAS);
+        Person child = query.getByHqlAlias(CHILD_CUSTOM_ALIAS);
         query.where(child.getName()).startsWith("Josh");
         validate(" from Person parentAlias join parentAlias.childRelations hobj2 join hobj2.child childAlias where childAlias.name like :np1", "Josh%");
     }
@@ -49,9 +49,9 @@ public class CustomAliasesTest extends TypeSafeQueryTest {
      */
     @Test(expected=IllegalArgumentException.class)
     public void testRegisteringAliasAgainForDifferentPathThrowsException() {
-        Person parent = query.getProxyByCustomEntityAlias(CHILD_CUSTOM_ALIAS);
+        Person parent = query.getByHqlAlias(CHILD_CUSTOM_ALIAS);
         Relation children = query.join(parent.getChildRelations());
-        query.registerCustomAliasForProxy(children.getChild(), CHILD_CUSTOM_ALIAS);
+        query.setHqlAlias(children.getChild(), CHILD_CUSTOM_ALIAS);
     }
 
     /**
@@ -59,10 +59,10 @@ public class CustomAliasesTest extends TypeSafeQueryTest {
      */
     @Test
     public void testRegisteringAliasAgainForSamePathIsAllowed() {
-        Person person = query.getProxyByCustomEntityAlias(PARENT_CUSTOM_ALIAS);
+        Person person = query.getByHqlAlias(PARENT_CUSTOM_ALIAS);
         Relation children = query.join(person.getChildRelations());
-        query.registerCustomAliasForProxy(person, PARENT_CUSTOM_ALIAS);
-        query.registerCustomAliasForProxy(children.getChild(), CHILD_CUSTOM_ALIAS);
+        query.setHqlAlias(person, PARENT_CUSTOM_ALIAS);
+        query.setHqlAlias(children.getChild(), CHILD_CUSTOM_ALIAS);
         
         validate(" from Person parentAlias join parentAlias.childRelations hobj2 join hobj2.child childAlias");
     }
@@ -73,11 +73,11 @@ public class CustomAliasesTest extends TypeSafeQueryTest {
      */
     @Test(expected=IllegalArgumentException.class)
     public void testPathIsDifferentWhenExplicitExtraJoiningSameEntity() {
-        Person person = query.getProxyByCustomEntityAlias(PARENT_CUSTOM_ALIAS);
+        Person person = query.getByHqlAlias(PARENT_CUSTOM_ALIAS);
         Relation children = query.join(person.getChildRelations());
         
         Person otherChild = query.join(children.getChild(), JoinType.Inner, true);
-        query.registerCustomAliasForProxy(otherChild, CHILD_CUSTOM_ALIAS);
+        query.setHqlAlias(otherChild, CHILD_CUSTOM_ALIAS);
     }
 
     /**
@@ -86,7 +86,7 @@ public class CustomAliasesTest extends TypeSafeQueryTest {
      */
     @Test(expected=IllegalArgumentException.class)
     public void testRegisteringWithNullFails() {
-        query.registerCustomAliasForProxy(null, "unusedAlias");
+        query.setHqlAlias(null, "unusedAlias");
     }
 
     /**
@@ -95,8 +95,8 @@ public class CustomAliasesTest extends TypeSafeQueryTest {
      */
     @Test
     public void testRegisteringWithNullDoesntFailIfInvocationWasQueued() {
-        Person parent = query.getProxyByCustomEntityAlias(CHILD_CUSTOM_ALIAS);
-        query.registerCustomAliasForProxy(parent.getChildRelations(), "someOtherChildRelations");
+        Person parent = query.getByHqlAlias(CHILD_CUSTOM_ALIAS);
+        query.setHqlAlias(parent.getChildRelations(), "someOtherChildRelations");
 
         validate(" from Person parentAlias join parentAlias.childRelations hobj2 join hobj2.child childAlias join childAlias.childRelations someOtherChildRelations");
     }
@@ -106,7 +106,7 @@ public class CustomAliasesTest extends TypeSafeQueryTest {
      */
     @Test(expected=IllegalArgumentException.class)
     public void testRegisteringWithNonProxyFails() {
-        query.registerCustomAliasForProxy(1D, "UnusedAlias");
+        query.setHqlAlias(1D, "UnusedAlias");
     }
 
 }

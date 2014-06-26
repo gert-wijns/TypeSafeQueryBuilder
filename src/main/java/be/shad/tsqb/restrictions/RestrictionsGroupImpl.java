@@ -378,6 +378,14 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
      * Delegate the call to and().
      */
     @Override
+    public RestrictionChainable whereNotExists(TypeSafeSubQuery<?> subquery) {
+        return andNotExists(subquery);
+    }
+
+    /**
+     * Delegate the call to and().
+     */
+    @Override
     public Restriction getRestrictions() {
         return this;
     }

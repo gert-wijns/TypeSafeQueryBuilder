@@ -18,15 +18,15 @@ package be.shad.tsqb.query;
 import java.util.Collection;
 import java.util.Date;
 
-import be.shad.tsqb.factories.TypeSafeQueryFactories;
 import be.shad.tsqb.helper.TypeSafeQueryHelper;
-import be.shad.tsqb.joins.TypeSafeQueryJoin;
 import be.shad.tsqb.ordering.OnGoingOrderBy;
-import be.shad.tsqb.restrictions.RestrictionChainable;
-import be.shad.tsqb.restrictions.RestrictionsGroup;
+import be.shad.tsqb.restrictions.RestrictionsGroupFactory;
 import be.shad.tsqb.restrictions.WhereRestrictions;
+import be.shad.tsqb.values.CaseTypeSafeValue;
+import be.shad.tsqb.values.CustomTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValueFunctions;
+import be.shad.tsqb.values.arithmetic.ArithmeticTypeSafeValueFactory;
 
 /**
  * TypeSafeQuery aims to be a type safe alternative to build hql queries.
@@ -56,13 +56,21 @@ import be.shad.tsqb.values.TypeSafeValueFunctions;
 public interface TypeSafeQuery extends WhereRestrictions {
     
     /**
+     * Delegates to {@link #from(Class, String)} with name = null.
+     */
+    <T> T from(Class<T> fromClass);
+
+    /**
      * Creates a proxy for the given fromClass.
      * <p>
      * Multiple calls are allowed to create from clauses with multiple entities.
      * This may be useful when the queries have no direct relation in hibernate,
      * but the relation can be expressed in the restrictions afterwards.
+     * 
+     * @param name when name is not null, the created proxy will be named using the given name.
+     *        (Remark: this is not an hql alias! It is a tag by which the proxy can be retrieved from the query)
      */
-    <T> T from(Class<T> fromClass);
+    <T> T from(Class<T> fromClass, String name);
 
     /**
      * Get a new proxy for the same entity to gain access to the subtype methods
@@ -78,9 +86,19 @@ public interface TypeSafeQuery extends WhereRestrictions {
     <T> T join(Collection<T> anyCollection);
     
     /**
+     * Delegates to {@link #join(Collection, JoinType, String)} with {@link JoinType#Inner}
+     */
+    <T> T join(Collection<T> anyCollection, String name);
+    
+    /**
      * Delegates to {@link #join(Object, JoinType)} with {@link JoinType#Inner}
      */
     <T> T join(T anyObject);
+
+    /**
+     * Delegates to {@link #join(Object, JoinType, String)} with {@link JoinType#Inner}
+     */
+    <T> T join(T anyObject, String name);
     
     /**
      * Delegates to {@link #join(Collection, JoinType, boolean)} with false as create.
@@ -88,21 +106,44 @@ public interface TypeSafeQuery extends WhereRestrictions {
     <T> T join(Collection<T> anyCollection, JoinType joinType);
     
     /**
+     * Delegates to {@link #join(Collection, JoinType, String, boolean)} with false as create.
+     */
+    <T> T join(Collection<T> anyCollection, JoinType joinType, String name);
+
+    /**
+     * Delegates to {@link #join(Collection, JoinType, String, boolean)} with false as create.
+     */
+    <T> T join(Collection<T> anyCollection, JoinType joinType, boolean createAdditionalJoin);
+
+    /**
      * Joins an entity collection, returns a proxy of the joined entity type.
      * The method calls of the proxy will be captured to assist with the query building.
      * <p>
      * The type is fetched from hibernate.
      * 
+     * @param name when name is not null, the created proxy will be named using the given name.
+     *        (Remark: this is not an hql alias! It is a tag by which the proxy can be retrieved from the query)
+     *        
      * @param createAdditionalJoin explicitly force the creation of an additional join.
      *        this is only useful when the same object relation needs to be joined more than once.
      *        Otherwise the existing joined proxy is reused instead.
      */
-    <T> T join(Collection<T> anyCollection, JoinType joinType, boolean createAdditionalJoin);
+    <T> T join(Collection<T> anyCollection, JoinType joinType, String name, boolean createAdditionalJoin);
     
     /**
      * Delegates to {@link #join(Object, JoinType, boolean)} with false as create.
      */
     <T> T join(T anyObject, JoinType joinType);
+
+    /**
+     * Delegates to {@link #join(Object, JoinType, String, boolean)} with false as create.
+     */
+    <T> T join(T anyObject, JoinType joinType, String name);
+
+    /**
+     * Delegates to {@link #join(Object, JoinType, String, boolean)} with false as create.
+     */
+    <T> T join(T anyObject, JoinType joinType, boolean createAdditionalJoin);
 
     /**
      * Joins an entity, returns a proxy of the joined entity type.
@@ -114,7 +155,7 @@ public interface TypeSafeQuery extends WhereRestrictions {
      *        this is only useful when the same object relation needs to be joined more than once.
      *        Otherwise the existing joined proxy is reused instead.
      */
-    <T> T join(T anyObject, JoinType joinType, boolean createAdditionalJoin);
+    <T> T join(T anyObject, JoinType joinType, String name, boolean createAdditionalJoin);
     
     /**
      * The object must be a TypeSafeQueryProxy, this will be validated at runtime.
@@ -122,17 +163,7 @@ public interface TypeSafeQuery extends WhereRestrictions {
      * @return TypeSafeQueryJoin which can be configured further for join specific configuration
      * @throws IllegalArgumentException if the object is not an entity proxy.
      */
-    <T> TypeSafeQueryJoin<T> getJoin(T obj);
-
-    /**
-     * Creates a subgroup for this query. This group is not added to the query
-     * where until it is added using the {@link RestrictionChainable#and(be.shad.tsqb.restrictions.Restriction) and(restriction)} 
-     * or the {@link RestrictionChainable#or(be.shad.tsqb.restrictions.Restriction) or(restriction)}.
-     * <p>
-     * The group will not be added to the existing restrictions automatically.
-     * This must be done separately.
-     */
-    RestrictionsGroup whereGroup();
+    <T> WhereRestrictions joinWith(T obj);
     
     /**
      * Get the orderBy, allowing to add descending and ascending order bys.
@@ -183,52 +214,71 @@ public interface TypeSafeQuery extends WhereRestrictions {
     /**
      * Build a value using a function. Use this method to create TypeSafeValue objects fluently.
      */
-    TypeSafeValueFunctions function();
+    TypeSafeValueFunctions hqlFunction();
     
     /**
-     * Retrieve the various factories available for restrictions or value building.
+     * @return instance which can be used to build an arithmetic value
      */
-    TypeSafeQueryFactories factories();
-
+    ArithmeticTypeSafeValueFactory getArithmeticsBuilder();
+    
     /**
-     * Group value functions
+     * @return instance which can be used to build restriction groups
      */
-    TypeSafeQueryValues values();
+    RestrictionsGroupFactory getGroupedRestrictionsBuilder();
 
     /**
      * Provide methods related to named objects.
      */
     TypeSafeNameds named();
+
+    /**
+     * @return a custom value, the hql will be injected into the query where the value is used.
+     */
+    <VAL> CustomTypeSafeValue<VAL> customValue(Class<VAL> valueClass, String hql, Object... params);
     
     /**
-     * Remembers a custom alias for a proxy.
+     * @return a case value which must be built using the is(result).when(conditions).
+     */
+    <VAL> CaseTypeSafeValue<VAL> caseWhenValue(Class<VAL> valueClass);
+    
+    /**
+     * Dequeues pending invocations:
+     * <ul>
+     * <li>If a pending invocation exists, returns a value representing this invocation.</li>
+     * <li>If no pending invocation exists, returns a direct value.</li>
+     * <li>IllegalStateException when more than one pending invocation.</li>
+     * </ul>
+     * In general, pending invocations are added when methods of proxied entities or typesare called,
+     * except when the method returns another proxy.
+     * <p>
+     * Using the query restrictions clause building will automatically use the toValue method behind the scenes.
+     * The use of this method in custom code is probably a rare thing and is not really encouraged,
+     * but there may be cases when this can be useful.
+     * <p>
+     * An example when this can be used externally is when the value is when grouping by a custom hibernate Type.
+     * 
+     * @throws IllegalStateException when more than one invocation is pending
+     */
+    <VAL> TypeSafeValue<VAL> toValue(VAL val);
+
+    /**
+     * Remembers a custom hql alias for a proxy.
      * The value may not be null and must be an instance of TypeSafeQueryProxy.
      * This means it must be an object which has been obtained by building the query.
      * <p>
-     * The custom alias must be unique for the entire query (several subqueries can not use the same custom alias).
+     * The custom hql alias must be unique for the entire query (several subqueries can not use the same custom alias).
      * <p>
-     * The custom alias will be used as alias in the final query, so take care when choosing an alias.
+     * The custom hql alias will be used as alias in the final query, so take care when choosing an alias.
      * 
      * @throws IllegalArgumentException if the alias was already registered for a different proxy.
      * @throws IllegalArgumentException if the value is not a TypeSafeQueryProxy or it is null and no invocation representing a proxy was queued.
      */
-    void registerCustomAliasForProxy(Object value, String alias);
+    void setHqlAlias(Object value, String alias);
     
     /**
      * Retrieves a previously registered proxy for the given alias.
      * Returns null if no proxy was registered with the custom alias.
      */
-    <T> T getProxyByCustomEntityAlias(String alias);
-    
-    /**
-     * Sets the value of a named parameter.
-     * The value will be checked with the value type required
-     * by the named param, unless it is null.
-     * <p>
-     * paramAlias can be set by using where(entity.getName()).eq().named("paramAlias");
-     * 
-     * @param paramAlias must be one which was set before calling this method
-     */
-    void namedValue(String paramAlias, Object value);
+    <T> T getByHqlAlias(String alias);
     
 }

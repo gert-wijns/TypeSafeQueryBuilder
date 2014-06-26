@@ -39,17 +39,27 @@ public interface TypeSafeSubQuery<T> extends TypeSafeValue<T>, TypeSafeQuery {
     boolean selectNotExists();
     
     /**
+     * Selects the count using the count function.
+     */
+    Long selectCount();
+
+    /**
+     * Selects the count using the count and nested distinct function.
+     */
+    Long selectCountDistinct(T val);
+    
+    /**
      * Set the value to select.
      * <p>
      * Converts the value to a TypeSafeValue and delegates to {@link #select(TypeSafeValue)}.
      */
-    void select(T value);
+    T select(T value);
     
     /**
      * Set the value to select.
      * <p>
      * This method should be called before converting to hql, unless using the exists function.
      */
-    void select(TypeSafeValue<T> value);
+    T select(TypeSafeValue<T> value);
     
 }

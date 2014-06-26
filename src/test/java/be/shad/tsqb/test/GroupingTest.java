@@ -27,7 +27,7 @@ public class GroupingTest extends TypeSafeQueryTest {
     @Test
     public void testGroupBySingleValue() {
         Building building = query.from(Building.class);
-        query.selectValue(building.getConstructionDate());
+        query.select(building.getConstructionDate());
         query.groupBy(building.getConstructionDate());
 
         validate("select hobj1.constructionDate from Building hobj1 group by hobj1.constructionDate");
@@ -36,8 +36,8 @@ public class GroupingTest extends TypeSafeQueryTest {
     @Test
     public void testGroupByMoreThanOneValue() {
         Building building = query.from(Building.class);
-        query.selectValue(building.getConstructionDate());
-        query.selectValue(building.getStyle());
+        query.select(building.getConstructionDate());
+        query.select(building.getStyle());
         query.groupBy(building.getConstructionDate());
         query.groupBy(building.getStyle());
 
@@ -50,8 +50,8 @@ public class GroupingTest extends TypeSafeQueryTest {
     public void testGroupByCustomTypeSafeValue() {
         Building building = query.from(Building.class);
         
-        query.selectValue(building.getConstructionDate());
-        query.registerCustomAliasForProxy(building, "b");
+        query.select(building.getConstructionDate());
+        query.setHqlAlias(building, "b");
         query.groupBy(new CustomTypeSafeValue<Date>(query, Date.class, "b.constructionDate"));
         
         validate("select b.constructionDate from Building b group by b.constructionDate");

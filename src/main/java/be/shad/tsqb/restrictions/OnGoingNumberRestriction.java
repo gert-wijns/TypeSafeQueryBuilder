@@ -64,6 +64,38 @@ public interface OnGoingNumberRestriction extends OnGoingRestriction<Number, Con
     ContinuedOnGoingNumberRestriction lt(Number value);
 
     /**
+     * Generates: left >= numberRepresentative
+     */
+    ContinuedOnGoingNumberRestriction nlt(TypeSafeValue<Number> value);
+    
+    /**
+     * Generates: left >= (referencedValue or actualValue)
+     */
+    ContinuedOnGoingNumberRestriction nlt(Number value);
+
+    /**
+     * Generates: left <= numberRepresentative
+     */
+    ContinuedOnGoingNumberRestriction ngt(TypeSafeValue<Number> value);
+    
+    /**
+     * Generates: left <= (referencedValue or actualValue)
+     */
+    ContinuedOnGoingNumberRestriction ngt(Number value);
+
+    /**
+     * @see #nlt(Number)
+     * @return binder with a method to set an alias for the parameter
+     */
+    SingleNamedParameterBinder<Number, ContinuedOnGoingNumberRestriction, OnGoingNumberRestriction> nlt();
+
+    /**
+     * @see #ngt(Number)
+     * @return binder with a method to set an alias for the parameter
+     */
+    SingleNamedParameterBinder<Number, ContinuedOnGoingNumberRestriction, OnGoingNumberRestriction> ngt();
+    
+    /**
      * @see #gte(Number)
      * @return binder with a method to set an alias for the parameter
      */

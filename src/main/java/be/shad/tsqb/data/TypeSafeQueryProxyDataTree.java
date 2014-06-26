@@ -34,6 +34,7 @@ import be.shad.tsqb.proxy.TypeSafeQuerySelectionProxy;
 import be.shad.tsqb.query.JoinType;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.query.copy.CopyContext;
+import be.shad.tsqb.restrictions.WhereRestrictions;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroup;
 import be.shad.tsqb.values.HqlQueryBuilderParams;
 
@@ -102,9 +103,8 @@ public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> TypeSafeQueryJoin<T> getJoin(TypeSafeQueryProxyData data) {
-        return (TypeSafeQueryJoin<T>) joins.get(data);
+    public <T> WhereRestrictions getJoinRestrictions(TypeSafeQueryProxyData data) {
+        return (WhereRestrictions) joins.get(data);
     }
 
     /**

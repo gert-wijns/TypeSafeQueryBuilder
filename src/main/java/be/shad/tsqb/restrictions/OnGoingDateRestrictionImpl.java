@@ -61,6 +61,22 @@ public class OnGoingDateRestrictionImpl
     protected Class<Date> getSupportedValueClass() {
         return Date.class;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ContinuedOnGoingDateRestriction beforeOrEq(Date value) {
+        return notAfter(value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ContinuedOnGoingDateRestriction beforeOrEq(TypeSafeValue<Date> value) {
+        return notAfter(value);
+    }
     
     /**
      * {@inheritDoc}
@@ -76,6 +92,22 @@ public class OnGoingDateRestrictionImpl
     @Override
     public ContinuedOnGoingDateRestriction before(TypeSafeValue<Date> value) {
         return addRestrictionAndContinue(startValue, LESS_THAN, value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ContinuedOnGoingDateRestriction afterOrEq(Date value) {
+        return notBefore(value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ContinuedOnGoingDateRestriction afterOrEq(TypeSafeValue<Date> value) {
+        return notBefore(value);
     }
 
     /**
@@ -126,6 +158,24 @@ public class OnGoingDateRestrictionImpl
         return addRestrictionAndContinue(startValue, GREATER_THAN_EQUAL, value);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SingleNamedParameterBinder<Date, ContinuedOnGoingDateRestriction, OnGoingDateRestriction> afterOrEq() {
+        DirectTypeSafeValue<Date> value = createDirectValue();
+        return createNamedParameterBinder(value, afterOrEq(value));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SingleNamedParameterBinder<Date, ContinuedOnGoingDateRestriction, OnGoingDateRestriction> beforeOrEq() {
+        DirectTypeSafeValue<Date> value = createDirectValue();
+        return createNamedParameterBinder(value, beforeOrEq(value));
+    }
+    
     /**
      * {@inheritDoc}
      */

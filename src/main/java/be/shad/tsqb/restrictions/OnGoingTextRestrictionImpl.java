@@ -76,6 +76,14 @@ public class OnGoingTextRestrictionImpl
      * {@inheritDoc}
      */
     @Override
+    public ContinuedOnGoingTextRestriction like(String value) {
+        return like(toValue(value));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public ContinuedOnGoingTextRestriction contains(String value) {
         return like(toValue(WILDCARD, value, WILDCARD));
     }

@@ -84,16 +84,18 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
      * {@inheritDoc}
      */
     @Override
-    public void select(T value) {
+    public T select(T value) {
         getProjections().project(value, null);
+        return helper.getDummyValue(valueClass);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void select(TypeSafeValue<T> value) {
-        getProjections().project(value, null);
+    public T select(TypeSafeValue<T> value) {
+        getProjections().project(value, null).getValueClass();
+        return helper.getDummyValue(valueClass);
     }
     
     /**
@@ -147,11 +149,6 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
     public String createEntityAlias() {
         return getRootQuery().createEntityAlias();
     }
-    
-    @Override
-    public void namedValue(String paramAlias, Object value) {
-        getRootQuery().namedValue(paramAlias, value);
-    }
 
     @Override
     public T select() {
@@ -162,16 +159,16 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
      * Delegate to root.
      */
     @Override
-    public void registerCustomAliasForProxy(Object value, String alias) {
-        getRootQuery().registerCustomAliasForProxy(value, alias);
+    public void setHqlAlias(Object value, String alias) {
+        getRootQuery().setHqlAlias(value, alias);
     }
 
     /**
      * Delegate to root.
      */
     @Override
-    public <V> V getProxyByCustomEntityAlias(String alias) {
-        return getRootQuery().getProxyByCustomEntityAlias(alias);
+    public <V> V getByHqlAlias(String alias) {
+        return getRootQuery().getByHqlAlias(alias);
     }
     
     /**
@@ -194,6 +191,26 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
         caseValue.is(Boolean.FALSE).whenExists(this);
         caseValue.is(Boolean.TRUE).otherwise();
         return caseValue.select();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Long selectCount() {
+        getProjections().project(hqlFunction().count(), null);
+        select();
+        return helper.getDummyValue(Long.class);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Long selectCountDistinct(T val) {
+        getProjections().project(hqlFunction().countDistinct(val).select(), null);
+        select();
+        return helper.getDummyValue(Long.class);
     }
 
     @Override

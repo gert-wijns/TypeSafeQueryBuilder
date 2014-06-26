@@ -36,13 +36,13 @@ import be.shad.tsqb.dto.PersonDto;
 import be.shad.tsqb.dto.StringToDateTransformer;
 import be.shad.tsqb.dto.TownDetailsDto;
 import be.shad.tsqb.exceptions.JoinException;
-import be.shad.tsqb.joins.TypeSafeQueryJoin;
 import be.shad.tsqb.ordering.OrderByProjection;
 import be.shad.tsqb.query.JoinType;
 import be.shad.tsqb.query.TypeSafeSubQuery;
 import be.shad.tsqb.restrictions.OnGoingTextRestriction;
 import be.shad.tsqb.restrictions.RestrictionsGroup;
 import be.shad.tsqb.restrictions.RestrictionsGroupFactory;
+import be.shad.tsqb.restrictions.WhereRestrictions;
 import be.shad.tsqb.values.CustomTypeSafeValue;
 
 public class ExamplesTest extends TypeSafeQueryTest {
@@ -88,7 +88,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
      */
     @Test
     public void testFilteringGroup() {
-        RestrictionsGroupFactory rb = query.factories().getRestrictionsGroupFactory();
+        RestrictionsGroupFactory rb = query.getGroupedRestrictionsBuilder();
         Person person = query.from(Person.class);
         
         query.where(person.isMarried()).and(
@@ -106,7 +106,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
     public void testFilteringGroupAlternative() {
         Person person = query.from(Person.class);
         
-        RestrictionsGroup nameOrs = query.whereGroup();
+        RestrictionsGroup nameOrs = query.getGroupedRestrictionsBuilder().createRestrictionsGroup();
         nameOrs.where(person.getName()).startsWith("Jef").
                    or(person.getName()).startsWith("John");
         
@@ -122,7 +122,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
      */
     @Test
     public void testRestrictionsGroupFactory() {
-        RestrictionsGroupFactory rb = query.factories().getRestrictionsGroupFactory();
+        RestrictionsGroupFactory rb = query.getGroupedRestrictionsBuilder();
         Person person = query.from(Person.class);
         
         query.and(
@@ -150,7 +150,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
      */
     @Test
     public void testRestrictionsGroupFactoryAlternative() {
-        RestrictionsGroupFactory rb = query.factories().getRestrictionsGroupFactory();
+        RestrictionsGroupFactory rb = query.getGroupedRestrictionsBuilder();
         Person person = query.from(Person.class);
 
         query.where(person.getName()).startsWith("Jef");
@@ -166,7 +166,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
     
     @Test
     public void testRestrictionsGroupFactoryAlternative2() {
-        RestrictionsGroupFactory rb = query.factories().getRestrictionsGroupFactory();
+        RestrictionsGroupFactory rb = query.getGroupedRestrictionsBuilder();
         Person person = query.from(Person.class);
         
 //        RestrictionsGroup ageCheck = rb.or(
@@ -221,8 +221,8 @@ public class ExamplesTest extends TypeSafeQueryTest {
         personSQ.where(person.getId()).eq(personSub.getId());
         personSQ.select(personSub.getName());
 
-        query.selectValue(personSQ);
-        query.selectValue(person.isMarried());
+        query.select(personSQ);
+        query.select(person.isMarried());
 
         validate("select (select hobj2.name from Person hobj2 where hobj1.id = hobj2.id), hobj1.married from Person hobj1");
     }
@@ -255,8 +255,8 @@ public class ExamplesTest extends TypeSafeQueryTest {
         Relation childRelation = query.join(parent.getChildRelations());
         Person child = query.join(childRelation.getChild());
         
-        TypeSafeQueryJoin<Person> childJoin = query.getJoin(child);
-        childJoin.with(child.getName()).eq("Bob");
+        WhereRestrictions childJoin = query.joinWith(child);
+        childJoin.where(child.getName()).eq("Bob");
 
         validate(" from Person hobj1 join hobj1.childRelations hobj2 join hobj2.child hobj3 with hobj3.name = :np1", "Bob");
     }
@@ -293,8 +293,8 @@ public class ExamplesTest extends TypeSafeQueryTest {
         favoriteColorSQ.where(person.getId()).eq(personSQ.getId()).
                           and(favColor.getPropertyKey()).eq("FavColorKey");
 
-        query.selectValue(person);
-        query.selectValue(favoriteColorSQ);
+        query.select(person);
+        query.select(favoriteColorSQ);
 
         validate("select hobj1, (select hobj2.propertyValue from PersonProperty hobj2 where hobj1.id = hobj2.person.id and hobj2.propertyKey = :np1) from Person hobj1", 
                 "FavColorKey");
@@ -394,7 +394,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
         Person personProxy = query.from(Person.class);
         
         PersonDto dto = query.select(PersonDto.class);
-        dto.setPersonAge(query.function().max(personProxy.getAge()).select());
+        dto.setPersonAge(query.hqlFunction().max(personProxy.getAge()).select());
 
         validate("select max(hobj1.age) as personAge from Person hobj1");
     }
@@ -404,7 +404,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
         Person person = query.from(Person.class);
         
         PersonDto dto = query.select(PersonDto.class);
-        dto.setThePersonsName(query.function().coalesce(person.getName()).or("Bert").select());
+        dto.setThePersonsName(query.hqlFunction().coalesce(person.getName()).or("Bert").select());
 
         validate("select coalesce (hobj1.name,:np1) as thePersonsName from Person hobj1", "Bert");
     }
@@ -412,8 +412,8 @@ public class ExamplesTest extends TypeSafeQueryTest {
     @Test
     public void testGroupBy() {
         Person person = query.from(Person.class);
-        query.selectValue(person.getName());
-        query.selectValue(person.getAge());
+        query.select(person.getName());
+        query.select(person.getAge());
         
         query.groupBy(person.getName());
         query.groupBy(person.getAge());
@@ -424,8 +424,8 @@ public class ExamplesTest extends TypeSafeQueryTest {
     @Test
     public void testOrderBy() {
         Person person = query.from(Person.class);
-        query.selectValue(person.getName());
-        query.selectValue(person.getAge());
+        query.select(person.getName());
+        query.select(person.getAge());
         
         query.orderBy().desc(person.getName()).
                          asc(person.getAge());
@@ -449,7 +449,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
     public void testUpperFunction() {
         Person person = query.from(Person.class);
         
-        query.whereString(query.function().upper(person.getName())).eq("TOM");
+        query.whereString(query.hqlFunction().upper(person.getName())).eq("TOM");
 
         validate(" from Person hobj1 where upper(hobj1.name) = :np1", "TOM");
     }
@@ -489,12 +489,12 @@ public class ExamplesTest extends TypeSafeQueryTest {
     public void testShowcaseSelectOptions() {
         Town town = query.from(Town.class);
         TownProperty dateProp = query.join(town.getProperties(), JoinType.Left);
-        query.getJoin(dateProp).with(dateProp.getPropertyKey()).eq("LastUfoSpottingDate");
+        query.joinWith(dateProp).where(dateProp.getPropertyKey()).eq("LastUfoSpottingDate");
         
         TypeSafeSubQuery<Long> cntInhabitantsSQ = query.subquery(Long.class);
         Person inhabitant = cntInhabitantsSQ.from(Person.class);
         cntInhabitantsSQ.where(inhabitant.getTown().getId()).eq(town.getId());
-        cntInhabitantsSQ.select(cntInhabitantsSQ.function().count());
+        cntInhabitantsSQ.select(cntInhabitantsSQ.hqlFunction().count());
         
         TownDetailsDto dto = query.select(TownDetailsDto.class);
         
@@ -505,7 +505,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
         dto.getNestedDto().setLattitude(town.getGeographicCoordinate().getLattitude());
         
         // select the upper case name into the dto, this upper will be found in the query
-        dto.setName(query.function().upper(town.getName()).select());
+        dto.setName(query.hqlFunction().upper(town.getName()).select());
         
         // select a value of a different type using a converter to convert the selected value, 
         // this will not be seen in the query and is only a post processor

@@ -29,62 +29,62 @@ public class ArithmeticOperationsTest extends TypeSafeQueryTest {
     
     @Before
     public void setup() {
-        arithmetics = query.factories().getArithmeticTypeSafeValueFactory();
+        arithmetics = query.getArithmeticsBuilder();
     }
     
     @Test
     public void testAddDirectValue() { 
         Person person = query.from(Person.class);
-        query.selectValue(arithmetics.value(person.getId()).add(10d));
+        query.select(arithmetics.value(person.getId()).add(10d));
         validate("select (hobj1.id + 10.0) from Person hobj1");
     }
 
     @Test
     public void testAddReferencedValue() {
         Person person = query.from(Person.class);
-        query.selectValue(arithmetics.value(person.getId()).add(person.getAge()));
+        query.select(arithmetics.value(person.getId()).add(person.getAge()));
         validate("select (hobj1.id + hobj1.age) from Person hobj1");
     }
 
     @Test
     public void testSubtractDirectValue() {
         Person person = query.from(Person.class);
-        query.selectValue(arithmetics.value(person.getId()).subtract(10d));
+        query.select(arithmetics.value(person.getId()).subtract(10d));
         validate("select (hobj1.id - 10.0) from Person hobj1");
     }
     
     @Test
     public void testSubtractReferencedValue() {
         Person person = query.from(Person.class);
-        query.selectValue(arithmetics.value(person.getId()).subtract(person.getAge()));
+        query.select(arithmetics.value(person.getId()).subtract(person.getAge()));
         validate("select (hobj1.id - hobj1.age) from Person hobj1");
     }
 
     @Test
     public void testMultiplyDirectValue() { 
         Person person = query.from(Person.class);
-        query.selectValue(arithmetics.value(person.getId()).multiply(10d));
+        query.select(arithmetics.value(person.getId()).multiply(10d));
         validate("select (hobj1.id * 10.0) from Person hobj1");
     }
     
     @Test
     public void testMultiplyReferencedValue() {
         Person person = query.from(Person.class);
-        query.selectValue(arithmetics.value(person.getId()).multiply(person.getAge()));
+        query.select(arithmetics.value(person.getId()).multiply(person.getAge()));
         validate("select (hobj1.id * hobj1.age) from Person hobj1");
     }
 
     @Test
     public void testDivideDirectValue() { 
         Person person = query.from(Person.class);
-        query.selectValue(arithmetics.value(person.getId()).divide(10d));
+        query.select(arithmetics.value(person.getId()).divide(10d));
         validate("select (hobj1.id / 10.0) from Person hobj1");
     }
     
     @Test
     public void testDivideReferencedValue() {
         Person person = query.from(Person.class);
-        query.selectValue(arithmetics.value(person.getId()).divide(person.getAge()));
+        query.select(arithmetics.value(person.getId()).divide(person.getAge()));
         validate("select (hobj1.id / hobj1.age) from Person hobj1");
     }
 
@@ -92,7 +92,7 @@ public class ArithmeticOperationsTest extends TypeSafeQueryTest {
     public void testWrappedDenominatorDivide() {
         Person person = query.from(Person.class);
 
-        query.selectValue(
+        query.select(
             arithmetics.divide(
                 arithmetics.value(person.getId()),
                 arithmetics.value(10d).subtract(person.getAge())
@@ -105,7 +105,7 @@ public class ArithmeticOperationsTest extends TypeSafeQueryTest {
     public void testaArithmeticsWithoutChaining() {
         Person person = query.from(Person.class);
 
-        query.selectValue(
+        query.select(
             arithmetics.add(
                 arithmetics.value(person.getId()),
                 arithmetics.divide(
@@ -121,10 +121,9 @@ public class ArithmeticOperationsTest extends TypeSafeQueryTest {
 
     @Test
     public void testaArithmeticsWithChaining() {
-        ArithmeticTypeSafeValueFactory arithmetics = query.factories().getArithmeticTypeSafeValueFactory();
         Person person = query.from(Person.class);
 
-        query.selectValue(
+        query.select(
             arithmetics.value(person.getId()).
             add(arithmetics.value(1D).divide(
                 arithmetics.value(10d).subtract(person.getAge()))).
@@ -136,16 +135,15 @@ public class ArithmeticOperationsTest extends TypeSafeQueryTest {
 
     @Test
     public void testaArithmeticsWithSubqueryValue() {
-        ArithmeticTypeSafeValueFactory arithmetics = query.factories().getArithmeticTypeSafeValueFactory();
         Person person = query.from(Person.class);
         
         TypeSafeSubQuery<Integer> childrenSQ = query.subquery(Integer.class);
         Person child = childrenSQ.from(Person.class);
         Relation relations = childrenSQ.join(child.getParentRelations());
         childrenSQ.where(relations.getParent().getId()).eq(person.getId());
-        childrenSQ.select(query.function().max(child.getAge()));
+        childrenSQ.select(query.hqlFunction().max(child.getAge()));
 
-        query.selectValue(
+        query.select(
             arithmetics.value(person.getId()).
             add(arithmetics.value(1D).divide(
                 arithmetics.value(childrenSQ).subtract(person.getAge()))).

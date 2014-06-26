@@ -127,6 +127,56 @@ public class OnGoingNumberRestrictionImpl
      * {@inheritDoc}
      */
     @Override
+    public ContinuedOnGoingNumberRestriction ngt(Number value) {
+        return lte(value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ContinuedOnGoingNumberRestriction ngt(TypeSafeValue<Number> value) {
+        return lte(value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ContinuedOnGoingNumberRestriction nlt(Number value) {
+        return gte(value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ContinuedOnGoingNumberRestriction nlt(TypeSafeValue<Number> value) {
+        return gte(value);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SingleNamedParameterBinder<Number, ContinuedOnGoingNumberRestriction, OnGoingNumberRestriction> ngt() {
+        DirectTypeSafeValue<Number> value = createDirectValue();
+        return createNamedParameterBinder(value, ngt(value));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SingleNamedParameterBinder<Number, ContinuedOnGoingNumberRestriction, OnGoingNumberRestriction> nlt() {
+        DirectTypeSafeValue<Number> value = createDirectValue();
+        return createNamedParameterBinder(value, nlt(value));
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public SingleNamedParameterBinder<Number, ContinuedOnGoingNumberRestriction, OnGoingNumberRestriction> gte() {
         DirectTypeSafeValue<Number> value = createDirectValue();
         return createNamedParameterBinder(value, gte(value));
