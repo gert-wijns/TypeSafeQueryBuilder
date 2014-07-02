@@ -224,6 +224,9 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
                 if( m.getReturnType().equals(TypeSafeQueryProxyData.class) ) {
                     return data;
                 }
+                if (m.getName().equals("toString")) {
+                    return String.format("Proxy of [%s]", data.toString());
+                }
                 
                 String method2Name = method2PropertyName(m);
                 TypeSafeQueryProxyData child = data.getChild(method2Name);
