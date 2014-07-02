@@ -77,7 +77,7 @@ public class CaseTypeSafeValue<T> extends TypeSafeValueImpl<T> implements OnGoin
     @Override
     public HqlQueryValue toHqlQueryValue(HqlQueryBuilderParams params) {
         HqlQueryValueImpl value = new HqlQueryValueImpl();
-        if(cases.size() > 0 ) {
+        if (!cases.isEmpty()) {
             value.appendHql("(");
         }
         boolean previous = params.setRequiresLiterals(true);
@@ -102,7 +102,7 @@ public class CaseTypeSafeValue<T> extends TypeSafeValueImpl<T> implements OnGoin
             value.addParams(then.getParams());
 
         }
-        if(cases.size() > 0 ) {
+        if (!cases.isEmpty() ) {
             value.appendHql(" end)");
         }
         params.setRequiresLiterals(previous);

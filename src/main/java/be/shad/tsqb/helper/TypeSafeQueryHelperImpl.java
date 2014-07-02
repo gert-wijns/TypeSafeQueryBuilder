@@ -22,9 +22,7 @@ import static be.shad.tsqb.proxy.TypeSafeQueryProxyType.EntityType;
 import static be.shad.tsqb.proxy.TypeSafeQueryProxyType.SelectionDtoType;
 
 import java.lang.reflect.Method;
-import java.util.Collection;
 
-import javassist.util.proxy.MethodHandler;
 import javassist.util.proxy.ProxyObject;
 
 import org.hibernate.SessionFactory;
@@ -72,7 +70,7 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
         if( CollectionType.class.isAssignableFrom(propertyType.getClass()) ) {
             CollectionType collectionType = (CollectionType) propertyType;
             Type elementType = collectionType.getElementType(
-                    ((SessionFactoryImplementor) sessionFactory));
+                    (SessionFactoryImplementor) sessionFactory);
             return elementType.getReturnedClass();
         }
         return propertyType.getReturnedClass();
@@ -127,7 +125,7 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
     /**
      * Build nested property path when values are retrieved, link to projections when values are set.
      */
-    private void setSelectionDtoMethodHandler(final TypeSafeRootQueryInternal query, 
+    void setSelectionDtoMethodHandler(final TypeSafeRootQueryInternal query, 
             final TypeSafeQuerySelectionProxyData data) {
         if (data.getProxy() == null) {
             TypeSafeQuerySelectionProxy childProxy = null;
@@ -141,42 +139,10 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
                 return;
             }
         }
-        ((ProxyObject) data.getProxy()).setHandler(new MethodHandler() {
-            public Object invoke(Object self, Method m, Method proceed, Object[] args) throws Throwable {
-                if (m.getReturnType().equals(TypeSafeQuerySelectionProxyData.class)) {
-                    return data;
-                }
-                
-                boolean setter = m.getName().startsWith("set");
-                String propertyName = method2PropertyName(m);
-                TypeSafeQuerySelectionProxyData childData = data.getChild(propertyName);
-                if (childData == null) {
-                    Class<?> propertyType = m.getReturnType();
-                    if (setter) {
-                        propertyType = m.getParameterTypes()[0];
-                    }
-                    childData = createTypeSafeSelectSubProxy(query, 
-                            data, propertyName, propertyType, 
-                            setter);
-                }
-                
-                Object childDto = null;
-                if( setter ) {
-                    query.getProjections().project(args[0], childData);
-                } else if (isBasicType(m.getReturnType())) {
-                    query.queueInvokedProjectionPath(childData.getEffectivePropertyPath());
-                    return getDummyValue(m.getReturnType());
-                } else {
-                    setSelectionDtoMethodHandler(query, childData);
-                    childDto = childData.getProxy();
-                }
-
-                return childDto;
-            }
-        });
+        ((ProxyObject) data.getProxy()).setHandler(new SelectionDtoMethodHandler(this, query, data));
     }
 
-    private boolean isBasicType(Class<?> returnType) {
+    boolean isBasicType(Class<?> returnType) {
         return sessionFactory.getTypeHelper().basic(returnType) != null;
     }
 
@@ -219,34 +185,13 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
      */
     private void setEntityProxyMethodListener(final TypeSafeQueryInternal query, 
             final TypeSafeQueryProxy proxy, final TypeSafeQueryProxyData data) {
-        ((ProxyObject) proxy).setHandler(new MethodHandler() {
-            public Object invoke(Object self, Method m, Method proceed, Object[] args) throws Throwable {
-                if( m.getReturnType().equals(TypeSafeQueryProxyData.class) ) {
-                    return data;
-                }
-                if (m.getName().equals("toString")) {
-                    return String.format("Proxy of [%s]", data.toString());
-                }
-                
-                String method2Name = method2PropertyName(m);
-                TypeSafeQueryProxyData child = data.getChild(method2Name);
-                if( child == null ) {
-                    child = createChildData(query, data, method2Name);
-                }
-                if ( !Collection.class.isAssignableFrom(m.getReturnType()) && child.getProxy() != null ) {
-                    // return the proxy without adding to the invocation queue to allow method chaining.
-                    return child.getProxy();
-                }
-                // remember the method invocation, to be used later...
-                query.invocationWasMade(child);
-                return getDummyValue(m.getReturnType());
-            }
-
-
-        });
+        ((ProxyObject) proxy).setHandler(new EntityProxyMethodHandler(this, query, data));
     }
 
-    private TypeSafeQueryProxyData createChildData(TypeSafeQueryInternal query, TypeSafeQueryProxyData parent, String property) {
+    /**
+     * Creates data based on the hibernate metadata for the given <code>property</code>.
+     */
+    TypeSafeQueryProxyData createChildData(TypeSafeQueryInternal query, TypeSafeQueryProxyData parent, String property) {
         Type propertyType = getTargetType(parent, property);
         Class<?> targetClass = getTargetEntityClass(propertyType);
         ClassMetadata metadata = sessionFactory.getClassMetadata(targetClass);
@@ -274,12 +219,11 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
             TypeSafeQueryProxyData parent, String propertyName, Class<?> targetClass) {
         return createChildData(query, parent, propertyName);
     }
-    
 
     /**
      * Simple conversion to the property path to be used in the query building phase.
      */
-    private String method2PropertyName(Method m) {
+    String method2PropertyName(Method m) {
         String name = m.getName();
         int start;
         if (name.startsWith("get") ) {
@@ -292,8 +236,9 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
             return name;
         }
         String ret = name.substring(start, ++start).toLowerCase();
-        if (name.length() > start)
+        if (name.length() > start) {
             ret += name.substring(start);
+        }
         return ret;
     }
 
@@ -312,7 +257,7 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
             if( value instanceof Number || value instanceof Boolean ) {
                 return literal;
             }
-            return literal = "'" + literal + "'";
+            return "'" + literal + "'";
         } else {
             throw new IllegalArgumentException("Failed to convert: " + value);
         }

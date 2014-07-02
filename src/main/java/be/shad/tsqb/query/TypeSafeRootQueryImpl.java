@@ -203,14 +203,15 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
      */
     @Override
     public void setHqlAlias(Object value, String customAlias) {
+        TypeSafeQueryProxy current;
         TypeSafeQueryProxyData queuedData = dequeueInvocation();
         if (value == null && queuedData != null) {
-            value = queuedData.getProxy();
-        }
-        if (!(value instanceof TypeSafeQueryProxy)) {
+            current = queuedData.getProxy();
+        } else if (!(value instanceof TypeSafeQueryProxy)) {
             throw new IllegalArgumentException(String.format("Value [%s] is not a TypeSafeQueryProxy", value));
+        } else {
+            current = (TypeSafeQueryProxy) value;
         }
-        TypeSafeQueryProxy current = (TypeSafeQueryProxy) value;
         TypeSafeQueryProxy previous = customAliasedProxies.put(customAlias, current);
         if (previous != null) {
             String previousAlias = previous.getTypeSafeProxyData().getAlias();

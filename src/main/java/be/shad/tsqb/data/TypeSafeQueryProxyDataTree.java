@@ -183,10 +183,11 @@ public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder {
         
         // if the property is not an entity, then use the parent instead,
         // the parent should be part of one of the joins in the froms.
-        while( !data.getProxyType().isEntity() ) {
-            data = data.getParent();
+        TypeSafeQueryProxyData entityData = data;
+        while( !entityData.getProxyType().isEntity() ) {
+            entityData = entityData.getParent();
         }
-        if( data.equals(join) ) {
+        if( entityData.equals(join) ) {
             return true;
         }
         if(true) {
@@ -196,7 +197,7 @@ public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder {
         }
         
         @SuppressWarnings("unused")
-        TypeSafeQueryProxyData dataRoot = data;
+        TypeSafeQueryProxyData dataRoot = entityData;
         while( dataRoot.getParent() != null ) {
             dataRoot = dataRoot.getParent();
         }
@@ -207,11 +208,11 @@ public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder {
         // check if data was joined before join.
         for(TypeSafeQueryFrom from: froms) {
             if( dataRoot.equals(from.getRoot()) ) {
-                if( from.getRoot().equals(data) ) {
+                if( from.getRoot().equals(entityData) ) {
                     return true;
                 }
                 for(TypeSafeQueryJoin<?> joined: from.getJoins()) {
-                    if( joined.getData().equals(data) ) {
+                    if( joined.getData().equals(entityData) ) {
                         return true;
                     }
                     if( joined.getData().equals(join) ) {

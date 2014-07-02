@@ -118,7 +118,7 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
             restriction.setOperator(operator);
             restriction.setRight(rightVal);
         }
-        // continue with the next one assuming And, if or() is called the instance 
+        // continue with the next one assuming And, if #or() is called the instance 
         // is simply discarded and one with Or is returned instead. 
         return createContinuedOnGoingRestriction(And, leftVal == null ? rightVal: leftVal);
     }
