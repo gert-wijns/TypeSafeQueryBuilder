@@ -44,10 +44,10 @@ public class OnGoingTextRestrictionTest extends TypeSafeQueryTest {
         Person person = query.from(Person.class);
         query.where(person.getName()).contains().named(NAMED_PARAM_1);
         
-        query.named().set(NAMED_PARAM_1, "isto");
+        query.named().setValue(NAMED_PARAM_1, "isto");
         validate(" from Person hobj1 where hobj1.name like :np1", "%isto%");
 
-        query.named().set(NAMED_PARAM_1, "ar");
+        query.named().setValue(NAMED_PARAM_1, "ar");
         validate(" from Person hobj1 where hobj1.name like :np1", "%ar%");
     }
 
@@ -63,10 +63,10 @@ public class OnGoingTextRestrictionTest extends TypeSafeQueryTest {
         Person person = query.from(Person.class);
         query.where(person.getName()).startsWith().named(NAMED_PARAM_1);
         
-        query.named().set(NAMED_PARAM_1, "Kris");
+        query.named().setValue(NAMED_PARAM_1, "Kris");
         validate(" from Person hobj1 where hobj1.name like :np1", "Kris%");
 
-        query.named().set(NAMED_PARAM_1, "John");
+        query.named().setValue(NAMED_PARAM_1, "John");
         validate(" from Person hobj1 where hobj1.name like :np1", "John%");
     }
     
@@ -82,10 +82,10 @@ public class OnGoingTextRestrictionTest extends TypeSafeQueryTest {
         Person person = query.from(Person.class);
         query.where(person.getName()).endsWith().named(NAMED_PARAM_1);
         
-        query.named().set(NAMED_PARAM_1, "e");
+        query.named().setValue(NAMED_PARAM_1, "e");
         validate(" from Person hobj1 where hobj1.name like :np1", "%e");
 
-        query.named().set(NAMED_PARAM_1, "f");
+        query.named().setValue(NAMED_PARAM_1, "f");
         validate(" from Person hobj1 where hobj1.name like :np1", "%f");
     }
 
@@ -101,12 +101,12 @@ public class OnGoingTextRestrictionTest extends TypeSafeQueryTest {
         Person person = query.from(Person.class);
         query.where(person.getName()).startsWith().named(NAMED_PARAM_1).or().startsWith().named(NAMED_PARAM_2);
 
-        query.named().set(NAMED_PARAM_1, "Jos");
-        query.named().set(NAMED_PARAM_2, "Kris");
+        query.named().setValue(NAMED_PARAM_1, "Jos");
+        query.named().setValue(NAMED_PARAM_2, "Kris");
         validate(" from Person hobj1 where hobj1.name like :np1 or hobj1.name like :np2", "Jos%", "Kris%");
 
-        query.named().set(NAMED_PARAM_1, "Manny");
-        query.named().set(NAMED_PARAM_2, "Victor");
+        query.named().setValue(NAMED_PARAM_1, "Manny");
+        query.named().setValue(NAMED_PARAM_2, "Victor");
         validate(" from Person hobj1 where hobj1.name like :np1 or hobj1.name like :np2", "Manny%", "Victor%");
     }
     

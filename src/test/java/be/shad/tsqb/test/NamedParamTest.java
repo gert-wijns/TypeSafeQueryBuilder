@@ -36,7 +36,7 @@ public class NamedParamTest extends TypeSafeQueryTest {
     public void testNamedParamValueTypeValidation() {
         Person personProxy = query.from(Person.class);
         query.where(personProxy.getId()).in().named(NAMED_PARAM_1);
-        query.named().set(NAMED_PARAM_1, "Astring");
+        query.named().setValue(NAMED_PARAM_1, "Astring");
     }
 
     /**
@@ -47,7 +47,7 @@ public class NamedParamTest extends TypeSafeQueryTest {
     public void testNamedParamValueInCollectionTypeValidation() {
         Person personProxy = query.from(Person.class);
         query.where(personProxy.getId()).in().named(NAMED_PARAM_1);
-        query.named().set(NAMED_PARAM_1, Arrays.asList(10d, "Moo"));
+        query.named().setValue(NAMED_PARAM_1, Arrays.asList(10d, "Moo"));
     }
 
     /**
@@ -57,7 +57,7 @@ public class NamedParamTest extends TypeSafeQueryTest {
     public void testNamedParamValueInCollectionTypeValidationPassesWhenCorrect() {
         Person personProxy = query.from(Person.class);
         query.where(personProxy.getId()).in().named(NAMED_PARAM_1);
-        query.named().set(NAMED_PARAM_1, Arrays.asList(10d, 20d));
+        query.named().setValue(NAMED_PARAM_1, Arrays.asList(10d, 20d));
     }
 
     /**
@@ -68,7 +68,7 @@ public class NamedParamTest extends TypeSafeQueryTest {
     public void testNamedParamCollectionNotAllowedForSingleValuesValidation() { 
         Person personProxy = query.from(Person.class);
         query.where(personProxy.getId()).eq().named(NAMED_PARAM_1);
-        query.named().set(NAMED_PARAM_1, Arrays.asList(10D));
+        query.named().setValue(NAMED_PARAM_1, Arrays.asList(10D));
     }
 
     /**
@@ -76,7 +76,7 @@ public class NamedParamTest extends TypeSafeQueryTest {
      */
     @Test(expected=IllegalArgumentException.class)
     public void testNamedValueMustExistValidation() { 
-        query.named().set(NAMED_PARAM_1, Arrays.asList(10D));
+        query.named().setValue(NAMED_PARAM_1, Arrays.asList(10D));
     }
 
     /**

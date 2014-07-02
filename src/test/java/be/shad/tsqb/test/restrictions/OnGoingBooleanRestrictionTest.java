@@ -42,10 +42,10 @@ public class OnGoingBooleanRestrictionTest extends TypeSafeQueryTest {
         Person person = query.from(Person.class);
         query.where(person.isMarried()).isNamed(NAMED_PARAM_1);
         
-        query.named().set(NAMED_PARAM_1, Boolean.TRUE);
+        query.named().setValue(NAMED_PARAM_1, Boolean.TRUE);
         validate(" from Person hobj1 where hobj1.married = :np1", Boolean.TRUE);
 
-        query.named().set(NAMED_PARAM_1, Boolean.FALSE);
+        query.named().setValue(NAMED_PARAM_1, Boolean.FALSE);
         validate(" from Person hobj1 where hobj1.married = :np1", Boolean.FALSE);
     }
     

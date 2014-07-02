@@ -1,6 +1,5 @@
 package be.shad.tsqb.query;
 
-import be.shad.tsqb.values.NamedValueEnabled;
 
 public interface TypeSafeNameds {
     
@@ -28,19 +27,15 @@ public interface TypeSafeNameds {
     <T> T get(Class<T> clazz, String name) throws IllegalArgumentException;
     
     /**
-     * Sets the value of a NamedValueEnabled.
+     * Sets the value of a named param.
+     * <p>
      * The value will be checked with the value type required
      * by the named param, unless it is null.
      * <p>
      * Name can be set by using where(entity.getName()).eq().named("paramAlias")
-     * or by naming using this instance.
+     * or by using {@link #name(Object, String)}
      * 
      * @param name must be one which was set before calling this method
      */
-    void set(String name, Object value);
-    
-    /**
-     * @throws IllegalArgumentException if named object doesn't exist or is of the wrong type.
-     */
-    NamedValueEnabled value(String name) throws IllegalArgumentException;
+    void setValue(String name, Object value);
 }

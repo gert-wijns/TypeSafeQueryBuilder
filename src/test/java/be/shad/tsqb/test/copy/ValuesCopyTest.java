@@ -108,7 +108,7 @@ public class ValuesCopyTest extends TypeSafeQueryCopyTest {
                 " from Person hobj1 where hobj1.name in :np1", originalNames);
         
         List<String> copyNames = asList("A", "B", "C");
-        copy.named().set("namesParam", copyNames);
+        copy.named().setValue("namesParam", copyNames);
         validateChangedCopy(" from Person hobj1 where hobj1.name in :np1", copyNames);
     }
 
@@ -149,7 +149,7 @@ public class ValuesCopyTest extends TypeSafeQueryCopyTest {
 
         validateAndCopy(PERSON_OBJ, " from Person hobj1 where hobj1.id = :np1", 50L);
         
-        copy.named().set("idParam", 60L);
+        copy.named().setValue("idParam", 60L);
         validateChangedCopy(" from Person hobj1 where hobj1.id = :np1", 60L);
     }
 

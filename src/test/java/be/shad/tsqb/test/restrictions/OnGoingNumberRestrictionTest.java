@@ -36,7 +36,7 @@ public class OnGoingNumberRestrictionTest extends TypeSafeQueryTest {
         Person person = query.from(Person.class);
         query.where(person.getAge()).lt().named(NAMED_PARAM_1);
         
-        query.named().set(NAMED_PARAM_1, 40);
+        query.named().setValue(NAMED_PARAM_1, 40);
         validate(" from Person hobj1 where hobj1.age < :np1", 40);
     }
 
@@ -64,7 +64,7 @@ public class OnGoingNumberRestrictionTest extends TypeSafeQueryTest {
         
         query.where(person.getAge()).gt().named(NAMED_PARAM_1);
 
-        query.named().set(NAMED_PARAM_1, 40);
+        query.named().setValue(NAMED_PARAM_1, 40);
         validate(" from Person hobj1 where hobj1.age > :np1", 40);
     }
 
@@ -87,7 +87,7 @@ public class OnGoingNumberRestrictionTest extends TypeSafeQueryTest {
         Person person = query.from(Person.class);
         query.where(person.getAge()).lte().named(NAMED_PARAM_1);
 
-        query.named().set(NAMED_PARAM_1, 40);
+        query.named().setValue(NAMED_PARAM_1, 40);
         validate(" from Person hobj1 where hobj1.age <= :np1", 40);
     }
     
@@ -103,7 +103,7 @@ public class OnGoingNumberRestrictionTest extends TypeSafeQueryTest {
         Person person = query.from(Person.class);
         query.where(person.getAge()).ngt().named(NAMED_PARAM_1);
 
-        query.named().set(NAMED_PARAM_1, 40);
+        query.named().setValue(NAMED_PARAM_1, 40);
         validate(" from Person hobj1 where hobj1.age <= :np1", 40);
     }
 
@@ -126,7 +126,7 @@ public class OnGoingNumberRestrictionTest extends TypeSafeQueryTest {
         Person person = query.from(Person.class);
         query.where(person.getAge()).gte().named(NAMED_PARAM_1);
 
-        query.named().set(NAMED_PARAM_1, 40);
+        query.named().setValue(NAMED_PARAM_1, 40);
         validate(" from Person hobj1 where hobj1.age >= :np1", 40);
     }
     
@@ -142,7 +142,7 @@ public class OnGoingNumberRestrictionTest extends TypeSafeQueryTest {
         Person person = query.from(Person.class);
         query.where(person.getAge()).nlt().named(NAMED_PARAM_1);
 
-        query.named().set(NAMED_PARAM_1, 40);
+        query.named().setValue(NAMED_PARAM_1, 40);
         validate(" from Person hobj1 where hobj1.age >= :np1", 40);
     }
     

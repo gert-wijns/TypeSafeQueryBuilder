@@ -59,16 +59,8 @@ public class TypeSafeNamedsImpl implements TypeSafeNameds, Copyable {
      * {@inheritDoc}
      */
     @Override
-    public void set(String name, Object value) {
-        value(name).setNamedValue(value);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public NamedValueEnabled value(String name) throws IllegalArgumentException {
-        return named(NamedValueEnabled.class, name);
+    public void setValue(String name, Object value) {
+        named(NamedValueEnabled.class, name).setNamedValue(value);
     }
     
     /**
@@ -76,7 +68,7 @@ public class TypeSafeNamedsImpl implements TypeSafeNameds, Copyable {
      */
     private <T> T named(Class<T> clazz, String name) {
         Object object = nameds.get(name);
-        if (object == null) {
+        if(object == null) {
             throw new IllegalArgumentException(String.format(
                     "No named object found for [%s].", name));
         }
@@ -92,5 +84,4 @@ public class TypeSafeNamedsImpl implements TypeSafeNameds, Copyable {
     public Copyable copy(CopyContext context) {
         return new TypeSafeNamedsImpl(context, this);
     }
-
 }
