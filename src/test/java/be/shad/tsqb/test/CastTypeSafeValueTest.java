@@ -29,7 +29,7 @@ public class CastTypeSafeValueTest extends TypeSafeQueryTest {
     public void testCastInSelect() {
         Person person = query.from(Person.class);
         
-        query.selectValue(query.function().cast(person.getAge(), String.class));
+        query.select(query.hqlFunction().cast(person.getAge(), String.class));
         
         validate("select cast(hobj1.age as string) from Person hobj1");
     }
@@ -41,7 +41,7 @@ public class CastTypeSafeValueTest extends TypeSafeQueryTest {
     public void testCastInWhere() {
         Person person = query.from(Person.class);
         
-        query.whereString(query.function().cast(person.getAge(), String.class)).startsWith("10");
+        query.whereString(query.hqlFunction().cast(person.getAge(), String.class)).startsWith("10");
         
         validate(" from Person hobj1 where cast(hobj1.age as string) like '10%'");
     }
@@ -53,7 +53,7 @@ public class CastTypeSafeValueTest extends TypeSafeQueryTest {
     public void testCastNumberSubclassCompiles() {
         Product product = query.from(Product.class);
         
-        query.whereNumber(query.function().cast(product.getManyProperties().getProperty1(), Long.class)).lt(10.0d);
+        query.whereNumber(query.hqlFunction().cast(product.getManyProperties().getProperty1(), Long.class)).lt(10.0d);
         
         validate(" from Product hobj1 where cast(hobj1.manyProperties.property1 as long) < 10.0");
     }

@@ -24,7 +24,7 @@ import org.junit.Test;
 import be.shad.tsqb.domain.Town;
 import be.shad.tsqb.domain.people.Person;
 import be.shad.tsqb.dto.PersonDto;
-import be.shad.tsqb.selection.parallel.ParallelSelectionMerger1;
+import be.shad.tsqb.selection.parallel.SelectionMerger1;
 import be.shad.tsqb.selection.parallel.SelectValue;
 
 public class ParallelSelectionMergerTest extends TypeSafeQueryTest {
@@ -43,8 +43,8 @@ public class ParallelSelectionMergerTest extends TypeSafeQueryTest {
         personDtoProxy.setPersonAge(personProxy.getAge());
 
         final MutableInt counter = new MutableInt();
-        SelectValue<String> subselectProxy = query.selectParallel(personDtoProxy, 
-                new ParallelSelectionMerger1<PersonDto, String>() {
+        SelectValue<String> subselectProxy = query.selectMergeValues(personDtoProxy, 
+                new SelectionMerger1<PersonDto, String>() {
             @Override
             public void mergeValueIntoResult(PersonDto partialResult, String personName) {
                 if (partialResult.getId() == null) {
@@ -77,8 +77,8 @@ public class ParallelSelectionMergerTest extends TypeSafeQueryTest {
         personDtoProxy.setPersonAge(personProxy.getAge());
 
         final MutableInt counter = new MutableInt();
-        SelectValue<String> subselectProxy = query.selectParallel(personDtoProxy, 
-                new ParallelSelectionMerger1<PersonDto, String>() {
+        SelectValue<String> subselectProxy = query.selectMergeValues(personDtoProxy, 
+                new SelectionMerger1<PersonDto, String>() {
             @Override
             public void mergeValueIntoResult(PersonDto partialResult, String personName) {
                 if (partialResult.getId() == null) {
@@ -90,8 +90,8 @@ public class ParallelSelectionMergerTest extends TypeSafeQueryTest {
         subselectProxy.setValue(personProxy.getName());
 
         final MutableInt counter2 = new MutableInt();
-        SelectValue<Integer> subselectProxy2 = query.selectParallel(personDtoProxy, 
-                new ParallelSelectionMerger1<PersonDto, Integer>() {
+        SelectValue<Integer> subselectProxy2 = query.selectMergeValues(personDtoProxy, 
+                new SelectionMerger1<PersonDto, Integer>() {
             @Override
             public void mergeValueIntoResult(PersonDto partialResult, Integer personAge) {
                 if (partialResult.getId() == null) {

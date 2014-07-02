@@ -32,12 +32,24 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable {
         return new RestrictionImpl<>(getRestrictionsGroup(), null, EXISTS, subquery);
     }
     
+    private Restriction notExists(TypeSafeSubQuery<?> subquery) {
+        return new RestrictionImpl<>(getRestrictionsGroup(), null, RestrictionOperator.NOT_EXISTS, subquery);
+    }
+    
     /**
      * {@inheritDoc}
      */
     @Override
     public RestrictionChainable andExists(TypeSafeSubQuery<?> subquery) {
         return getRestrictionsGroup().and(exists(subquery));
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public RestrictionChainable andNotExists(TypeSafeSubQuery<?> subquery) {
+        return getRestrictionsGroup().and(notExists(subquery));
     }
 
     /**
@@ -46,6 +58,14 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable {
     @Override
     public RestrictionChainable orExists(TypeSafeSubQuery<?> subquery) {
         return getRestrictionsGroup().or(exists(subquery));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public RestrictionChainable orNotExists(TypeSafeSubQuery<?> subquery) {
+        return getRestrictionsGroup().or(notExists(subquery));
     }
 
     /**

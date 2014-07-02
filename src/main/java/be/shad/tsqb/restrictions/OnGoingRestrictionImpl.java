@@ -118,7 +118,7 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
             restriction.setOperator(operator);
             restriction.setRight(rightVal);
         }
-        // continue with the next one assuming And, if or() is called the instance 
+        // continue with the next one assuming And, if #or() is called the instance 
         // is simply discarded and one with Or is returned instead. 
         return createContinuedOnGoingRestriction(And, leftVal == null ? rightVal: leftVal);
     }
@@ -187,7 +187,7 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
      * {@inheritDoc}
      */
     @Override
-    public CONTINUED not(TypeSafeValue<VAL> value) {
+    public CONTINUED notEq(TypeSafeValue<VAL> value) {
         return addRestrictionAndContinue(startValue, NOT_EQUAL, value);
     }
 
@@ -196,7 +196,7 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
      */
     @Override
     public CONTINUED not(VAL value) {
-        return not(toValue(value));
+        return notEq(toValue(value));
     }
 
     /**
@@ -212,9 +212,9 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
      * {@inheritDoc}
      */
     @Override
-    public SingleNamedParameterBinder<VAL, CONTINUED, ORIGINAL> not() {
+    public SingleNamedParameterBinder<VAL, CONTINUED, ORIGINAL> notEq() {
         DirectTypeSafeValue<VAL> value = createDirectValue();
-        return createNamedParameterBinder(value, not(value));
+        return createNamedParameterBinder(value, notEq(value));
     }
 
     /**

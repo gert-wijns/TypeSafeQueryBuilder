@@ -18,7 +18,7 @@ package be.shad.tsqb.selection.parallel;
 /**
  * 
  */
-public interface ParallelSelectionMerger<RES, PAR> {
+public interface SelectionMerger<RES, PAR> {
     
     /**
      * The result has all values which were either selected into it directly,

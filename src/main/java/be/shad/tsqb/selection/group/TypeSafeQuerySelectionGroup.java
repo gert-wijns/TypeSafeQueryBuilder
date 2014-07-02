@@ -15,7 +15,7 @@
  */
 package be.shad.tsqb.selection.group;
 
-import be.shad.tsqb.selection.parallel.ParallelSelectionMerger;
+import be.shad.tsqb.selection.parallel.SelectionMerger;
 
 
 
@@ -43,6 +43,6 @@ public interface TypeSafeQuerySelectionGroup {
      * @return when this group is not the result group, a merger should 
      *         merge the result value of this group into the resultDto.
      */
-    ParallelSelectionMerger<?, ?> getParallelSelectionMerger();
+    SelectionMerger<?, ?> getParallelSelectionMerger();
     
 }

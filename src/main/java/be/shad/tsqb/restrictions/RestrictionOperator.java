@@ -28,6 +28,7 @@ public enum RestrictionOperator {
     IS_NULL("is null"),
     IS_NOT_NULL("is not null"),
     EXISTS("exists"),
+    NOT_EXISTS("not exists"),
     LESS_THAN_EQUAL("<="),
     LESS_THAN("<"),
     GREATER_THAN(">"),

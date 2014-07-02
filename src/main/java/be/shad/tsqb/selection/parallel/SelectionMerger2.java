@@ -16,19 +16,19 @@
 package be.shad.tsqb.selection.parallel;
 
 
-public abstract class ParallelSelectionMerger1<RESULT, A> implements ParallelSelectionMerger<RESULT, SelectValue<A>> {
+public abstract class SelectionMerger2<RESULT, A, B> implements SelectionMerger<RESULT, SelectPair<A, B>> {
 
     /**
-     * Delegates to {@link #mergeValueIntoResult(Object, Object)} with the single selected value.
+     * Delegates to {@link #mergeValuesIntoResult(Object, Object, Object)} with the pair of selected values.
      */
     @Override
-    public final void mergeIntoResult(RESULT partialResult, SelectValue<A> parallelDto) {
-        mergeValueIntoResult(partialResult, parallelDto.getValue());
+    public final void mergeIntoResult(RESULT partialResult, SelectPair<A, B> parallelDto) {
+        mergeValuesIntoResult(partialResult, parallelDto.getFirst(), parallelDto.getSecond());
     }
 
     /**
-     * Merge a single selected value into the result dto manually.
+     * Merge two parallel selected values into the result dto manually.
      */
-    public abstract void mergeValueIntoResult(RESULT partialResult, A value);
-
+    public abstract void mergeValuesIntoResult(RESULT partialResult, A left, B right);
+    
 }

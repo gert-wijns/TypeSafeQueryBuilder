@@ -33,88 +33,98 @@ public class RestrictionsGroupFactoryImpl implements RestrictionsGroupFactory {
     }
 
     @Override
+    public RestrictionsGroup createRestrictionsGroup() {
+        return new RestrictionsGroupImpl(query, null);
+    }
+
+    @Override
     public RestrictionsGroup or(RestrictionHolder restriction, RestrictionHolder... restrictions) {
-        return query.whereGroup().or(restriction, restrictions);
+        return createRestrictionsGroup().or(restriction, restrictions);
     }
 
     @Override
     public RestrictionsGroup and(RestrictionHolder restriction, RestrictionHolder... restrictions) {
-        return query.whereGroup().and(restriction, restrictions);
+        return createRestrictionsGroup().and(restriction, restrictions);
     }
     
     @Override
     public RestrictionChainable where() {
-        return query.whereGroup().where();
+        return createRestrictionsGroup().where();
     }
 
     @Override
     public RestrictionChainable where(HqlQueryValue restriction) {
-        return query.whereGroup().where(restriction);
+        return createRestrictionsGroup().where(restriction);
     }
 
     @Override
     public RestrictionChainable where(RestrictionsGroup group) {
-        return query.whereGroup().where(group);
+        return createRestrictionsGroup().where(group);
     }
 
     @Override
     public RestrictionChainable where(Restriction restriction) {
-        return query.whereGroup().where(restriction);
+        return createRestrictionsGroup().where(restriction);
     }
 
     @Override
     public <E extends Enum<E>> OnGoingEnumRestriction<E> whereEnum(TypeSafeValue<E> value) {
-        return query.whereGroup().whereEnum(value);
+        return createRestrictionsGroup().whereEnum(value);
     }
 
     @Override
     public <E extends Enum<E>> OnGoingEnumRestriction<E> where(E value) {
-        return query.whereGroup().where(value);
+        return createRestrictionsGroup().where(value);
     }
 
     @Override
     public OnGoingBooleanRestriction whereBoolean(TypeSafeValue<Boolean> value) {
-        return query.whereGroup().whereBoolean(value);
+        return createRestrictionsGroup().whereBoolean(value);
     }
 
     @Override
     public OnGoingBooleanRestriction where(Boolean value) {
-        return query.whereGroup().where(value);
+        return createRestrictionsGroup().where(value);
     }
 
     @Override
     public <N extends Number> OnGoingNumberRestriction whereNumber(TypeSafeValue<N> value) {
-        return query.whereGroup().whereNumber(value);
+        return createRestrictionsGroup().whereNumber(value);
     }
 
     @Override
     public OnGoingNumberRestriction where(Number value) {
-        return query.whereGroup().where(value);
+        return createRestrictionsGroup().where(value);
     }
 
     @Override
     public OnGoingDateRestriction whereDate(TypeSafeValue<Date> value) {
-        return query.whereGroup().whereDate(value);
+        return createRestrictionsGroup().whereDate(value);
     }
 
     @Override
     public OnGoingDateRestriction where(Date value) {
-        return query.whereGroup().where(value);
+        return createRestrictionsGroup().where(value);
     }
 
     @Override
     public OnGoingTextRestriction whereString(TypeSafeValue<String> value) {
-        return query.whereGroup().whereString(value);
+        return createRestrictionsGroup().whereString(value);
     }
 
     @Override
     public OnGoingTextRestriction where(String value) {
-        return query.whereGroup().where(value);
+        return createRestrictionsGroup().where(value);
     }
 
     @Override
     public RestrictionChainable whereExists(TypeSafeSubQuery<?> subquery) {
-        return query.whereGroup().whereExists(subquery);
+        return createRestrictionsGroup().whereExists(subquery);
+    }
+
+    @Override
+    public RestrictionChainable whereNotExists(TypeSafeSubQuery<?> subquery) {
+        return createRestrictionsGroup().whereNotExists(subquery);
     }
 
 }

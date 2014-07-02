@@ -30,17 +30,17 @@ public class GroupByCopyTest extends TypeSafeQueryCopyTest {
     public void testCopyGroupBy() {
         Person personProxy = query.from(Person.class);
         query.named().name(personProxy, PERSON_OBJ);
-        query.selectValue(query.groupBy(personProxy.getName()));
+        query.select(query.groupBy(personProxy.getName()));
         
         Person personProxyCopy = validateAndCopy(PERSON_OBJ,
                 "select hobj1.name from Person hobj1 group by hobj1.name");
         
-        copy.selectValue(copy.groupBy(personProxyCopy.getAge()));
+        copy.select(copy.groupBy(personProxyCopy.getAge()));
         validateChangedCopy("select hobj1.name, hobj1.age "
                 + "from Person hobj1 "
                 + "group by hobj1.name, hobj1.age");
 
-        query.selectValue(query.groupBy(personProxy.getId()));
+        query.select(query.groupBy(personProxy.getId()));
         validateChangedOriginal(
                 "select hobj1.name, hobj1.id "
                 + "from Person hobj1 "

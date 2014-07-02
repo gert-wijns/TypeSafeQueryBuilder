@@ -36,12 +36,12 @@ public class ValuesCopyTest extends TypeSafeQueryCopyTest {
 
     @Test
     public void testArithmeticTypeSafeValueCopy() {
-        ArithmeticTypeSafeValueFactory ar = query.factories().getArithmeticTypeSafeValueFactory();
+        ArithmeticTypeSafeValueFactory ar = query.getArithmeticsBuilder();
         
         Person personProxy = query.from(Person.class);
         query.named().name(personProxy, PERSON_OBJ);
         query.named().name(ar.value(personProxy.getId()).add(10), "arithmeticValue");
-        query.selectValue(query.named().get("arithmeticValue"));
+        query.select(query.named().get("arithmeticValue"));
         
         Person personProxyCopy = validateAndCopy(PERSON_OBJ, 
                 "select (hobj1.id + 10) from Person hobj1");
@@ -55,10 +55,10 @@ public class ValuesCopyTest extends TypeSafeQueryCopyTest {
     public void testCaseTypeSafeValueCopy() {
         Person personProxy = query.from(Person.class);
         query.named().name(personProxy, PERSON_OBJ);
-        CaseTypeSafeValue<Long> caseWhen = query.function().caseWhen(Long.class);
+        CaseTypeSafeValue<Long> caseWhen = query.hqlFunction().caseWhen(Long.class);
         caseWhen.is(10L).when(personProxy.getName()).startsWith().named("nameParam", "An");
         caseWhen.is(personProxy.getId()).otherwise();
-        query.selectValue(caseWhen);
+        query.select(caseWhen);
         
         validateAndCopy(PERSON_OBJ, 
                 "select (case when (hobj1.name like 'An%') then 10 else hobj1.id end) from Person hobj1");
@@ -73,7 +73,7 @@ public class ValuesCopyTest extends TypeSafeQueryCopyTest {
         Person personProxy = query.from(Person.class);
         query.named().name(personProxy, PERSON_OBJ);
         
-        query.selectValue(query.function().cast(personProxy.getId(), Integer.class));
+        query.select(query.hqlFunction().cast(personProxy.getId(), Integer.class));
 
         validateAndCopy(PERSON_OBJ, 
                 "select cast(hobj1.id as integer) from Person hobj1");
@@ -84,9 +84,9 @@ public class ValuesCopyTest extends TypeSafeQueryCopyTest {
         Person personProxy = query.from(Person.class);
         query.named().name(personProxy, PERSON_OBJ);
         
-        CoalesceTypeSafeValue<Number> originalCoalesce = query.function().coalesce(
+        CoalesceTypeSafeValue<Number> originalCoalesce = query.hqlFunction().coalesce(
                 (Number) personProxy.getId()).or(personProxy.getAge());
-        query.selectValue(query.named().name(originalCoalesce, "coalesceValue"));
+        query.select(query.named().name(originalCoalesce, "coalesceValue"));
 
         validateAndCopy(PERSON_OBJ, 
                 "select coalesce (hobj1.id,hobj1.age) from Person hobj1");
@@ -108,7 +108,7 @@ public class ValuesCopyTest extends TypeSafeQueryCopyTest {
                 " from Person hobj1 where hobj1.name in :np1", originalNames);
         
         List<String> copyNames = asList("A", "B", "C");
-        copy.namedValue("namesParam", copyNames);
+        copy.named().setValue("namesParam", copyNames);
         validateChangedCopy(" from Person hobj1 where hobj1.name in :np1", copyNames);
     }
 
@@ -117,12 +117,12 @@ public class ValuesCopyTest extends TypeSafeQueryCopyTest {
         Person personProxy = query.from(Person.class);
         query.named().name(personProxy, PERSON_OBJ);
         
-        query.selectValue(query.function().count());
+        query.select(query.hqlFunction().count());
         
         Person personProxyCopy = validateAndCopy(PERSON_OBJ, 
                 "select count(*) from Person hobj1");
         
-        copy.selectValue(copy.function().max(personProxyCopy.getId()));
+        copy.select(copy.hqlFunction().max(personProxyCopy.getId()));
         validateChangedCopy("select count(*), max(hobj1.id) from Person hobj1");
     }
 
@@ -131,9 +131,9 @@ public class ValuesCopyTest extends TypeSafeQueryCopyTest {
         Person personProxy = query.from(Person.class);
         query.named().name(personProxy, PERSON_OBJ);
        
-        CustomTypeSafeValue<Long> originalValue = query.named().name(query.values().
-                custom(Long.class, "(hobj1.id)"), "testValue");
-        query.selectValue(originalValue);
+        CustomTypeSafeValue<Long> originalValue = query.named().name(query.
+                customValue(Long.class, "(hobj1.id)"), "testValue");
+        query.select(originalValue);
         
         validateAndCopy(PERSON_OBJ, "select (hobj1.id) from Person hobj1");
         CustomTypeSafeValue<Long> copiedValue = copy.named().get("testValue");
@@ -149,7 +149,7 @@ public class ValuesCopyTest extends TypeSafeQueryCopyTest {
 
         validateAndCopy(PERSON_OBJ, " from Person hobj1 where hobj1.id = :np1", 50L);
         
-        copy.namedValue("idParam", 60L);
+        copy.named().setValue("idParam", 60L);
         validateChangedCopy(" from Person hobj1 where hobj1.id = :np1", 60L);
     }
 
@@ -172,7 +172,7 @@ public class ValuesCopyTest extends TypeSafeQueryCopyTest {
         Person personProxy = query.from(Person.class);
         query.named().name(personProxy, PERSON_OBJ);
         
-        query.selectValue(query.function().distinct(personProxy.getName()));
+        query.select(query.hqlFunction().distinct(personProxy.getName()));
         
         validateAndCopy(PERSON_OBJ, "select distinct hobj1.name from Person hobj1");
     }

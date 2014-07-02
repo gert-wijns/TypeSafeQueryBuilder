@@ -55,11 +55,11 @@ public class LoadTest extends TypeSafeQueryTest {
             Person personCnt = subquery.from(Person.class);
             subquery.where(personCnt.getAge()).gte(50).
                        and(personCnt.getName()).in(names);
-            subquery.select(query.function().count().select());
+            subquery.select(query.hqlFunction().count().select());
             
             LoadTestDto dto = query.select(LoadTestDto.class);
             dto.setTownName(town.getName());
-            dto.setMaxAge(query.function().max(childRelation.getChild().getAge()).select());
+            dto.setMaxAge(query.hqlFunction().max(childRelation.getChild().getAge()).select());
             dto.setFiftyPlusCount(subquery.select());
             
             last = query.toHqlQuery();

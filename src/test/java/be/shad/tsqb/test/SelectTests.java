@@ -104,7 +104,7 @@ public class SelectTests extends TypeSafeQueryTest {
         Town town = query.from(Town.class);
         Building building = query.join(town.getBuildings());
         
-        query.selectValue(building);
+        query.select(building);
         validate("select hobj2 from Town hobj1 join hobj1.buildings hobj2");
     }
 
@@ -132,7 +132,7 @@ public class SelectTests extends TypeSafeQueryTest {
         Town town = query.from(Town.class);
         Building building = query.join(town.getBuildings());
         
-        query.selectValue(building.getId());
+        query.select(building.getId());
 
         validate("select hobj2.id from Town hobj1 join hobj1.buildings hobj2");
     }
@@ -147,7 +147,7 @@ public class SelectTests extends TypeSafeQueryTest {
         
         nameSubQuery.select(houseSub.getName());
 
-        query.selectValue(nameSubQuery);
+        query.select(nameSubQuery);
         validate("select (select hobj2.name from House hobj2 where hobj1.id = hobj2.id) from House hobj1");
     }
 
@@ -196,7 +196,7 @@ public class SelectTests extends TypeSafeQueryTest {
         House house = query.from(House.class);
 
         House houseResult = query.select(House.class);
-        houseResult.setFloors(query.function().distinct(house.getFloors()).select());
+        houseResult.setFloors(query.hqlFunction().distinct(house.getFloors()).select());
 
         validate("select distinct hobj1.floors as floors from House hobj1");
     }
@@ -210,7 +210,7 @@ public class SelectTests extends TypeSafeQueryTest {
 
         @SuppressWarnings("unchecked")
         MutableObject<Long> dto = query.select(MutableObject.class);
-        dto.setValue(query.function().countDistinct(house.getFloors()).select());
+        dto.setValue(query.hqlFunction().countDistinct(house.getFloors()).select());
 
         validate("select count(distinct hobj1.floors) as value from House hobj1");
     }
@@ -225,11 +225,11 @@ public class SelectTests extends TypeSafeQueryTest {
         TypeSafeSubQuery<Long> subquery = query.subquery(Long.class);
         House subhouse = subquery.from(House.class);
         subquery.where(subhouse.getId()).lt(house.getId());
-        subquery.select(subquery.function().count());
+        subquery.select(subquery.hqlFunction().count());
 
         @SuppressWarnings("unchecked")
         MutableObject<Long> dto = query.select(MutableObject.class);
-        dto.setValue(query.function().distinct(subquery).select());
+        dto.setValue(query.hqlFunction().distinct(subquery).select());
 
         validate("select distinct (select count(*) from House hobj2 where hobj2.id < hobj1.id) as value from House hobj1");
     }
@@ -245,7 +245,7 @@ public class SelectTests extends TypeSafeQueryTest {
         @SuppressWarnings("unchecked")
         MutablePair<Long, Integer> dto = query.select(MutablePair.class);
         dto.setLeft(house.getId());
-        dto.setRight(query.function().distinct(house.getFloors()).select());
+        dto.setRight(query.hqlFunction().distinct(house.getFloors()).select());
 
         validate("select distinct hobj1.floors as right, hobj1.id as left from House hobj1");
     }
@@ -266,7 +266,7 @@ public class SelectTests extends TypeSafeQueryTest {
     @Test
     public void selectDistinctWithoutDto() {
         House house = query.from(House.class);
-        query.selectValue(query.distinct(house.getFloors()));
+        query.select(query.distinct(house.getFloors()));
         
         validate("select distinct hobj1.floors from House hobj1");
     }
@@ -280,7 +280,7 @@ public class SelectTests extends TypeSafeQueryTest {
         House house = query.from(House.class);
 
         FunctionsDto dto = query.select(FunctionsDto.class);
-        dto.setTestCount(query.function().count().select());
+        dto.setTestCount(query.hqlFunction().count().select());
 
         validate("select count(*) as testCount from House hobj1");
     }
@@ -319,8 +319,8 @@ public class SelectTests extends TypeSafeQueryTest {
         PersonProperty property1 = query.join(person.getProperties());
         PersonProperty property2 = query.join(person.getProperties(), JoinType.Inner, true);
 
-        query.getJoin(property1).with(property1.getPropertyKey()).eq("FavoriteColor");
-        query.getJoin(property2).with(property2.getPropertyKey()).eq("FavoriteDish");
+        query.joinWith(property1).where(property1.getPropertyKey()).eq("FavoriteColor");
+        query.joinWith(property2).where(property2.getPropertyKey()).eq("FavoriteDish");
         
         @SuppressWarnings("unchecked")
         MutableTriple<Long, String, Object> triple = query.select(MutableTriple.class);

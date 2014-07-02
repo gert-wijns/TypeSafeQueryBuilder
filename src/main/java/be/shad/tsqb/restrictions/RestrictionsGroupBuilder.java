@@ -13,27 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.shad.tsqb.values;
+package be.shad.tsqb.restrictions;
 
-import be.shad.tsqb.query.TypeSafeQueryInternal;
+public interface RestrictionsGroupBuilder extends WhereRestrictions {
 
-/**
- * Delegates toValue to the internal query.
- * <p>
- * Implementation is only here so if more factory 
- * methods are added they can be added here.
- *
- */
-public class TypeSafeValueFactoryImpl implements TypeSafeValueFactory {
-    private final TypeSafeQueryInternal query;
+    /**
+     * @return creates a restriction group in which all restrictions are or'ed.
+     */
+    RestrictionsGroup or(RestrictionHolder restriction, RestrictionHolder... restrictions);
 
-    public TypeSafeValueFactoryImpl(TypeSafeQueryInternal query) {
-        this.query = query;
-    }
-
-    @Override
-    public <VAL> TypeSafeValue<VAL> toValue(VAL value) throws IllegalStateException {
-        return query.toValue(value);
-    }
+    /**
+     * @return creates a restriction group in which all restrictions are and'ed.
+     */
+    RestrictionsGroup and(RestrictionHolder restriction, RestrictionHolder... restrictions);
 
 }

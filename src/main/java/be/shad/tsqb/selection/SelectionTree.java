@@ -78,15 +78,20 @@ public class SelectionTree {
         return value;
     }
     
+    /**
+     * Search for the field on the class or one of its super classes.
+     */
     public static Field getField(Class<?> clazz, String name) {
         Class<?> current = clazz;
-        do {
-            try {
-                return current.getDeclaredField(name);
-            } catch ( NoSuchFieldException ex ) {
-                current = current.getSuperclass();
+        while (current != null) {
+            for(Field field: current.getDeclaredFields()) {
+                if (field.getName().equals(name)) {
+                    return field;
+                }
             }
-        } while( current != null );
-        throw new RuntimeException(String.format("Couldn't find field [%s] on class [%s]", name, clazz.getName()));
+            current = current.getSuperclass();
+        }
+        
+        throw new IllegalArgumentException(String.format("Couldn't find field [%s] on class [%s]", name, clazz.getName()));
     }
 }

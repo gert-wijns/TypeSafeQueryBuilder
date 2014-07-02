@@ -29,9 +29,19 @@ public interface RestrictionChainable extends RestrictionHolder {
     RestrictionChainable andExists(TypeSafeSubQuery<?> subquery);
 
     /**
+     * Adds the 'and not exists(subquery)' to the chain.
+     */
+    RestrictionChainable andNotExists(TypeSafeSubQuery<?> subquery);
+
+    /**
      * Adds the 'or exists(subquery)' to the chain.
      */
     RestrictionChainable orExists(TypeSafeSubQuery<?> subquery);
+    
+    /**
+     * Adds the 'or not exists(subquery)' to the chain.
+     */
+    RestrictionChainable orNotExists(TypeSafeSubQuery<?> subquery);
     
     /**
      * 

@@ -98,7 +98,7 @@ public class OrderingTest extends TypeSafeQueryTest {
         Building building = query.from(Building.class);
         TypeSafeSubQuery<Long> maxId = query.subquery(Long.class);
         Building buildingMaxId = maxId.from(Building.class);
-        maxId.select(maxId.function().max(buildingMaxId.getId()));
+        maxId.select(maxId.hqlFunction().max(buildingMaxId.getId()));
         
         MutablePair<Long, Date> select = query.select(MutablePair.class);
         select.setLeft(maxId.select());

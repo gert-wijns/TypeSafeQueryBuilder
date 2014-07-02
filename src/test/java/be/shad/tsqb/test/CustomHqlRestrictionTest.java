@@ -30,7 +30,7 @@ public class CustomHqlRestrictionTest extends TypeSafeQueryTest {
     @Test
     public void testInjectCustomHqlRestriction() {
         Person person = query.from(Person.class);
-        query.registerCustomAliasForProxy(person, PARENT_CUSTOM_ALIAS);
+        query.setHqlAlias(person, PARENT_CUSTOM_ALIAS);
         query.where().and(new HqlQueryValueImpl("parentAlias.id = :parentAliasId", new NamedParameter("parentAliasId", 1L)));
         validate(" from Person parentAlias where parentAlias.id = :parentAliasId", 1L);
     }
@@ -41,7 +41,7 @@ public class CustomHqlRestrictionTest extends TypeSafeQueryTest {
     @Test
     public void testInjectMultipleCustomHqlRestriction() {
         Person person = query.from(Person.class);
-        query.registerCustomAliasForProxy(person, PARENT_CUSTOM_ALIAS);
+        query.setHqlAlias(person, PARENT_CUSTOM_ALIAS);
         query.where().and(new HqlQueryValueImpl("parentAlias.id = :parentAliasId", new NamedParameter("parentAliasId", 1L)));
         query.where().and(new HqlQueryValueImpl("parentAlias.name like :parentAliasName", new NamedParameter("parentAliasName", "Josh%")));
         validate(" from Person parentAlias where parentAlias.id = :parentAliasId "

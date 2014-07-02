@@ -16,6 +16,7 @@
 package be.shad.tsqb.selection;
 
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -41,7 +42,7 @@ import be.shad.tsqb.values.TypeSafeValue;
  */
 public class TypeSafeQueryProjections implements HqlQueryBuilder {
     private final TypeSafeQueryInternal query;
-    private final LinkedList<TypeSafeValueProjection> projections = new LinkedList<>();
+    private final Deque<TypeSafeValueProjection> projections = new LinkedList<>();
     private SelectionValueTransformer<?, ?> transformerForNextProjection;
     private Class<?> resultClass;
 
@@ -57,7 +58,6 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
         }
     }
 
-
     public void setResultClass(Class<?> resultClass) {
         this.resultClass = resultClass;
     }
@@ -66,7 +66,7 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
         return resultClass;
     }
     
-    public LinkedList<TypeSafeValueProjection> getProjections() {
+    public Deque<TypeSafeValueProjection> getProjections() {
         return projections;
     }
 
@@ -107,21 +107,21 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
      * Converts the input value to a type safe value if it isn't one yet when no invocations were made.
      * Covnerts the invocation data to a type safe value otherwise.
      */
-    public void project(Object select, TypeSafeQuerySelectionProxyData property) {
+    public TypeSafeValue<?> project(Object select, TypeSafeQuerySelectionProxyData property) {
         TypeSafeValue<?> value = query.getRootQuery().dequeueSelectedValue();
         if( value != null ) {
             projectBySelectedValue(value, property);
-            return;
+            return value;
         }
 
         // No subquery was selected, check the queue or direct selections:
-        projectInvocationQueueValue(select, property);
+        return projectInvocationQueueValue(select, property);
     }
 
     /**
      * 
      */
-    private void projectInvocationQueueValue(Object select, TypeSafeQuerySelectionProxyData property) {
+    private TypeSafeValue<?> projectInvocationQueueValue(Object select, TypeSafeQuerySelectionProxyData property) {
         TypeSafeValue<?> value = null;
         
         List<TypeSafeQueryProxyData> invocations = query.dequeueInvocations();
@@ -144,6 +144,7 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
         query.validateInScope(value, null);
         addProjection(new TypeSafeValueProjection(value, property, transformerForNextProjection));
         transformerForNextProjection = null;
+        return value;
     }
 
     /**

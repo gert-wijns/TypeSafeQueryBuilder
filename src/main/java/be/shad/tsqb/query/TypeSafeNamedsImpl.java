@@ -29,6 +29,12 @@ public class TypeSafeNamedsImpl implements TypeSafeNameds, Copyable {
      */
     @Override
     public <NAMED> NAMED name(NAMED object, String name) {
+        if (name == null) {
+            throw new IllegalArgumentException(String.format("Name is null when trying to set name for [%s].", object));
+        }
+        if (isBlank(name)) {
+            throw new IllegalArgumentException(String.format("Name is blank when trying to set name for [%s].", object));
+        }
         Object named = nameds.put(name, object);
         if (named != null && !named.equals(object)) {
             throw new IllegalArgumentException(String.format("Naming [%s] with name [%s] is illegal "
@@ -37,7 +43,7 @@ public class TypeSafeNamedsImpl implements TypeSafeNameds, Copyable {
         }
         return object;
     }
-
+    
     /**
      * {@inheritDoc}
      */
@@ -59,8 +65,8 @@ public class TypeSafeNamedsImpl implements TypeSafeNameds, Copyable {
      * {@inheritDoc}
      */
     @Override
-    public NamedValueEnabled value(String name) throws IllegalArgumentException {
-        return named(NamedValueEnabled.class, name);
+    public void setValue(String name, Object value) {
+        named(NamedValueEnabled.class, name).setNamedValue(value);
     }
     
     /**
@@ -68,7 +74,7 @@ public class TypeSafeNamedsImpl implements TypeSafeNameds, Copyable {
      */
     private <T> T named(Class<T> clazz, String name) {
         Object object = nameds.get(name);
-        if (object == null) {
+        if(object == null) {
             throw new IllegalArgumentException(String.format(
                     "No named object found for [%s].", name));
         }
@@ -83,6 +89,20 @@ public class TypeSafeNamedsImpl implements TypeSafeNameds, Copyable {
     @Override
     public Copyable copy(CopyContext context) {
         return new TypeSafeNamedsImpl(context, this);
+    }
+
+    /**
+     * Copied (partially) from StringUtils.isBlank(String), 
+     * <p>
+     * See {@link org.apache.commons.lang3.StringUtils#isBlank(String)}
+     */
+    private boolean isBlank(String name) {
+        for (int i = 0, strLen = name.length(); i < strLen; i++) {
+            if (Character.isWhitespace(name.charAt(i)) == false) {
+                return false;
+            }
+        }
+        return true;
     }
 
 }

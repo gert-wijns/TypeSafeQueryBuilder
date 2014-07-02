@@ -276,13 +276,14 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
      * of a sub-group because its restriction group is different.
      */
     private RestrictionAndChainable add(Restriction restriction, RestrictionNodeType type) {
+        Restriction addRestriction = restriction;
         if( restriction.getRestrictionsGroup() != this ) {
-            restriction = restriction.getRestrictionsGroup().getRestrictions();
+            addRestriction = restriction.getRestrictionsGroup().getRestrictions();
         } else if (restriction == this) {
             throw new IllegalArgumentException("Attempting to add a restriction group to itself. "
                     + "Did you nest query.where inside a query.where?");
         }
-        restrictions.add(new RestrictionNode(restriction, restrictions.isEmpty() ? null: type));
+        restrictions.add(new RestrictionNode(addRestriction, restrictions.isEmpty() ? null: type));
         return this;
     }
 
@@ -372,6 +373,14 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
     @Override
     public RestrictionChainable whereExists(TypeSafeSubQuery<?> subquery) {
         return andExists(subquery);
+    }
+
+    /**
+     * Delegate the call to and().
+     */
+    @Override
+    public RestrictionChainable whereNotExists(TypeSafeSubQuery<?> subquery) {
+        return andNotExists(subquery);
     }
 
     /**

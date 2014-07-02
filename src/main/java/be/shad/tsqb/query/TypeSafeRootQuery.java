@@ -17,13 +17,13 @@ package be.shad.tsqb.query;
 
 import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.selection.SelectionValueTransformer;
-import be.shad.tsqb.selection.parallel.ParallelSelectionMerger;
-import be.shad.tsqb.selection.parallel.ParallelSelectionMerger1;
-import be.shad.tsqb.selection.parallel.ParallelSelectionMerger2;
-import be.shad.tsqb.selection.parallel.ParallelSelectionMerger3;
 import be.shad.tsqb.selection.parallel.SelectPair;
 import be.shad.tsqb.selection.parallel.SelectTriplet;
 import be.shad.tsqb.selection.parallel.SelectValue;
+import be.shad.tsqb.selection.parallel.SelectionMerger;
+import be.shad.tsqb.selection.parallel.SelectionMerger1;
+import be.shad.tsqb.selection.parallel.SelectionMerger2;
+import be.shad.tsqb.selection.parallel.SelectionMerger3;
 import be.shad.tsqb.values.TypeSafeValue;
 
 /**
@@ -77,7 +77,7 @@ public interface TypeSafeRootQuery extends TypeSafeQuery {
      * <p>
      * The selects will not receive an alias.
      */
-    void selectValue(Object value);
+    void select(Object value);
     
     /**
      * Create a proxy to select into. The proxy is used to generate aliases for the
@@ -99,34 +99,31 @@ public interface TypeSafeRootQuery extends TypeSafeQuery {
     <T> T select(Class<T> resultClass);
     
     /**
-     * Create a proxy to select into. This is a sub selected proxy which will be added to the result dto using the merger.
-     * The merger type T should be the same as the selected resultClass.
-     * <p>
-     * The type S 
+     * Create an additional proxy to select into, which is merged with the result dto during result transforming. 
      */
-    <T, SUB> SUB selectParallel(T resultDto, Class<SUB> subselectClass, ParallelSelectionMerger<T, SUB> merger);
+    <T, SUB> SUB selectMergeValues(T resultDto, Class<SUB> subselectClass, SelectionMerger<T, SUB> merger);
 
     /**
      * Convenience method to select a single value which can be used to set some value on the resultDto
      * This is basically the same as {@link #select(Class, Object, SelectionValueTransformer)}.
      * <p>
-     * For more values or stricter naming, use {@link #selectParallel(Object, Class, ParallelSelectionMerger)} with a dtoClass.
+     * For more values or stricter naming, use {@link #selectMergeValues(Object, Class, SelectionMerger)} with a dtoClass.
      */
-    <T, A> SelectValue<A> selectParallel(T resultDto, ParallelSelectionMerger1<T, A> merger);
+    <T, A> SelectValue<A> selectMergeValues(T resultDto, SelectionMerger1<T, A> merger);
     
     /**
      * Convenience method to select two values which can be used to set values on the result dto.
      * <p>
-     * For more values or stricter naming, use {@link #selectParallel(Object, Class, ParallelSelectionMerger)} with a dtoClass.
+     * For more values or stricter naming, use {@link #selectMergeValues(Object, Class, SelectionMerger)} with a dtoClass.
      */
-    <T, A, B> SelectPair<A, B> selectParallel(T resultDto, ParallelSelectionMerger2<T, A, B> merger);
+    <T, A, B> SelectPair<A, B> selectMergeValues(T resultDto, SelectionMerger2<T, A, B> merger);
     
     /**
      * Convenience method to select three values which can be used to set values on the result dto.
      * <p>
-     * For more values or stricter naming, use {@link #selectParallel(Object, Class, ParallelSelectionMerger)} with a dtoClass.
+     * For more values or stricter naming, use {@link #selectMergeValues(Object, Class, SelectionMerger)} with a dtoClass.
      */
-    <T, A, B, C> SelectTriplet<A, B, C> selectParallel(T resultDto, ParallelSelectionMerger3<T, A, B, C> merger);
+    <T, A, B, C> SelectTriplet<A, B, C> selectMergeValues(T resultDto, SelectionMerger3<T, A, B, C> merger);
 
     /**
      * Registers the transformer to be used for the selection value

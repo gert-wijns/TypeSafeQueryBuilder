@@ -30,13 +30,13 @@ import be.shad.tsqb.query.copy.Copyable;
 import be.shad.tsqb.selection.SelectionValueTransformer;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroup;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroupImpl;
-import be.shad.tsqb.selection.parallel.ParallelSelectionMerger;
-import be.shad.tsqb.selection.parallel.ParallelSelectionMerger1;
-import be.shad.tsqb.selection.parallel.ParallelSelectionMerger2;
-import be.shad.tsqb.selection.parallel.ParallelSelectionMerger3;
 import be.shad.tsqb.selection.parallel.SelectPair;
 import be.shad.tsqb.selection.parallel.SelectTriplet;
 import be.shad.tsqb.selection.parallel.SelectValue;
+import be.shad.tsqb.selection.parallel.SelectionMerger;
+import be.shad.tsqb.selection.parallel.SelectionMerger1;
+import be.shad.tsqb.selection.parallel.SelectionMerger2;
+import be.shad.tsqb.selection.parallel.SelectionMerger3;
 import be.shad.tsqb.values.HqlQueryBuilderParamsImpl;
 import be.shad.tsqb.values.TypeSafeValue;
 
@@ -202,15 +202,16 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
      * {@inheritDoc}
      */
     @Override
-    public void registerCustomAliasForProxy(Object value, String customAlias) {
+    public void setHqlAlias(Object value, String customAlias) {
+        TypeSafeQueryProxy current;
         TypeSafeQueryProxyData queuedData = dequeueInvocation();
         if (value == null && queuedData != null) {
-            value = queuedData.getProxy();
-        }
-        if (!(value instanceof TypeSafeQueryProxy)) {
+            current = queuedData.getProxy();
+        } else if (!(value instanceof TypeSafeQueryProxy)) {
             throw new IllegalArgumentException(String.format("Value [%s] is not a TypeSafeQueryProxy", value));
+        } else {
+            current = (TypeSafeQueryProxy) value;
         }
-        TypeSafeQueryProxy current = (TypeSafeQueryProxy) value;
         TypeSafeQueryProxy previous = customAliasedProxies.put(customAlias, current);
         if (previous != null) {
             String previousAlias = previous.getTypeSafeProxyData().getAlias();
@@ -229,7 +230,7 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
      */
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T getProxyByCustomEntityAlias(String alias) {
+    public <T> T getByHqlAlias(String alias) {
         return (T) customAliasedProxies.get(alias);
     }
 
@@ -253,7 +254,7 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
      * {@inheritDoc}
      */
     @Override
-    public void selectValue(Object value) {
+    public void select(Object value) {
         getProjections().project(value, null);
     }
     
@@ -293,7 +294,7 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
      */
     @Override
     public <VAL> VAL distinct(TypeSafeValue<VAL> value) {
-        return function().distinct(value).select();
+        return hqlFunction().distinct(value).select();
     }
     
     /**
@@ -319,7 +320,7 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
      * {@inheritDoc}
      */
     @Override
-    public <T, SUB> SUB selectParallel(T resultDto, Class<SUB> subselectClass, ParallelSelectionMerger<T, SUB> merger) {
+    public <T, SUB> SUB selectMergeValues(T resultDto, Class<SUB> subselectClass, SelectionMerger<T, SUB> merger) {
         return getHelper().createTypeSafeSelectProxy(this, subselectClass, new TypeSafeQuerySelectionGroupImpl(
                 createSelectGroupAlias(), subselectClass, false, merger));
     }
@@ -329,8 +330,8 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
      */
     @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public <T, A> SelectValue<A> selectParallel(T resultDto, ParallelSelectionMerger1<T, A> merger) {
-        return selectParallel(resultDto, SelectValue.class, (ParallelSelectionMerger) merger);
+    public <T, A> SelectValue<A> selectMergeValues(T resultDto, SelectionMerger1<T, A> merger) {
+        return selectMergeValues(resultDto, SelectValue.class, (SelectionMerger) merger);
     }
 
     /**
@@ -338,8 +339,8 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
      */
     @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public <T, A, B> SelectPair<A, B> selectParallel(T resultDto, ParallelSelectionMerger2<T, A, B> merger) {
-        return selectParallel(resultDto, SelectPair.class, (ParallelSelectionMerger) merger);
+    public <T, A, B> SelectPair<A, B> selectMergeValues(T resultDto, SelectionMerger2<T, A, B> merger) {
+        return selectMergeValues(resultDto, SelectPair.class, (SelectionMerger) merger);
     }
 
     /**
@@ -347,21 +348,13 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
      */
     @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public <T, A, B, C> SelectTriplet<A, B, C> selectParallel(T resultDto, ParallelSelectionMerger3<T, A, B, C> merger) {
-        return selectParallel(resultDto, SelectTriplet.class, (ParallelSelectionMerger) merger);
+    public <T, A, B, C> SelectTriplet<A, B, C> selectMergeValues(T resultDto, SelectionMerger3<T, A, B, C> merger) {
+        return selectMergeValues(resultDto, SelectTriplet.class, (SelectionMerger) merger);
     }
     
     @Override
     public HqlQuery toHqlQuery() {
         return super.toHqlQuery(new HqlQueryBuilderParamsImpl());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void namedValue(String alias, Object value) {
-        namedObjects.value(alias).setNamedValue(value);
     }
 
     /**
