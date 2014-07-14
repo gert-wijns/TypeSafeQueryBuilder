@@ -191,7 +191,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
         OnGoingTextRestriction nameCheck = query.where(person.getName());
         
         nameCheck.in(names);
-        validate(" from Person hobj1 where hobj1.name in :np1", names);
+        validate(" from Person hobj1 where hobj1.name in (:np1)", names);
 
         nameCheck.isNull();
         validate(" from Person hobj1 where hobj1.name is null ");

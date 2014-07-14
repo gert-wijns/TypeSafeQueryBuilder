@@ -86,7 +86,7 @@ public class CollectionTypeSafeValue<T> extends TypeSafeValueImpl<T> implements 
             return new HqlQueryValueImpl(sb.toString());
         } else {
             String name = params.createNamedParameter();
-            return new HqlQueryValueImpl(":" + name, new NamedParameter(name, values));
+            return new HqlQueryValueImpl(new StringBuilder("(:").append(name).append(")").toString(), new NamedParameter(name, values));
         }
     }
 

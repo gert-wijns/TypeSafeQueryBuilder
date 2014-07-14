@@ -99,7 +99,7 @@ public class NamedParamTest extends TypeSafeQueryTest {
         Person personProxy = query.from(Person.class);
         query.where(personProxy.getId()).in().named(NAMED_PARAM_1, ids);
         
-        validate(" from Person hobj1 where hobj1.id in :np1", ids);
+        validate(" from Person hobj1 where hobj1.id in (:np1)", ids);
     }
     
 }

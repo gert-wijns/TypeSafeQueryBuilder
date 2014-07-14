@@ -15,10 +15,15 @@
  */
 package be.shad.tsqb.test;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.junit.Test;
 
 import be.shad.tsqb.domain.House;
 import be.shad.tsqb.domain.Style;
+import be.shad.tsqb.domain.people.Person;
+import be.shad.tsqb.domain.people.Person.Sex;
 import be.shad.tsqb.query.TypeSafeSubQuery;
 import be.shad.tsqb.restrictions.RestrictionsGroup;
 import be.shad.tsqb.restrictions.RestrictionsGroupFactory;
@@ -159,4 +164,19 @@ public class WhereTests extends TypeSafeQueryTest {
         query.and(query.where(house.getFloors()).gt(2));
     }
     
+    @Test
+    public void testInRequiresBrackets() {
+        RestrictionsGroupFactory rb = query.getGroupedRestrictionsBuilder();
+        Person person = query.from(Person.class);
+        
+        List<String> names = Arrays.asList("Jos", "Marie", "Katrien");
+        query.and(
+            rb.where(person.getId()).eq(1L),
+            rb.or(
+                rb.where(person.getSex()).eq(Sex.Male),
+                rb.where(person.getName()).in(names)
+            )
+        );
+        validate(" from Person hobj1 where hobj1.id = :np1 and (hobj1.sex = :np2 or hobj1.name in (:np3))", 1L, Sex.Male, names);
+    }
 }

@@ -49,7 +49,7 @@ public class OnGoingRestrictionTest extends TypeSafeQueryTest {
         Person person = query.from(Person.class);
         List<String> names = Arrays.asList("Jos", "Marie", "Katrien");
         query.where(person.getName()).in(names);
-        validate(" from Person hobj1 where hobj1.name in :np1", names);
+        validate(" from Person hobj1 where hobj1.name in (:np1)", names);
     }
 
     @Test
@@ -59,11 +59,11 @@ public class OnGoingRestrictionTest extends TypeSafeQueryTest {
 
         List<String> names1 = Arrays.asList("Jos", "Marie", "Katrien");
         query.named().setValue(NAMED_PARAM_1, names1);
-        validate(" from Person hobj1 where hobj1.name in :np1", names1);
+        validate(" from Person hobj1 where hobj1.name in (:np1)", names1);
 
         List<String> names2 = Arrays.asList("Marie", "Joseph");
         query.named().setValue(NAMED_PARAM_1, names2);
-        validate(" from Person hobj1 where hobj1.name in :np1", names2);
+        validate(" from Person hobj1 where hobj1.name in (:np1)", names2);
     }
     
     @Test
@@ -90,7 +90,7 @@ public class OnGoingRestrictionTest extends TypeSafeQueryTest {
         Person person = query.from(Person.class);
         List<String> names = Arrays.asList("Jos", "Marie", "Katrien");
         query.where(person.getName()).notIn(names);
-        validate(" from Person hobj1 where hobj1.name not in :np1", names);
+        validate(" from Person hobj1 where hobj1.name not in (:np1)", names);
     }
 
     @Test
@@ -100,11 +100,11 @@ public class OnGoingRestrictionTest extends TypeSafeQueryTest {
 
         List<String> names1 = Arrays.asList("Jos", "Marie", "Katrien");
         query.named().setValue(NAMED_PARAM_1, names1);
-        validate(" from Person hobj1 where hobj1.name not in :np1", names1);
+        validate(" from Person hobj1 where hobj1.name not in (:np1)", names1);
 
         List<String> names2 = Arrays.asList("Marie", "Joseph");
         query.named().setValue(NAMED_PARAM_1, names2);
-        validate(" from Person hobj1 where hobj1.name not in :np1", names2);
+        validate(" from Person hobj1 where hobj1.name not in (:np1)", names2);
     }
 
     @Test

@@ -105,11 +105,11 @@ public class ValuesCopyTest extends TypeSafeQueryCopyTest {
         query.where(personProxy.getName()).in().named("namesParam", originalNames);
 
         validateAndCopy(PERSON_OBJ, 
-                " from Person hobj1 where hobj1.name in :np1", originalNames);
+                " from Person hobj1 where hobj1.name in (:np1)", originalNames);
         
         List<String> copyNames = asList("A", "B", "C");
         copy.named().setValue("namesParam", copyNames);
-        validateChangedCopy(" from Person hobj1 where hobj1.name in :np1", copyNames);
+        validateChangedCopy(" from Person hobj1 where hobj1.name in (:np1)", copyNames);
     }
 
     @Test
