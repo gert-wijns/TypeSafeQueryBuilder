@@ -19,6 +19,7 @@ import static be.shad.tsqb.restrictions.RestrictionOperator.GREATER_THAN;
 import static be.shad.tsqb.restrictions.RestrictionOperator.GREATER_THAN_EQUAL;
 import static be.shad.tsqb.restrictions.RestrictionOperator.LESS_THAN;
 import be.shad.tsqb.restrictions.named.SingleNamedParameterBinder;
+import be.shad.tsqb.restrictions.predicate.RestrictionValuePredicate;
 import be.shad.tsqb.values.DirectTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
 
@@ -64,7 +65,7 @@ public class OnGoingNumberRestrictionImpl
      */
     @Override
     public ContinuedOnGoingNumberRestriction lt(Number value) {
-        return lt(toValue(value));
+        return lt(value, null);
     }
 
     /**
@@ -80,7 +81,7 @@ public class OnGoingNumberRestrictionImpl
      */
     @Override
     public ContinuedOnGoingNumberRestriction gt(Number value) {
-        return gt(toValue(value));
+        return gt(value, null);
     }
 
     /**
@@ -96,7 +97,7 @@ public class OnGoingNumberRestrictionImpl
      */
     @Override
     public ContinuedOnGoingNumberRestriction lte(Number value) {
-        return lte(toValue(value));
+        return lte(value, null);
     }
 
     /**
@@ -112,7 +113,7 @@ public class OnGoingNumberRestrictionImpl
      */
     @Override
     public ContinuedOnGoingNumberRestriction gte(Number value) {
-        return gte(toValue(value));
+        return gte(value, null);
     }
 
     /**
@@ -160,7 +161,7 @@ public class OnGoingNumberRestrictionImpl
      */
     @Override
     public SingleNamedParameterBinder<Number, ContinuedOnGoingNumberRestriction, OnGoingNumberRestriction> ngt() {
-        DirectTypeSafeValue<Number> value = createDirectValue();
+        DirectTypeSafeValue<Number> value = createDummyDirectValue();
         return createNamedParameterBinder(value, ngt(value));
     }
 
@@ -169,7 +170,7 @@ public class OnGoingNumberRestrictionImpl
      */
     @Override
     public SingleNamedParameterBinder<Number, ContinuedOnGoingNumberRestriction, OnGoingNumberRestriction> nlt() {
-        DirectTypeSafeValue<Number> value = createDirectValue();
+        DirectTypeSafeValue<Number> value = createDummyDirectValue();
         return createNamedParameterBinder(value, nlt(value));
     }
     
@@ -178,7 +179,7 @@ public class OnGoingNumberRestrictionImpl
      */
     @Override
     public SingleNamedParameterBinder<Number, ContinuedOnGoingNumberRestriction, OnGoingNumberRestriction> gte() {
-        DirectTypeSafeValue<Number> value = createDirectValue();
+        DirectTypeSafeValue<Number> value = createDummyDirectValue();
         return createNamedParameterBinder(value, gte(value));
     }
 
@@ -187,7 +188,7 @@ public class OnGoingNumberRestrictionImpl
      */
     @Override
     public SingleNamedParameterBinder<Number, ContinuedOnGoingNumberRestriction, OnGoingNumberRestriction> lte() {
-        DirectTypeSafeValue<Number> value = createDirectValue();
+        DirectTypeSafeValue<Number> value = createDummyDirectValue();
         return createNamedParameterBinder(value, lte(value));
     }
 
@@ -196,7 +197,7 @@ public class OnGoingNumberRestrictionImpl
      */
     @Override
     public SingleNamedParameterBinder<Number, ContinuedOnGoingNumberRestriction, OnGoingNumberRestriction> gt() {
-        DirectTypeSafeValue<Number> value = createDirectValue();
+        DirectTypeSafeValue<Number> value = createDummyDirectValue();
         return createNamedParameterBinder(value, gt(value));
     }
 
@@ -205,8 +206,56 @@ public class OnGoingNumberRestrictionImpl
      */
     @Override
     public SingleNamedParameterBinder<Number, ContinuedOnGoingNumberRestriction, OnGoingNumberRestriction> lt() {
-        DirectTypeSafeValue<Number> value = createDirectValue();
+        DirectTypeSafeValue<Number> value = createDummyDirectValue();
         return createNamedParameterBinder(value, lt(value));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ContinuedOnGoingNumberRestriction gte(Number value, RestrictionValuePredicate predicate) {
+        return gte(toValue(value, predicate));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ContinuedOnGoingNumberRestriction lte(Number value, RestrictionValuePredicate predicate) {
+        return lte(toValue(value, predicate));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ContinuedOnGoingNumberRestriction gt(Number value, RestrictionValuePredicate predicate) {
+        return gt(toValue(value, predicate));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ContinuedOnGoingNumberRestriction lt(Number value, RestrictionValuePredicate predicate) {
+        return lt(toValue(value, predicate));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ContinuedOnGoingNumberRestriction nlt(Number value, RestrictionValuePredicate predicate) {
+        return nlt(toValue(value, predicate));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ContinuedOnGoingNumberRestriction ngt(Number value, RestrictionValuePredicate predicate) {
+        return ngt(toValue(value, predicate));
     }
 
 }

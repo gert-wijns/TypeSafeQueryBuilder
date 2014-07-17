@@ -15,6 +15,8 @@
  */
 package be.shad.tsqb.test.restrictions;
 
+import static be.shad.tsqb.restrictions.predicate.RestrictionValuePredicate.IGNORE_NULL;
+
 import org.junit.Test;
 
 import be.shad.tsqb.domain.people.Person;
@@ -29,6 +31,13 @@ public class OnGoingNumberRestrictionTest extends TypeSafeQueryTest {
         Person person = query.from(Person.class);
         query.where(person.getAge()).lt(40);
         validate(" from Person hobj1 where hobj1.age < :np1", 40);
+    }
+    
+    @Test
+    public void testLtIgnored() {
+        Person person = query.from(Person.class);
+        query.where(person.getAge()).lt(null, IGNORE_NULL);
+        validate(" from Person hobj1");
     }
 
     @Test
@@ -59,6 +68,13 @@ public class OnGoingNumberRestrictionTest extends TypeSafeQueryTest {
     }
     
     @Test
+    public void testGtIgnored() {
+        Person person = query.from(Person.class);
+        query.where(person.getAge()).gt(null, IGNORE_NULL);
+        validate(" from Person hobj1");
+    }
+    
+    @Test
     public void testGtNamed() {
         Person person = query.from(Person.class);
         
@@ -81,6 +97,13 @@ public class OnGoingNumberRestrictionTest extends TypeSafeQueryTest {
         query.where(person.getAge()).lte(40);
         validate(" from Person hobj1 where hobj1.age <= :np1", 40);
     }
+    
+    @Test
+    public void testLteIgnored() {
+        Person person = query.from(Person.class);
+        query.where(person.getAge()).lte(null, IGNORE_NULL);
+        validate(" from Person hobj1");
+    }
 
     @Test
     public void testLteNamed() {
@@ -96,6 +119,13 @@ public class OnGoingNumberRestrictionTest extends TypeSafeQueryTest {
         Person person = query.from(Person.class);
         query.where(person.getAge()).ngt(40);
         validate(" from Person hobj1 where hobj1.age <= :np1", 40);
+    }
+    
+    @Test
+    public void testNgtIgnored() {
+        Person person = query.from(Person.class);
+        query.where(person.getAge()).ngt(null, IGNORE_NULL);
+        validate(" from Person hobj1");
     }
 
     @Test
@@ -122,6 +152,13 @@ public class OnGoingNumberRestrictionTest extends TypeSafeQueryTest {
     }
     
     @Test
+    public void testGteIgnored() {
+        Person person = query.from(Person.class);
+        query.where(person.getAge()).gte(null, IGNORE_NULL);
+        validate(" from Person hobj1");
+    }
+    
+    @Test
     public void testGteNamed() {
         Person person = query.from(Person.class);
         query.where(person.getAge()).gte().named(NAMED_PARAM_1);
@@ -135,6 +172,13 @@ public class OnGoingNumberRestrictionTest extends TypeSafeQueryTest {
         Person person = query.from(Person.class);
         query.where(person.getAge()).nlt(40);
         validate(" from Person hobj1 where hobj1.age >= :np1", 40);
+    }
+    
+    @Test
+    public void testNltIgnored() {
+        Person person = query.from(Person.class);
+        query.where(person.getAge()).nlt(null, IGNORE_NULL);
+        validate(" from Person hobj1");
     }
     
     @Test

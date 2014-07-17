@@ -30,6 +30,7 @@ import be.shad.tsqb.ordering.OnGoingOrderBy;
 import be.shad.tsqb.ordering.TypeSafeQueryOrderBys;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
 import be.shad.tsqb.query.copy.CopyContext;
+import be.shad.tsqb.restrictions.DirectValueProvider;
 import be.shad.tsqb.restrictions.OnGoingBooleanRestriction;
 import be.shad.tsqb.restrictions.OnGoingDateRestriction;
 import be.shad.tsqb.restrictions.OnGoingEnumRestriction;
@@ -513,6 +514,10 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      */
     @Override
     public <VAL> TypeSafeValue<VAL> toValue(VAL value) {
+        return toValue(value, null);
+    }
+
+    public <VAL> TypeSafeValue<VAL> toValue(VAL value, DirectValueProvider<VAL> provider) {
         if (value instanceof TypeSafeValue<?>) {
             throw new IllegalArgumentException(String.format("The value [%s] is already a type safe value.", value));
         }
@@ -520,7 +525,10 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
         if( invocations.isEmpty() ) {
             // direct selection
             if (value == null) {
-                throw new IllegalArgumentException("No invocation was queued and the provided value is null. "
+                if (provider != null) {
+                    return provider.createEmptyDirectValue();
+                }
+                throw new IllegalArgumentException("No invocation was queued and the value and provider is null. "
                         + "When using restrictions, don't use .eq(null), use .isNull() instead.");
             }
             if (value instanceof TypeSafeQueryProxy) {

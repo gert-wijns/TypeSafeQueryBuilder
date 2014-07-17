@@ -15,6 +15,9 @@
  */
 package be.shad.tsqb.test.restrictions;
 
+import static be.shad.tsqb.restrictions.predicate.RestrictionValuePredicate.IGNORE_EMPTY_COLLECTION;
+import static be.shad.tsqb.restrictions.predicate.RestrictionValuePredicate.IGNORE_NULL;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -50,6 +53,14 @@ public class OnGoingRestrictionTest extends TypeSafeQueryTest {
         List<String> names = Arrays.asList("Jos", "Marie", "Katrien");
         query.where(person.getName()).in(names);
         validate(" from Person hobj1 where hobj1.name in (:np1)", names);
+    }
+    
+    @Test
+    public void testTypeSafeValueInEmptyCollectionIgnorable() {
+        Person person = query.from(Person.class);
+        List<String> names = Arrays.asList();
+        query.where(person.getName()).in(names, IGNORE_EMPTY_COLLECTION);
+        validate(" from Person hobj1");
     }
 
     @Test
@@ -92,6 +103,14 @@ public class OnGoingRestrictionTest extends TypeSafeQueryTest {
         query.where(person.getName()).notIn(names);
         validate(" from Person hobj1 where hobj1.name not in (:np1)", names);
     }
+    
+    @Test
+    public void testNotInIgnorable() {
+        Person person = query.from(Person.class);
+        List<String> names = Arrays.asList();
+        query.where(person.getName()).notIn(names, IGNORE_EMPTY_COLLECTION);
+        validate(" from Person hobj1");
+    }
 
     @Test
     public void testNotInNamedCollection() {
@@ -132,6 +151,13 @@ public class OnGoingRestrictionTest extends TypeSafeQueryTest {
         query.where(person.getAge()).eq(40);
         validate(" from Person hobj1 where hobj1.age = :np1", 40);
     }
+    
+    @Test
+    public void testEqIgnorable() {
+        Person person = query.from(Person.class);
+        query.where(person.getName()).eq(null, IGNORE_NULL);
+        validate(" from Person hobj1");
+    }
 
     @Test
     public void testEqNamed() {
@@ -154,6 +180,13 @@ public class OnGoingRestrictionTest extends TypeSafeQueryTest {
         Person person = query.from(Person.class);
         query.where(person.getAge()).not(40);
         validate(" from Person hobj1 where hobj1.age <> :np1", 40);
+    }
+    
+    @Test
+    public void testNotEqIgnorable() {
+        Person person = query.from(Person.class);
+        query.where(person.getName()).notEq(null, IGNORE_NULL);
+        validate(" from Person hobj1");
     }
 
     @Test

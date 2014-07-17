@@ -19,6 +19,7 @@ import java.util.Collection;
 
 import be.shad.tsqb.restrictions.named.CollectionNamedParameterBinder;
 import be.shad.tsqb.restrictions.named.SingleNamedParameterBinder;
+import be.shad.tsqb.restrictions.predicate.RestrictionValuePredicate;
 import be.shad.tsqb.values.TypeSafeValue;
 
 /**
@@ -54,7 +55,14 @@ public interface OnGoingRestriction<VAL, CONTINUED extends ContinuedOnGoingRestr
     /**
      * Generates: left <> (referencedValue or actualValue)
      */
+    // TODO: rename to notEq
     CONTINUED not(VAL value);
+    
+    /**
+     * Same as {@link #notEq(VAL)}, but the restriction will only be added to the
+     * resulting query when the value passes the predicate.
+     */
+    CONTINUED notEq(VAL value, RestrictionValuePredicate predicate);
 
     /**
      * Generates: left <> valueRepresentative
@@ -65,6 +73,12 @@ public interface OnGoingRestriction<VAL, CONTINUED extends ContinuedOnGoingRestr
      * Generates: left = (referencedValue or actualValue)
      */
     CONTINUED eq(VAL value);
+    
+    /**
+     * Same as {@link #eq(VAL)}, but the restriction will only be added to the
+     * resulting query when the value passes the predicate.
+     */
+    CONTINUED eq(VAL value, RestrictionValuePredicate predicate);
 
     /**
      * Generates: left = valueRepresentative
@@ -75,6 +89,12 @@ public interface OnGoingRestriction<VAL, CONTINUED extends ContinuedOnGoingRestr
      * Generates: left not in ( actualValues )
      */
     <T extends VAL> CONTINUED notIn(Collection<T> values);
+    
+    /**
+     * Same as {@link #notIn(Collection)}, but the restriction will only be added to the
+     * resulting query when the value passes the predicate.
+     */
+    <T extends VAL> CONTINUED notIn(Collection<T> values, RestrictionValuePredicate predicate);
 
     /**
      * Generates: left not in ( valuesRepresentative )
@@ -88,6 +108,12 @@ public interface OnGoingRestriction<VAL, CONTINUED extends ContinuedOnGoingRestr
      * Generates: left not in ( actualValues )
      */
     <T extends VAL> CONTINUED in(Collection<T> values);
+
+    /**
+     * Same as {@link #in(Collection)}, but the restriction will only be added to the
+     * resulting query when the value passes the predicate.
+     */
+    <T extends VAL> CONTINUED in(Collection<T> values, RestrictionValuePredicate predicate);
 
     /**
      * Generates: left in ( valuesRepresentative )

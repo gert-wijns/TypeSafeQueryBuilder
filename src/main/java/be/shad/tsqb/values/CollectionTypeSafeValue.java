@@ -62,7 +62,7 @@ public class CollectionTypeSafeValue<T> extends TypeSafeValueImpl<T> implements 
     }
     
     public Collection<T> getValues() {
-        return values;
+        return values == null ? null: Collections.unmodifiableCollection(values);
     }
 
     /**
@@ -74,6 +74,9 @@ public class CollectionTypeSafeValue<T> extends TypeSafeValueImpl<T> implements 
 
     @Override
     public HqlQueryValueImpl toHqlQueryValue(HqlQueryBuilderParams params) {
+        if (values == null || values.isEmpty()) {
+            throw new IllegalArgumentException("Collection is empty when transforming to query");
+        }
         if (params.isRequiresLiterals()) {
             StringBuilder sb = new StringBuilder("(");
             for(Object val: values) {
@@ -114,9 +117,6 @@ public class CollectionTypeSafeValue<T> extends TypeSafeValueImpl<T> implements 
         Collection<?> values = null;
         if (namedValue instanceof Collection<?>) {
             values = (Collection<?>) namedValue;
-            if (values.isEmpty()) {
-                throw new IllegalArgumentException("Collection may not be empty when set.");
-            }
         } else {
             values = Collections.singleton(namedValue);
         }

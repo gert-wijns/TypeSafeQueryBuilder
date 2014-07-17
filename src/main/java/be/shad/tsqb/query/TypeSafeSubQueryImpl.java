@@ -22,6 +22,7 @@ import be.shad.tsqb.helper.TypeSafeQueryHelper;
 import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.query.copy.CopyContext;
 import be.shad.tsqb.query.copy.Copyable;
+import be.shad.tsqb.restrictions.predicate.RestrictionValuePredicate;
 import be.shad.tsqb.values.CaseTypeSafeValue;
 import be.shad.tsqb.values.HqlQueryBuilderParams;
 import be.shad.tsqb.values.HqlQueryValue;
@@ -148,6 +149,14 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
     @Override
     public String createEntityAlias() {
         return getRootQuery().createEntityAlias();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public RestrictionValuePredicate getRestrictionValuePredicate() {
+        return getRootQuery().getRestrictionValuePredicate();
     }
 
     @Override

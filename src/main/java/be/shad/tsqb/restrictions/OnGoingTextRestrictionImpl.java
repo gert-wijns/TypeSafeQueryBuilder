@@ -21,6 +21,7 @@ import java.util.List;
 
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.restrictions.named.SingleNamedParameterBinder;
+import be.shad.tsqb.restrictions.predicate.RestrictionValuePredicate;
 import be.shad.tsqb.values.DirectTypeSafeStringValue;
 import be.shad.tsqb.values.DirectTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
@@ -77,7 +78,7 @@ public class OnGoingTextRestrictionImpl
      */
     @Override
     public ContinuedOnGoingTextRestriction like(String value) {
-        return like(toValue(value));
+        return like(toValue(value, null));
     }
 
     /**
@@ -85,7 +86,7 @@ public class OnGoingTextRestrictionImpl
      */
     @Override
     public ContinuedOnGoingTextRestriction contains(String value) {
-        return like(toValue(WILDCARD, value, WILDCARD));
+        return contains(value, null);
     }
 
     /**
@@ -93,7 +94,7 @@ public class OnGoingTextRestrictionImpl
      */
     @Override
     public ContinuedOnGoingTextRestriction startsWith(String value) {
-        return like(toValue(EMPTY, value, WILDCARD));
+        return startsWith(value, null);
     }
 
     /**
@@ -101,7 +102,7 @@ public class OnGoingTextRestrictionImpl
      */
     @Override
     public ContinuedOnGoingTextRestriction endsWith(String value) {
-        return like(toValue(WILDCARD, value, EMPTY));
+        return endsWith(value, null);
     }
 
     /**
@@ -135,9 +136,9 @@ public class OnGoingTextRestrictionImpl
      * Adds wildcards to the value in case it is a direct value.
      * Validates no wildcards are used otherwise.
      */
-    private TypeSafeValue<String> toValue(String prefix, String value, String postfix) {
+    private TypeSafeValue<String> toValue(String prefix, String value, String postfix, RestrictionValuePredicate predicate) {
         if( value instanceof String ) {
-            DirectTypeSafeStringValue toValue = (DirectTypeSafeStringValue) toValue(value);
+            DirectTypeSafeStringValue toValue = (DirectTypeSafeStringValue) toValue(value, predicate);
             return setWildCards(prefix, toValue, postfix);
         }
         if( !prefix.isEmpty() || !postfix.isEmpty()) {
@@ -147,15 +148,11 @@ public class OnGoingTextRestrictionImpl
                         + "referenced value [" + dequeued.get(0) + "].");
             }
         }
-        TypeSafeValue<String> toValue = toValue(value);
+        TypeSafeValue<String> toValue = toValue(value, predicate);
         return toValue;
     }
     
-    /**
-     * Override to create a specialized value.
-     */
-    @Override
-    protected DirectTypeSafeStringValue createDirectValue() {
+    protected DirectTypeSafeStringValue createDummyDirectValue() {
         return new DirectTypeSafeStringValue(group.getQuery());
     }
     
@@ -163,7 +160,7 @@ public class OnGoingTextRestrictionImpl
      * Creates an empty value and sets the prefix and postfix.
      */
     private DirectTypeSafeValue<String> createDirectValue(String prefix, String postfix) {
-        DirectTypeSafeStringValue directValue = createDirectValue();
+        DirectTypeSafeStringValue directValue = createDummyDirectValue();
         return setWildCards(prefix, directValue, postfix);
     }
     
@@ -175,6 +172,26 @@ public class OnGoingTextRestrictionImpl
         parameter.setPrefix(prefix);
         parameter.setPostfix(postfix);
         return parameter;
+    }
+
+    @Override
+    public ContinuedOnGoingTextRestriction endsWith(String value, RestrictionValuePredicate predicate) {
+        return like(toValue(WILDCARD, value, EMPTY, predicate));
+    }
+
+    @Override
+    public ContinuedOnGoingTextRestriction startsWith(String value, RestrictionValuePredicate predicate) {
+        return like(toValue(EMPTY, value, WILDCARD, predicate));
+    }
+
+    @Override
+    public ContinuedOnGoingTextRestriction contains(String value, RestrictionValuePredicate predicate) {
+        return like(toValue(WILDCARD, value, WILDCARD, predicate));
+    }
+
+    @Override
+    public ContinuedOnGoingTextRestriction like(String value, RestrictionValuePredicate predicate) {
+        return like(toValue(value, predicate));
     }
 
 }

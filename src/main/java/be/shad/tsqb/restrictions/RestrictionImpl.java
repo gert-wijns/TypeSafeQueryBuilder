@@ -18,6 +18,8 @@ package be.shad.tsqb.restrictions;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.query.copy.CopyContext;
 import be.shad.tsqb.query.copy.Copyable;
+import be.shad.tsqb.restrictions.predicate.RestrictionPredicate;
+import be.shad.tsqb.restrictions.predicate.RestrictionValuePredicate;
 import be.shad.tsqb.values.CastTypeSafeValue;
 import be.shad.tsqb.values.HqlQueryBuilderParams;
 import be.shad.tsqb.values.HqlQueryValue;
@@ -39,21 +41,24 @@ import be.shad.tsqb.values.TypeSafeValue;
  * The <b>is_null</b>, <b>is_not_null</b> can be used without a right part.<br>
  * The rest requires both parts.
  */
-public class RestrictionImpl<VAL> implements Restriction {
+public class RestrictionImpl<VAL> implements Restriction, RestrictionPredicate {
     
     private final RestrictionsGroupInternal group;
     private final TypeSafeQueryInternal query;
     
+    private RestrictionValuePredicate predicate;
     private TypeSafeValue<VAL> left;
     private RestrictionOperator operator;
     private TypeSafeValue<VAL> right;
     
     public RestrictionImpl(RestrictionsGroupInternal group, 
+            RestrictionValuePredicate predicate,
             TypeSafeValue<VAL> left, 
             RestrictionOperator operator, 
             TypeSafeValue<VAL> right) {
         this.group = group;
         this.query = group.getQuery();
+        this.predicate = predicate;
         setLeft(left);
         setOperator(operator);
         setRight(right);
@@ -172,6 +177,23 @@ public class RestrictionImpl<VAL> implements Restriction {
     @Override
     public Copyable copy(CopyContext context) {
         return new RestrictionImpl<VAL>(context, this);
+    }
+
+    @Override
+    public boolean isRestrictionApplicable() {
+        RestrictionValuePredicate predicate = this.predicate;
+        if (predicate == null) {
+            predicate = query.getRestrictionValuePredicate();
+        }
+        if (predicate != null) {
+            if (left != null && !predicate.isValueApplicable(left)) {
+                return false;
+            }
+            if (right != null && !predicate.isValueApplicable(right)) {
+                return false;
+            }
+        }
+        return true;
     }
     
 }

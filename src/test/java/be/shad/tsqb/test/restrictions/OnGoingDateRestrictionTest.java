@@ -15,6 +15,8 @@
  */
 package be.shad.tsqb.test.restrictions;
 
+import static be.shad.tsqb.restrictions.predicate.RestrictionValuePredicate.IGNORE_NULL;
+
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -37,6 +39,13 @@ public class OnGoingDateRestrictionTest extends TypeSafeQueryTest {
         Building building = query.from(Building.class);
         query.where(building.getConstructionDate()).before(date);
         validate(" from Building hobj1 where hobj1.constructionDate < :np1", date);
+    }
+    
+    @Test
+    public void testBeforeIgnored() {
+        Building building = query.from(Building.class);
+        query.where(building.getConstructionDate()).before(null, IGNORE_NULL);
+        validate(" from Building hobj1");
     }
 
     @Test
@@ -66,6 +75,13 @@ public class OnGoingDateRestrictionTest extends TypeSafeQueryTest {
     }
 
     @Test
+    public void testAfterIgnored() {
+        Building building = query.from(Building.class);
+        query.where(building.getConstructionDate()).after(null, IGNORE_NULL);
+        validate(" from Building hobj1");
+    }
+    
+    @Test
     public void testAfterNamed() {
         Building building = query.from(Building.class);
         query.where(building.getConstructionDate()).after().named(NAMED_PARAM_1);
@@ -89,6 +105,13 @@ public class OnGoingDateRestrictionTest extends TypeSafeQueryTest {
         Building building = query.from(Building.class);
         query.where(building.getConstructionDate()).notAfter(date);
         validate(" from Building hobj1 where hobj1.constructionDate <= :np1", date);
+    }
+
+    @Test
+    public void testNotAfterIgnored() {
+        Building building = query.from(Building.class);
+        query.where(building.getConstructionDate()).notAfter(null, IGNORE_NULL);
+        validate(" from Building hobj1");
     }
 
     @Test
@@ -121,7 +144,6 @@ public class OnGoingDateRestrictionTest extends TypeSafeQueryTest {
         query.named().setValue(NAMED_PARAM_1, date2);
         validate(" from Building hobj1 where hobj1.constructionDate <= :np1", date2);
     }
-
     
     @Test
     public void testTypeSafeValueNotAfter() {
@@ -135,6 +157,13 @@ public class OnGoingDateRestrictionTest extends TypeSafeQueryTest {
         Building building = query.from(Building.class);
         query.where(building.getConstructionDate()).notBefore(date);
         validate(" from Building hobj1 where hobj1.constructionDate >= :np1", date);
+    }
+
+    @Test
+    public void testNotBeforeIgnored() {
+        Building building = query.from(Building.class);
+        query.where(building.getConstructionDate()).notBefore(null, IGNORE_NULL);
+        validate(" from Building hobj1");
     }
 
     @Test
@@ -154,6 +183,13 @@ public class OnGoingDateRestrictionTest extends TypeSafeQueryTest {
         Building building = query.from(Building.class);
         query.where(building.getConstructionDate()).afterOrEq(date);
         validate(" from Building hobj1 where hobj1.constructionDate >= :np1", date);
+    }
+
+    @Test
+    public void testAfterOrEqIgnored() {
+        Building building = query.from(Building.class);
+        query.where(building.getConstructionDate()).afterOrEq(null, IGNORE_NULL);
+        validate(" from Building hobj1");
     }
 
     @Test
