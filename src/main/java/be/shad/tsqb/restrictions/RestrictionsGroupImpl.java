@@ -165,11 +165,13 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
                 // check length, if a restriction was not applicable or a group
                 // had no applicable restrictions, the hql will be empty:
                 if (nextValueHql.length() > 0) {
-                    if (item.getType() == RestrictionNodeType.And) {
-                        value.appendHql(" and ");
-                    } else if (item.getType() == RestrictionNodeType.Or) {
-                        value.appendHql(" or ");
-                    } // else null, root
+                    if (hasValue) {
+                        if (item.getType() == RestrictionNodeType.And) {
+                            value.appendHql(" and ");
+                        } else if (item.getType() == RestrictionNodeType.Or) {
+                            value.appendHql(" or ");
+                        } // else null, root
+                    }
                     value.appendHql(nextValue.getHql());
                     value.addParams(nextValue.getParams());
                     hasValue = true;

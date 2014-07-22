@@ -94,6 +94,7 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
         for(Entry<String, TypeSafeQueryProxy> customAliasedProxy: original.customAliasedProxies.entrySet()) {
             customAliasedProxies.put(customAliasedProxy.getKey(), context.get(customAliasedProxy.getValue()));
         }
+        restrictionValuePredicate = context.get(original.restrictionValuePredicate);
         lastSelectedValue = context.get(original.lastSelectedValue);
         lastInvokedProjectionPath = original.lastInvokedProjectionPath;
         entityAliasCount = original.entityAliasCount;

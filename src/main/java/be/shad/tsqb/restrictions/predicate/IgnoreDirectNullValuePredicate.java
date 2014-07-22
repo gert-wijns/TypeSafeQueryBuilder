@@ -15,6 +15,7 @@
  */
 package be.shad.tsqb.restrictions.predicate;
 
+import be.shad.tsqb.query.copy.Stateless;
 import be.shad.tsqb.values.CollectionTypeSafeValue;
 import be.shad.tsqb.values.DirectTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
@@ -22,7 +23,7 @@ import be.shad.tsqb.values.TypeSafeValue;
 /**
  * Ignores direct null values.
  */
-public class IgnoreDirectNullValuePredicate implements RestrictionValuePredicate {
+public final class IgnoreDirectNullValuePredicate implements RestrictionValuePredicate, Stateless {
 
     @Override
     public boolean isValueApplicable(TypeSafeValue<?> value) {

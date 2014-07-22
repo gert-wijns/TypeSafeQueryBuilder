@@ -73,6 +73,7 @@ public class RestrictionImpl<VAL> implements Restriction, RestrictionPredicate {
         this.query = context.get(original.query);
         this.left = context.get(original.left);
         this.right = context.get(original.right);
+        this.predicate = context.get(original.predicate);
         this.operator = original.operator;
     }
 

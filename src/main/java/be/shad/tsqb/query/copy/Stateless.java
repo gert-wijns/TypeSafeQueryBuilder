@@ -13,23 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.shad.tsqb.restrictions.predicate;
-
-import be.shad.tsqb.query.copy.Stateless;
-import be.shad.tsqb.values.DirectTypeSafeStringValue;
-import be.shad.tsqb.values.TypeSafeValue;
+package be.shad.tsqb.query.copy;
 
 /**
- * Ignores direct text values with a null or empty text.
+ * When copying a query, classes implementing stateless
+ * will be used as is, without copy.
  */
-public final class IgnoreDirectEmptyStringValuePredicate implements RestrictionValuePredicate, Stateless {
-
-    @Override
-    public boolean isValueApplicable(TypeSafeValue<?> value) {
-        if (value instanceof DirectTypeSafeStringValue) {
-            return !((DirectTypeSafeStringValue) value).isEmpty();
-        }
-        return true;
-    }
+public interface Stateless {
 
 }

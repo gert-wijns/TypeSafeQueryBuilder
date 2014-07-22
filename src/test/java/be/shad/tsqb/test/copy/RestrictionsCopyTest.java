@@ -15,6 +15,8 @@
  */
 package be.shad.tsqb.test.copy;
 
+import static be.shad.tsqb.restrictions.predicate.RestrictionValuePredicate.IGNORE_NULL;
+
 import org.junit.Test;
 
 import be.shad.tsqb.domain.people.Person;
@@ -37,5 +39,21 @@ public class RestrictionsCopyTest extends TypeSafeQueryCopyTest {
         query.where(personProxy.getAge()).gt(12);
         validateChangedOriginal(" from Person hobj1 where hobj1.name = :np1 and hobj1.age > :np2", "Josh", 12);
     }
-    
+
+    @Test
+    public void testCopyRestrictionsIgnore() {
+        Person personProxy = query.from(Person.class);
+        query.named().name(personProxy, PERSON_OBJ);
+        query.where(personProxy.getName()).eq(null, IGNORE_NULL);
+        
+        Person personProxyCopy = validateAndCopy(PERSON_OBJ,
+                " from Person hobj1");
+        
+        copy.where(personProxyCopy.getAge()).gt(10);
+        validateChangedCopy(" from Person hobj1 where hobj1.age > :np1", 10);
+
+        query.where(personProxy.getAge()).gt(12);
+        validateChangedOriginal(" from Person hobj1 where hobj1.age > :np1", 12);
+    }
+
 }

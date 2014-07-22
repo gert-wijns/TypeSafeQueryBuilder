@@ -17,13 +17,14 @@ package be.shad.tsqb.restrictions.predicate;
 
 import java.util.Collection;
 
+import be.shad.tsqb.query.copy.Stateless;
 import be.shad.tsqb.values.CollectionTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
 
 /**
  * Ignores empty or null collections.
  */
-public class IgnoreEmptyCollectionValuePredicate implements RestrictionValuePredicate {
+public final class IgnoreEmptyCollectionValuePredicate implements RestrictionValuePredicate, Stateless {
 
     @Override
     public boolean isValueApplicable(TypeSafeValue<?> value) {

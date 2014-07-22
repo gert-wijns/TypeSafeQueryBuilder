@@ -15,13 +15,30 @@
  */
 package be.shad.tsqb.restrictions.predicate;
 
+import be.shad.tsqb.query.copy.CopyContext;
+import be.shad.tsqb.query.copy.Copyable;
 import be.shad.tsqb.values.TypeSafeValue;
 
-public class CompositeRestrictionValuePredicate implements RestrictionValuePredicate {
+public class CompositeRestrictionValuePredicate implements RestrictionValuePredicate, Copyable {
     private final RestrictionValuePredicate[] predicates;
     
     public CompositeRestrictionValuePredicate(RestrictionValuePredicate... predicates) {
         this.predicates = predicates;
+    }
+
+    /**
+     * Copy constructor
+     */
+    public CompositeRestrictionValuePredicate(CopyContext context, 
+            CompositeRestrictionValuePredicate original) {
+        RestrictionValuePredicate[] copy = null;
+        if (original.predicates != null) {
+            copy = new RestrictionValuePredicate[original.predicates.length];
+            for(int i=0, n=original.predicates.length; i < n; i++) {
+                copy[i] = context.get(original.predicates[i]);
+            }
+        }
+        this.predicates = copy;
     }
 
     public static RestrictionValuePredicate composite(RestrictionValuePredicate... predicates) {
@@ -36,6 +53,11 @@ public class CompositeRestrictionValuePredicate implements RestrictionValuePredi
             }
         }
         return true;
+    }
+
+    @Override
+    public Copyable copy(CopyContext context) {
+        return null;
     }
 
 }
