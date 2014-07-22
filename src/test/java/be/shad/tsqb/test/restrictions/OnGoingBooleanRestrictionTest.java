@@ -15,8 +15,12 @@
  */
 package be.shad.tsqb.test.restrictions;
 
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
+
 import org.junit.Test;
 
+import be.shad.tsqb.domain.House;
 import be.shad.tsqb.domain.people.Person;
 import be.shad.tsqb.test.TypeSafeQueryTest;
 
@@ -27,14 +31,21 @@ public class OnGoingBooleanRestrictionTest extends TypeSafeQueryTest {
     public void testIsFalse() {
         Person person = query.from(Person.class);
         query.where(person.isMarried()).isFalse();
-        validate(" from Person hobj1 where hobj1.married = :np1", Boolean.FALSE);
+        validate(" from Person hobj1 where hobj1.married = :np1", FALSE);
     }
 
     @Test
     public void testIsTrue() {
         Person person = query.from(Person.class);
         query.where(person.isMarried()).isTrue();
-        validate(" from Person hobj1 where hobj1.married = :np1", Boolean.TRUE);
+        validate(" from Person hobj1 where hobj1.married = :np1", TRUE);
+    }
+
+    @Test
+    public void testAndAfterEq() {
+        House house = query.from(House.class);
+        query.where(house.isOccupied()).eq(FALSE).and(house.isOccupied()).isFalse();
+        validate(" from House hobj1 where hobj1.occupied = :np1 and hobj1.occupied = :np2", FALSE, FALSE);
     }
 
     @Test
@@ -42,11 +53,11 @@ public class OnGoingBooleanRestrictionTest extends TypeSafeQueryTest {
         Person person = query.from(Person.class);
         query.where(person.isMarried()).isNamed(NAMED_PARAM_1);
         
-        query.named().setValue(NAMED_PARAM_1, Boolean.TRUE);
-        validate(" from Person hobj1 where hobj1.married = :np1", Boolean.TRUE);
+        query.named().setValue(NAMED_PARAM_1, TRUE);
+        validate(" from Person hobj1 where hobj1.married = :np1", TRUE);
 
-        query.named().setValue(NAMED_PARAM_1, Boolean.FALSE);
-        validate(" from Person hobj1 where hobj1.married = :np1", Boolean.FALSE);
+        query.named().setValue(NAMED_PARAM_1, FALSE);
+        validate(" from Person hobj1 where hobj1.married = :np1", FALSE);
     }
     
 }

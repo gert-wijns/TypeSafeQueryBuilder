@@ -16,12 +16,19 @@
 package be.shad.tsqb.test.restrictions;
 
 import static be.shad.tsqb.restrictions.RestrictionsGroupImpl.group;
+import static be.shad.tsqb.restrictions.predicate.RestrictionValuePredicate.IGNORE_EMPTY_COLLECTION;
+import static be.shad.tsqb.restrictions.predicate.RestrictionValuePredicate.IGNORE_EMPTY_STRING;
+import static be.shad.tsqb.restrictions.predicate.RestrictionValuePredicate.IGNORE_NULL;
 import static java.lang.Boolean.FALSE;
 import static java.math.BigDecimal.ZERO;
+
+import java.util.Collections;
+import java.util.Date;
 
 import org.junit.Test;
 
 import be.shad.tsqb.domain.House;
+import be.shad.tsqb.restrictions.RestrictionsGroupFactory;
 import be.shad.tsqb.test.TypeSafeQueryTest;
 import be.shad.tsqb.values.HqlQueryValueImpl;
 
@@ -35,10 +42,24 @@ public class RestrictionChainingTest extends TypeSafeQueryTest {
     }
 
     @Test
+    public void testAndWithIgnored() {
+        House house = query.from(House.class);
+        query.where(house.getFloors()).gt(4).and(house.isOccupied()).eq(null, IGNORE_NULL).and(house.getName()).eq("Domus");
+        validate(" from House hobj1 where hobj1.floors > :np1 and hobj1.name = :np2", 4, "Domus");
+    }
+
+    @Test
     public void testOr() {
         House house = query.from(House.class);
         query.where(house.getFloors()).gt(4).or(house.isOccupied()).isFalse();
         validate(" from House hobj1 where hobj1.floors > :np1 or hobj1.occupied = :np2", 4, FALSE);
+    }
+
+    @Test
+    public void testOrWithIgnored() {
+        House house = query.from(House.class);
+        query.where(house.getFloors()).gt(4).or(house.isOccupied()).eq(null, IGNORE_NULL).or(house.getName()).eq("Domus");
+        validate(" from House hobj1 where hobj1.floors > :np1 or hobj1.name = :np2", 4, "Domus");
     }
     
     @Test
@@ -68,6 +89,28 @@ public class RestrictionChainingTest extends TypeSafeQueryTest {
                         and(house.getName()).startsWith("Cas").
                         or(house.getName()).startsWith("Chu")
                 ));
+
+        validate(" from House hobj1 where (hobj1.floors > :np1 and (hobj1.occupied = :np2 or hobj1.price = :np3) and (hobj1.name like :np4 or hobj1.name like :np5))", 
+                4, FALSE, ZERO, "Cas%", "Chu%");
+    }
+
+    /**
+     * Same as testGroups(), but with extra ignored restrictions
+     */
+    @Test
+    public void testGroupsWithIgnores() {
+        House house = query.from(House.class);
+        RestrictionsGroupFactory gb = query.getGroupedRestrictionsBuilder();
+
+        // hopelessly complex grouping:
+        query.where().and(
+            gb.where(house.getFloors()).gt(4).and(
+                gb.where(house.isOccupied()).isFalse().or(house.getPrice()).eq(ZERO).and(house.getConstructionDate()).in(Collections.<Date>emptyList(), IGNORE_EMPTY_COLLECTION)
+            ).and(
+                gb.where(house.getName()).startsWith("Cas").and(house.getAddress().getStreet()).startsWith("", IGNORE_EMPTY_STRING).or(house.getName()).startsWith("Chu")
+            ).and(
+                gb.where(house.getPrice()).gt(null, IGNORE_NULL)
+            ));
 
         validate(" from House hobj1 where (hobj1.floors > :np1 and (hobj1.occupied = :np2 or hobj1.price = :np3) and (hobj1.name like :np4 or hobj1.name like :np5))", 
                 4, FALSE, ZERO, "Cas%", "Chu%");

@@ -32,21 +32,30 @@ import be.shad.tsqb.values.TypeSafeValue;
 public class OnGoingBooleanRestrictionImpl 
         extends OnGoingRestrictionImpl<Boolean, ContinuedOnGoingBooleanRestriction, OnGoingBooleanRestriction> 
         implements OnGoingBooleanRestriction, ContinuedOnGoingBooleanRestriction {
+    private boolean isContinued;
 
     public OnGoingBooleanRestrictionImpl(RestrictionsGroupInternal group, 
             RestrictionNodeType restrictionNodeType, Boolean argument) {
         super(group, restrictionNodeType, argument);
+        this.isContinued = false;
     }
 
     public OnGoingBooleanRestrictionImpl(RestrictionsGroupInternal group, 
             RestrictionNodeType restrictionNodeType, TypeSafeValue<Boolean> argument) {
-        super(group, restrictionNodeType, argument);
+        this(group, restrictionNodeType, false, argument);
+    }
+
+    private OnGoingBooleanRestrictionImpl(RestrictionsGroupInternal group, 
+            RestrictionNodeType restrictionNodeType, 
+            boolean isContinued, TypeSafeValue<Boolean> startValue) {
+        super(group, restrictionNodeType, startValue);
+        this.isContinued = isContinued;
     }
 
     @Override
     protected OnGoingBooleanRestrictionImpl createContinuedOnGoingRestriction(
             RestrictionNodeType restrictionNodeType, TypeSafeValue<Boolean> startValue) {
-        return new OnGoingBooleanRestrictionImpl(group, restrictionNodeType, startValue);
+        return new OnGoingBooleanRestrictionImpl(group, restrictionNodeType, true, startValue);
     }
     
     @Override
@@ -88,13 +97,25 @@ public class OnGoingBooleanRestrictionImpl
         createNamedParameterBinder(value, continued).named(alias);
         return continued;
     }
+    
+    /**
+     * When automatic true, (restriction is continued without providing a value),
+     * then only actually add as true. Otherwise skip automatic true.
+     */
+    private RestrictionChainable isAutomaticTrue() {
+        if (isContinued) {
+            return getRestrictionsGroup();
+        }
+        return isTrue();
+    }
+
 
     /**
      * {@inheritDoc}
      */
     @Override
     public RestrictionChainable andExists(TypeSafeSubQuery<?> subquery) {
-        return isTrue().andExists(subquery);
+        return isAutomaticTrue().andExists(subquery);
     }
 
     /**
@@ -102,7 +123,7 @@ public class OnGoingBooleanRestrictionImpl
      */
     @Override
     public RestrictionChainable orExists(TypeSafeSubQuery<?> subquery) {
-        return isTrue().orExists(subquery);
+        return isAutomaticTrue().orExists(subquery);
     }
 
     /**
@@ -110,7 +131,7 @@ public class OnGoingBooleanRestrictionImpl
      */
     @Override
     public RestrictionChainable and(HqlQueryValue restriction) {
-        return isTrue().and(restriction);
+        return isAutomaticTrue().and(restriction);
     }
 
     /**
@@ -118,7 +139,7 @@ public class OnGoingBooleanRestrictionImpl
      */
     @Override
     public RestrictionChainable or(HqlQueryValue restriction) {
-        return isTrue().or(restriction);
+        return isAutomaticTrue().or(restriction);
     }
 
     /**
@@ -126,7 +147,7 @@ public class OnGoingBooleanRestrictionImpl
      */
     @Override
     public RestrictionChainable and(Restriction restriction) {
-        return isTrue().and(restriction);
+        return isAutomaticTrue().and(restriction);
     }
 
     /**
@@ -134,7 +155,7 @@ public class OnGoingBooleanRestrictionImpl
      */
     @Override
     public RestrictionChainable or(Restriction restriction) {
-        return isTrue().or(restriction);
+        return isAutomaticTrue().or(restriction);
     }
 
     /**
@@ -142,7 +163,7 @@ public class OnGoingBooleanRestrictionImpl
      */
     @Override
     public <E extends Enum<E>> OnGoingEnumRestriction<E> andEnum(TypeSafeValue<E> value) {
-        return isTrue().andEnum(value);
+        return isAutomaticTrue().andEnum(value);
     }
 
     /**
@@ -150,7 +171,7 @@ public class OnGoingBooleanRestrictionImpl
      */
     @Override
     public <E extends Enum<E>> OnGoingEnumRestriction<E> and(E value) {
-        return isTrue().and(value);
+        return isAutomaticTrue().and(value);
     }
 
     /**
@@ -158,7 +179,7 @@ public class OnGoingBooleanRestrictionImpl
      */
     @Override
     public OnGoingBooleanRestriction andBoolean(TypeSafeValue<Boolean> value) {
-        return isTrue().andBoolean(value);
+        return isAutomaticTrue().andBoolean(value);
     }
 
     /**
@@ -166,7 +187,7 @@ public class OnGoingBooleanRestrictionImpl
      */
     @Override
     public OnGoingBooleanRestriction and(Boolean value) {
-        return isTrue().and(value);
+        return isAutomaticTrue().and(value);
     }
 
     /**
@@ -174,7 +195,7 @@ public class OnGoingBooleanRestrictionImpl
      */
     @Override
     public <N extends Number> OnGoingNumberRestriction andNumber(TypeSafeValue<N> value) {
-        return isTrue().andNumber(value);
+        return isAutomaticTrue().andNumber(value);
     }
 
     /**
@@ -182,7 +203,7 @@ public class OnGoingBooleanRestrictionImpl
      */
     @Override
     public OnGoingNumberRestriction and(Number value) {
-        return isTrue().and(value);
+        return isAutomaticTrue().and(value);
     }
 
     /**
@@ -190,7 +211,7 @@ public class OnGoingBooleanRestrictionImpl
      */
     @Override
     public OnGoingDateRestriction andDate(TypeSafeValue<Date> value) {
-        return isTrue().andDate(value);
+        return isAutomaticTrue().andDate(value);
     }
 
     /**
@@ -198,7 +219,7 @@ public class OnGoingBooleanRestrictionImpl
      */
     @Override
     public OnGoingDateRestriction and(Date value) {
-        return isTrue().and(value);
+        return isAutomaticTrue().and(value);
     }
 
     /**
@@ -206,7 +227,7 @@ public class OnGoingBooleanRestrictionImpl
      */
     @Override
     public OnGoingTextRestriction andString(TypeSafeValue<String> value) {
-        return isTrue().andString(value);
+        return isAutomaticTrue().andString(value);
     }
 
     /**
@@ -214,7 +235,7 @@ public class OnGoingBooleanRestrictionImpl
      */
     @Override
     public OnGoingTextRestriction and(String value) {
-        return isTrue().and(value);
+        return isAutomaticTrue().and(value);
     }
 
     /**
@@ -222,7 +243,7 @@ public class OnGoingBooleanRestrictionImpl
      */
     @Override
     public OnGoingDateRestriction or(Date value) {
-        return isTrue().or(value);
+        return isAutomaticTrue().or(value);
     }
 
     /**
@@ -230,7 +251,7 @@ public class OnGoingBooleanRestrictionImpl
      */
     @Override
     public OnGoingDateRestriction orDate(TypeSafeValue<Date> value) {
-        return isTrue().orDate(value);
+        return isAutomaticTrue().orDate(value);
     }
 
     /**
@@ -238,7 +259,7 @@ public class OnGoingBooleanRestrictionImpl
      */
     @Override
     public OnGoingBooleanRestriction or(Boolean value) {
-        return isTrue().or(value);
+        return isAutomaticTrue().or(value);
     }
 
     /**
@@ -246,7 +267,7 @@ public class OnGoingBooleanRestrictionImpl
      */
     @Override
     public OnGoingBooleanRestriction orBoolean(TypeSafeValue<Boolean> value) {
-        return isTrue().orBoolean(value);
+        return isAutomaticTrue().orBoolean(value);
     }
 
     /**
@@ -254,7 +275,7 @@ public class OnGoingBooleanRestrictionImpl
      */
     @Override
     public OnGoingNumberRestriction orNumber(TypeSafeValue<Number> value) {
-        return isTrue().orNumber(value);
+        return isAutomaticTrue().orNumber(value);
     }
 
     /**
@@ -262,7 +283,7 @@ public class OnGoingBooleanRestrictionImpl
      */
     @Override
     public OnGoingNumberRestriction or(Number value) {
-        return isTrue().or(value);
+        return isAutomaticTrue().or(value);
     }
 
     /**
@@ -270,7 +291,7 @@ public class OnGoingBooleanRestrictionImpl
      */
     @Override
     public OnGoingTextRestriction orString(TypeSafeValue<String> value) {
-        return isTrue().orString(value);
+        return isAutomaticTrue().orString(value);
     }
 
     /**
@@ -278,7 +299,7 @@ public class OnGoingBooleanRestrictionImpl
      */
     @Override
     public OnGoingTextRestriction or(String value) {
-        return isTrue().or(value);
+        return isAutomaticTrue().or(value);
     }
 
     /**
@@ -286,7 +307,7 @@ public class OnGoingBooleanRestrictionImpl
      */
     @Override
     public RestrictionAndChainable and(RestrictionsGroup group) {
-        return isTrue().and(group);
+        return isAutomaticTrue().and(group);
     }
 
     /**
@@ -294,7 +315,7 @@ public class OnGoingBooleanRestrictionImpl
      */
     @Override
     public RestrictionAndChainable or(RestrictionsGroup group) {
-        return isTrue().or(group);
+        return isAutomaticTrue().or(group);
     }
     
 }
