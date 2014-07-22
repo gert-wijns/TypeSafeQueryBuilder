@@ -256,8 +256,16 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
      * {@inheritDoc}
      */
     @Override
-    public RestrictionValuePredicate getRestrictionValuePredicate() {
+    public RestrictionValuePredicate getDefaultRestrictionValuePredicate() {
         return restrictionValuePredicate;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setDefaultRestrictionValuePredicate(RestrictionValuePredicate restrictionValuePredicate) {
+        this.restrictionValuePredicate = restrictionValuePredicate;
     }
     
     /**

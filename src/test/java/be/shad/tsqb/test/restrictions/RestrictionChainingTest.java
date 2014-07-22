@@ -19,9 +19,11 @@ import static be.shad.tsqb.restrictions.RestrictionsGroupImpl.group;
 import static be.shad.tsqb.restrictions.predicate.RestrictionValuePredicate.IGNORE_EMPTY_COLLECTION;
 import static be.shad.tsqb.restrictions.predicate.RestrictionValuePredicate.IGNORE_EMPTY_STRING;
 import static be.shad.tsqb.restrictions.predicate.RestrictionValuePredicate.IGNORE_NULL;
+import static be.shad.tsqb.restrictions.predicate.RestrictionValuePredicate.IGNORE_NULL_OR_EMPTY;
 import static java.lang.Boolean.FALSE;
 import static java.math.BigDecimal.ZERO;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Date;
 
@@ -110,6 +112,29 @@ public class RestrictionChainingTest extends TypeSafeQueryTest {
                 gb.where(house.getName()).startsWith("Cas").and(house.getAddress().getStreet()).startsWith("", IGNORE_EMPTY_STRING).or(house.getName()).startsWith("Chu")
             ).and(
                 gb.where(house.getPrice()).gt(null, IGNORE_NULL)
+            ));
+
+        validate(" from House hobj1 where (hobj1.floors > :np1 and (hobj1.occupied = :np2 or hobj1.price = :np3) and (hobj1.name like :np4 or hobj1.name like :np5))", 
+                4, FALSE, ZERO, "Cas%", "Chu%");
+    }
+
+    /**
+     * Same as testGroupsWithIgnores(), but with the ignores as default
+     */
+    @Test
+    public void testGroupsWithDefaultIgnores() {
+        House house = query.from(House.class);
+        RestrictionsGroupFactory gb = query.getGroupedRestrictionsBuilder();
+        query.setDefaultRestrictionValuePredicate(IGNORE_NULL_OR_EMPTY);
+        
+        // hopelessly complex grouping:
+        query.where().and(
+            gb.where(house.getFloors()).gt(4).and(
+                gb.where(house.isOccupied()).isFalse().or(house.getPrice()).eq(ZERO).and(house.getConstructionDate()).in(Collections.<Date>emptyList())
+            ).and(
+                gb.where(house.getName()).startsWith("Cas").and(house.getAddress().getStreet()).startsWith("").or(house.getName()).startsWith("Chu")
+            ).and(
+                gb.where(house.getPrice()).gt((BigDecimal) null)
             ));
 
         validate(" from House hobj1 where (hobj1.floors > :np1 and (hobj1.occupied = :np2 or hobj1.price = :np3) and (hobj1.name like :np4 or hobj1.name like :np5))", 

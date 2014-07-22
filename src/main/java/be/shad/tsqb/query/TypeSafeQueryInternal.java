@@ -25,7 +25,6 @@ import be.shad.tsqb.ordering.TypeSafeQueryOrderBys;
 import be.shad.tsqb.query.copy.Copyable;
 import be.shad.tsqb.restrictions.DirectValueProvider;
 import be.shad.tsqb.restrictions.RestrictionsGroup;
-import be.shad.tsqb.restrictions.predicate.RestrictionValuePredicate;
 import be.shad.tsqb.values.TypeSafeValue;
 
 public interface TypeSafeQueryInternal extends TypeSafeQuery, Copyable {
@@ -113,11 +112,5 @@ public interface TypeSafeQueryInternal extends TypeSafeQuery, Copyable {
      * Convenience method to provide the helper where the internal query was provided.
      */
     TypeSafeQueryHelper getHelper();
-
-    /**
-     * The predicate to use if no more specific predicate was set on the restriction.
-     * May be null when not applicable.
-     */
-    RestrictionValuePredicate getRestrictionValuePredicate();
     
 }
