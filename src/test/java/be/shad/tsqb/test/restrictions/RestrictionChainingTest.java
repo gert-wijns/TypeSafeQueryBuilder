@@ -18,12 +18,14 @@ package be.shad.tsqb.test.restrictions;
 import static be.shad.tsqb.restrictions.RestrictionsGroupImpl.group;
 import static be.shad.tsqb.restrictions.predicate.RestrictionValuePredicate.IGNORE_EMPTY_COLLECTION;
 import static be.shad.tsqb.restrictions.predicate.RestrictionValuePredicate.IGNORE_EMPTY_STRING;
+import static be.shad.tsqb.restrictions.predicate.RestrictionValuePredicate.IGNORE_NEVER;
 import static be.shad.tsqb.restrictions.predicate.RestrictionValuePredicate.IGNORE_NULL;
 import static be.shad.tsqb.restrictions.predicate.RestrictionValuePredicate.IGNORE_NULL_OR_EMPTY;
 import static java.lang.Boolean.FALSE;
 import static java.math.BigDecimal.ZERO;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 
@@ -31,6 +33,7 @@ import org.junit.Test;
 
 import be.shad.tsqb.domain.House;
 import be.shad.tsqb.restrictions.RestrictionsGroupFactory;
+import be.shad.tsqb.selector.PredicatesTestSelector;
 import be.shad.tsqb.test.TypeSafeQueryTest;
 import be.shad.tsqb.values.HqlQueryValueImpl;
 
@@ -139,6 +142,80 @@ public class RestrictionChainingTest extends TypeSafeQueryTest {
 
         validate(" from House hobj1 where (hobj1.floors > :np1 and (hobj1.occupied = :np2 or hobj1.price = :np3) and (hobj1.name like :np4 or hobj1.name like :np5))", 
                 4, FALSE, ZERO, "Cas%", "Chu%");
+    }
+    
+    /**
+     * Test dates restriction is included when set.
+     */
+    @Test
+    public void testGroupsWithSelectorsConstructionDateIncludedWhenSet() {
+        PredicatesTestSelector selector = new PredicatesTestSelector();
+        selector.setConstructionDates(Arrays.asList(new Date()));
+        validate(selector, 
+                " from House hobj1 "
+                + "where (hobj1.floors > :np1 "
+                + "and (hobj1.occupied = :np2 or hobj1.price = :np3 "
+                + "and hobj1.constructionDate = (:np4)) "
+                + "and (hobj1.name like :np5 or hobj1.name like :np6))", 
+                4, FALSE, ZERO, selector.getConstructionDates(), "Cas%", "Chu%");
+    }
+
+    /**
+     * Test street restriction is included when set.
+     */
+    @Test
+    public void testGroupsWithSelectorsStreetIncludedWhenSet() {
+        PredicatesTestSelector selector = new PredicatesTestSelector();
+        selector.setStreet("SomeStreet");
+        validate(selector, 
+                " from House hobj1 "
+                + "where (hobj1.floors > :np1 "
+                + "and (hobj1.occupied = :np2 or hobj1.price = :np3) "
+                + "and (hobj1.name like :np4 and hobj1.address.street like :np5 or hobj1.name like :np6))", 
+                4, FALSE, ZERO, "Cas%", "SomeStreet%", "Chu%");
+    }
+
+    /**
+     * Test price restriction is included when set.
+     */
+    @Test
+    public void testGroupsWithSelectorsPriceIncludedWhenSet() {
+        PredicatesTestSelector selector = new PredicatesTestSelector();
+        selector.setPrice(new BigDecimal("5.00"));
+        validate(selector, 
+                " from House hobj1 "
+                + "where (hobj1.floors > :np1 "
+                + "and (hobj1.occupied = :np2 or hobj1.price = :np3) "
+                + "and (hobj1.name like :np4 or hobj1.name like :np5) "
+                + "and hobj1.price > :np6)", 
+                4, FALSE, ZERO, "Cas%", "Chu%", selector.getPrice());
+    }
+    
+    private void validate(PredicatesTestSelector selector, String hql, Object... params) {
+        House house = query.from(House.class);
+        RestrictionsGroupFactory gb = query.getGroupedRestrictionsBuilder();
+
+        // hopelessly complex grouping:
+        query.where().and(
+            gb.where(house.getFloors()).gt(4).and(
+                gb.where(house.isOccupied()).isFalse().or(house.getPrice()).eq(ZERO).and(house.getConstructionDate()).in(selector.getConstructionDates(), IGNORE_EMPTY_COLLECTION)
+            ).and(
+                gb.where(house.getName()).startsWith("Cas").and(house.getAddress().getStreet()).startsWith(selector.getStreet(), IGNORE_EMPTY_STRING).or(house.getName()).startsWith("Chu")
+            ).and(
+                gb.where(house.getPrice()).gt(selector.getPrice(), IGNORE_NULL)
+            ));
+        
+        validate(hql, params);
+    }
+
+    /**
+     * Null value is not ignored, and should fail during query conversion because the restriction is not ignored.
+     */
+    @Test(expected=IllegalStateException.class)
+    public void testSpecificPredicateUsedWhenQueryDefaultPredicateSet() {
+        House house = query.from(House.class);
+        query.where(house.getFloors()).gt(4).or(house.isOccupied()).eq(null, IGNORE_NEVER).or(house.getName()).eq("Domus");
+        query.toHqlQuery();
     }
     
     @Test

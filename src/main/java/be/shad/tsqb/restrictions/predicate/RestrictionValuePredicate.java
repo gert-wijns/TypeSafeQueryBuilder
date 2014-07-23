@@ -47,4 +47,10 @@ public interface RestrictionValuePredicate {
      * Composite of {@link #IGNORE_NULL}, {@link #IGNORE_EMPTY_STRING}, {@link #IGNORE_EMPTY_COLLECTION}.
      */
     public static final RestrictionValuePredicate IGNORE_NULL_OR_EMPTY = composite(IGNORE_NULL, IGNORE_EMPTY_COLLECTION, IGNORE_EMPTY_STRING);
+    
+    /**
+     * @see be.shad.tsqb.restrictions.predicate.IgnoreNeverValuePredicate
+     */
+    public static final RestrictionValuePredicate IGNORE_NEVER = new IgnoreNeverValuePredicate();
+    
 }
