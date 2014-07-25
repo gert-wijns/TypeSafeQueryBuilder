@@ -28,6 +28,7 @@ import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.query.TypeSafeSubQuery;
 import be.shad.tsqb.query.copy.CopyContext;
 import be.shad.tsqb.query.copy.Copyable;
+import be.shad.tsqb.restrictions.predicate.RestrictionGuard;
 import be.shad.tsqb.values.CustomTypeSafeValue;
 import be.shad.tsqb.values.HqlQueryBuilderParams;
 import be.shad.tsqb.values.HqlQueryValue;
@@ -155,26 +156,41 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
     @Override
     public HqlQueryValueImpl toHqlQueryValue(HqlQueryBuilderParams params) {
         HqlQueryValueImpl value = new HqlQueryValueImpl();
-        boolean addBrackets = isAddBrackets();
-        if (addBrackets) {
-            value.appendHql("(");
-        }
+        boolean hasValue = false;
         for(RestrictionNode item: restrictions) {
-            HqlQueryValue nextValue = item.getRestriction().toHqlQueryValue(params);
-            if( item.getType() == RestrictionNodeType.And ) {
-                value.appendHql(" and ");
-            } else if( item.getType() == RestrictionNodeType.Or ) {
-                value.appendHql(" or ");
-            } // else null, root
-            value.appendHql(nextValue.getHql());
-            value.addParams(nextValue.getParams());
+            Restriction restriction = item.getRestriction();
+            if (isRestrictionApplicable(restriction)) {
+                HqlQueryValue nextValue = restriction.toHqlQueryValue(params);
+                String nextValueHql = nextValue.getHql();
+                // check length, if a restriction was not applicable or a group
+                // had no applicable restrictions, the hql will be empty:
+                if (nextValueHql.length() > 0) {
+                    if (hasValue) {
+                        if (item.getType() == RestrictionNodeType.And) {
+                            value.appendHql(" and ");
+                        } else if (item.getType() == RestrictionNodeType.Or) {
+                            value.appendHql(" or ");
+                        } // else null, root
+                    }
+                    value.appendHql(nextValue.getHql());
+                    value.addParams(nextValue.getParams());
+                    hasValue = true;
+                }
+            }
         }
-        if (addBrackets) {
-            value.appendHql(")");
+        if (!hasValue || !isAddBrackets()) {
+            return value;
         }
-        return value;
+        return new HqlQueryValueImpl("(" + value.getHql() + ")", value.getParams());
     }
     
+    private boolean isRestrictionApplicable(Restriction restriction) {
+        if (restriction instanceof RestrictionGuard) {
+            return ((RestrictionGuard) restriction).isRestrictionApplicable();
+        }
+        return true;
+    }
+
     /**
      * Evaluates brackets policy to decide whether to add brackets or not.
      */
@@ -254,7 +270,7 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
     
     private RestrictionChainable add(HqlQueryValue customValue, RestrictionNodeType type) {
         TypeSafeValue<Object> value = new CustomTypeSafeValue<Object>(query, Object.class, customValue);
-        return add(new RestrictionImpl<>(this, value, null, null), type);
+        return add(new RestrictionImpl<>(this, null, value, null, null), type);
     }
     
     /**

@@ -55,6 +55,9 @@ public class DirectTypeSafeValue<T> extends TypeSafeValueImpl<T> implements Name
 
     @Override
     public HqlQueryValueImpl toHqlQueryValue(HqlQueryBuilderParams params) {
+        if (value == null) {
+            throw new IllegalStateException("Value is null when transforming to query");
+        }
         if (params.isRequiresLiterals()) {
             return new HqlQueryValueImpl(query.getHelper().toLiteral(getValue()));
         } else {

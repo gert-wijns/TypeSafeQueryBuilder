@@ -23,6 +23,7 @@ import static be.shad.tsqb.restrictions.RestrictionOperator.LESS_THAN_EQUAL;
 import java.util.Date;
 
 import be.shad.tsqb.restrictions.named.SingleNamedParameterBinder;
+import be.shad.tsqb.restrictions.predicate.RestrictionPredicate;
 import be.shad.tsqb.values.DirectTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
 
@@ -83,7 +84,7 @@ public class OnGoingDateRestrictionImpl
      */
     @Override
     public ContinuedOnGoingDateRestriction before(Date value) {
-        return before(toValue(value));
+        return before(value, null);
     }
 
     /**
@@ -115,7 +116,7 @@ public class OnGoingDateRestrictionImpl
      */
     @Override
     public ContinuedOnGoingDateRestriction after(Date value) {
-        return after(toValue(value));
+        return after(value, null);
     }
 
     /**
@@ -131,7 +132,7 @@ public class OnGoingDateRestrictionImpl
      */
     @Override
     public ContinuedOnGoingDateRestriction notAfter(Date value) {
-        return notAfter(toValue(value));
+        return notAfter(value, null);
     }
 
     /**
@@ -147,7 +148,7 @@ public class OnGoingDateRestrictionImpl
      */
     @Override
     public ContinuedOnGoingDateRestriction notBefore(Date value) {
-        return notBefore(toValue(value));
+        return notBefore(value, null);
     }
 
     /**
@@ -163,7 +164,7 @@ public class OnGoingDateRestrictionImpl
      */
     @Override
     public SingleNamedParameterBinder<Date, ContinuedOnGoingDateRestriction, OnGoingDateRestriction> afterOrEq() {
-        DirectTypeSafeValue<Date> value = createDirectValue();
+        DirectTypeSafeValue<Date> value = createDummyDirectValue();
         return createNamedParameterBinder(value, afterOrEq(value));
     }
 
@@ -172,7 +173,7 @@ public class OnGoingDateRestrictionImpl
      */
     @Override
     public SingleNamedParameterBinder<Date, ContinuedOnGoingDateRestriction, OnGoingDateRestriction> beforeOrEq() {
-        DirectTypeSafeValue<Date> value = createDirectValue();
+        DirectTypeSafeValue<Date> value = createDummyDirectValue();
         return createNamedParameterBinder(value, beforeOrEq(value));
     }
     
@@ -181,7 +182,7 @@ public class OnGoingDateRestrictionImpl
      */
     @Override
     public SingleNamedParameterBinder<Date, ContinuedOnGoingDateRestriction, OnGoingDateRestriction> notBefore() {
-        DirectTypeSafeValue<Date> value = createDirectValue();
+        DirectTypeSafeValue<Date> value = createDummyDirectValue();
         return createNamedParameterBinder(value, notBefore(value));
     }
 
@@ -190,7 +191,7 @@ public class OnGoingDateRestrictionImpl
      */
     @Override
     public SingleNamedParameterBinder<Date, ContinuedOnGoingDateRestriction, OnGoingDateRestriction> notAfter() {
-        DirectTypeSafeValue<Date> value = createDirectValue();
+        DirectTypeSafeValue<Date> value = createDummyDirectValue();
         return createNamedParameterBinder(value, notAfter(value));
     }
 
@@ -199,7 +200,7 @@ public class OnGoingDateRestrictionImpl
      */
     @Override
     public SingleNamedParameterBinder<Date, ContinuedOnGoingDateRestriction, OnGoingDateRestriction> after() {
-        DirectTypeSafeValue<Date> value = createDirectValue();
+        DirectTypeSafeValue<Date> value = createDummyDirectValue();
         return createNamedParameterBinder(value, after(value));
     }
 
@@ -208,8 +209,56 @@ public class OnGoingDateRestrictionImpl
      */
     @Override
     public SingleNamedParameterBinder<Date, ContinuedOnGoingDateRestriction, OnGoingDateRestriction> before() {
-        DirectTypeSafeValue<Date> value = createDirectValue();
+        DirectTypeSafeValue<Date> value = createDummyDirectValue();
         return createNamedParameterBinder(value, before(value));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ContinuedOnGoingDateRestriction notBefore(Date value, RestrictionPredicate predicate) {
+        return notBefore(toValue(value, predicate));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ContinuedOnGoingDateRestriction notAfter(Date value, RestrictionPredicate predicate) {
+        return notAfter(toValue(value, predicate));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ContinuedOnGoingDateRestriction afterOrEq(Date value, RestrictionPredicate predicate) {
+        return afterOrEq(toValue(value, predicate));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ContinuedOnGoingDateRestriction after(Date value, RestrictionPredicate predicate) {
+        return after(toValue(value, predicate));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ContinuedOnGoingDateRestriction beforeOrEq(Date value, RestrictionPredicate predicate) {
+        return beforeOrEq(toValue(value, predicate));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ContinuedOnGoingDateRestriction before(Date value, RestrictionPredicate predicate) {
+        return before(toValue(value, predicate));
     }
 
 }

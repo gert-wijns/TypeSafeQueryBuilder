@@ -45,12 +45,14 @@ public class CopyContext {
         if (originalOrCopy == null) {
             return null;
         }
+        if (originalOrCopy instanceof Stateless) {
+            return originalOrCopy;
+        }
         Object copy = data.get(originalOrCopy);
         if (copy == null) {
             if (originalOrCopy instanceof Copyable) {
                 // if no copy exists, create a copy and 
                 copy = ((Copyable) originalOrCopy).copy(this);
-                put(originalOrCopy, (T) copy);
             } else if (copyableRequired) {
                 throw new IllegalStateException(String.format("Object [%s] is not copyable, "
                         + "so its copy should have been added before trying to get its copy.",
@@ -58,6 +60,7 @@ public class CopyContext {
             } else {
                 copy = originalOrCopy;
             }
+            put(originalOrCopy, (T) copy);
         }
         return (T) copy;
     }

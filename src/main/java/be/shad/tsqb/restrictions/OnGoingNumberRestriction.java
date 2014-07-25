@@ -16,6 +16,7 @@
 package be.shad.tsqb.restrictions;
 
 import be.shad.tsqb.restrictions.named.SingleNamedParameterBinder;
+import be.shad.tsqb.restrictions.predicate.RestrictionPredicate;
 import be.shad.tsqb.values.TypeSafeValue;
 
 /**
@@ -34,6 +35,12 @@ public interface OnGoingNumberRestriction extends OnGoingRestriction<Number, Con
     ContinuedOnGoingNumberRestriction gte(Number value);
 
     /**
+     * Same as {@link #gte(Number)}, but the restriction will only be added to the
+     * resulting query when the value passes the predicate.
+     */
+    ContinuedOnGoingNumberRestriction gte(Number value, RestrictionPredicate predicate);
+
+    /**
      * Generates: left <= numberRepresentative
      */
     ContinuedOnGoingNumberRestriction lte(TypeSafeValue<Number> value);
@@ -42,6 +49,12 @@ public interface OnGoingNumberRestriction extends OnGoingRestriction<Number, Con
      * Generates: left <= (referencedValue or actualValue)
      */
     ContinuedOnGoingNumberRestriction lte(Number value);
+
+    /**
+     * Same as {@link #lte(Number)}, but the restriction will only be added to the
+     * resulting query when the value passes the predicate.
+     */
+    ContinuedOnGoingNumberRestriction lte(Number value, RestrictionPredicate predicate);
 
     /**
      * Generates: left > numberRepresentative
@@ -54,6 +67,12 @@ public interface OnGoingNumberRestriction extends OnGoingRestriction<Number, Con
     ContinuedOnGoingNumberRestriction gt(Number value);
 
     /**
+     * Same as {@link #gt(Number)}, but the restriction will only be added to the
+     * resulting query when the value passes the predicate.
+     */
+    ContinuedOnGoingNumberRestriction gt(Number value, RestrictionPredicate predicate);
+
+    /**
      * Generates: left < numberRepresentative
      */
     ContinuedOnGoingNumberRestriction lt(TypeSafeValue<Number> value);
@@ -62,6 +81,12 @@ public interface OnGoingNumberRestriction extends OnGoingRestriction<Number, Con
      * Generates: left < (referencedValue or actualValue)
      */
     ContinuedOnGoingNumberRestriction lt(Number value);
+
+    /**
+     * Same as {@link #lt(Number)}, but the restriction will only be added to the
+     * resulting query when the value passes the predicate.
+     */
+    ContinuedOnGoingNumberRestriction lt(Number value, RestrictionPredicate predicate);
 
     /**
      * Generates: left >= numberRepresentative
@@ -74,6 +99,12 @@ public interface OnGoingNumberRestriction extends OnGoingRestriction<Number, Con
     ContinuedOnGoingNumberRestriction nlt(Number value);
 
     /**
+     * Same as {@link #nlt(Number)}, but the restriction will only be added to the
+     * resulting query when the value passes the predicate.
+     */
+    ContinuedOnGoingNumberRestriction nlt(Number value, RestrictionPredicate predicate);
+
+    /**
      * Generates: left <= numberRepresentative
      */
     ContinuedOnGoingNumberRestriction ngt(TypeSafeValue<Number> value);
@@ -82,6 +113,12 @@ public interface OnGoingNumberRestriction extends OnGoingRestriction<Number, Con
      * Generates: left <= (referencedValue or actualValue)
      */
     ContinuedOnGoingNumberRestriction ngt(Number value);
+
+    /**
+     * Same as {@link #ngt(Number)}, but the restriction will only be added to the
+     * resulting query when the value passes the predicate.
+     */
+    ContinuedOnGoingNumberRestriction ngt(Number value, RestrictionPredicate predicate);
 
     /**
      * @see #nlt(Number)

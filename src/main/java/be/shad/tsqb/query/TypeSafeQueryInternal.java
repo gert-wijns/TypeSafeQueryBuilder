@@ -23,6 +23,7 @@ import be.shad.tsqb.grouping.TypeSafeQueryGroupBys;
 import be.shad.tsqb.helper.TypeSafeQueryHelper;
 import be.shad.tsqb.ordering.TypeSafeQueryOrderBys;
 import be.shad.tsqb.query.copy.Copyable;
+import be.shad.tsqb.restrictions.DirectValueProvider;
 import be.shad.tsqb.restrictions.RestrictionsGroup;
 import be.shad.tsqb.values.TypeSafeValue;
 
@@ -48,15 +49,15 @@ public interface TypeSafeQueryInternal extends TypeSafeQuery, Copyable {
      * that there are no or only one pending invocations.
      */
     TypeSafeQueryProxyData dequeueInvocation();
-
+    
     /**
      * Calls dequeueInvocation().
      * If there was exactly one, then this invocations data is used as referenced value.
-     * If there was no invocation, the value is used as a direct value.
+     * If there was no invocation, the value is converted to a type safe value using the direct value provider.
      * 
      * @throws IllegalStateException if more than one invocation was on the queue.
      */
-    <VAL> TypeSafeValue<VAL> toValue(VAL val);
+    <VAL> TypeSafeValue<VAL> toValue(VAL val, DirectValueProvider<VAL> provider);
 
     /**
      * Enqueues an invocation. The queue tracks all invocations made on the entity proxies 

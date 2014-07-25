@@ -15,6 +15,8 @@
  */
 package be.shad.tsqb.test.restrictions;
 
+import static be.shad.tsqb.restrictions.predicate.RestrictionPredicate.IGNORE_NULL;
+
 import org.junit.Test;
 
 import be.shad.tsqb.domain.people.Person;
@@ -40,6 +42,13 @@ public class OnGoingTextRestrictionTest extends TypeSafeQueryTest {
     }
     
     @Test
+    public void containsTestIgnored() {
+        Person person = query.from(Person.class);
+        query.where(person.getName()).contains(null, IGNORE_NULL); 
+        validate(" from Person hobj1");
+    }
+    
+    @Test
     public void namedContainsTest() {
         Person person = query.from(Person.class);
         query.where(person.getName()).contains().named(NAMED_PARAM_1);
@@ -56,6 +65,13 @@ public class OnGoingTextRestrictionTest extends TypeSafeQueryTest {
         Person person = query.from(Person.class);
         query.where(person.getName()).startsWith("Kris");
         validate(" from Person hobj1 where hobj1.name like :np1", "Kris%");
+    }
+    
+    @Test
+    public void startsWithTestIgnored() {
+        Person person = query.from(Person.class);
+        query.where(person.getName()).startsWith(null, IGNORE_NULL); 
+        validate(" from Person hobj1");
     }
 
     @Test
@@ -75,6 +91,13 @@ public class OnGoingTextRestrictionTest extends TypeSafeQueryTest {
         Person person = query.from(Person.class);
         query.where(person.getName()).endsWith("e");
         validate(" from Person hobj1 where hobj1.name like :np1", "%e");
+    }
+    
+    @Test
+    public void endsWithTestIgnored() {
+        Person person = query.from(Person.class);
+        query.where(person.getName()).endsWith(null, IGNORE_NULL); 
+        validate(" from Person hobj1");
     }
     
     @Test

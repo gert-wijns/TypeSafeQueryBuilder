@@ -108,6 +108,14 @@ public class DirectTypeSafeStringValue extends DirectTypeSafeValue<String> imple
         }
         return wrapped;
     }
+    
+    /**
+     * Empty when the wrapped value is empty or null.
+     */
+    public boolean isEmpty() {
+        String wrapped = super.getValue();
+        return wrapped == null || wrapped.isEmpty();
+    }
 
     @Override
     public Copyable copy(CopyContext context) {

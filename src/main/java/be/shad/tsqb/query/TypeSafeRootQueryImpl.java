@@ -27,6 +27,7 @@ import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
 import be.shad.tsqb.query.copy.CopyContext;
 import be.shad.tsqb.query.copy.Copyable;
+import be.shad.tsqb.restrictions.predicate.RestrictionPredicate;
 import be.shad.tsqb.selection.SelectionValueTransformer;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroup;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroupImpl;
@@ -50,6 +51,7 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     private TypeSafeNameds namedObjects;
     private TypeSafeValue<?> lastSelectedValue;
     private String lastInvokedProjectionPath;
+    private RestrictionPredicate restrictionValuePredicate;
     private int entityAliasCount;
     private int selectionGroupAliasCount;
     private int firstResult;
@@ -92,6 +94,7 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
         for(Entry<String, TypeSafeQueryProxy> customAliasedProxy: original.customAliasedProxies.entrySet()) {
             customAliasedProxies.put(customAliasedProxy.getKey(), context.get(customAliasedProxy.getValue()));
         }
+        restrictionValuePredicate = context.get(original.restrictionValuePredicate);
         lastSelectedValue = context.get(original.lastSelectedValue);
         lastInvokedProjectionPath = original.lastInvokedProjectionPath;
         entityAliasCount = original.entityAliasCount;
@@ -248,6 +251,22 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     @Override
     public String createSelectGroupAlias() {
         return "g" + selectionGroupAliasCount++;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public RestrictionPredicate getDefaultRestrictionValuePredicate() {
+        return restrictionValuePredicate;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setDefaultRestrictionValuePredicate(RestrictionPredicate restrictionValuePredicate) {
+        this.restrictionValuePredicate = restrictionValuePredicate;
     }
     
     /**

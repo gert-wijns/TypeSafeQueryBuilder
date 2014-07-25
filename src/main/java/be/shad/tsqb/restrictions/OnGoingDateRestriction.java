@@ -18,6 +18,7 @@ package be.shad.tsqb.restrictions;
 import java.util.Date;
 
 import be.shad.tsqb.restrictions.named.SingleNamedParameterBinder;
+import be.shad.tsqb.restrictions.predicate.RestrictionPredicate;
 import be.shad.tsqb.values.TypeSafeValue;
 
 /**
@@ -36,6 +37,12 @@ public interface OnGoingDateRestriction extends OnGoingRestriction<Date, Continu
     ContinuedOnGoingDateRestriction notBefore(Date value);
 
     /**
+     * Same as {@link #notBefore(Date)}, but the restriction will only be added to the
+     * resulting query when the value passes the predicate.
+     */
+    ContinuedOnGoingDateRestriction notBefore(Date value, RestrictionPredicate predicate);
+    
+    /**
      * Generates: left <= dateRepresentative
      */
     ContinuedOnGoingDateRestriction notAfter(TypeSafeValue<Date> value);
@@ -44,6 +51,12 @@ public interface OnGoingDateRestriction extends OnGoingRestriction<Date, Continu
      * Generates: left <= (referencedValue or actualValue)
      */
     ContinuedOnGoingDateRestriction notAfter(Date value);
+
+    /**
+     * Same as {@link #notAfter(Date)}, but the restriction will only be added to the
+     * resulting query when the value passes the predicate.
+     */
+    ContinuedOnGoingDateRestriction notAfter(Date value, RestrictionPredicate predicate);
 
     /**
      * Generates: left >= (referencedValue or actualValue)
@@ -56,6 +69,12 @@ public interface OnGoingDateRestriction extends OnGoingRestriction<Date, Continu
     ContinuedOnGoingDateRestriction afterOrEq(TypeSafeValue<Date> value);
 
     /**
+     * Same as {@link #afterOrEq(Date)}, but the restriction will only be added to the
+     * resulting query when the value passes the predicate.
+     */
+    ContinuedOnGoingDateRestriction afterOrEq(Date value, RestrictionPredicate predicate);
+
+    /**
      * Generates: left > dateRepresentative
      */
     ContinuedOnGoingDateRestriction after(TypeSafeValue<Date> value);
@@ -66,9 +85,21 @@ public interface OnGoingDateRestriction extends OnGoingRestriction<Date, Continu
     ContinuedOnGoingDateRestriction after(Date value);
 
     /**
+     * Same as {@link #after(Date)}, but the restriction will only be added to the
+     * resulting query when the value passes the predicate.
+     */
+    ContinuedOnGoingDateRestriction after(Date value, RestrictionPredicate predicate);
+
+    /**
      * Generates: left <= (referencedValue or actualValue)
      */
     ContinuedOnGoingDateRestriction beforeOrEq(Date value);
+
+    /**
+     * Same as {@link #beforeOrEq(Date)}, but the restriction will only be added to the
+     * resulting query when the value passes the predicate.
+     */
+    ContinuedOnGoingDateRestriction beforeOrEq(Date value, RestrictionPredicate predicate);
 
     /**
      * Generates: left <= dateRepresentative
@@ -84,6 +115,12 @@ public interface OnGoingDateRestriction extends OnGoingRestriction<Date, Continu
      * Generates: left < (referencedValue or actualValue)
      */
     ContinuedOnGoingDateRestriction before(Date value);
+
+    /**
+     * Same as {@link #before(Date)}, but the restriction will only be added to the
+     * resulting query when the value passes the predicate.
+     */
+    ContinuedOnGoingDateRestriction before(Date value, RestrictionPredicate predicate);
 
     /**
      * @see #beforeOrEq(Date)
