@@ -15,24 +15,12 @@
  */
 package be.shad.tsqb.restrictions.predicate;
 
-import java.util.Collection;
+public interface RestrictionGuard {
 
-import be.shad.tsqb.query.copy.Stateless;
-import be.shad.tsqb.values.CollectionTypeSafeValue;
-import be.shad.tsqb.values.TypeSafeValue;
-
-/**
- * Ignores empty or null collections.
- */
-public final class IgnoreEmptyCollectionValuePredicate implements RestrictionValuePredicate, Stateless {
-
-    @Override
-    public boolean isValueApplicable(TypeSafeValue<?> value) {
-        if (value instanceof CollectionTypeSafeValue<?>) {
-            Collection<?> values = ((CollectionTypeSafeValue<?>) value).getValues();
-            return values != null && !values.isEmpty();
-        }
-        return true;
-    }
-
+    /**
+     * Applies query or more fine grained RestrictionFilter 
+     * to the values used in the restriction.
+     */
+    boolean isRestrictionApplicable();
+    
 }

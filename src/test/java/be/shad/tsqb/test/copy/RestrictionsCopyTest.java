@@ -15,7 +15,7 @@
  */
 package be.shad.tsqb.test.copy;
 
-import static be.shad.tsqb.restrictions.predicate.RestrictionValuePredicate.IGNORE_NULL;
+import static be.shad.tsqb.restrictions.predicate.RestrictionPredicate.IGNORE_NULL;
 
 import org.junit.Test;
 

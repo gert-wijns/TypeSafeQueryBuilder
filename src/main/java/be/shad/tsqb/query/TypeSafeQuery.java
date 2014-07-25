@@ -22,7 +22,7 @@ import be.shad.tsqb.helper.TypeSafeQueryHelper;
 import be.shad.tsqb.ordering.OnGoingOrderBy;
 import be.shad.tsqb.restrictions.RestrictionsGroupFactory;
 import be.shad.tsqb.restrictions.WhereRestrictions;
-import be.shad.tsqb.restrictions.predicate.RestrictionValuePredicate;
+import be.shad.tsqb.restrictions.predicate.RestrictionPredicate;
 import be.shad.tsqb.values.CaseTypeSafeValue;
 import be.shad.tsqb.values.CustomTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
@@ -286,11 +286,11 @@ public interface TypeSafeQuery extends WhereRestrictions {
      * The predicate to use if no more specific predicate was set on the restriction.
      * May be null when not applicable.
      */
-    RestrictionValuePredicate getDefaultRestrictionValuePredicate();
+    RestrictionPredicate getDefaultRestrictionValuePredicate();
 
     /**
      * Sets what is used by {@link #getDefaultRestrictionValuePredicate()}
      */
-    void setDefaultRestrictionValuePredicate(RestrictionValuePredicate restrictionValuePredicate);
+    void setDefaultRestrictionValuePredicate(RestrictionPredicate restrictionValuePredicate);
     
 }

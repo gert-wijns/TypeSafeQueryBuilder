@@ -16,19 +16,24 @@
 package be.shad.tsqb.restrictions.predicate;
 
 import be.shad.tsqb.query.copy.Stateless;
+import be.shad.tsqb.values.CollectionTypeSafeValue;
+import be.shad.tsqb.values.DirectTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
 
 /**
- * Never ignore restriction based on this value.
- * <p>
- * This is only useful when a default was set on query level 
- * and a certain restriction should not be ignored.
+ * Ignores direct null values.
  */
-public class IgnoreNeverValuePredicate implements RestrictionValuePredicate, Stateless {
+public final class IgnoreDirectNullPredicate implements RestrictionPredicate, Stateless {
 
     @Override
     public boolean isValueApplicable(TypeSafeValue<?> value) {
+        if (value instanceof DirectTypeSafeValue) {
+            return ((DirectTypeSafeValue<?>) value).getValue() != null;
+        }
+        if (value instanceof CollectionTypeSafeValue<?>) {
+            return ((CollectionTypeSafeValue<?>) value).getValues() != null;
+        }
         return true;
     }
-    
+
 }

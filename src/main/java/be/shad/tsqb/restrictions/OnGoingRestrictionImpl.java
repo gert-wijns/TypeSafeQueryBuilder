@@ -30,7 +30,7 @@ import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.restrictions.named.CollectionNamedParameterBinder;
 import be.shad.tsqb.restrictions.named.NamedParameterBinderImpl;
 import be.shad.tsqb.restrictions.named.SingleNamedParameterBinder;
-import be.shad.tsqb.restrictions.predicate.RestrictionValuePredicate;
+import be.shad.tsqb.restrictions.predicate.RestrictionPredicate;
 import be.shad.tsqb.values.CollectionTypeSafeValue;
 import be.shad.tsqb.values.DirectTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
@@ -53,7 +53,7 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
      * without having to rebuild it completely.
      */
     private RestrictionImpl<VAL> restriction;
-    private RestrictionValuePredicate predicate;
+    private RestrictionPredicate predicate;
 
     public OnGoingRestrictionImpl(RestrictionsGroupInternal group, RestrictionNodeType restrictionNodeType, VAL argument) {
         super(group);
@@ -244,7 +244,7 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
     /**
      * Delegates to {@link TypeSafeQueryInternal#toValue(Object)}
      */
-    protected TypeSafeValue<VAL> toValue(VAL value, RestrictionValuePredicate predicate) {
+    protected TypeSafeValue<VAL> toValue(VAL value, RestrictionPredicate predicate) {
         this.predicate = predicate;
         return group.getQuery().toValue(value, this);
     }
@@ -273,26 +273,26 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
     }
     
     @Override
-    public CONTINUED notEq(VAL value, RestrictionValuePredicate predicate) {
+    public CONTINUED notEq(VAL value, RestrictionPredicate predicate) {
         return notEq(toValue(value, predicate));
     }
     
     @Override
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public <T extends VAL> CONTINUED notIn(Collection<T> values, RestrictionValuePredicate predicate) {
+    public <T extends VAL> CONTINUED notIn(Collection<T> values, RestrictionPredicate predicate) {
         this.predicate = predicate;
         // suppressing warnings because we know T is a kind of VAL, and we won't be changing the collection internally
         return notIn(new CollectionTypeSafeValue<>(group.getQuery(), getSupportedValueClass(), (Collection) values));
     }
     
     @Override
-    public CONTINUED eq(VAL value, RestrictionValuePredicate predicate) {
+    public CONTINUED eq(VAL value, RestrictionPredicate predicate) {
         return eq(toValue(value, predicate));
     }
     
     @Override
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public <T extends VAL> CONTINUED in(Collection<T> values, RestrictionValuePredicate predicate) {
+    public <T extends VAL> CONTINUED in(Collection<T> values, RestrictionPredicate predicate) {
         this.predicate = predicate;
         // suppressing warnings because we know T is a kind of VAL, and we won't be changing the collection internally
         return in(new CollectionTypeSafeValue<>(group.getQuery(), getSupportedValueClass(), (Collection) values));

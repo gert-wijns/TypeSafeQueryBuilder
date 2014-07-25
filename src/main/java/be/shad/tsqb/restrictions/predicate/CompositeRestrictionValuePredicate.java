@@ -19,10 +19,10 @@ import be.shad.tsqb.query.copy.CopyContext;
 import be.shad.tsqb.query.copy.Copyable;
 import be.shad.tsqb.values.TypeSafeValue;
 
-public class CompositeRestrictionValuePredicate implements RestrictionValuePredicate, Copyable {
-    private final RestrictionValuePredicate[] predicates;
+public class CompositeRestrictionValuePredicate implements RestrictionPredicate, Copyable {
+    private final RestrictionPredicate[] predicates;
     
-    public CompositeRestrictionValuePredicate(RestrictionValuePredicate... predicates) {
+    public CompositeRestrictionValuePredicate(RestrictionPredicate... predicates) {
         this.predicates = predicates;
     }
 
@@ -31,9 +31,9 @@ public class CompositeRestrictionValuePredicate implements RestrictionValuePredi
      */
     public CompositeRestrictionValuePredicate(CopyContext context, 
             CompositeRestrictionValuePredicate original) {
-        RestrictionValuePredicate[] copy = null;
+        RestrictionPredicate[] copy = null;
         if (original.predicates != null) {
-            copy = new RestrictionValuePredicate[original.predicates.length];
+            copy = new RestrictionPredicate[original.predicates.length];
             for(int i=0, n=original.predicates.length; i < n; i++) {
                 copy[i] = context.get(original.predicates[i]);
             }
@@ -41,13 +41,13 @@ public class CompositeRestrictionValuePredicate implements RestrictionValuePredi
         this.predicates = copy;
     }
 
-    public static RestrictionValuePredicate composite(RestrictionValuePredicate... predicates) {
+    public static RestrictionPredicate composite(RestrictionPredicate... predicates) {
         return new CompositeRestrictionValuePredicate(predicates);
     }
 
     @Override
     public boolean isValueApplicable(TypeSafeValue<?> value) {
-        for(RestrictionValuePredicate predicate: predicates) {
+        for(RestrictionPredicate predicate: predicates) {
             if (!predicate.isValueApplicable(value)) {
                 return false;
             }

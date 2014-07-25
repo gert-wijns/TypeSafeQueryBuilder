@@ -15,19 +15,22 @@
  */
 package be.shad.tsqb.restrictions.predicate;
 
+import java.util.Collection;
+
 import be.shad.tsqb.query.copy.Stateless;
-import be.shad.tsqb.values.DirectTypeSafeStringValue;
+import be.shad.tsqb.values.CollectionTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
 
 /**
- * Ignores direct text values with a null or empty text.
+ * Ignores empty or null collections.
  */
-public final class IgnoreDirectEmptyStringValuePredicate implements RestrictionValuePredicate, Stateless {
+public final class IgnoreEmptyCollectionPredicate implements RestrictionPredicate, Stateless {
 
     @Override
     public boolean isValueApplicable(TypeSafeValue<?> value) {
-        if (value instanceof DirectTypeSafeStringValue) {
-            return !((DirectTypeSafeStringValue) value).isEmpty();
+        if (value instanceof CollectionTypeSafeValue<?>) {
+            Collection<?> values = ((CollectionTypeSafeValue<?>) value).getValues();
+            return values != null && !values.isEmpty();
         }
         return true;
     }

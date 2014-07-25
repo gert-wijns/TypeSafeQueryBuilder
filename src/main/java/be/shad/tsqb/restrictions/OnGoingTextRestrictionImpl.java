@@ -21,7 +21,7 @@ import java.util.List;
 
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.restrictions.named.SingleNamedParameterBinder;
-import be.shad.tsqb.restrictions.predicate.RestrictionValuePredicate;
+import be.shad.tsqb.restrictions.predicate.RestrictionPredicate;
 import be.shad.tsqb.values.DirectTypeSafeStringValue;
 import be.shad.tsqb.values.DirectTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
@@ -136,7 +136,7 @@ public class OnGoingTextRestrictionImpl
      * Adds wildcards to the value in case it is a direct value.
      * Validates no wildcards are used otherwise.
      */
-    private TypeSafeValue<String> toValue(String prefix, String value, String postfix, RestrictionValuePredicate predicate) {
+    private TypeSafeValue<String> toValue(String prefix, String value, String postfix, RestrictionPredicate predicate) {
         if( value instanceof String ) {
             DirectTypeSafeStringValue toValue = (DirectTypeSafeStringValue) toValue(value, predicate);
             return setWildCards(prefix, toValue, postfix);
@@ -175,22 +175,22 @@ public class OnGoingTextRestrictionImpl
     }
 
     @Override
-    public ContinuedOnGoingTextRestriction endsWith(String value, RestrictionValuePredicate predicate) {
+    public ContinuedOnGoingTextRestriction endsWith(String value, RestrictionPredicate predicate) {
         return like(toValue(WILDCARD, value, EMPTY, predicate));
     }
 
     @Override
-    public ContinuedOnGoingTextRestriction startsWith(String value, RestrictionValuePredicate predicate) {
+    public ContinuedOnGoingTextRestriction startsWith(String value, RestrictionPredicate predicate) {
         return like(toValue(EMPTY, value, WILDCARD, predicate));
     }
 
     @Override
-    public ContinuedOnGoingTextRestriction contains(String value, RestrictionValuePredicate predicate) {
+    public ContinuedOnGoingTextRestriction contains(String value, RestrictionPredicate predicate) {
         return like(toValue(WILDCARD, value, WILDCARD, predicate));
     }
 
     @Override
-    public ContinuedOnGoingTextRestriction like(String value, RestrictionValuePredicate predicate) {
+    public ContinuedOnGoingTextRestriction like(String value, RestrictionPredicate predicate) {
         return like(toValue(value, predicate));
     }
 

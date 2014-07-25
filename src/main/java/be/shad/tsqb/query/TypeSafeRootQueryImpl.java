@@ -27,7 +27,7 @@ import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
 import be.shad.tsqb.query.copy.CopyContext;
 import be.shad.tsqb.query.copy.Copyable;
-import be.shad.tsqb.restrictions.predicate.RestrictionValuePredicate;
+import be.shad.tsqb.restrictions.predicate.RestrictionPredicate;
 import be.shad.tsqb.selection.SelectionValueTransformer;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroup;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroupImpl;
@@ -51,7 +51,7 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     private TypeSafeNameds namedObjects;
     private TypeSafeValue<?> lastSelectedValue;
     private String lastInvokedProjectionPath;
-    private RestrictionValuePredicate restrictionValuePredicate;
+    private RestrictionPredicate restrictionValuePredicate;
     private int entityAliasCount;
     private int selectionGroupAliasCount;
     private int firstResult;
@@ -257,7 +257,7 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
      * {@inheritDoc}
      */
     @Override
-    public RestrictionValuePredicate getDefaultRestrictionValuePredicate() {
+    public RestrictionPredicate getDefaultRestrictionValuePredicate() {
         return restrictionValuePredicate;
     }
 
@@ -265,7 +265,7 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
      * {@inheritDoc}
      */
     @Override
-    public void setDefaultRestrictionValuePredicate(RestrictionValuePredicate restrictionValuePredicate) {
+    public void setDefaultRestrictionValuePredicate(RestrictionPredicate restrictionValuePredicate) {
         this.restrictionValuePredicate = restrictionValuePredicate;
     }
     

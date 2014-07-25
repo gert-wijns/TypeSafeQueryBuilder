@@ -18,8 +18,8 @@ package be.shad.tsqb.restrictions;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.query.copy.CopyContext;
 import be.shad.tsqb.query.copy.Copyable;
+import be.shad.tsqb.restrictions.predicate.RestrictionGuard;
 import be.shad.tsqb.restrictions.predicate.RestrictionPredicate;
-import be.shad.tsqb.restrictions.predicate.RestrictionValuePredicate;
 import be.shad.tsqb.values.CastTypeSafeValue;
 import be.shad.tsqb.values.HqlQueryBuilderParams;
 import be.shad.tsqb.values.HqlQueryValue;
@@ -41,18 +41,18 @@ import be.shad.tsqb.values.TypeSafeValue;
  * The <b>is_null</b>, <b>is_not_null</b> can be used without a right part.<br>
  * The rest requires both parts.
  */
-public class RestrictionImpl<VAL> implements Restriction, RestrictionPredicate {
+public class RestrictionImpl<VAL> implements Restriction, RestrictionGuard {
     
     private final RestrictionsGroupInternal group;
     private final TypeSafeQueryInternal query;
     
-    private RestrictionValuePredicate predicate;
+    private RestrictionPredicate predicate;
     private TypeSafeValue<VAL> left;
     private RestrictionOperator operator;
     private TypeSafeValue<VAL> right;
     
     public RestrictionImpl(RestrictionsGroupInternal group, 
-            RestrictionValuePredicate predicate,
+            RestrictionPredicate predicate,
             TypeSafeValue<VAL> left, 
             RestrictionOperator operator, 
             TypeSafeValue<VAL> right) {
@@ -182,7 +182,7 @@ public class RestrictionImpl<VAL> implements Restriction, RestrictionPredicate {
 
     @Override
     public boolean isRestrictionApplicable() {
-        RestrictionValuePredicate predicate = this.predicate;
+        RestrictionPredicate predicate = this.predicate;
         if (predicate == null) {
             predicate = query.getDefaultRestrictionValuePredicate();
         }

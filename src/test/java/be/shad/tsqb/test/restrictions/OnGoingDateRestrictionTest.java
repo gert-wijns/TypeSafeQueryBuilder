@@ -15,7 +15,7 @@
  */
 package be.shad.tsqb.test.restrictions;
 
-import static be.shad.tsqb.restrictions.predicate.RestrictionValuePredicate.IGNORE_NULL;
+import static be.shad.tsqb.restrictions.predicate.RestrictionPredicate.IGNORE_NULL;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;

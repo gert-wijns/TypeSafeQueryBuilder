@@ -28,7 +28,7 @@ import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.query.TypeSafeSubQuery;
 import be.shad.tsqb.query.copy.CopyContext;
 import be.shad.tsqb.query.copy.Copyable;
-import be.shad.tsqb.restrictions.predicate.RestrictionPredicate;
+import be.shad.tsqb.restrictions.predicate.RestrictionGuard;
 import be.shad.tsqb.values.CustomTypeSafeValue;
 import be.shad.tsqb.values.HqlQueryBuilderParams;
 import be.shad.tsqb.values.HqlQueryValue;
@@ -185,8 +185,8 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
     }
     
     private boolean isRestrictionApplicable(Restriction restriction) {
-        if (restriction instanceof RestrictionPredicate) {
-            return ((RestrictionPredicate) restriction).isRestrictionApplicable();
+        if (restriction instanceof RestrictionGuard) {
+            return ((RestrictionGuard) restriction).isRestrictionApplicable();
         }
         return true;
     }

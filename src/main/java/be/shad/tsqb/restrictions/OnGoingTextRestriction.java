@@ -16,7 +16,7 @@
 package be.shad.tsqb.restrictions;
 
 import be.shad.tsqb.restrictions.named.SingleNamedParameterBinder;
-import be.shad.tsqb.restrictions.predicate.RestrictionValuePredicate;
+import be.shad.tsqb.restrictions.predicate.RestrictionPredicate;
 import be.shad.tsqb.values.TypeSafeValue;
 
 /**
@@ -51,7 +51,7 @@ public interface OnGoingTextRestriction extends OnGoingRestriction<String, Conti
      * Same as {@link #endsWith(String)}, but the restriction will only be added to the
      * resulting query when the value passes the predicate.
      */
-    ContinuedOnGoingTextRestriction endsWith(String value, RestrictionValuePredicate predicate);
+    ContinuedOnGoingTextRestriction endsWith(String value, RestrictionPredicate predicate);
 
     /**
      * Generates: left like ? with (? = 'value%')
@@ -62,7 +62,7 @@ public interface OnGoingTextRestriction extends OnGoingRestriction<String, Conti
      * Same as {@link #startsWith(String)}, but the restriction will only be added to the
      * resulting query when the value passes the predicate.
      */
-    ContinuedOnGoingTextRestriction startsWith(String value, RestrictionValuePredicate predicate);
+    ContinuedOnGoingTextRestriction startsWith(String value, RestrictionPredicate predicate);
     
     /**
      * Generates: left like ? with (? = '%value%')
@@ -73,7 +73,7 @@ public interface OnGoingTextRestriction extends OnGoingRestriction<String, Conti
      * Same as {@link #contains(String)}, but the restriction will only be added to the
      * resulting query when the value passes the predicate.
      */
-    ContinuedOnGoingTextRestriction contains(String value, RestrictionValuePredicate predicate);
+    ContinuedOnGoingTextRestriction contains(String value, RestrictionPredicate predicate);
 
     /**
      * Generates: left like ? with (? = 'value') (will require value to contain wildcards to be useful)
@@ -84,7 +84,7 @@ public interface OnGoingTextRestriction extends OnGoingRestriction<String, Conti
      * Same as {@link #like(String)}, but the restriction will only be added to the
      * resulting query when the value passes the predicate.
      */
-    ContinuedOnGoingTextRestriction like(String value, RestrictionValuePredicate predicate);
+    ContinuedOnGoingTextRestriction like(String value, RestrictionPredicate predicate);
     
     /**
      * Generates: left like stringRepresentative

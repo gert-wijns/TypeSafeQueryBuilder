@@ -16,11 +16,11 @@
 package be.shad.tsqb.test.restrictions;
 
 import static be.shad.tsqb.restrictions.RestrictionsGroupImpl.group;
-import static be.shad.tsqb.restrictions.predicate.RestrictionValuePredicate.IGNORE_EMPTY_COLLECTION;
-import static be.shad.tsqb.restrictions.predicate.RestrictionValuePredicate.IGNORE_EMPTY_STRING;
-import static be.shad.tsqb.restrictions.predicate.RestrictionValuePredicate.IGNORE_NEVER;
-import static be.shad.tsqb.restrictions.predicate.RestrictionValuePredicate.IGNORE_NULL;
-import static be.shad.tsqb.restrictions.predicate.RestrictionValuePredicate.IGNORE_NULL_OR_EMPTY;
+import static be.shad.tsqb.restrictions.predicate.RestrictionPredicate.IGNORE_EMPTY_COLLECTION;
+import static be.shad.tsqb.restrictions.predicate.RestrictionPredicate.IGNORE_EMPTY_STRING;
+import static be.shad.tsqb.restrictions.predicate.RestrictionPredicate.IGNORE_NEVER;
+import static be.shad.tsqb.restrictions.predicate.RestrictionPredicate.IGNORE_NULL;
+import static be.shad.tsqb.restrictions.predicate.RestrictionPredicate.IGNORE_NULL_OR_EMPTY;
 import static java.lang.Boolean.FALSE;
 import static java.math.BigDecimal.ZERO;
 
@@ -214,6 +214,8 @@ public class RestrictionChainingTest extends TypeSafeQueryTest {
     @Test(expected=IllegalStateException.class)
     public void testSpecificPredicateUsedWhenQueryDefaultPredicateSet() {
         House house = query.from(House.class);
+        query.setDefaultRestrictionValuePredicate(IGNORE_NULL_OR_EMPTY);
+        
         query.where(house.getFloors()).gt(4).or(house.isOccupied()).eq(null, IGNORE_NEVER).or(house.getName()).eq("Domus");
         query.toHqlQuery();
     }

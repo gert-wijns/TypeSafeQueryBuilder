@@ -19,7 +19,7 @@ import static be.shad.tsqb.restrictions.RestrictionOperator.GREATER_THAN;
 import static be.shad.tsqb.restrictions.RestrictionOperator.GREATER_THAN_EQUAL;
 import static be.shad.tsqb.restrictions.RestrictionOperator.LESS_THAN;
 import be.shad.tsqb.restrictions.named.SingleNamedParameterBinder;
-import be.shad.tsqb.restrictions.predicate.RestrictionValuePredicate;
+import be.shad.tsqb.restrictions.predicate.RestrictionPredicate;
 import be.shad.tsqb.values.DirectTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
 
@@ -214,7 +214,7 @@ public class OnGoingNumberRestrictionImpl
      * {@inheritDoc}
      */
     @Override
-    public ContinuedOnGoingNumberRestriction gte(Number value, RestrictionValuePredicate predicate) {
+    public ContinuedOnGoingNumberRestriction gte(Number value, RestrictionPredicate predicate) {
         return gte(toValue(value, predicate));
     }
 
@@ -222,7 +222,7 @@ public class OnGoingNumberRestrictionImpl
      * {@inheritDoc}
      */
     @Override
-    public ContinuedOnGoingNumberRestriction lte(Number value, RestrictionValuePredicate predicate) {
+    public ContinuedOnGoingNumberRestriction lte(Number value, RestrictionPredicate predicate) {
         return lte(toValue(value, predicate));
     }
 
@@ -230,7 +230,7 @@ public class OnGoingNumberRestrictionImpl
      * {@inheritDoc}
      */
     @Override
-    public ContinuedOnGoingNumberRestriction gt(Number value, RestrictionValuePredicate predicate) {
+    public ContinuedOnGoingNumberRestriction gt(Number value, RestrictionPredicate predicate) {
         return gt(toValue(value, predicate));
     }
 
@@ -238,7 +238,7 @@ public class OnGoingNumberRestrictionImpl
      * {@inheritDoc}
      */
     @Override
-    public ContinuedOnGoingNumberRestriction lt(Number value, RestrictionValuePredicate predicate) {
+    public ContinuedOnGoingNumberRestriction lt(Number value, RestrictionPredicate predicate) {
         return lt(toValue(value, predicate));
     }
 
@@ -246,7 +246,7 @@ public class OnGoingNumberRestrictionImpl
      * {@inheritDoc}
      */
     @Override
-    public ContinuedOnGoingNumberRestriction nlt(Number value, RestrictionValuePredicate predicate) {
+    public ContinuedOnGoingNumberRestriction nlt(Number value, RestrictionPredicate predicate) {
         return nlt(toValue(value, predicate));
     }
 
@@ -254,7 +254,7 @@ public class OnGoingNumberRestrictionImpl
      * {@inheritDoc}
      */
     @Override
-    public ContinuedOnGoingNumberRestriction ngt(Number value, RestrictionValuePredicate predicate) {
+    public ContinuedOnGoingNumberRestriction ngt(Number value, RestrictionPredicate predicate) {
         return ngt(toValue(value, predicate));
     }
 

@@ -15,12 +15,42 @@
  */
 package be.shad.tsqb.restrictions.predicate;
 
+import static be.shad.tsqb.restrictions.predicate.CompositeRestrictionValuePredicate.composite;
+import be.shad.tsqb.values.TypeSafeValue;
+
 public interface RestrictionPredicate {
 
     /**
-     * Applies query or more fine grained RestrictionFilter 
-     * to the values used in the restriction.
+     * When any value within a restriction is not applicable,
+     * the restriction is not applicable.
+     * 
+     * @return when true, the restriction is still applicable
      */
-    boolean isRestrictionApplicable();
+    boolean isValueApplicable(TypeSafeValue<?> value);
+
+    /**
+     * Ignores restrictions which contain direct null values (isNull excluded).
+     */
+    public static final RestrictionPredicate IGNORE_NULL = new IgnoreDirectNullPredicate();
+
+    /**
+     * Ignores restrictions which contain direct string values without content.
+     */
+    public static final RestrictionPredicate IGNORE_EMPTY_STRING = new IgnoreDirectEmptyStringPredicate();
+    
+    /**
+     * Ignores restriction which contains a collection which is null or empty
+     */
+    public static final RestrictionPredicate IGNORE_EMPTY_COLLECTION = new IgnoreEmptyCollectionPredicate();
+
+    /**
+     * Composite of {@link #IGNORE_NULL}, {@link #IGNORE_EMPTY_STRING}, {@link #IGNORE_EMPTY_COLLECTION}.
+     */
+    public static final RestrictionPredicate IGNORE_NULL_OR_EMPTY = composite(IGNORE_NULL, IGNORE_EMPTY_COLLECTION, IGNORE_EMPTY_STRING);
+    
+    /**
+     * @see be.shad.tsqb.restrictions.predicate.IgnoreNeverPredicate
+     */
+    public static final RestrictionPredicate IGNORE_NEVER = new IgnoreNeverPredicate();
     
 }
