@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -36,6 +36,7 @@ import be.shad.tsqb.domain.people.PersonProperty;
 import be.shad.tsqb.domain.people.Relation;
 import be.shad.tsqb.domain.properties.PlanningProperties;
 import be.shad.tsqb.dto.FunctionsDto;
+import be.shad.tsqb.dto.PersonDto;
 import be.shad.tsqb.dto.ProductDetailsDto;
 import be.shad.tsqb.dto.StringToPlanningPropertiesTransformer;
 import be.shad.tsqb.query.JoinType;
@@ -61,10 +62,10 @@ public class SelectTests extends TypeSafeQueryTest {
     @Test
     public void selectProperty() {
         House house = query.from(House.class);
-        
+
         House result = query.select(House.class);
         result.setFloors(house.getFloors());
-        
+
         validate("select hobj1.floors as floors from House hobj1");
     }
 
@@ -74,10 +75,10 @@ public class SelectTests extends TypeSafeQueryTest {
     @Test
     public void selectEnumProperty() {
         House house = query.from(House.class);
-        
+
         House result = query.select(House.class);
         result.setStyle(house.getStyle());
-        
+
         validate("select hobj1.style as style from House hobj1");
     }
 
@@ -92,7 +93,7 @@ public class SelectTests extends TypeSafeQueryTest {
         MutablePair<House, Integer> result = query.select(MutablePair.class);
         result.setLeft(house);
         result.setRight(house.getFloors());
-        
+
         validate("select hobj1 as left, hobj1.floors as right from House hobj1");
     }
 
@@ -103,13 +104,13 @@ public class SelectTests extends TypeSafeQueryTest {
     public void selectJoinedEntity() {
         Town town = query.from(Town.class);
         Building building = query.join(town.getBuildings());
-        
+
         query.select(building);
         validate("select hobj2 from Town hobj1 join hobj1.buildings hobj2");
     }
 
     /**
-     * Noone would ever select this... but, 
+     * Noone would ever select this... but,
      * check if from 2 entities selects properly:
      */
     @Test
@@ -120,10 +121,10 @@ public class SelectTests extends TypeSafeQueryTest {
         House select = query.select(House.class);
         select.setFloors(house1.getFloors());
         select.setStyle(house2.getStyle());
-        
+
         validate("select hobj1.floors as floors, hobj2.style as style from House hobj1, House hobj2");
     }
-    
+
     /**
      * Select a value of a joined entity
      */
@@ -131,7 +132,7 @@ public class SelectTests extends TypeSafeQueryTest {
     public void selectJoinedEntityProperty() {
         Town town = query.from(Town.class);
         Building building = query.join(town.getBuildings());
-        
+
         query.select(building.getId());
 
         validate("select hobj2.id from Town hobj1 join hobj1.buildings hobj2");
@@ -140,11 +141,11 @@ public class SelectTests extends TypeSafeQueryTest {
     @Test
     public void selectSubQueryValue() {
         House house = query.from(House.class);
-        
+
         TypeSafeSubQuery<String> nameSubQuery = query.subquery(String.class);
         House houseSub = nameSubQuery.from(House.class);
         nameSubQuery.where(house.getId()).eq(houseSub.getId());
-        
+
         nameSubQuery.select(houseSub.getName());
 
         query.select(nameSubQuery);
@@ -154,11 +155,11 @@ public class SelectTests extends TypeSafeQueryTest {
     @Test
     public void selectSubQueryValueAndProperty() {
         House house = query.from(House.class);
-        
+
         TypeSafeSubQuery<String> nameSubQuery = query.subquery(String.class);
         House houseSub = nameSubQuery.from(House.class);
         nameSubQuery.where(house.getId()).eq(houseSub.getId());
-        
+
         nameSubQuery.select(houseSub.getName());
 
         @SuppressWarnings("unchecked")
@@ -175,16 +176,16 @@ public class SelectTests extends TypeSafeQueryTest {
     @Test
     public void selectPrimitiveSubQueryValue() {
         House house = query.from(House.class);
-        
+
         TypeSafeSubQuery<Integer> nameSubQuery = query.subquery(Integer.class);
         House houseSub = nameSubQuery.from(House.class);
         nameSubQuery.where(house.getId()).eq(houseSub.getId());
-        
+
         nameSubQuery.select(houseSub.getFloors());
-        
+
         House houseResult = query.select(House.class);
         houseResult.setFloors(nameSubQuery.select());
-        
+
         validate("select (select hobj2.floors from House hobj2 where hobj1.id = hobj2.id) as floors from House hobj1");
     }
 
@@ -221,7 +222,7 @@ public class SelectTests extends TypeSafeQueryTest {
     @Test
     public void selectDistinctSubquery() {
         House house = query.from(House.class);
-        
+
         TypeSafeSubQuery<Long> subquery = query.subquery(Long.class);
         House subhouse = subquery.from(House.class);
         subquery.where(subhouse.getId()).lt(house.getId());
@@ -235,7 +236,7 @@ public class SelectTests extends TypeSafeQueryTest {
     }
 
     /**
-     * Test distinct is selected after another selection was made 
+     * Test distinct is selected after another selection was made
      * but shows up first in the hql select list.
      */
     @Test
@@ -262,15 +263,15 @@ public class SelectTests extends TypeSafeQueryTest {
 
         validate("select distinct hobj1.floors as floors from House hobj1");
     }
-    
+
     @Test
     public void selectDistinctWithoutDto() {
         House house = query.from(House.class);
         query.select(query.distinct(house.getFloors()));
-        
+
         validate("select distinct hobj1.floors from House hobj1");
     }
-    
+
     /**
      * Test count function
      */
@@ -321,20 +322,20 @@ public class SelectTests extends TypeSafeQueryTest {
 
         query.joinWith(property1).where(property1.getPropertyKey()).eq("FavoriteColor");
         query.joinWith(property2).where(property2.getPropertyKey()).eq("FavoriteDish");
-        
+
         @SuppressWarnings("unchecked")
         MutableTriple<Long, String, Object> triple = query.select(MutableTriple.class);
         triple.setLeft(person.getId());
         triple.setMiddle(property1.getPropertyValue());
         triple.setRight(property2.getPropertyValue());
-        
+
         validate("select hobj1.id as left, hobj2.propertyValue as middle, hobj3.propertyValue as right "
                 + "from Person hobj1 "
                 + "join hobj1.properties hobj2 with hobj2.propertyKey = :np1 "
                 + "join hobj1.properties hobj3 with hobj3.propertyKey = :np2",
                 "FavoriteColor", "FavoriteDish");
     }
-    
+
     @Test
     public void selectCompositeTypeValues() {
         Building building = query.from(Building.class);
@@ -343,10 +344,10 @@ public class SelectTests extends TypeSafeQueryTest {
         MutablePair<String, Style> result = query.select(MutablePair.class);
         result.setLeft(building.getAddress().getNumber());
         result.setRight(building.getStyle());
-        
+
         validate("select hobj1.address.number as left, hobj1.style as right from Building hobj1");
     }
-    
+
     @Test
     public void selectComponentTypeValues() {
         Town town = query.from(Town.class);
@@ -355,10 +356,10 @@ public class SelectTests extends TypeSafeQueryTest {
         MutablePair<Double, Double> result = query.select(MutablePair.class);
         result.setLeft(town.getGeographicCoordinate().getLongitude());
         result.setRight(town.getGeographicCoordinate().getLattitude());
-        
+
         validate("select hobj1.geographicCoordinate.longitude as left, hobj1.geographicCoordinate.lattitude as right from Town hobj1");
     }
-    
+
     @Test
     public void selectNestedComponentTypeValues() {
         Product product = query.from(Product.class);
@@ -375,7 +376,7 @@ public class SelectTests extends TypeSafeQueryTest {
     @Test
     public void selectNestedSelectionPropertyDto() {
         Product product = query.from(Product.class);
-        
+
         Product productDto = query.select(Product.class);
         productDto.setName(product.getName());
         productDto.getProperties().getPlanning().setAlgorithm(product.getName());
@@ -390,25 +391,25 @@ public class SelectTests extends TypeSafeQueryTest {
     @Test
     public void selectSimpleTransformedValue() {
         Product product = query.from(Product.class);
-        
+
         Product productDto = query.select(Product.class);
         productDto.setName(product.getName());
-        productDto.getProperties().setPlanning(query.select(PlanningProperties.class, 
+        productDto.getProperties().setPlanning(query.select(PlanningProperties.class,
                 product.getName(), new StringToPlanningPropertiesTransformer()));
 
         validate("select hobj1.name as name, hobj1.name as properties_planning from Product hobj1");
     }
-    
+
     /**
      * Select encoded string property into a date field.
      */
     @Test
     public void selectDateTransformedValue() {
         Product product = query.from(Product.class);
-        
+
         ProductDetailsDto dto = query.select(ProductDetailsDto.class);
         dto.setId(product.getId());
-        dto.setValidUntilDate(query.select(Date.class, product.getManyProperties().getProperty1(), 
+        dto.setValidUntilDate(query.select(Date.class, product.getManyProperties().getProperty1(),
                 new SelectionValueTransformer<String, Date>() {
             @Override
             public Date convert(String a) {
@@ -437,7 +438,7 @@ public class SelectTests extends TypeSafeQueryTest {
 
         MutablePair<Long, ImmutablePair<Long, Integer>> select = query.select(MutablePair.class);
         select.setLeft(person.getId());
-        select.setRight(query.select(ImmutablePair.class, relation.getChild(), 
+        select.setRight(query.select(ImmutablePair.class, relation.getChild(),
             new SelectionValueTransformer<Person, ImmutablePair>() {
                 @Override
                 public ImmutablePair<Long, Integer> convert(Person a) {
@@ -447,5 +448,23 @@ public class SelectTests extends TypeSafeQueryTest {
 
         validate("select hobj1.id as left, hobj3 as right from Person hobj1 join hobj1.childRelations hobj2 join hobj2.child hobj3");
     }
-    
+
+    @Test
+    public void selectProxyClassTwiceShouldntFail() {
+        TestDataCreator creator = new TestDataCreator(getSessionFactory());
+        Town town = creator.createTestTown();
+        creator.createTestPerson(town, "Anonymous");
+
+        Person person = query.from(Person.class);
+
+        PersonDto personDto = query.select(PersonDto.class);
+        personDto.setPersonAge(person.getAge());
+
+        // second select proxy, can be a new instance, it's only a
+        // bridge to add the projections after all
+        personDto = query.select(PersonDto.class);
+        personDto.setThePersonsName(person.getName());
+
+        validate("select hobj1.age as personAge, hobj1.name as thePersonsName from Person hobj1");
+    }
 }

@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -45,7 +45,8 @@ import be.shad.tsqb.values.TypeSafeValue;
  * Maintains the invocationQueue, provides the entity aliases and buffers the last selected value.
  */
 public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements TypeSafeRootQuery, TypeSafeRootQueryInternal {
-    
+
+    private static final String SELECT_RESULT_GROUP = "g0";
     private List<TypeSafeQueryProxyData> invocationQueue;
     private Map<String, TypeSafeQueryProxy> customAliasedProxies;
     private TypeSafeNameds namedObjects;
@@ -56,17 +57,17 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     private int selectionGroupAliasCount;
     private int firstResult;
     private int maxResults;
-    
+
     @Override
     public TypeSafeRootQuery copy() {
         return new CopyContext().get(this);
     }
-    
+
     @Override
     public Copyable copy(CopyContext context) {
         return new TypeSafeRootQueryImpl(context, this);
     }
-    
+
     /**
      * Initializes the empty lists/initial counters,
      * was put into a separate method because super()
@@ -166,7 +167,7 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
         this.lastInvokedProjectionPath = null;
         return lastInvokedProjectionPath;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -221,7 +222,7 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
             String currentAlias = current.getTypeSafeProxyData().getAlias();
             if (!previousAlias.equals(currentAlias)) {
                 throw new IllegalArgumentException(String.format("A different proxy [%s] was already "
-                        + "registered for alias [%s]. Cannot register proxy [%s]", 
+                        + "registered for alias [%s]. Cannot register proxy [%s]",
                         previousAlias, customAlias, currentAlias));
             }
         }
@@ -268,7 +269,7 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     public void setDefaultRestrictionValuePredicate(RestrictionPredicate restrictionValuePredicate) {
         this.restrictionValuePredicate = restrictionValuePredicate;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -276,17 +277,17 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     public void select(Object value) {
         getProjections().project(value, null);
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
     public <T> T select(Class<T> resultClass) {
         TypeSafeQuerySelectionGroup resultGroup = new TypeSafeQuerySelectionGroupImpl(
-                createSelectGroupAlias(), resultClass, true, null);
+                SELECT_RESULT_GROUP, resultClass, true, null);
         return helper.createTypeSafeSelectProxy(this, resultClass, resultGroup);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -299,7 +300,7 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
         getProjections().setTransformerForNextProjection(transformer);
         return helper.getDummyValue(transformedClass);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -315,7 +316,7 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     public <VAL> VAL distinct(TypeSafeValue<VAL> value) {
         return hqlFunction().distinct(value).select();
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -324,7 +325,7 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
         lastSelectedValue = value;
         return helper.getDummyValue(value.getValueClass());
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -370,7 +371,7 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     public <T, A, B, C> SelectTriplet<A, B, C> selectMergeValues(T resultDto, SelectionMerger3<T, A, B, C> merger) {
         return selectMergeValues(resultDto, SelectTriplet.class, (SelectionMerger) merger);
     }
-    
+
     @Override
     public HqlQuery toHqlQuery() {
         return super.toHqlQuery(new HqlQueryBuilderParamsImpl());
