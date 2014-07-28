@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,7 +30,7 @@ import be.shad.tsqb.restrictions.RestrictionOperator;
  * The value is a collection of actual values, not proxies or property paths.
  * These values are added to the query as params.
  */
-public class CollectionTypeSafeValue<T> extends TypeSafeValueImpl<T> implements NamedValueEnabled, OperatorAwareValue {
+public class CollectionTypeSafeValue<T> extends TypeSafeValueImpl<T> implements NamedValueEnabled, OperatorAwareValue, DirectTypeSafeValueWrapper<Collection<T>> {
     private Collection<T> values;
 
     /**
@@ -51,17 +51,22 @@ public class CollectionTypeSafeValue<T> extends TypeSafeValueImpl<T> implements 
             }
         }
     }
-    
+
     public CollectionTypeSafeValue(TypeSafeQuery query, Class<T> valueClass, Collection<T> value) {
         this(query, valueClass);
         setValues(value);
     }
-    
+
     public CollectionTypeSafeValue(TypeSafeQuery query, Class<T> valueClass) {
         super(query, valueClass);
     }
-    
+
     public Collection<T> getValues() {
+        return getWrappedValue();
+    }
+
+    @Override
+    public Collection<T> getWrappedValue() {
         return values == null ? null: Collections.unmodifiableCollection(values);
     }
 
@@ -94,8 +99,8 @@ public class CollectionTypeSafeValue<T> extends TypeSafeValueImpl<T> implements 
     }
 
     /**
-     * Sets the collection value of this parameter, 
-     * the collection will have to be null or the elements in 
+     * Sets the collection value of this parameter,
+     * the collection will have to be null or the elements in
      * the collection will have to be assignable from the value class.
      * The collection will be validated:
      * <ul>
@@ -103,7 +108,7 @@ public class CollectionTypeSafeValue<T> extends TypeSafeValueImpl<T> implements 
      *     checked when the query is transformed to HQL.</li>
      * <li>When a collection is set, all of its elements must be assignable from the value class.</li>
      * <li>Elements must not be null.</li>
-     * <li>When a collection is set, it must not be empty. A defensive copy is taken, 
+     * <li>When a collection is set, it must not be empty. A defensive copy is taken,
      *     so adding elements to a referenced list will not work.</li>
      * </ul>
      */
@@ -113,14 +118,14 @@ public class CollectionTypeSafeValue<T> extends TypeSafeValueImpl<T> implements 
             this.values = null;
             return;
         }
-        
+
         Collection<?> values = null;
         if (namedValue instanceof Collection<?>) {
             values = (Collection<?>) namedValue;
         } else {
             values = Collections.singleton(namedValue);
         }
-        
+
         List<T> namedValues = new LinkedList<T>();
         for(Object value: values) {
             if (value == null) {

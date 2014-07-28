@@ -128,7 +128,7 @@ public class RestrictionChainingTest extends TypeSafeQueryTest {
     public void testGroupsWithDefaultIgnores() {
         House house = query.from(House.class);
         RestrictionsGroupFactory gb = query.getGroupedRestrictionsBuilder();
-        query.setDefaultRestrictionValuePredicate(IGNORE_NULL_OR_EMPTY);
+        query.setDefaultRestrictionPredicate(IGNORE_NULL_OR_EMPTY);
         
         // hopelessly complex grouping:
         query.where().and(
@@ -214,7 +214,7 @@ public class RestrictionChainingTest extends TypeSafeQueryTest {
     @Test(expected=IllegalStateException.class)
     public void testSpecificPredicateUsedWhenQueryDefaultPredicateSet() {
         House house = query.from(House.class);
-        query.setDefaultRestrictionValuePredicate(IGNORE_NULL_OR_EMPTY);
+        query.setDefaultRestrictionPredicate(IGNORE_NULL_OR_EMPTY);
         
         query.where(house.getFloors()).gt(4).or(house.isOccupied()).eq(null, IGNORE_NEVER).or(house.getName()).eq("Domus");
         query.toHqlQuery();

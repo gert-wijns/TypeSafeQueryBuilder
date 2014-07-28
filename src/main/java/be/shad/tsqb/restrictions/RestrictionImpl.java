@@ -184,7 +184,7 @@ public class RestrictionImpl<VAL> implements Restriction, RestrictionGuard {
     public boolean isRestrictionApplicable() {
         RestrictionPredicate predicate = this.predicate;
         if (predicate == null) {
-            predicate = query.getDefaultRestrictionValuePredicate();
+            predicate = query.getDefaultRestrictionPredicate();
         }
         if (predicate != null) {
             if (left != null && !predicate.isValueApplicable(left)) {

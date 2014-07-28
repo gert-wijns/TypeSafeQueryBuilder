@@ -13,25 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.shad.tsqb.restrictions.predicate;
+package be.shad.tsqb.values;
 
-import java.util.Collection;
+public interface DirectTypeSafeValueWrapper<T> {
 
-import be.shad.tsqb.query.copy.Stateless;
-
-/**
- * Ignores empty or null collections.
- */
-public final class IgnoreEmptyCollectionPredicate extends AbstractDirectValueRestrictionPredicate<Collection<?>> implements Stateless {
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public IgnoreEmptyCollectionPredicate() {
-        super((Class) Collection.class);
-    }
-
-    @Override
-    protected boolean isValueApplicable(Collection<?> value) {
-        return !value.isEmpty();
-    }
+    /**
+     * @return the wrapped value.
+     */
+    T getWrappedValue();
 
 }

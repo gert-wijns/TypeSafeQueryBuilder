@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,19 +24,19 @@ import be.shad.tsqb.query.copy.Copyable;
  * The value is an actual value, not a proxy or property path.
  * This value is added as param to the query.
  */
-public class DirectTypeSafeValue<T> extends TypeSafeValueImpl<T> implements NamedValueEnabled {
+public class DirectTypeSafeValue<T> extends TypeSafeValueImpl<T> implements NamedValueEnabled, DirectTypeSafeValueWrapper<T> {
     private T value;
-    
+
     @SuppressWarnings("unchecked")
     public DirectTypeSafeValue(TypeSafeQuery query, T value) {
         this(query, (Class<T>) value.getClass());
         setValue(value);
     }
-    
+
     public DirectTypeSafeValue(TypeSafeQuery query, Class<T> valueClass) {
         super(query, valueClass);
     }
-    
+
     /**
      * Copy constructor
      */
@@ -51,6 +51,11 @@ public class DirectTypeSafeValue<T> extends TypeSafeValueImpl<T> implements Name
 
     public void setValue(T value) {
         this.value = value;
+    }
+
+    @Override
+    public T getWrappedValue() {
+        return value;
     }
 
     @Override

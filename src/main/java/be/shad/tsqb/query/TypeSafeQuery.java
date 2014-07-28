@@ -286,11 +286,11 @@ public interface TypeSafeQuery extends WhereRestrictions {
      * The predicate to use if no more specific predicate was set on the restriction.
      * May be null when not applicable.
      */
-    RestrictionPredicate getDefaultRestrictionValuePredicate();
+    RestrictionPredicate getDefaultRestrictionPredicate();
 
     /**
-     * Sets what is used by {@link #getDefaultRestrictionValuePredicate()}
+     * Sets what is used by {@link #getDefaultRestrictionPredicate()}
      */
-    void setDefaultRestrictionValuePredicate(RestrictionPredicate restrictionValuePredicate);
+    void setDefaultRestrictionPredicate(RestrictionPredicate restrictionValuePredicate);
     
 }

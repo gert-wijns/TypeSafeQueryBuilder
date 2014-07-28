@@ -12,12 +12,12 @@ import be.shad.tsqb.restrictions.RestrictionOperator;
 public class DirectTypeSafeStringValue extends DirectTypeSafeValue<String> implements OperatorAwareValue {
 
     public final static String EMPTY = "";
-    
+
     private boolean upper;
     private boolean lower;
     private String prefix = EMPTY;
     private String postfix = EMPTY;
-    
+
     public DirectTypeSafeStringValue(TypeSafeQuery query, String value) {
         this(query);
         setValue(value);
@@ -44,7 +44,7 @@ public class DirectTypeSafeStringValue extends DirectTypeSafeValue<String> imple
     public boolean isUpper() {
         return upper;
     }
-    
+
     /**
      * Resets the lower flag when the upper flag is set.
      */
@@ -62,7 +62,7 @@ public class DirectTypeSafeStringValue extends DirectTypeSafeValue<String> imple
     public boolean isLower() {
         return lower;
     }
-    
+
     /**
      * Resets the upper flag when the lower flag is set.
      */
@@ -108,14 +108,6 @@ public class DirectTypeSafeStringValue extends DirectTypeSafeValue<String> imple
         }
         return wrapped;
     }
-    
-    /**
-     * Empty when the wrapped value is empty or null.
-     */
-    public boolean isEmpty() {
-        String wrapped = super.getValue();
-        return wrapped == null || wrapped.isEmpty();
-    }
 
     @Override
     public Copyable copy(CopyContext context) {
@@ -130,16 +122,16 @@ public class DirectTypeSafeStringValue extends DirectTypeSafeValue<String> imple
         switch (original) {
             case EQUAL: return isLike() ? LIKE: EQUAL;
             case NOT_EQUAL: return isLike() ? NOT_LIKE: NOT_EQUAL;
-            default: 
+            default:
         }
         return original;
     }
-    
+
     /**
      * Use like when a prefix or postfix was set.
      */
     private boolean isLike() {
         return !EMPTY.equals(prefix) || !EMPTY.equals(postfix);
     }
-    
+
 }

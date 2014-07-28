@@ -155,16 +155,16 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
      * {@inheritDoc}
      */
     @Override
-    public RestrictionPredicate getDefaultRestrictionValuePredicate() {
-        return getRootQuery().getDefaultRestrictionValuePredicate();
+    public RestrictionPredicate getDefaultRestrictionPredicate() {
+        return getRootQuery().getDefaultRestrictionPredicate();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void setDefaultRestrictionValuePredicate(RestrictionPredicate restrictionValuePredicate) {
-        getRootQuery().setDefaultRestrictionValuePredicate(restrictionValuePredicate);
+    public void setDefaultRestrictionPredicate(RestrictionPredicate restrictionValuePredicate) {
+        getRootQuery().setDefaultRestrictionPredicate(restrictionValuePredicate);
     }
 
     @Override

@@ -52,7 +52,7 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     private TypeSafeNameds namedObjects;
     private TypeSafeValue<?> lastSelectedValue;
     private String lastInvokedProjectionPath;
-    private RestrictionPredicate restrictionValuePredicate;
+    private RestrictionPredicate restrictionPredicate;
     private int entityAliasCount;
     private int selectionGroupAliasCount;
     private int firstResult;
@@ -95,7 +95,7 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
         for(Entry<String, TypeSafeQueryProxy> customAliasedProxy: original.customAliasedProxies.entrySet()) {
             customAliasedProxies.put(customAliasedProxy.getKey(), context.get(customAliasedProxy.getValue()));
         }
-        restrictionValuePredicate = context.get(original.restrictionValuePredicate);
+        restrictionPredicate = context.get(original.restrictionPredicate);
         lastSelectedValue = context.get(original.lastSelectedValue);
         lastInvokedProjectionPath = original.lastInvokedProjectionPath;
         entityAliasCount = original.entityAliasCount;
@@ -258,16 +258,16 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
      * {@inheritDoc}
      */
     @Override
-    public RestrictionPredicate getDefaultRestrictionValuePredicate() {
-        return restrictionValuePredicate;
+    public RestrictionPredicate getDefaultRestrictionPredicate() {
+        return restrictionPredicate;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void setDefaultRestrictionValuePredicate(RestrictionPredicate restrictionValuePredicate) {
-        this.restrictionValuePredicate = restrictionValuePredicate;
+    public void setDefaultRestrictionPredicate(RestrictionPredicate restrictionPredicate) {
+        this.restrictionPredicate = restrictionPredicate;
     }
 
     /**

@@ -255,7 +255,7 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
     
     @Override
     public final DirectTypeSafeValue<VAL> createEmptyDirectValue() {
-        if (predicate == null && group.getQuery().getDefaultRestrictionValuePredicate() == null) {
+        if (predicate == null && group.getQuery().getDefaultRestrictionPredicate() == null) {
             throw new IllegalArgumentException("When using restrictions, don't use .eq(null), use .isNull() instead. "
                     + "An exception to this rule is when a predicate which can filter null values is used.");
         }
