@@ -29,6 +29,7 @@ public class HqlQuery implements HqlQueryValue {
     private StringBuilder from = new StringBuilder();
     private StringBuilder where = new StringBuilder();
     private StringBuilder groupBy = new StringBuilder();
+    private StringBuilder having = new StringBuilder();
     private StringBuilder orderBy = new StringBuilder();
     private List<Object> params = new LinkedList<Object>();
     private ResultTransformer resultTransformer;
@@ -99,6 +100,20 @@ public class HqlQuery implements HqlQueryValue {
         groupBy.append(groupByPart);
     }
     
+    public String getHaving() {
+        if( having.length() > 0 ) {
+            return " having " + having.toString();
+        }
+        return "";
+    }
+    
+    public void appendHaving(String havingPart) {
+        if( having.length() >  0 ) {
+            having.append(" and ");
+        }
+        having.append(havingPart);
+    }
+    
     public String getOrderBy() {
         if( orderBy.length() > 0 ) {
             return " order by " + orderBy.toString();
@@ -118,7 +133,7 @@ public class HqlQuery implements HqlQueryValue {
     }
 
     public String getHql() {
-        return getSelect() + getFrom() + getWhere() + getGroupBy() + getOrderBy();
+        return getSelect() + getFrom() + getWhere() + getGroupBy() + getHaving() + getOrderBy();
     }
 
     /**

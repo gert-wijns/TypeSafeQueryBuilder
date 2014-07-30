@@ -71,7 +71,8 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
     private final ArithmeticTypeSafeValueFactory arithmeticsBuilder;
     private final TypeSafeQueryProxyDataTree dataTree;
     private final TypeSafeQueryProjections projections; 
-    private final RestrictionsGroupInternal restrictions;
+    private final RestrictionsGroupInternal whereRestrictions;
+    private final RestrictionsGroupInternal havingRestrictions;
     private final TypeSafeQueryGroupBys groupBys;
     private final TypeSafeQueryOrderBys orderBys;
     
@@ -89,7 +90,8 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
         this.projections = new TypeSafeQueryProjections(this);
         this.dataTree.replay(context, original.dataTree);
         this.projections.replay(context, original.projections);
-        this.restrictions = context.get(original.restrictions);
+        this.whereRestrictions = context.get(original.whereRestrictions);
+        this.havingRestrictions = context.get(original.havingRestrictions);
         this.groupBys = context.get(original.groupBys);
         this.orderBys = context.get(original.orderBys);
     }
@@ -107,7 +109,9 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
         this.groupedRestrictionsBuilder = new RestrictionsGroupFactoryImpl(this);
         this.arithmeticsBuilder = new ArithmeticTypeSafeValueFactoryImpl(this);
         this.projections = new TypeSafeQueryProjections(this);
-        this.restrictions = new RestrictionsGroupImpl(
+        this.whereRestrictions = new RestrictionsGroupImpl(
+                this, null, RestrictionsGroupBracketsPolicy.Never);
+        this.havingRestrictions = new RestrictionsGroupImpl(
                 this, null, RestrictionsGroupBracketsPolicy.Never);
         this.groupBys = new TypeSafeQueryGroupBys();
         this.orderBys = new TypeSafeQueryOrderBys(this);
@@ -302,7 +306,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      */
     @Override
     public RestrictionChainable where() {
-        return restrictions;
+        return whereRestrictions;
     }
 
     /**
@@ -310,7 +314,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      */
     @Override
     public RestrictionChainable and(RestrictionHolder restriction, RestrictionHolder... restrictions) {
-        return this.restrictions.and(restriction, restrictions);
+        return this.whereRestrictions.and(restriction, restrictions);
     }
 
     /**
@@ -318,7 +322,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      */
     @Override
     public RestrictionChainable or(RestrictionHolder restriction, RestrictionHolder... restrictions) {
-        return this.restrictions.or(restriction, restrictions);
+        return this.whereRestrictions.or(restriction, restrictions);
     }
 
     /**
@@ -326,7 +330,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      */
     @Override
     public RestrictionChainable where(HqlQueryValue restriction) {
-        return restrictions.and(restriction);
+        return whereRestrictions.and(restriction);
     }
 
     /**
@@ -334,7 +338,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      */
     @Override
     public RestrictionChainable where(RestrictionsGroup group) {
-        return restrictions.and(group.getRestrictions());
+        return whereRestrictions.and(group.getRestrictions());
     }
 
     /**
@@ -342,7 +346,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      */
     @Override
     public RestrictionChainable where(Restriction restriction) {
-        return restrictions.and(restriction);
+        return whereRestrictions.and(restriction);
     }
 
     /**
@@ -366,7 +370,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      */
     @Override
     public RestrictionChainable whereExists(TypeSafeSubQuery<?> subquery) {
-        return restrictions.andExists(subquery);
+        return whereRestrictions.andExists(subquery);
     }
 
     /**
@@ -374,7 +378,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      */
     @Override
     public RestrictionChainable whereNotExists(TypeSafeSubQuery<?> subquery) {
-        return restrictions.andNotExists(subquery);
+        return whereRestrictions.andNotExists(subquery);
     }
     
     /**
@@ -382,7 +386,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      */
     @Override
     public <E extends Enum<E>> OnGoingEnumRestriction<E> where(E value) {
-        return restrictions.and(value);
+        return whereRestrictions.and(value);
     }
 
     /**
@@ -390,7 +394,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      */
     @Override
     public <E extends Enum<E>> OnGoingEnumRestriction<E> whereEnum(TypeSafeValue<E> value) {
-        return restrictions.andEnum(value);
+        return whereRestrictions.andEnum(value);
     }
     
     /**
@@ -398,7 +402,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      */
     @Override
     public OnGoingBooleanRestriction where(Boolean value) {
-        return restrictions.and(value);
+        return whereRestrictions.and(value);
     }
 
     /**
@@ -406,7 +410,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      */
     @Override
     public OnGoingBooleanRestriction whereBoolean(TypeSafeValue<Boolean> value) {
-        return restrictions.andBoolean(value);
+        return whereRestrictions.andBoolean(value);
     }
     
     /**
@@ -414,7 +418,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      */
     @Override
     public OnGoingNumberRestriction where(Number value) {
-        return restrictions.and(value);
+        return whereRestrictions.and(value);
     }
 
     /**
@@ -422,7 +426,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      */
     @Override
     public OnGoingTextRestriction where(String value) {
-        return restrictions.and(value);
+        return whereRestrictions.and(value);
     }
 
     /**
@@ -430,7 +434,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      */
     @Override
     public <N extends Number> OnGoingNumberRestriction whereNumber(TypeSafeValue<N> value) {
-        return restrictions.andNumber(value);
+        return whereRestrictions.andNumber(value);
     }
 
     /**
@@ -438,7 +442,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      */
     @Override
     public OnGoingTextRestriction whereString(TypeSafeValue<String> value) {
-        return restrictions.andString(value);
+        return whereRestrictions.andString(value);
     }
     
     /**
@@ -446,7 +450,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      */
     @Override
     public OnGoingDateRestriction where(Date value) {
-        return restrictions.and(value);
+        return whereRestrictions.and(value);
     }
 
     /**
@@ -454,7 +458,135 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      */
     @Override
     public OnGoingDateRestriction whereDate(TypeSafeValue<Date> value) {
-        return restrictions.andDate(value);
+        return whereRestrictions.andDate(value);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public RestrictionChainable having() {
+        return havingRestrictions;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public RestrictionChainable having(HqlQueryValue restriction) {
+        return havingRestrictions.and(restriction);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public RestrictionChainable having(RestrictionsGroup group) {
+        return havingRestrictions.and(group);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public RestrictionChainable having(Restriction restriction) {
+        return havingRestrictions.and(restriction);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <E extends Enum<E>> OnGoingEnumRestriction<E> havingEnum(TypeSafeValue<E> value) {
+        return havingRestrictions.andEnum(value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <E extends Enum<E>> OnGoingEnumRestriction<E> having(E value) {
+        return havingRestrictions.and(value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public OnGoingBooleanRestriction havingBoolean(TypeSafeValue<Boolean> value) {
+        return havingRestrictions.andBoolean(value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public OnGoingBooleanRestriction having(Boolean value) {
+        return havingRestrictions.and(value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <N extends Number> OnGoingNumberRestriction havingNumber(TypeSafeValue<N> value) {
+        return havingRestrictions.andNumber(value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public OnGoingNumberRestriction having(Number value) {
+        return havingRestrictions.and(value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public OnGoingDateRestriction havingDate(TypeSafeValue<Date> value) {
+        return havingRestrictions.andDate(value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public OnGoingDateRestriction having(Date value) {
+        return havingRestrictions.and(value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public OnGoingTextRestriction havingString(TypeSafeValue<String> value) {
+        return havingRestrictions.andString(value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public OnGoingTextRestriction having(String value) {
+        return havingRestrictions.and(value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public RestrictionChainable havingExists(TypeSafeSubQuery<?> subquery) {
+        return havingRestrictions.andExists(subquery);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public RestrictionChainable havingNotExists(TypeSafeSubQuery<?> subquery) {
+        return havingRestrictions.andNotExists(subquery);
     }
     
     /**
@@ -608,7 +740,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      */
     @Override
     public RestrictionsGroup getRestrictions() {
-        return restrictions;
+        return whereRestrictions;
     }
 
     /**
@@ -656,12 +788,16 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
         dataTree.appendTo(query, params);
         
         // append where part:
-        HqlQueryValue hqlRestrictions = restrictions.toHqlQueryValue(params);
-        query.appendWhere(hqlRestrictions.getHql());
-        query.addParams(hqlRestrictions.getParams());
+        HqlQueryValue hqlWhereRestrictions = whereRestrictions.toHqlQueryValue(params);
+        query.appendWhere(hqlWhereRestrictions.getHql());
+        query.addParams(hqlWhereRestrictions.getParams());
         
         // append group part:
         groupBys.appendTo(query, params);
+
+        HqlQueryValue hqlHavingRestrictions = havingRestrictions.toHqlQueryValue(params);
+        query.appendHaving(hqlHavingRestrictions.getHql());
+        query.addParams(hqlHavingRestrictions.getParams());
         
         // append order part:
         orderBys.appendTo(query, params);
