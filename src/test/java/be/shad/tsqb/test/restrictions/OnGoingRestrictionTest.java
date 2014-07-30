@@ -178,7 +178,7 @@ public class OnGoingRestrictionTest extends TypeSafeQueryTest {
     @Test
     public void testNot() {
         Person person = query.from(Person.class);
-        query.where(person.getAge()).not(40);
+        query.where(person.getAge()).notEq(40);
         validate(" from Person hobj1 where hobj1.age <> :np1", 40);
     }
     

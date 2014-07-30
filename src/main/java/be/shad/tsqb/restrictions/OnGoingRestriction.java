@@ -55,8 +55,7 @@ public interface OnGoingRestriction<VAL, CONTINUED extends ContinuedOnGoingRestr
     /**
      * Generates: left <> (referencedValue or actualValue)
      */
-    // TODO: rename to notEq
-    CONTINUED not(VAL value);
+    CONTINUED notEq(VAL value);
     
     /**
      * Same as {@link #notEq(VAL)}, but the restriction will only be added to the

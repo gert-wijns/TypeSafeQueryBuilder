@@ -194,7 +194,7 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
      * {@inheritDoc}
      */
     @Override
-    public CONTINUED not(VAL value) {
+    public CONTINUED notEq(VAL value) {
         return notEq(value, null);
     }
 

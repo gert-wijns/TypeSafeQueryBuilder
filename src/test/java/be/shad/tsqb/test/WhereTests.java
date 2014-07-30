@@ -76,7 +76,7 @@ public class WhereTests extends TypeSafeQueryTest {
         TypeSafeSubQuery<Style> houseSQ = query.subquery(Style.class);
         House houseSQV = houseSQ.from(House.class);
         houseSQ.where(houseSQV.getName()).eq(house.getName()).
-                  and(houseSQV.getId()).not(house.getId());
+                  and(houseSQV.getId()).notEq(house.getId());
         
         query.whereExists(houseSQ);
 
@@ -90,7 +90,7 @@ public class WhereTests extends TypeSafeQueryTest {
         TypeSafeSubQuery<Style> houseSQ = query.subquery(Style.class);
         House houseSQV = houseSQ.from(House.class);
         houseSQ.where(houseSQV.getName()).eq(house.getName()).
-                  and(houseSQV.getId()).not(house.getId());
+                  and(houseSQV.getId()).notEq(house.getId());
         
         query.select(houseSQ.selectExists());
 
@@ -104,7 +104,7 @@ public class WhereTests extends TypeSafeQueryTest {
         TypeSafeSubQuery<Style> houseSQ = query.subquery(Style.class);
         House houseSQV = houseSQ.from(House.class);
         houseSQ.where(houseSQV.getName()).eq(house.getName()).
-                  and(houseSQV.getId()).not(house.getId());
+                  and(houseSQV.getId()).notEq(house.getId());
         
         query.select(houseSQ.selectCount());
         
@@ -118,7 +118,7 @@ public class WhereTests extends TypeSafeQueryTest {
         TypeSafeSubQuery<Style> houseSQ = query.subquery(Style.class);
         House houseSQV = houseSQ.from(House.class);
         houseSQ.where(houseSQV.getName()).eq(house.getName()).
-                  and(houseSQV.getId()).not(house.getId());
+                  and(houseSQV.getId()).notEq(house.getId());
         
         query.select(houseSQ.selectCountDistinct(houseSQV.getStyle()));
         
