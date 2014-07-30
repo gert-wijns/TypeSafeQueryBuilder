@@ -121,6 +121,21 @@ public interface OnGoingNumberRestriction extends OnGoingRestriction<Number, Con
     ContinuedOnGoingNumberRestriction ngt(Number value, RestrictionPredicate predicate);
 
     /**
+     * Generates: left > 0
+     */
+    ContinuedOnGoingNumberRestriction isPositive();
+    
+    /**
+     * Generates: left < 0
+     */
+    ContinuedOnGoingNumberRestriction isNegative();
+    
+    /**
+     * Generates: left = 0
+     */
+    ContinuedOnGoingNumberRestriction isZero();
+    
+    /**
      * @see #nlt(Number)
      * @return binder with a method to set an alias for the parameter
      */

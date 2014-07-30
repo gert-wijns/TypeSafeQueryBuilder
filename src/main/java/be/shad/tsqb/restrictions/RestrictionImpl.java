@@ -25,6 +25,7 @@ import be.shad.tsqb.restrictions.predicate.RestrictionGuard;
 import be.shad.tsqb.restrictions.predicate.RestrictionPredicate;
 import be.shad.tsqb.selection.TypeSafeQueryProjections;
 import be.shad.tsqb.values.CastTypeSafeValue;
+import be.shad.tsqb.values.DirectTypeSafeValue;
 import be.shad.tsqb.values.HqlQueryBuilderParams;
 import be.shad.tsqb.values.HqlQueryValue;
 import be.shad.tsqb.values.HqlQueryValueImpl;
@@ -185,13 +186,27 @@ public class RestrictionImpl<VAL> implements Restriction, RestrictionGuard {
      * By using literals instead, this problem is avoided:
      */
     private boolean leftSideRequiresLiterals() {
+        if (right != null && left instanceof DirectTypeSafeValue<?>) {
+            Class<VAL> valueClass = left.getValueClass();
+            if (Number.class.isAssignableFrom(valueClass)) {
+                Object value = ((DirectTypeSafeValue<?>) left).getValue();
+                return !right.getValueClass().isInstance(value);
+            }
+        }
         return right instanceof CastTypeSafeValue<?>;
     }
     
     /**
-     * See remak {@link #leftSideRequiresLiterals()}
+     * See remark {@link #leftSideRequiresLiterals()}
      */
     private boolean rightSideRequiresLiterals() {
+        if (left != null && right instanceof DirectTypeSafeValue<?>) {
+            Class<VAL> valueClass = right.getValueClass();
+            if (Number.class.isAssignableFrom(valueClass)) {
+                Object value = ((DirectTypeSafeValue<?>) right).getValue();
+                return !left.getValueClass().isInstance(value);
+            }
+        }
         return left instanceof CastTypeSafeValue<?>;
     }
     

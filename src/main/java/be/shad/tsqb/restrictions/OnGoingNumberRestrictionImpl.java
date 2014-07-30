@@ -258,4 +258,27 @@ public class OnGoingNumberRestrictionImpl
         return ngt(toValue(value, predicate));
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ContinuedOnGoingNumberRestriction isZero() {
+        return eq(0D);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ContinuedOnGoingNumberRestriction isNegative() {
+        return lt(0D);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ContinuedOnGoingNumberRestriction isPositive() {
+        return gt(0D);
+    }
 }

@@ -16,10 +16,13 @@
 package be.shad.tsqb.test.restrictions;
 
 import static be.shad.tsqb.restrictions.predicate.RestrictionPredicate.IGNORE_NULL;
+import static java.math.BigDecimal.TEN;
 
 import org.junit.Test;
 
+import be.shad.tsqb.domain.House;
 import be.shad.tsqb.domain.people.Person;
+import be.shad.tsqb.test.TestDataCreator;
 import be.shad.tsqb.test.TypeSafeQueryTest;
 import be.shad.tsqb.values.DirectTypeSafeValue;
 
@@ -197,4 +200,27 @@ public class OnGoingNumberRestrictionTest extends TypeSafeQueryTest {
         validate(" from Person hobj1 where hobj1.age >= :np1", 40);
     }
 
+    @Test
+    public void testIsPositive() {
+        TestDataCreator creator = new TestDataCreator(getSessionFactory());
+        creator.createTestHouse(creator.createTestTown(), "House", 5).setPrice(TEN);
+        
+        House house = query.from(House.class);
+        query.where(house.getPrice()).isPositive();
+        validate(" from House hobj1 where hobj1.price > 0.0");
+    }
+    
+    @Test
+    public void testIsNegative() {
+        Person person = query.from(Person.class);
+        query.where(person.getAge()).isNegative();
+        validate(" from Person hobj1 where hobj1.age < 0.0");
+    }
+    
+    @Test
+    public void testIsZero() {
+        Person person = query.from(Person.class);
+        query.where(person.getAge()).isZero();
+        validate(" from Person hobj1 where hobj1.age = 0.0");
+    }
 }
