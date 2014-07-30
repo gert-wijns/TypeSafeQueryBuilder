@@ -18,6 +18,7 @@ package be.shad.tsqb.restrictions;
 import static be.shad.tsqb.restrictions.RestrictionNodeType.And;
 import static be.shad.tsqb.restrictions.RestrictionNodeType.Or;
 import static be.shad.tsqb.restrictions.RestrictionOperator.EXISTS;
+import static be.shad.tsqb.restrictions.RestrictionOperator.NOT_EXISTS;
 
 import java.util.Date;
 
@@ -33,7 +34,7 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable {
     }
     
     private Restriction notExists(TypeSafeSubQuery<?> subquery) {
-        return new RestrictionImpl<>(getRestrictionsGroup(), null, null, RestrictionOperator.NOT_EXISTS, subquery);
+        return new RestrictionImpl<>(getRestrictionsGroup(), null, null, NOT_EXISTS, subquery);
     }
     
     /**

@@ -25,9 +25,15 @@ import be.shad.tsqb.ordering.TypeSafeQueryOrderBys;
 import be.shad.tsqb.query.copy.Copyable;
 import be.shad.tsqb.restrictions.DirectValueProvider;
 import be.shad.tsqb.restrictions.RestrictionsGroup;
+import be.shad.tsqb.selection.TypeSafeQueryProjections;
 import be.shad.tsqb.values.TypeSafeValue;
 
 public interface TypeSafeQueryInternal extends TypeSafeQuery, Copyable {
+
+    /**
+     * Exposes the projections to add values.
+     */
+    TypeSafeQueryProjections getProjections();
 
     /**
      * @return the root query, may be the same instance if this query is the root query.

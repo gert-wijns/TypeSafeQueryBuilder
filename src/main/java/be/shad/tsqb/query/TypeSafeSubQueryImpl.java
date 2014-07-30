@@ -104,6 +104,11 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
      */
     @Override
     public HqlQueryValue toHqlQueryValue(HqlQueryBuilderParams params) {
+        if (getProjections().getProjections().isEmpty()) {
+            throw new IllegalStateException("Attempting to use a subquery without projections. This is most likely a mistake. "
+                    + "If you are using exists/not exists, then use it by calling the selectExists or selectNotExists on "
+                    + "this subquery instead of another custom way, or select a value.");
+        }
         HqlQuery query = toHqlQuery(params);
         return new HqlQueryValueImpl("(" +query.getHql() + ")", query.getParams());
     }

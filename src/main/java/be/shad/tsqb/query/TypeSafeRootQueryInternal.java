@@ -15,7 +15,6 @@
  */
 package be.shad.tsqb.query;
 
-import be.shad.tsqb.selection.TypeSafeQueryProjections;
 import be.shad.tsqb.values.TypeSafeValue;
 
 /**
@@ -25,12 +24,6 @@ import be.shad.tsqb.values.TypeSafeValue;
  * with methods which hold no meaning to the users of the library.
  */
 public interface TypeSafeRootQueryInternal extends TypeSafeRootQuery, TypeSafeQueryInternal {
-
-    /**
-     * Multiple projections are possible for the root query.
-     * Exposes the projections to add values.
-     */
-    TypeSafeQueryProjections getProjections();
 
     /**
      * Sets the queued projection path back to null and returns the value

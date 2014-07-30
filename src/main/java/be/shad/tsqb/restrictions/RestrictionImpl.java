@@ -15,11 +15,15 @@
  */
 package be.shad.tsqb.restrictions;
 
+import static be.shad.tsqb.restrictions.RestrictionOperator.EXISTS;
+import static be.shad.tsqb.restrictions.RestrictionOperator.NOT_EXISTS;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
+import be.shad.tsqb.query.TypeSafeSubQuery;
 import be.shad.tsqb.query.copy.CopyContext;
 import be.shad.tsqb.query.copy.Copyable;
 import be.shad.tsqb.restrictions.predicate.RestrictionGuard;
 import be.shad.tsqb.restrictions.predicate.RestrictionPredicate;
+import be.shad.tsqb.selection.TypeSafeQueryProjections;
 import be.shad.tsqb.values.CastTypeSafeValue;
 import be.shad.tsqb.values.HqlQueryBuilderParams;
 import be.shad.tsqb.values.HqlQueryValue;
@@ -114,9 +118,9 @@ public class RestrictionImpl<VAL> implements Restriction, RestrictionGuard {
         if( left != null ) {
             HqlQueryValue hqlQueryValue;
             if( leftSideRequiresLiterals() && !params.isRequiresLiterals()) {
-                params.setRequiresLiterals(true);
+                boolean previous = params.setRequiresLiterals(true);
                 hqlQueryValue = left.toHqlQueryValue(params);
-                params.setRequiresLiterals(false);
+                params.setRequiresLiterals(previous);
             } else {
                 hqlQueryValue = left.toHqlQueryValue(params);
             }
@@ -133,13 +137,17 @@ public class RestrictionImpl<VAL> implements Restriction, RestrictionGuard {
                 value.appendHql(operator.getOperator());
             }
             value.appendHql(" ");
+            if ((operator == EXISTS || operator == NOT_EXISTS)
+                    && right instanceof TypeSafeSubQuery<?>) {
+                addDummySubQuerySelectIfMissing((TypeSafeSubQuery<?>) right);
+            }
         }
         if( right != null ) {
             HqlQueryValue hqlQueryValue;
             if( rightSideRequiresLiterals() && !params.isRequiresLiterals()) {
-                params.setRequiresLiterals(true);
+                boolean previous = params.setRequiresLiterals(true);
                 hqlQueryValue = right.toHqlQueryValue(params);
-                params.setRequiresLiterals(false);
+                params.setRequiresLiterals(previous);
             } else {
                 hqlQueryValue = right.toHqlQueryValue(params);
             }
@@ -149,6 +157,18 @@ public class RestrictionImpl<VAL> implements Restriction, RestrictionGuard {
         return value;
     }
     
+    /**
+     * Adds a dummy 'select 1' to subqueries in case of exists/not exists.
+     * This is the easiest way to allow validating the user selected value
+     * in case the subquery was not used for exists/not exists.
+     */
+    private void addDummySubQuerySelectIfMissing(TypeSafeSubQuery<?> subquery) {
+        TypeSafeQueryProjections projections = ((TypeSafeQueryInternal) subquery).getProjections();
+        if (projections.getProjections().isEmpty()) {
+            projections.project(1L, null);
+        }
+    }
+
     /**
      * {@inheritDoc}
      */

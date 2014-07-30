@@ -80,7 +80,20 @@ public class WhereTests extends TypeSafeQueryTest {
         
         query.whereExists(houseSQ);
 
-        validate(" from House hobj1 where exists ( from House hobj2 where hobj2.name = hobj1.name and hobj2.id <> hobj1.id)");
+        validate(" from House hobj1 where exists (select 1 from House hobj2 where hobj2.name = hobj1.name and hobj2.id <> hobj1.id)");
+    }
+
+    @Test(expected=IllegalStateException.class)
+    public void whereSubqueryRequiresSelectWhenNotUsedForExists() {
+        House house = query.from(House.class);
+        
+        TypeSafeSubQuery<Style> houseSQ = query.subquery(Style.class);
+        House houseSQV = houseSQ.from(House.class);
+        houseSQ.where(houseSQV.getId()).notEq(house.getId());
+
+        query.whereEnum(houseSQ).eq(Style.the1980s);
+        // validated during toHqlQuery.
+        query.toHqlQuery();
     }
 
     @Test
@@ -94,7 +107,7 @@ public class WhereTests extends TypeSafeQueryTest {
         
         query.select(houseSQ.selectExists());
 
-        validate("select (case when (exists ( from House hobj2 where hobj2.name = hobj1.name and hobj2.id <> hobj1.id)) then true else false end) from House hobj1");
+        validate("select (case when (exists (select 1 from House hobj2 where hobj2.name = hobj1.name and hobj2.id <> hobj1.id)) then true else false end) from House hobj1");
     }
 
     @Test
