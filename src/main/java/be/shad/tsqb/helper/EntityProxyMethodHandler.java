@@ -43,6 +43,13 @@ class EntityProxyMethodHandler implements MethodHandler {
         if ("toString".equals(m.getName())) {
             return String.format("Proxy of [%s]", data.toString());
         }
+        if (m.getName().startsWith("set")) {
+            throw new IllegalArgumentException("Calling the setter of an entity proxy has no point. "
+                    + "If this object was supposed to be used as selection proxy, "
+                    + "then use the select(class) instead and set the values there. "
+                    + "If this setter was called to add a restriction, then use the "
+                    + "query.where(...) methods instead.");
+        }
         
         String method2Name = helper.method2PropertyName(m);
         TypeSafeQueryProxyData child = data.getChild(method2Name);
