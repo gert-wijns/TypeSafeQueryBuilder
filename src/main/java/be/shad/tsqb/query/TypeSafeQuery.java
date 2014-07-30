@@ -20,6 +20,7 @@ import java.util.Date;
 
 import be.shad.tsqb.helper.TypeSafeQueryHelper;
 import be.shad.tsqb.ordering.OnGoingOrderBy;
+import be.shad.tsqb.restrictions.HavingRestrictions;
 import be.shad.tsqb.restrictions.RestrictionsGroupFactory;
 import be.shad.tsqb.restrictions.WhereRestrictions;
 import be.shad.tsqb.restrictions.predicate.RestrictionPredicate;
@@ -54,7 +55,7 @@ import be.shad.tsqb.values.arithmetic.ArithmeticTypeSafeValueFactory;
  * <p>
  * For an example, see {@link TypeSafeRootQuery}.
  */
-public interface TypeSafeQuery extends WhereRestrictions {
+public interface TypeSafeQuery extends WhereRestrictions, HavingRestrictions {
     
     /**
      * Delegates to {@link #from(Class, String)} with name = null.
