@@ -15,6 +15,8 @@
  */
 package be.shad.tsqb.selection.group;
 
+import be.shad.tsqb.data.TypeSafeQuerySelectionProxyData;
+import be.shad.tsqb.selection.collection.ResultIdentifierProvider;
 import be.shad.tsqb.selection.parallel.SelectionMerger;
 
 
@@ -44,5 +46,9 @@ public interface TypeSafeQuerySelectionGroup {
      *         merge the result value of this group into the resultDto.
      */
     SelectionMerger<?, ?> getParallelSelectionMerger();
+
+    ResultIdentifierProvider<?> getResultIdentifierProvider();
+    
+    TypeSafeQuerySelectionProxyData getCollectionData();
     
 }

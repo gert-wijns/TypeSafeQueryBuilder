@@ -18,20 +18,27 @@ package be.shad.tsqb.selection.group;
 import be.shad.tsqb.selection.SelectionTree;
 
 /**
- * The root of a selection tree which will selet into a dto.
+ * The root of a selection tree which will select into a dto.
  */
 public class SelectionTreeGroup extends SelectionTree {
 
     private TypeSafeQuerySelectionGroup group;
+    private int position;
 
     public SelectionTreeGroup(Class<?> resultType, 
-            TypeSafeQuerySelectionGroup group) {
+            TypeSafeQuerySelectionGroup group,
+            int position) {
         super(resultType);
         this.group = group;
+        this.position = position;
     }
 
     public TypeSafeQuerySelectionGroup getGroup() {
         return group;
+    }
+    
+    public int getPosition() {
+        return position;
     }
 
 }

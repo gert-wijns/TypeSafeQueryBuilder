@@ -114,7 +114,7 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
             Class<?> targetClass, boolean setter) {
         TypeSafeQuerySelectionProxyData childData = query.getDataTree().createSelectionData(
                 parent, propertyName, targetClass, parent.getGroup(), null);
-        if (!setter) {
+        if (!setter && !java.util.Collection.class.isAssignableFrom(targetClass)) {
             // only need method handler when the data is being retrieved,
             // on set we will just return the proxy data.
             setSelectionDtoMethodHandler(query, childData);

@@ -15,6 +15,7 @@
  */
 package be.shad.tsqb.query;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -22,6 +23,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
+import be.shad.tsqb.data.TypeSafeQuerySelectionProxyData;
 import be.shad.tsqb.helper.TypeSafeQueryHelper;
 import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
@@ -29,6 +31,7 @@ import be.shad.tsqb.query.copy.CopyContext;
 import be.shad.tsqb.query.copy.Copyable;
 import be.shad.tsqb.restrictions.predicate.RestrictionPredicate;
 import be.shad.tsqb.selection.SelectionValueTransformer;
+import be.shad.tsqb.selection.collection.ResultIdentifierProvider;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroup;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroupImpl;
 import be.shad.tsqb.selection.parallel.SelectPair;
@@ -52,6 +55,7 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     private TypeSafeNameds namedObjects;
     private TypeSafeValue<?> lastSelectedValue;
     private String lastInvokedProjectionPath;
+    private TypeSafeQuerySelectionProxyData lastInvokedCollectionData; 
     private RestrictionPredicate restrictionPredicate;
     private int entityAliasCount;
     private int selectionGroupAliasCount;
@@ -156,6 +160,14 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     @Override
     public void queueInvokedProjectionPath(String lastInvokedProjectionPath) {
         this.lastInvokedProjectionPath = lastInvokedProjectionPath;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void queueInvokedCollectionPath(TypeSafeQuerySelectionProxyData collectionData) {
+        this.lastInvokedCollectionData = collectionData;
     }
 
     /**
@@ -283,9 +295,27 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
      */
     @Override
     public <T> T select(Class<T> resultClass) {
+        return select(resultClass, null);
+    }
+
+    @Override
+    public <ID, T extends ID> T select(Class<T> resultClass, ResultIdentifierProvider<ID> resultIdentifierProvider) {
         TypeSafeQuerySelectionGroup resultGroup = new TypeSafeQuerySelectionGroupImpl(
-                SELECT_RESULT_GROUP, resultClass, true, null);
+                SELECT_RESULT_GROUP, resultClass, resultIdentifierProvider, true, null, null);
         return helper.createTypeSafeSelectProxy(this, resultClass, resultGroup);
+    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <ID, T extends ID> T select(Collection<T> collection, Class<T> subselectClass, ResultIdentifierProvider<ID> resultIdentifierProvider) {
+        if (lastInvokedCollectionData == null) {
+            throw new IllegalStateException("The collection was not provided by calling a getSomeCollection method on a selection proxy.");
+        }
+        T proxy = getHelper().createTypeSafeSelectProxy(this, subselectClass, new TypeSafeQuerySelectionGroupImpl(
+            createSelectGroupAlias(), subselectClass, resultIdentifierProvider, false, null, lastInvokedCollectionData));
+        lastInvokedCollectionData = null;
+        return proxy;
     }
 
     /**
@@ -342,7 +372,7 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     @Override
     public <T, SUB> SUB selectMergeValues(T resultDto, Class<SUB> subselectClass, SelectionMerger<T, SUB> merger) {
         return getHelper().createTypeSafeSelectProxy(this, subselectClass, new TypeSafeQuerySelectionGroupImpl(
-                createSelectGroupAlias(), subselectClass, false, merger));
+                createSelectGroupAlias(), subselectClass, null, false, merger, null));
     }
 
     /**

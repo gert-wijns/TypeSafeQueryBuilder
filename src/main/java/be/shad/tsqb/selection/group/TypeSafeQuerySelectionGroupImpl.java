@@ -15,8 +15,10 @@
  */
 package be.shad.tsqb.selection.group;
 
+import be.shad.tsqb.data.TypeSafeQuerySelectionProxyData;
 import be.shad.tsqb.query.copy.CopyContext;
 import be.shad.tsqb.query.copy.Copyable;
+import be.shad.tsqb.selection.collection.ResultIdentifierProvider;
 import be.shad.tsqb.selection.parallel.SelectionMerger;
 
 public class TypeSafeQuerySelectionGroupImpl implements TypeSafeQuerySelectionGroup, Copyable {
@@ -25,13 +27,19 @@ public class TypeSafeQuerySelectionGroupImpl implements TypeSafeQuerySelectionGr
     private final Class<?> resultClass;
     private final boolean resultGroup;
     private final SelectionMerger<?, ?> subselectValueMerger;
+    private final TypeSafeQuerySelectionProxyData collectionData;
+    private final ResultIdentifierProvider<?> resultIdentifierProvider;
 
     public TypeSafeQuerySelectionGroupImpl(String aliasPrefix, Class<?> resultClass,
-            boolean resultGroup, SelectionMerger<?, ?> subselectValueMerger) {
+            ResultIdentifierProvider<?> resultIdentifierProvider,
+            boolean resultGroup, SelectionMerger<?, ?> subselectValueMerger,
+            TypeSafeQuerySelectionProxyData collectionData) {
         this.aliasPrefix = aliasPrefix;
         this.resultClass = resultClass;
         this.resultGroup = resultGroup;
+        this.resultIdentifierProvider = resultIdentifierProvider;
         this.subselectValueMerger = subselectValueMerger;
+        this.collectionData = collectionData;
     }
 
     /**
@@ -42,6 +50,18 @@ public class TypeSafeQuerySelectionGroupImpl implements TypeSafeQuerySelectionGr
         this.resultClass = original.resultClass;
         this.resultGroup = original.resultGroup;
         this.subselectValueMerger = context.getOrOriginal(original.subselectValueMerger);
+        this.resultIdentifierProvider = context.get(original.resultIdentifierProvider);
+        this.collectionData = context.get(original.collectionData);
+    }
+
+    @Override
+    public TypeSafeQuerySelectionProxyData getCollectionData() {
+        return collectionData;
+    }
+
+    @Override
+    public ResultIdentifierProvider<?> getResultIdentifierProvider() {
+        return resultIdentifierProvider;
     }
 
     @Override

@@ -15,6 +15,7 @@
  */
 package be.shad.tsqb.query;
 
+import be.shad.tsqb.data.TypeSafeQuerySelectionProxyData;
 import be.shad.tsqb.values.TypeSafeValue;
 
 /**
@@ -37,6 +38,8 @@ public interface TypeSafeRootQueryInternal extends TypeSafeRootQuery, TypeSafeQu
      * and is reset when an invocation is queued to remove ambiguity.
      */
     void queueInvokedProjectionPath(String lastInvokedProjectionPath);
+
+    void queueInvokedCollectionPath(TypeSafeQuerySelectionProxyData collectionData);
     
     /**
      * Queues the value as a selected value, this value will
