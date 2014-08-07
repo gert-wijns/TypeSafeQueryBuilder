@@ -27,8 +27,9 @@ public class TypeSafeQuerySelectionGroupImpl implements TypeSafeQuerySelectionGr
     private final Class<?> resultClass;
     private final boolean resultGroup;
     private final SelectionMerger<?, ?> subselectValueMerger;
-    private final TypeSafeQuerySelectionProxyData collectionData;
     private final ResultIdentifierProvider<?> resultIdentifierProvider;
+    private final TypeSafeQuerySelectionGroup collectionGroup;
+    private final String collectionPropertyPath;
 
     public TypeSafeQuerySelectionGroupImpl(String aliasPrefix, Class<?> resultClass,
             ResultIdentifierProvider<?> resultIdentifierProvider,
@@ -39,7 +40,13 @@ public class TypeSafeQuerySelectionGroupImpl implements TypeSafeQuerySelectionGr
         this.resultGroup = resultGroup;
         this.resultIdentifierProvider = resultIdentifierProvider;
         this.subselectValueMerger = subselectValueMerger;
-        this.collectionData = collectionData;
+        if (collectionData != null) {
+            this.collectionPropertyPath = collectionData.getEffectivePropertyPath();
+            this.collectionGroup = collectionData.getGroup();
+        } else {
+            this.collectionPropertyPath = null;
+            this.collectionGroup = null;
+        }
     }
 
     /**
@@ -51,14 +58,20 @@ public class TypeSafeQuerySelectionGroupImpl implements TypeSafeQuerySelectionGr
         this.resultGroup = original.resultGroup;
         this.subselectValueMerger = context.getOrOriginal(original.subselectValueMerger);
         this.resultIdentifierProvider = context.get(original.resultIdentifierProvider);
-        this.collectionData = context.get(original.collectionData);
+        this.collectionGroup = context.get(original.collectionGroup);
+        this.collectionPropertyPath = original.collectionPropertyPath;
     }
 
     @Override
-    public TypeSafeQuerySelectionProxyData getCollectionData() {
-        return collectionData;
+    public TypeSafeQuerySelectionGroup getCollectionGroup() {
+        return collectionGroup;
     }
-
+    
+    @Override
+    public String getCollectionPropertyPath() {
+        return collectionPropertyPath;
+    }
+    
     @Override
     public ResultIdentifierProvider<?> getResultIdentifierProvider() {
         return resultIdentifierProvider;
@@ -80,7 +93,7 @@ public class TypeSafeQuerySelectionGroupImpl implements TypeSafeQuerySelectionGr
     }
 
     @Override
-    public SelectionMerger<?, ?> getParallelSelectionMerger() {
+    public SelectionMerger<?, ?> getSelectionMerger() {
         return subselectValueMerger;
     }
 

@@ -51,8 +51,10 @@ public class CollectionSubselectTest extends TypeSafeQueryTest {
         
         selectTown.setId(townProxy.getId());
         selectPerson.setId(inhabitant.getId());
+        selectTown.getGeographicCoordinate().setLattitude(townProxy.getGeographicCoordinate().getLattitude());
         
-        validate("select hobj1.id as id, hobj2.id as g1__id from Town hobj1 join hobj1.inhabitants hobj2 where hobj2.name like :np1", "Jo%");
+        validate("select hobj1.id as id, hobj2.id as g1__id, hobj1.geographicCoordinate.lattitude as geographicCoordinate_lattitude "
+                + "from Town hobj1 join hobj1.inhabitants hobj2 where hobj2.name like :np1", "Jo%");
 
         assertEquals(1, doQueryResult.size());
         if (!(doQueryResult.get(0) instanceof Town)) {
