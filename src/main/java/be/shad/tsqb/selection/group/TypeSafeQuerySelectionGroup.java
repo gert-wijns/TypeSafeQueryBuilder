@@ -15,7 +15,8 @@
  */
 package be.shad.tsqb.selection.group;
 
-import be.shad.tsqb.selection.collection.ResultIdentifierProvider;
+import java.util.List;
+
 import be.shad.tsqb.selection.parallel.SelectionMerger;
 
 
@@ -46,9 +47,12 @@ public interface TypeSafeQuerySelectionGroup {
      */
     SelectionMerger<?, ?> getSelectionMerger();
 
-    ResultIdentifierProvider<?> getResultIdentifierProvider();
+    List<String> getResultIdentifierPropertyPaths();
     
-    TypeSafeQuerySelectionGroup getCollectionGroup();
+    void addResultIdentifierPropertyPath(String resultIdentifierPropertyPath);
+
+    TypeSafeQuerySelectionGroup getParent();
     
     String getCollectionPropertyPath();
+
 }

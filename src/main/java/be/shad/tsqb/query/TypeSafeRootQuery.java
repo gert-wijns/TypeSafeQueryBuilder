@@ -19,7 +19,7 @@ import java.util.Collection;
 
 import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.selection.SelectionValueTransformer;
-import be.shad.tsqb.selection.collection.ResultIdentifierProvider;
+import be.shad.tsqb.selection.collection.ResultIdentifierBinder;
 import be.shad.tsqb.selection.parallel.SelectPair;
 import be.shad.tsqb.selection.parallel.SelectTriplet;
 import be.shad.tsqb.selection.parallel.SelectValue;
@@ -104,7 +104,7 @@ public interface TypeSafeRootQuery extends TypeSafeQuery {
      * catDto.setAge(ageSQ.getValue()); // selects the subquery's selected value into the age property of the catDto
      * </pre>
      */
-    <ID, T extends ID> T select(Class<T> resultClass, ResultIdentifierProvider<ID> resultIdentifierProvider);
+    <ID, T extends ID> T select(Class<T> resultClass, ResultIdentifierBinder<ID> resultIdentifierBinder);
 
     /**
      * Subselect dtos for <code>collectionItemClass</code> into the collection property of a result dto.
@@ -113,7 +113,7 @@ public interface TypeSafeRootQuery extends TypeSafeQuery {
      * owner of the collection, then that one will be used to decide where to add the item.
      * If no resultIdentifierProvider was set, then all properties of the owner are checked for equality.
      */
-    <ID, T extends ID> T select(Collection<T> collection, Class<T> collectionItemClass, ResultIdentifierProvider<ID> resultIdentifierProvider);
+    <ID, T extends ID> T select(Collection<T> collection, Class<T> collectionItemClass, ResultIdentifierBinder<ID> resultIdentifierBinder);
     
     /**
      * Create an additional proxy to select into, which is merged with the result dto during result transforming. 

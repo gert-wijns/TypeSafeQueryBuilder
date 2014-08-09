@@ -15,25 +15,20 @@
  */
 package be.shad.tsqb.selection;
 
-import static be.shad.tsqb.selection.SelectionTree.getField;
-
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import org.hibernate.transform.BasicTransformerAdapter;
 
 import be.shad.tsqb.data.TypeSafeQuerySelectionProxyData;
-import be.shad.tsqb.selection.collection.ResultIdentifierProvider;
 import be.shad.tsqb.selection.group.SelectionTreeGroup;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroup;
-import be.shad.tsqb.selection.parallel.SelectionMerger;
 
 /**
  * Implementation to set values on nested select dtos.
@@ -43,79 +38,63 @@ import be.shad.tsqb.selection.parallel.SelectionMerger;
 public class TypeSafeQueryResultTransformer extends BasicTransformerAdapter {
     private static final long serialVersionUID = 4686800769621139636L;
     
-    private final Field[] setters;
-    private final SelectionTree[] values;
-    private final SelectionTreeGroup[] groups;
-    private final SelectionTreeGroup[] mergeGroups;
-    private final SelectionTreeGroup[] resultIdentifierGroups;
-    private final CollectionField[] collectionFields;
-    
-    private final SelectionValueTransformer[] transformers;
+    private final SelectionTreeGroup[] treeGroups;
+    private final int resultArraySize;
     
     public TypeSafeQueryResultTransformer(
             List<TypeSafeQuerySelectionProxyData> selectionDatas, 
             List<SelectionValueTransformer<?, ?>> transformers) {
         try {
-            this.transformers = transformers.toArray(new SelectionValueTransformer[transformers.size()]);
-            this.setters = new Field[selectionDatas.size()];
-            this.values = new SelectionTree[selectionDatas.size()];
-            LinkedHashMap<TypeSafeQuerySelectionGroup, SelectionTreeGroup> groups = new LinkedHashMap<>();
             int a = 0;
+            Iterator<SelectionValueTransformer<?, ?>> valueTransformersIt = transformers.iterator();
+            Map<TypeSafeQuerySelectionGroup, List<SelectionTreeValue>> dataByGroup = new HashMap<>();
             for(TypeSafeQuerySelectionProxyData selectionData: selectionDatas) {
-                TypeSafeQuerySelectionGroup group = selectionData.getGroup();
-                SelectionTreeGroup tree = groups.get(group);
-                if (tree == null) {
-                    tree = new SelectionTreeGroup(group.getResultClass(), group, groups.size());
-                    groups.put(group, tree);
+                List<SelectionTreeValue> groupData = dataByGroup.get(selectionData.getGroup());
+                if (groupData == null) {
+                    groupData = new LinkedList<>();
+                    dataByGroup.put(selectionData.getGroup(), groupData);
                 }
-                String propertyPath = selectionData.getEffectivePropertyPath();
-                String[] alias = propertyPath.split("\\.");
-                SelectionTree subtree = tree;
-                for(int i=0; i < alias.length-1; i++) {
-                    subtree = subtree.getSubtree(alias[i]);
-                }
-                values[a] = subtree;
-                setters[a++] = getField(subtree.getResultType(), alias[alias.length-1]);
+                groupData.add(new SelectionTreeValue(a++, selectionData.getEffectivePropertyPath(), valueTransformersIt.next()));
             }
             
-            // Create groups array, having the result group as first group:
-            a = 1;
-            this.groups = new SelectionTreeGroup[groups.size()];
-
-            List<SelectionTreeGroup> mergeGroups = new ArrayList<>(groups.size());
-            List<SelectionTreeGroup> resultIdentifierGroups = new ArrayList<>(groups.size());
-            List<CollectionField> collectionFields = new ArrayList<>(groups.size());
-            for(SelectionTreeGroup group: groups.values()) {
-                if (group.getGroup().getResultIdentifierProvider() != null) {
-                    resultIdentifierGroups.add(group);
+            List<TypeSafeQuerySelectionGroup> selectionGroups = new ArrayList<>(dataByGroup.keySet());
+            Collections.sort(selectionGroups, new Comparator<TypeSafeQuerySelectionGroup>() {
+                @Override
+                public int compare(TypeSafeQuerySelectionGroup o1, TypeSafeQuerySelectionGroup o2) {
+                    int dc = Integer.compare(depth(o1), depth(o2));
+                    if (dc != 0) {
+                        return dc;
+                    }
+                    return o1.getAliasPrefix().compareTo(o2.getAliasPrefix());
                 }
-                if (group.getGroup().isResultGroup()) {
-                    this.groups[0] = group;
+                
+                private int depth(TypeSafeQuerySelectionGroup g) {
+                    int d = 0;
+                    while (g.getParent() != null) {
+                        g = g.getParent();
+                        d++;
+                    }
+                    return d;
+                }
+            });
+            
+            int parentResultIndex = -1;
+            int treeGroupIdx = 1;
+            this.treeGroups = new SelectionTreeGroup[dataByGroup.size()];
+            Map<TypeSafeQuerySelectionGroup, SelectionTreeGroup> treeGroupsMap = new HashMap<>();
+            for(TypeSafeQuerySelectionGroup group: selectionGroups) {
+                SelectionTreeGroup tree = new SelectionTreeGroup(group, dataByGroup.get(group), 
+                        treeGroupsMap.get(group.getParent()));
+                parentResultIndex = tree.assignResultIndexes(parentResultIndex);
+                if (tree.getGroup().isResultGroup()) {
+                    this.treeGroups[0] = tree;
                 } else {
-                    this.groups[a] = group;
-                    if (group.getGroup().getSelectionMerger() != null) {
-                        mergeGroups.add(group);
-                    }
-                    TypeSafeQuerySelectionGroup collectionGroup = group.getGroup().getCollectionGroup();
-                    if (collectionGroup != null) {
-                        SelectionTreeGroup collectionTree = groups.get(collectionGroup);
-                        String[] alias = group.getGroup().getCollectionPropertyPath().split("\\.");
-                        SelectionTree collectionOwner = collectionTree;
-                        for(int i=0; i < alias.length-1; i++) {
-                            collectionOwner = collectionOwner.getSubtree(alias[i]);
-                        }
-                        Field collectionField = getField(collectionOwner.getResultType(), alias[alias.length-1]);
-                        collectionField.setAccessible(true);
-                        collectionFields.add(new CollectionField(collectionField, collectionTree.getPosition(), a));
-                    }
-                    a++;
+                    this.treeGroups[treeGroupIdx++] = tree;
                 }
+                treeGroupsMap.put(group, tree);
             }
-            this.mergeGroups = mergeGroups.toArray(new SelectionTreeGroup[mergeGroups.size()]);
-            this.resultIdentifierGroups = resultIdentifierGroups.toArray(new SelectionTreeGroup[resultIdentifierGroups.size()]);
-            this.collectionFields = collectionFields.toArray(new CollectionField[collectionFields.size()]);
-            AccessibleObject.setAccessible(setters, true);
-        } catch (NoSuchFieldException | SecurityException e) {
+            this.resultArraySize = parentResultIndex + 1;
+        } catch (SecurityException | NoSuchFieldException e) {
             throw new RuntimeException(e);
         }
     }
@@ -136,140 +115,24 @@ public class TypeSafeQueryResultTransformer extends BasicTransformerAdapter {
         }
         
         List result = new ArrayList(list.size());
-        Object[] resultArray = new Object[this.groups.length]; 
-        if (this.groups.length == 1) {
-            // if only one group, then there is no merging/collection 
-            // handling, so this is the quickest way:
-            for(Object obj: list) {
-                decorateResultArray(resultArray, (Object[]) obj);
-                result.add(resultArray[0]);
-            }
-            return result;
-        }
-        
-        Map[] mapped = new Map[this.groups.length];
-        for(int i=0; i < mapped.length; i++) {
-            mapped[i] = new HashMap<Object, Object>();
+        SelectionTreeData[] data = new SelectionTreeData[resultArraySize];
+        for(int i=0; i < resultArraySize; i++) {
+            data[i] = new SelectionTreeData();
         }
 
-        for(Object obj: list) {
-            decorateResultArray(resultArray, (Object[]) obj);
-            mergeResultArray(resultArray);
-            Object currentReturnValue = resultArray[0];
-            replaceIdenticalAndMapNew(resultArray, mapped);
-            
-            for(CollectionField field: collectionFields) {
-                field.addToCollection(resultArray);
-            }
-            
-            // replaceIdenticalAndMapNew may have replaced the main result object,
-            // it was still useful to process this tuple because some values will
-            // have been added to the collections, but this 'duplicate' should not
-            // be included in the result again
-            if (currentReturnValue == resultArray[0]) {
-                result.add(currentReturnValue);
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Create identifier and check if result is already mapped, when it is not mapped, 
-     * then add it to the mapping. When it is mapped, replace the result with the mapped value.
-     */
-    private void replaceIdenticalAndMapNew(Object[] resultArray, Map[] mapped) {
-        // map identifiers
-        for(SelectionTreeGroup resultIdentifierGroup: resultIdentifierGroups) {
-            int position = resultIdentifierGroup.getPosition();
-            Map mapping = mapped[position];
-            ResultIdentifierProvider identifierProvider = resultIdentifierGroup.
-                    getGroup().getResultIdentifierProvider();
-            Object identifier = identifierProvider.createIdentifier(resultArray[position]);
-            Object object = mapping.get(identifier);
-            if (object == null) {
-                // value was not mapped yet, add to mapping
-                mapping.put(identifier, resultArray[position]);
-            } else {
-                // value was already mapped, replace value
-                resultArray[position] = object;
-            }
-        }
-        
-    }
-
-    /**
-     * Merge all extra selected dtos, included for merging, into their target
-     */
-    private void mergeResultArray(Object[] resultArray) {
-        for(SelectionTreeGroup mergeGroup: mergeGroups) {
-            SelectionMerger merger = mergeGroup.getGroup().getSelectionMerger();
-            // TODO: change '0' to the target index.. in case of merge with collection value
-            merger.mergeIntoResult(resultArray[0], resultArray[mergeGroup.getPosition()]);
-        }
-    }
-
-    /**
-     * Instantiate new objects for each group into the result array
-     * Set the values on the objects using the tuple
-     */
-    private void decorateResultArray(Object[] resultArray, Object[] tuple) {
         try {
-            int i=0;
-            for(SelectionTree group: groups) {
-                resultArray[i] = group.getResultType().newInstance();
-                group.populate(resultArray[i++]);
-            }
-            for(i=0; i < tuple.length; i++) {
-                Object value = tuple[i];
-                if (transformers[i] != null) {
-                    value = transformers[i].convert(value);
+            for(Object obj: list) {
+                for(SelectionTreeGroup treeGroup: treeGroups) {
+                    treeGroup.createFromTuple(data, (Object[]) obj);
                 }
-                setters[i].set(values[i].getValue(), value);
+                if (!data[0].isDuplicate()) {
+                    // only include main result selection if it was not duplicate.
+                    result.add(data[0].getCurrentValue());
+                }
             }
-        } catch (InstantiationException | IllegalAccessException e) {
+        } catch (IllegalArgumentException | IllegalAccessException | InstantiationException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    /**
-     * Handles collection field information/instantiation/filling.
-     */
-    private static final class CollectionField {
-        private final Field field;
-        private final int parentPosition;
-        private final int position;
-        private final Class collectionClass;
-        
-        public CollectionField(Field field, int parentPosition, int position) {
-            this.field = field;
-            this.parentPosition = parentPosition;
-            this.position = position;
-            Class<?> fieldClass = field.getType();
-            if (fieldClass.isInterface()) {
-                if (List.class.isAssignableFrom(fieldClass)) {
-                    fieldClass = ArrayList.class;
-                } else {
-                    fieldClass = HashSet.class;
-                }
-            }
-            collectionClass = fieldClass;
-        }
-
-        /**
-         * Adds the value at <code>position</code> to the collection
-         */
-        public void addToCollection(Object[] resultArray) {
-            try {
-                Object parent = resultArray[parentPosition];
-                Collection<Object> collection = (Collection<Object>) field.get(parent);
-                if (collection == null) {
-                    collection = (Collection<Object>) collectionClass.newInstance();
-                    field.set(parent, collection);
-                }
-                collection.add(resultArray[position]);
-            } catch (IllegalArgumentException | IllegalAccessException | InstantiationException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        return result;
     }
 }

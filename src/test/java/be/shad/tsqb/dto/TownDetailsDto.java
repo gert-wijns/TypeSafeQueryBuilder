@@ -6,8 +6,17 @@ public class TownDetailsDto {
     private TownDetailsNestedDto nestedDto;
     private Long inhabitants;
     private Date lastUfoSpottingDate;
+    private Long id;
     private String name;
     private String customString;
+    
+    public Long getId() {
+        return id;
+    }
+    
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getCustomString() {
         return customString;

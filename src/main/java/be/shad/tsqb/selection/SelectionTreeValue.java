@@ -13,10 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.shad.tsqb.selection.collection;
+package be.shad.tsqb.selection;
 
-public interface ResultIdentifierProvider<RESULT> {
-
-    Object createIdentifier(RESULT result);
+public class SelectionTreeValue {
+    public final int tupleValueIndex;
+    public final String propertyPath;
+    public final SelectionValueTransformer<?, ?> valueTransformer;
     
+    public SelectionTreeValue(int tupleValueIndex, String propertyPath,
+            SelectionValueTransformer<?, ?> valueTransformer) {
+        this.tupleValueIndex = tupleValueIndex;
+        this.propertyPath = propertyPath;
+        this.valueTransformer = valueTransformer;
+    }
 }

@@ -27,11 +27,13 @@ import be.shad.tsqb.data.TypeSafeQuerySelectionProxyData;
 import be.shad.tsqb.helper.TypeSafeQueryHelper;
 import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
+import be.shad.tsqb.proxy.TypeSafeQuerySelectionProxy;
 import be.shad.tsqb.query.copy.CopyContext;
 import be.shad.tsqb.query.copy.Copyable;
 import be.shad.tsqb.restrictions.predicate.RestrictionPredicate;
 import be.shad.tsqb.selection.SelectionValueTransformer;
-import be.shad.tsqb.selection.collection.ResultIdentifierProvider;
+import be.shad.tsqb.selection.collection.ResultIdentifierBinder;
+import be.shad.tsqb.selection.collection.ResultIdentifierBinding;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroup;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroupImpl;
 import be.shad.tsqb.selection.parallel.SelectPair;
@@ -54,8 +56,7 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     private Map<String, TypeSafeQueryProxy> customAliasedProxies;
     private TypeSafeNameds namedObjects;
     private TypeSafeValue<?> lastSelectedValue;
-    private String lastInvokedProjectionPath;
-    private TypeSafeQuerySelectionProxyData lastInvokedCollectionData; 
+    private TypeSafeQuerySelectionProxyData lastInvokedSelectionData;
     private RestrictionPredicate restrictionPredicate;
     private int entityAliasCount;
     private int selectionGroupAliasCount;
@@ -101,7 +102,7 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
         }
         restrictionPredicate = context.get(original.restrictionPredicate);
         lastSelectedValue = context.get(original.lastSelectedValue);
-        lastInvokedProjectionPath = original.lastInvokedProjectionPath;
+        lastInvokedSelectionData = original.lastInvokedSelectionData;
         entityAliasCount = original.entityAliasCount;
         selectionGroupAliasCount = original.selectionGroupAliasCount;
         firstResult = original.firstResult;
@@ -158,16 +159,8 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
      * {@inheritDoc}
      */
     @Override
-    public void queueInvokedProjectionPath(String lastInvokedProjectionPath) {
-        this.lastInvokedProjectionPath = lastInvokedProjectionPath;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void queueInvokedCollectionPath(TypeSafeQuerySelectionProxyData collectionData) {
-        this.lastInvokedCollectionData = collectionData;
+    public void queueInvokedSelection(TypeSafeQuerySelectionProxyData lastInvokedSelection) {
+        this.lastInvokedSelectionData = lastInvokedSelection;
     }
 
     /**
@@ -175,8 +168,9 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
      */
     @Override
     public String dequeueInvokedProjectionPath() {
-        String lastInvokedProjectionPath = this.lastInvokedProjectionPath;
-        this.lastInvokedProjectionPath = null;
+        String lastInvokedProjectionPath = lastInvokedSelectionData != null ? 
+                lastInvokedSelectionData.getEffectivePropertyPath(): null;
+        this.lastInvokedSelectionData = null;
         return lastInvokedProjectionPath;
     }
 
@@ -186,7 +180,7 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     public void invocationWasMade(TypeSafeQueryProxyData data) {
         invocationQueue.add(data);
         // reset the invoked projection path, the getter was called without reason?
-        lastInvokedProjectionPath = null;
+        lastInvokedSelectionData = null;
     }
 
     /**
@@ -299,24 +293,48 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     }
 
     @Override
-    public <ID, T extends ID> T select(Class<T> resultClass, ResultIdentifierProvider<ID> resultIdentifierProvider) {
+    public <ID, T extends ID> T select(Class<T> resultClass, ResultIdentifierBinder<ID> resultIdentifierBinder) {
         TypeSafeQuerySelectionGroup resultGroup = new TypeSafeQuerySelectionGroupImpl(
-                SELECT_RESULT_GROUP, resultClass, resultIdentifierProvider, true, null, null);
-        return helper.createTypeSafeSelectProxy(this, resultClass, resultGroup);
+                SELECT_RESULT_GROUP, resultClass, true, null, null);
+        T proxy = helper.createTypeSafeSelectProxy(this, resultClass, resultGroup);
+        return doBind(proxy, resultGroup, resultIdentifierBinder);
     }
+    
     /**
      * {@inheritDoc}
      */
     @Override
-    public <ID, T extends ID> T select(Collection<T> collection, Class<T> subselectClass, ResultIdentifierProvider<ID> resultIdentifierProvider) {
-        if (lastInvokedCollectionData == null) {
+    public <ID, T extends ID> T select(Collection<T> collection, Class<T> subselectClass, ResultIdentifierBinder<ID> resultIdentifierBinder) {
+        if (lastInvokedSelectionData == null) {
             throw new IllegalStateException("The collection was not provided by calling a getSomeCollection method on a selection proxy.");
         }
-        T proxy = getHelper().createTypeSafeSelectProxy(this, subselectClass, new TypeSafeQuerySelectionGroupImpl(
-            createSelectGroupAlias(), subselectClass, resultIdentifierProvider, false, null, lastInvokedCollectionData));
-        lastInvokedCollectionData = null;
+        TypeSafeQuerySelectionGroup resultGroup = new TypeSafeQuerySelectionGroupImpl(
+            createSelectGroupAlias(), subselectClass, false, null, lastInvokedSelectionData);
+        T proxy = getHelper().createTypeSafeSelectProxy(this, subselectClass, resultGroup);
+        lastInvokedSelectionData = null;
+        return doBind(proxy, resultGroup, resultIdentifierBinder);
+    }
+    
+    /**
+     * 
+     */
+    private <ID, T extends ID> T doBind(T proxy, final TypeSafeQuerySelectionGroup resultGroup,
+            ResultIdentifierBinder<ID> resultIdentifierBinder) {
+        if (resultIdentifierBinder != null) {
+            resultIdentifierBinder.bind(new ResultIdentifierBinding() {
+                @Override
+                public void bind(Object value) {
+                    if (lastInvokedSelectionData == null) {
+                        throw new IllegalStateException("Bind was called without calling a getter on the result proxy.");
+                    }
+                    resultGroup.addResultIdentifierPropertyPath(lastInvokedSelectionData.getEffectivePropertyPath());
+                    lastInvokedSelectionData = null;
+                }
+            }, proxy);
+        }
         return proxy;
     }
+    
 
     /**
      * {@inheritDoc}
@@ -371,8 +389,9 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
      */
     @Override
     public <T, SUB> SUB selectMergeValues(T resultDto, Class<SUB> subselectClass, SelectionMerger<T, SUB> merger) {
+        TypeSafeQuerySelectionProxyData parent = ((TypeSafeQuerySelectionProxy) resultDto).getTypeSafeQuerySelectionProxyData();
         return getHelper().createTypeSafeSelectProxy(this, subselectClass, new TypeSafeQuerySelectionGroupImpl(
-                createSelectGroupAlias(), subselectClass, null, false, merger, null));
+                createSelectGroupAlias(), subselectClass, false, merger, parent));
     }
 
     /**

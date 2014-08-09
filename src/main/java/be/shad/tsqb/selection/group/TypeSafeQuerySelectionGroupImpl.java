@@ -15,10 +15,12 @@
  */
 package be.shad.tsqb.selection.group;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import be.shad.tsqb.data.TypeSafeQuerySelectionProxyData;
 import be.shad.tsqb.query.copy.CopyContext;
 import be.shad.tsqb.query.copy.Copyable;
-import be.shad.tsqb.selection.collection.ResultIdentifierProvider;
 import be.shad.tsqb.selection.parallel.SelectionMerger;
 
 public class TypeSafeQuerySelectionGroupImpl implements TypeSafeQuerySelectionGroup, Copyable {
@@ -27,25 +29,28 @@ public class TypeSafeQuerySelectionGroupImpl implements TypeSafeQuerySelectionGr
     private final Class<?> resultClass;
     private final boolean resultGroup;
     private final SelectionMerger<?, ?> subselectValueMerger;
-    private final ResultIdentifierProvider<?> resultIdentifierProvider;
-    private final TypeSafeQuerySelectionGroup collectionGroup;
+    private final TypeSafeQuerySelectionGroup parent;
     private final String collectionPropertyPath;
+    private final List<String> resultIdentifierPropertyPaths;
 
     public TypeSafeQuerySelectionGroupImpl(String aliasPrefix, Class<?> resultClass,
-            ResultIdentifierProvider<?> resultIdentifierProvider,
             boolean resultGroup, SelectionMerger<?, ?> subselectValueMerger,
-            TypeSafeQuerySelectionProxyData collectionData) {
+            TypeSafeQuerySelectionProxyData parent) {
         this.aliasPrefix = aliasPrefix;
         this.resultClass = resultClass;
         this.resultGroup = resultGroup;
-        this.resultIdentifierProvider = resultIdentifierProvider;
         this.subselectValueMerger = subselectValueMerger;
-        if (collectionData != null) {
-            this.collectionPropertyPath = collectionData.getEffectivePropertyPath();
-            this.collectionGroup = collectionData.getGroup();
+        this.resultIdentifierPropertyPaths = new LinkedList<>();
+        if (parent != null) {
+            if (subselectValueMerger == null) {
+                this.collectionPropertyPath = parent.getEffectivePropertyPath();
+            } else {
+                this.collectionPropertyPath = null;
+            }
+            this.parent = parent.getGroup();
         } else {
             this.collectionPropertyPath = null;
-            this.collectionGroup = null;
+            this.parent = null;
         }
     }
 
@@ -56,25 +61,30 @@ public class TypeSafeQuerySelectionGroupImpl implements TypeSafeQuerySelectionGr
         this.aliasPrefix = original.aliasPrefix;
         this.resultClass = original.resultClass;
         this.resultGroup = original.resultGroup;
+        this.resultIdentifierPropertyPaths = new LinkedList<>(original.resultIdentifierPropertyPaths);
         this.subselectValueMerger = context.getOrOriginal(original.subselectValueMerger);
-        this.resultIdentifierProvider = context.get(original.resultIdentifierProvider);
-        this.collectionGroup = context.get(original.collectionGroup);
         this.collectionPropertyPath = original.collectionPropertyPath;
+        this.parent = context.get(original.parent);
     }
 
     @Override
-    public TypeSafeQuerySelectionGroup getCollectionGroup() {
-        return collectionGroup;
+    public List<String> getResultIdentifierPropertyPaths() {
+        return resultIdentifierPropertyPaths;
+    }
+    
+    @Override
+    public void addResultIdentifierPropertyPath(String resultIdentifierPropertyPath) {
+        this.resultIdentifierPropertyPaths.add(resultIdentifierPropertyPath);
+    } 
+    
+    @Override
+    public TypeSafeQuerySelectionGroup getParent() {
+        return parent;
     }
     
     @Override
     public String getCollectionPropertyPath() {
         return collectionPropertyPath;
-    }
-    
-    @Override
-    public ResultIdentifierProvider<?> getResultIdentifierProvider() {
-        return resultIdentifierProvider;
     }
 
     @Override
@@ -111,5 +121,10 @@ public class TypeSafeQuerySelectionGroupImpl implements TypeSafeQuerySelectionGr
     public boolean equals(Object obj) {
         return obj instanceof TypeSafeQuerySelectionGroupImpl
                 && aliasPrefix.equals(((TypeSafeQuerySelectionGroupImpl) obj).aliasPrefix);
+    }
+    
+    @Override
+    public String toString() {
+        return aliasPrefix + " [" + parent + "]";
     }
 }

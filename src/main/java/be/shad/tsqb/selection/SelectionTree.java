@@ -17,6 +17,7 @@ package be.shad.tsqb.selection;
 
 import java.lang.reflect.Field;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map.Entry;
 
 /**
@@ -30,6 +31,7 @@ import java.util.Map.Entry;
 public class SelectionTree {
     private final LinkedHashMap<Field, SelectionTree> subtrees = new LinkedHashMap<>();
     private final Class<?> resultType;
+    private int resultIndex;
     private Object value;
 
     public SelectionTree(Class<?> resultType) {
@@ -38,6 +40,26 @@ public class SelectionTree {
     
     public Class<?> getResultType() {
         return resultType;
+    }
+    
+    public int assignResultIndexes(int parentIndex) {
+        resultIndex = parentIndex+1;
+        int childParentIndex = resultIndex;
+        for(SelectionTree subtree: subtrees.values()) {
+            childParentIndex = subtree.assignResultIndexes(childParentIndex);
+        }
+        return childParentIndex;
+    }
+
+    public int getResultIndex() {
+        return resultIndex;
+    }
+
+    public void collectFields(List<Field> fields) {
+        for(Entry<Field, SelectionTree> subtree: subtrees.entrySet()) {
+            fields.add(subtree.getKey());
+            subtree.getValue().collectFields(fields);
+        }
     }
     
     /**
