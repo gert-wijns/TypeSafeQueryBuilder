@@ -15,8 +15,8 @@
  */
 package be.shad.tsqb.selection.group;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import be.shad.tsqb.data.TypeSafeQuerySelectionProxyData;
 import be.shad.tsqb.query.copy.CopyContext;
@@ -31,7 +31,7 @@ public class TypeSafeQuerySelectionGroupImpl implements TypeSafeQuerySelectionGr
     private final SelectionMerger<?, ?> subselectValueMerger;
     private final TypeSafeQuerySelectionGroup parent;
     private final String collectionPropertyPath;
-    private final List<String> resultIdentifierPropertyPaths;
+    private final Set<String> resultIdentifierPropertyPaths;
 
     public TypeSafeQuerySelectionGroupImpl(String aliasPrefix, Class<?> resultClass,
             boolean resultGroup, SelectionMerger<?, ?> subselectValueMerger,
@@ -40,7 +40,7 @@ public class TypeSafeQuerySelectionGroupImpl implements TypeSafeQuerySelectionGr
         this.resultClass = resultClass;
         this.resultGroup = resultGroup;
         this.subselectValueMerger = subselectValueMerger;
-        this.resultIdentifierPropertyPaths = new LinkedList<>();
+        this.resultIdentifierPropertyPaths = new HashSet<>();
         if (parent != null) {
             if (subselectValueMerger == null) {
                 this.collectionPropertyPath = parent.getEffectivePropertyPath();
@@ -61,14 +61,14 @@ public class TypeSafeQuerySelectionGroupImpl implements TypeSafeQuerySelectionGr
         this.aliasPrefix = original.aliasPrefix;
         this.resultClass = original.resultClass;
         this.resultGroup = original.resultGroup;
-        this.resultIdentifierPropertyPaths = new LinkedList<>(original.resultIdentifierPropertyPaths);
+        this.resultIdentifierPropertyPaths = new HashSet<>(original.resultIdentifierPropertyPaths);
         this.subselectValueMerger = context.getOrOriginal(original.subselectValueMerger);
         this.collectionPropertyPath = original.collectionPropertyPath;
         this.parent = context.get(original.parent);
     }
 
     @Override
-    public List<String> getResultIdentifierPropertyPaths() {
+    public Set<String> getResultIdentifierPropertyPaths() {
         return resultIdentifierPropertyPaths;
     }
     

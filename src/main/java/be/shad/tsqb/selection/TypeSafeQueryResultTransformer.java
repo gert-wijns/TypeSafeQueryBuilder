@@ -41,11 +41,38 @@ public class TypeSafeQueryResultTransformer extends BasicTransformerAdapter {
     private final SelectionTreeGroup[] treeGroups;
     private final int resultArraySize;
     
+    /**
+     * Compares by depth (so groups without parents are first) 
+     * and then by alias in case multiple groups with the same depth exist.
+     */
+    private static final Comparator<TypeSafeQuerySelectionGroup> SELECTION_GROUPS_COMPARATOR = 
+            new Comparator<TypeSafeQuerySelectionGroup>() {
+        @Override
+        public int compare(TypeSafeQuerySelectionGroup o1, TypeSafeQuerySelectionGroup o2) {
+            int dc = Integer.compare(depth(o1), depth(o2));
+            if (dc != 0) {
+                return dc;
+            }
+            return o1.getAliasPrefix().compareTo(o2.getAliasPrefix());
+        }
+        
+        private int depth(TypeSafeQuerySelectionGroup group) {
+            TypeSafeQuerySelectionGroup current = group;
+            int depth = 0;
+            while (current.getParent() != null) {
+                current = current.getParent();
+                depth++;
+            }
+            return depth;
+        }
+    };
+    
     public TypeSafeQueryResultTransformer(
             List<TypeSafeQuerySelectionProxyData> selectionDatas, 
             List<SelectionValueTransformer<?, ?>> transformers) {
         try {
-            int a = 0;
+            // Group selection data by group (transformed into selectionTreeValues):
+            int tupleValueIndex = 0;
             Iterator<SelectionValueTransformer<?, ?>> valueTransformersIt = transformers.iterator();
             Map<TypeSafeQuerySelectionGroup, List<SelectionTreeValue>> dataByGroup = new HashMap<>();
             for(TypeSafeQuerySelectionProxyData selectionData: selectionDatas) {
@@ -54,37 +81,26 @@ public class TypeSafeQueryResultTransformer extends BasicTransformerAdapter {
                     groupData = new LinkedList<>();
                     dataByGroup.put(selectionData.getGroup(), groupData);
                 }
-                groupData.add(new SelectionTreeValue(a++, selectionData.getEffectivePropertyPath(), valueTransformersIt.next()));
+                groupData.add(new SelectionTreeValue(tupleValueIndex++, 
+                        selectionData.getEffectivePropertyPath(), 
+                        valueTransformersIt.next()));
             }
             
+            // Sort all groups by depth/alias to create groups
             List<TypeSafeQuerySelectionGroup> selectionGroups = new ArrayList<>(dataByGroup.keySet());
-            Collections.sort(selectionGroups, new Comparator<TypeSafeQuerySelectionGroup>() {
-                @Override
-                public int compare(TypeSafeQuerySelectionGroup o1, TypeSafeQuerySelectionGroup o2) {
-                    int dc = Integer.compare(depth(o1), depth(o2));
-                    if (dc != 0) {
-                        return dc;
-                    }
-                    return o1.getAliasPrefix().compareTo(o2.getAliasPrefix());
-                }
-                
-                private int depth(TypeSafeQuerySelectionGroup g) {
-                    int d = 0;
-                    while (g.getParent() != null) {
-                        g = g.getParent();
-                        d++;
-                    }
-                    return d;
-                }
-            });
+            Collections.sort(selectionGroups, SELECTION_GROUPS_COMPARATOR);
             
             int parentResultIndex = -1;
             int treeGroupIdx = 1;
             this.treeGroups = new SelectionTreeGroup[dataByGroup.size()];
             Map<TypeSafeQuerySelectionGroup, SelectionTreeGroup> treeGroupsMap = new HashMap<>();
             for(TypeSafeQuerySelectionGroup group: selectionGroups) {
+                // Create group (with any parent it may have) and save it for treeGroup iteration
                 SelectionTreeGroup tree = new SelectionTreeGroup(group, dataByGroup.get(group), 
                         treeGroupsMap.get(group.getParent()));
+                // NOTE: A treeGroup may have child SelectionTrees for embedded/composite objects,
+                //       this means the treeGroups is potentially smaller than the result array,
+                //       because the treeGroups only contains explicitly selected dtos.
                 parentResultIndex = tree.assignResultIndexes(parentResultIndex);
                 if (tree.getGroup().isResultGroup()) {
                     this.treeGroups[0] = tree;
@@ -99,6 +115,9 @@ public class TypeSafeQueryResultTransformer extends BasicTransformerAdapter {
         }
     }
 
+    /**
+     * Do nothing, result tranformation will be handled in transformList.
+     */
     @Override
     public Object transformTuple(Object[] tuple, String[] aliases) {
         return tuple;
@@ -114,6 +133,8 @@ public class TypeSafeQueryResultTransformer extends BasicTransformerAdapter {
             return list;
         }
         
+        // prepare result array and set up dataArray to contain the current
+        // value objects and identity trees
         List result = new ArrayList(list.size());
         SelectionTreeData[] data = new SelectionTreeData[resultArraySize];
         for(int i=0; i < resultArraySize; i++) {

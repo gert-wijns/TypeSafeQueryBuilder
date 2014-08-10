@@ -15,6 +15,12 @@
  */
 package be.shad.tsqb.selection;
 
+/**
+ * Groups data related to a value in the tuple array.
+ * The index is saved so the tuple array can be used out of order,
+ * so identity fields are used before other fields and
+ * objects are created/populated in sequence rather than all at once.
+ */
 public class SelectionTreeValue {
     public final int tupleValueIndex;
     public final String propertyPath;

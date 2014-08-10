@@ -15,6 +15,9 @@
  */
 package be.shad.tsqb.selection.collection;
 
+/**
+ * Abstract class which can be used when only a single value of a result is used as identity.
+ */
 public abstract class IdentityFieldProvider<RESULT> implements ResultIdentifierBinder<RESULT> {
 
     @Override

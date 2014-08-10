@@ -13,15 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.shad.tsqb.selection.collection;
+package be.shad.tsqb.dto;
 
-public interface ResultIdentifierBinder<RESULT> {
+import java.util.Collection;
 
-    /**
-     * Called by the query when selecting a dto class with a ResultIdentifierBinder.
-     * 
-     * @see ResultIdentifierBinding
-     */
-    void bind(ResultIdentifierBinding binding, RESULT resultProxy);
+public class TownDto implements HasId {
+
+    private Long id;
+    private Collection<PersonDto> inhabitants;
+
+    public Long getId() {
+        return id;
+    }
     
+    public void setId(Long id) {
+        this.id = id;
+    }
+    
+    public Collection<PersonDto> getInhabitants() {
+        return inhabitants;
+    }
+
+    public void setInhabitants(Collection<PersonDto> inhabitants) {
+        this.inhabitants = inhabitants;
+    }
 }

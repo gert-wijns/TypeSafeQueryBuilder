@@ -13,15 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package be.shad.tsqb.selection.collection;
+package be.shad.tsqb.dto;
 
-public interface ResultIdentifierBinder<RESULT> {
+public interface HasId {
 
-    /**
-     * Called by the query when selecting a dto class with a ResultIdentifierBinder.
-     * 
-     * @see ResultIdentifierBinding
-     */
-    void bind(ResultIdentifierBinding binding, RESULT resultProxy);
+    Long getId();
     
 }

@@ -292,6 +292,9 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
         return select(resultClass, null);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public <ID, T extends ID> T select(Class<T> resultClass, ResultIdentifierBinder<ID> resultIdentifierBinder) {
         TypeSafeQuerySelectionGroup resultGroup = new TypeSafeQuerySelectionGroupImpl(
@@ -316,7 +319,8 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     }
     
     /**
-     * 
+     * If the binder is not null, then call it and capture all of the 'bind' calls
+     * to use as identity paths.
      */
     private <ID, T extends ID> T doBind(T proxy, final TypeSafeQuerySelectionGroup resultGroup,
             ResultIdentifierBinder<ID> resultIdentifierBinder) {

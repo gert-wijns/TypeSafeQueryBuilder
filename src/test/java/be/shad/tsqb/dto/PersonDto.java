@@ -17,7 +17,7 @@ package be.shad.tsqb.dto;
 
 import java.util.List;
 
-public class PersonDto {
+public class PersonDto implements HasId {
     private Long id;
     private int personAge;
     private String thePersonsName;

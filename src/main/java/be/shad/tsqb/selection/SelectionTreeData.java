@@ -15,20 +15,39 @@
  */
 package be.shad.tsqb.selection;
 
+import java.util.IdentityHashMap;
 
+/**
+ * Data container used during result transformation by the {@link TypeSafeQueryResultTransformer}.
+ */
 public class SelectionTreeData {
-    public final SelectionIdentityTree identityTree = new SelectionIdentityTree();
+    // using IdentityHashMap so root so nested collection results are not considered duplicate if they have a different parent
+    public final IdentityHashMap<Object, SelectionIdentityTree> identityTrees = new IdentityHashMap<>();
     private Object currentValue;
     private boolean duplicate;
     
+    /**
+     * The value for this data element during the processing of 
+     * a result row tuple. 
+     */
     public Object getCurrentValue() {
         return currentValue;
     }
     
+    /**
+     * Update during the processing of the result row tuple.
+     * This can be either a newly decorated value or a
+     * value found in the identityTree when applicable.
+     */
     public void setCurrentValue(Object currentValue) {
         this.currentValue = currentValue;
     }
 
+    /**
+     * When the value already existed, and the current value
+     * was updated with contents found in the identityTree,
+     * then duplicate is set to true.
+     */
     public boolean isDuplicate() {
         return duplicate;
     }

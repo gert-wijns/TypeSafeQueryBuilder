@@ -27,7 +27,7 @@ import be.shad.tsqb.dto.PersonDto;
 import be.shad.tsqb.selection.parallel.SelectValue;
 import be.shad.tsqb.selection.parallel.SelectionMerger1;
 
-public class ParallelSelectionMergerTest extends TypeSafeQueryTest {
+public class SelectionMergerTest extends TypeSafeQueryTest {
 
     @Test
     public void testSubselectValueMergerIsCalledAfterOtherSetters() {

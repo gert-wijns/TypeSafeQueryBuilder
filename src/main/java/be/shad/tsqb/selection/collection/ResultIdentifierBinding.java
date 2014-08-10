@@ -18,7 +18,12 @@ package be.shad.tsqb.selection.collection;
 public interface ResultIdentifierBinding {
 
     /**
-     * Binds the value of the result proxy getter as (part of the) identity value
+     * Binds the value of the result proxy getter as (part of the) identity value.
+     * <p>
+     * Can be called one or more times. During result transformation,
+     * all values are checked in the sequence bind was called.
+     * When all values are equal, the result object will be considered
+     * equal.
      */
     void bind(Object valueOfResultProxyGetter);
     
