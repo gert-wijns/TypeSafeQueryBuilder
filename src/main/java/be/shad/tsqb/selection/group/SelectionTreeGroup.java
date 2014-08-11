@@ -150,13 +150,21 @@ public class SelectionTreeGroup extends SelectionTree {
             throws IllegalArgumentException, IllegalAccessException, InstantiationException {
         // populate 'new instances' of this and composite/embedded objects
         Object resultValue = getResultType().newInstance();
-        Object parentValue = parent != null ? dataArray[parent.getResultIndex()].getCurrentValue(): null; 
+        Object parentValue = null; 
+        if (parent != null) {
+            parentValue = dataArray[parent.getResultIndex()].getCurrentValue();
+            if (parentValue == null) {
+                // parent is null while there should be one, so don't consider this result either.
+                return;
+            }
+        }
         initialize(dataArray, resultValue);
         
         // populate identity fields:
         if (identityFields.length > 0) {
             SelectionTreeData data = dataArray[getResultIndex()];
             boolean identityExists = identityFields.length > 0;
+            boolean nullIdentity = true;
             SelectionIdentityTree identity = data.identityTrees.get(parentValue);
             if (identity == null) {
                 identity = new SelectionIdentityTree();
@@ -165,6 +173,9 @@ public class SelectionTreeGroup extends SelectionTree {
             }
             for(SelectionTreeField field: identityFields) {
                 Object value = setField(dataArray, field, tuple);
+                if (value != null) {
+                    nullIdentity = false;
+                }
                 SelectionIdentityTree nextIdentity = identity.getSubtree(value);
                 if (nextIdentity == null) {
                     // identity doesn't exist yet, this object is 'new'.
@@ -172,6 +183,12 @@ public class SelectionTreeGroup extends SelectionTree {
                     identityExists = false;
                 }
                 identity = nextIdentity;
+            }
+            
+            if (nullIdentity) {
+                data.setCurrentValue(null);
+                data.setDuplicate(false);
+                return;
             }
 
             // check identity, if equal, return existing object
