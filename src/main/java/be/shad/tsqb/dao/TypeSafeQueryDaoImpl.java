@@ -59,7 +59,7 @@ public class TypeSafeQueryDaoImpl implements TypeSafeQueryDao {
         if (tsqbQuery.getFirstResult() >= 0) {
             query.setFirstResult(tsqbQuery.getFirstResult());
         }
-        if (tsqbQuery.getFirstResult() > 0) {
+        if (tsqbQuery.getMaxResults() > 0) {
             query.setMaxResults(tsqbQuery.getMaxResults());
         }
         query.setResultTransformer(hqlQuery.getResultTransformer());
