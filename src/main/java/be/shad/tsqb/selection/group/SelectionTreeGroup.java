@@ -15,6 +15,8 @@
  */
 package be.shad.tsqb.selection.group;
 
+import static java.lang.String.format;
+
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -110,7 +112,13 @@ public class SelectionTreeGroup extends SelectionTree {
                 fieldClass = HashSet.class;
             }
         } else if (fieldClass.isAssignableFrom(Collection.class)) {
+            // this is the case when the fieldClass is a super class of Collection,
+            // this can happen when using generics to select a collection into
             fieldClass = HashSet.class;
+        } else if (!Collection.class.isAssignableFrom(fieldClass)) {
+            throw new IllegalArgumentException(format(
+                    "Class [%s] can't be used as collection.", 
+                    type));
         }
         return fieldClass;
     }
