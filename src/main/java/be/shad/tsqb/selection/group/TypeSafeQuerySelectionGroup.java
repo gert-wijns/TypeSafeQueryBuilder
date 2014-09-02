@@ -15,6 +15,8 @@
  */
 package be.shad.tsqb.selection.group;
 
+import java.util.Set;
+
 import be.shad.tsqb.selection.parallel.SelectionMerger;
 
 
@@ -43,6 +45,35 @@ public interface TypeSafeQuerySelectionGroup {
      * @return when this group is not the result group, a merger should 
      *         merge the result value of this group into the resultDto.
      */
-    SelectionMerger<?, ?> getParallelSelectionMerger();
+    SelectionMerger<?, ?> getSelectionMerger();
+
+    /**
+     * The properties of this groups' result dto to take into
+     * account when checking if the value of a result row
+     * represents the same result dto as a previous row.
+     */
+    Set<String> getResultIdentifierPropertyPaths();
     
+    /**
+     * Adds a property which should be used to determine the equality of result dtos.
+     */
+    void addResultIdentifierPropertyPath(String resultIdentifierPropertyPath);
+
+    /**
+     * The parent group, when set either the collection property path or the selection merger must be present.
+     * <p>
+     * In case the collection property path is set, this group represents a 
+     * subselected result to be added to a collection on the parent.
+     * <p>
+     * In case the selection merger is set, this group represents an
+     * extra result which will be merged into the parent.
+     */
+    TypeSafeQuerySelectionGroup getParent();
+    
+    /**
+     * The property path of the collection on the parent to which the result
+     * should be added during query result transformation.
+     */
+    String getCollectionPropertyPath();
+
 }

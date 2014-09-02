@@ -16,6 +16,7 @@
 package be.shad.tsqb.helper;
 
 import java.lang.reflect.Method;
+import java.util.Collection;
 
 import javassist.util.proxy.MethodHandler;
 import be.shad.tsqb.data.TypeSafeQuerySelectionProxyData;
@@ -61,8 +62,11 @@ class SelectionDtoMethodHandler implements MethodHandler {
         if( setter ) {
             query.getProjections().project(args[0], childData);
         } else if (helper.isBasicType(m.getReturnType())) {
-            query.queueInvokedProjectionPath(childData.getEffectivePropertyPath());
+            query.queueInvokedSelection(childData);
             return helper.getDummyValue(m.getReturnType());
+        } else if (Collection.class.isAssignableFrom(m.getReturnType())) {
+            query.queueInvokedSelection(childData);
+            return null;
         } else {
             helper.setSelectionDtoMethodHandler(query, childData);
             childDto = childData.getProxy();

@@ -15,6 +15,10 @@
  */
 package be.shad.tsqb.selection.group;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import be.shad.tsqb.data.TypeSafeQuerySelectionProxyData;
 import be.shad.tsqb.query.copy.CopyContext;
 import be.shad.tsqb.query.copy.Copyable;
 import be.shad.tsqb.selection.parallel.SelectionMerger;
@@ -25,13 +29,29 @@ public class TypeSafeQuerySelectionGroupImpl implements TypeSafeQuerySelectionGr
     private final Class<?> resultClass;
     private final boolean resultGroup;
     private final SelectionMerger<?, ?> subselectValueMerger;
+    private final TypeSafeQuerySelectionGroup parent;
+    private final String collectionPropertyPath;
+    private final Set<String> resultIdentifierPropertyPaths;
 
     public TypeSafeQuerySelectionGroupImpl(String aliasPrefix, Class<?> resultClass,
-            boolean resultGroup, SelectionMerger<?, ?> subselectValueMerger) {
+            boolean resultGroup, SelectionMerger<?, ?> subselectValueMerger,
+            TypeSafeQuerySelectionProxyData parent) {
         this.aliasPrefix = aliasPrefix;
         this.resultClass = resultClass;
         this.resultGroup = resultGroup;
         this.subselectValueMerger = subselectValueMerger;
+        this.resultIdentifierPropertyPaths = new HashSet<>();
+        if (parent != null) {
+            if (subselectValueMerger == null) {
+                this.collectionPropertyPath = parent.getEffectivePropertyPath();
+            } else {
+                this.collectionPropertyPath = null;
+            }
+            this.parent = parent.getGroup();
+        } else {
+            this.collectionPropertyPath = null;
+            this.parent = null;
+        }
     }
 
     /**
@@ -41,7 +61,30 @@ public class TypeSafeQuerySelectionGroupImpl implements TypeSafeQuerySelectionGr
         this.aliasPrefix = original.aliasPrefix;
         this.resultClass = original.resultClass;
         this.resultGroup = original.resultGroup;
+        this.resultIdentifierPropertyPaths = new HashSet<>(original.resultIdentifierPropertyPaths);
         this.subselectValueMerger = context.getOrOriginal(original.subselectValueMerger);
+        this.collectionPropertyPath = original.collectionPropertyPath;
+        this.parent = context.get(original.parent);
+    }
+
+    @Override
+    public Set<String> getResultIdentifierPropertyPaths() {
+        return resultIdentifierPropertyPaths;
+    }
+    
+    @Override
+    public void addResultIdentifierPropertyPath(String resultIdentifierPropertyPath) {
+        this.resultIdentifierPropertyPaths.add(resultIdentifierPropertyPath);
+    } 
+    
+    @Override
+    public TypeSafeQuerySelectionGroup getParent() {
+        return parent;
+    }
+    
+    @Override
+    public String getCollectionPropertyPath() {
+        return collectionPropertyPath;
     }
 
     @Override
@@ -60,7 +103,7 @@ public class TypeSafeQuerySelectionGroupImpl implements TypeSafeQuerySelectionGr
     }
 
     @Override
-    public SelectionMerger<?, ?> getParallelSelectionMerger() {
+    public SelectionMerger<?, ?> getSelectionMerger() {
         return subselectValueMerger;
     }
 
@@ -78,5 +121,10 @@ public class TypeSafeQuerySelectionGroupImpl implements TypeSafeQuerySelectionGr
     public boolean equals(Object obj) {
         return obj instanceof TypeSafeQuerySelectionGroupImpl
                 && aliasPrefix.equals(((TypeSafeQuerySelectionGroupImpl) obj).aliasPrefix);
+    }
+    
+    @Override
+    public String toString() {
+        return aliasPrefix + " [" + parent + "]";
     }
 }

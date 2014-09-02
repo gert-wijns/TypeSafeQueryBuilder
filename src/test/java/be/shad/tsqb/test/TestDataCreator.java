@@ -1,6 +1,7 @@
 package be.shad.tsqb.test;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 
 import org.hibernate.SessionFactory;
 
@@ -47,6 +48,10 @@ public class TestDataCreator {
         person.setId(idGen++);
         person.setName(name);
         person.setTown(town);
+        if (town.getInhabitants() == null) {
+            town.setInhabitants(new HashSet<Person>());
+        }
+        town.getInhabitants().add(person);
         sessionFactory.getCurrentSession().save(person);
         return person;
     }

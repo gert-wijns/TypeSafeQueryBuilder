@@ -15,8 +15,11 @@
  */
 package be.shad.tsqb.query;
 
+import java.util.Collection;
+
 import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.selection.SelectionValueTransformer;
+import be.shad.tsqb.selection.collection.ResultIdentifierBinder;
 import be.shad.tsqb.selection.parallel.SelectPair;
 import be.shad.tsqb.selection.parallel.SelectTriplet;
 import be.shad.tsqb.selection.parallel.SelectValue;
@@ -80,6 +83,11 @@ public interface TypeSafeRootQuery extends TypeSafeQuery {
     void select(Object value);
     
     /**
+     * Delegates to {@link #select(Class, ResultIdentifierProvider)} with null.
+     */
+    <T> T select(Class<T> resultClass);
+
+    /**
      * Create a proxy to select into. The proxy is used to generate aliases for the
      * selected values, which can then be used with an AliasToBeanResultTransformer.
      * <p>
@@ -95,8 +103,23 @@ public interface TypeSafeRootQuery extends TypeSafeQuery {
      * CatDto catDto = query.select(CatDto.class); // data container for the selected values
      * catDto.setAge(ageSQ.getValue()); // selects the subquery's selected value into the age property of the catDto
      * </pre>
+     * 
+     * @param ResultIdentifierBinder identifier binder in case a collection of this dto will be subselected
+     *                               In the usual case, it is most convenient to just subclass IdentityFieldProvider.
      */
-    <T> T select(Class<T> resultClass);
+    <ID, T extends ID> T select(Class<T> resultClass, ResultIdentifierBinder<ID> resultIdentifierBinder);
+
+    /**
+     * Subselect dtos for <code>collectionItemClass</code> into the collection property of a result dto.
+     * <p>
+     * The owner of the collection must be a select proxy. If a resultIdentifierProvider was specified for the
+     * owner of the collection, then that one will be used to decide where to add the item.
+     * If no resultIdentifierProvider was set, then all properties of the owner are checked for equality.
+     * 
+     * @param ResultIdentifierBinder identifier binder in case a collection of this dto will be subselected
+     *                               In the usual case, it is most convenient to just subclass IdentityFieldProvider.
+     */
+    <ID, T extends ID> T select(Collection<T> collection, Class<T> collectionItemClass, ResultIdentifierBinder<ID> resultIdentifierBinder);
     
     /**
      * Create an additional proxy to select into, which is merged with the result dto during result transforming. 

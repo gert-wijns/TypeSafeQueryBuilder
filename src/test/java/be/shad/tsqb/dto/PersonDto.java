@@ -17,10 +17,11 @@ package be.shad.tsqb.dto;
 
 import java.util.List;
 
-public class PersonDto {
+public class PersonDto implements HasId {
     private Long id;
     private int personAge;
     private String thePersonsName;
+    private TownDetailsDto townDetails;
     private List<PersonDto> children;
     
     public Long getId() {
@@ -55,4 +56,12 @@ public class PersonDto {
         this.children = children;
     }
 
+    public TownDetailsDto getTownDetails() {
+        return townDetails;
+    }
+    
+    public void setTownDetails(TownDetailsDto townDetails) {
+        this.townDetails = townDetails;
+    }
+    
 }

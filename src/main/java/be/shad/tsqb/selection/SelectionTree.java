@@ -17,6 +17,7 @@ package be.shad.tsqb.selection;
 
 import java.lang.reflect.Field;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map.Entry;
 
 /**
@@ -30,7 +31,7 @@ import java.util.Map.Entry;
 public class SelectionTree {
     private final LinkedHashMap<Field, SelectionTree> subtrees = new LinkedHashMap<>();
     private final Class<?> resultType;
-    private Object value;
+    private int resultIndex;
 
     public SelectionTree(Class<?> resultType) {
         this.resultType = resultType;
@@ -38,6 +39,37 @@ public class SelectionTree {
     
     public Class<?> getResultType() {
         return resultType;
+    }
+    
+    /**
+     * Sets the resultIndexes on this and the subtrees
+     * and returns the max resultIndex
+     */
+    public int assignResultIndexes(int parentIndex) {
+        resultIndex = parentIndex+1;
+        int childParentIndex = resultIndex;
+        for(SelectionTree subtree: subtrees.values()) {
+            childParentIndex = subtree.assignResultIndexes(childParentIndex);
+        }
+        return childParentIndex;
+    }
+
+    /**
+     * The result index, used to select one of the data elements
+     * in the dataArray durring object creation based on a result tuple.
+     */
+    public int getResultIndex() {
+        return resultIndex;
+    }
+
+    /**
+     * Gather all fields of this and subtrees (to set the accessible).
+     */
+    protected void collectFields(List<Field> fields) {
+        for(Entry<Field, SelectionTree> subtree: subtrees.entrySet()) {
+            fields.add(subtree.getKey());
+            subtree.getValue().collectFields(fields);
+        }
     }
     
     /**
@@ -58,8 +90,9 @@ public class SelectionTree {
     /**
      * Sets the value object to a new value and creates sets its subobjects if they were part of the projections.
      */
-    public void populate(Object value) throws IllegalArgumentException, IllegalAccessException, InstantiationException {
-        this.value = value;
+    protected void initialize(SelectionTreeData[] dataArray, Object value) throws IllegalArgumentException, IllegalAccessException, InstantiationException {
+        dataArray[getResultIndex()].setCurrentValue(value);
+        dataArray[getResultIndex()].setDuplicate(false);
         for(Entry<Field, SelectionTree> entry: subtrees.entrySet()) {
             Field field = entry.getKey();
             Object object = field.get(value);
@@ -67,15 +100,8 @@ public class SelectionTree {
                 object = field.getType().newInstance();
                 field.set(value, object);
             }
-            entry.getValue().populate(object);
+            entry.getValue().initialize(dataArray, object);
         }
-    }
-    
-    /**
-     * The current object which can be populated/projected onto.
-     */
-    public Object getValue() {
-        return value;
     }
     
     /**
