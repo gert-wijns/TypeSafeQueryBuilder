@@ -102,7 +102,7 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
         }
         restrictionPredicate = context.get(original.restrictionPredicate);
         lastSelectedValue = context.get(original.lastSelectedValue);
-        lastInvokedSelectionData = original.lastInvokedSelectionData;
+        lastInvokedSelectionData = null;
         entityAliasCount = original.entityAliasCount;
         selectionGroupAliasCount = original.selectionGroupAliasCount;
         firstResult = original.firstResult;
