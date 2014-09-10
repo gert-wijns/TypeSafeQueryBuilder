@@ -15,10 +15,14 @@
  */
 package be.shad.tsqb.test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
 import org.junit.Test;
 
 import be.shad.tsqb.domain.people.Person;
 import be.shad.tsqb.dto.PersonDto;
+import be.shad.tsqb.values.NullTypeSafeValue;
 
 public class WithDataTest extends TypeSafeQueryTest {
 
@@ -31,6 +35,22 @@ public class WithDataTest extends TypeSafeQueryTest {
         PersonDto selectProxy = query.select(PersonDto.class);
         selectProxy.setId(fromProxy.getId());
         validate("select hobj1.id as id from Person hobj1");
+    }
+    
+    @Test
+    public void testSelectNull() {
+        TestDataCreator creator = new TestDataCreator(getSessionFactory());
+        creator.createTestPerson(creator.createTestTown(), "Josh");
+        
+        Person personProxy = query.from(Person.class);
+        PersonDto selectProxy = query.select(PersonDto.class);
+        selectProxy.setId(new NullTypeSafeValue<>(query, Long.class).select());
+        selectProxy.setThePersonsName(personProxy.getName());
+        validate("select cast(null as char) as id, hobj1.name as thePersonsName from Person hobj1");
+        assertEquals(1, doQueryResult.size());
+        PersonDto result = (PersonDto) doQueryResult.get(0);
+        assertNull(result.getId());
+        assertEquals(result.getThePersonsName(), "Josh");
     }
     
 }
