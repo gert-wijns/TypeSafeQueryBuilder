@@ -653,6 +653,11 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
         if (value instanceof TypeSafeValue<?>) {
             throw new IllegalArgumentException(String.format("The value [%s] is already a type safe value.", value));
         }
+        @SuppressWarnings("unchecked")
+        TypeSafeValue<VAL> selectedValue = (TypeSafeValue<VAL>) getRootQuery().dequeueSelectedValue();
+        if (selectedValue != null) {
+            return selectedValue;
+        }
         List<TypeSafeQueryProxyData> invocations = dequeueInvocations();
         if( invocations.isEmpty() ) {
             // direct selection

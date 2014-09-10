@@ -26,6 +26,7 @@ import be.shad.tsqb.domain.people.Person;
 import be.shad.tsqb.domain.people.Relation;
 import be.shad.tsqb.exceptions.ValueNotInScopeException;
 import be.shad.tsqb.query.TypeSafeSubQuery;
+import be.shad.tsqb.values.TypeSafeValue;
 
 public class ScopeValidationTests extends TypeSafeQueryTest {
 
@@ -42,6 +43,15 @@ public class ScopeValidationTests extends TypeSafeQueryTest {
         TypeSafeSubQuery<Date> subquery2 = query.subquery(Date.class);
         Building building2 = subquery2.from(Building.class);
         subquery1.select(building2.getConstructionDate());
+    }
+
+    @Test(expected=ValueNotInScopeException.class)
+    public void testSubqueryProxyNotUsedInSiblingWhenUsingTypeSafeValueSelect() {
+        TypeSafeSubQuery<Date> subquery1 = query.subquery(Date.class);
+        TypeSafeSubQuery<Date> subquery2 = query.subquery(Date.class);
+        Building building2 = subquery2.from(Building.class);
+        TypeSafeValue<Date> constructionDateValue = subquery2.toValue(building2.getConstructionDate());
+        subquery1.select(constructionDateValue.select());
     }
 
     @Test(expected=ValueNotInScopeException.class)

@@ -32,11 +32,9 @@ public interface TypeSafeValue<V> extends HqlQueryValueBuilder {
     Class<V> getValueClass();
 
     /**
-     * End the expression with select() to select the value into a dto.
-     * This method may only be used when selecting into a resultDto.
-     * <p>
-     * An exception will be thrown if the next call is not 
-     * a setter on the result dto.
+     * Returns a dummy value (typically <code>null</code>)
+     * and informs the query to use this TypeSafeValue in the next
+     * restriction or dto setter call.
      */
     V select();
     

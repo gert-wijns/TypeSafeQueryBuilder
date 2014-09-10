@@ -27,6 +27,7 @@ import be.shad.tsqb.domain.people.Person.Sex;
 import be.shad.tsqb.query.TypeSafeSubQuery;
 import be.shad.tsqb.restrictions.RestrictionsGroup;
 import be.shad.tsqb.restrictions.RestrictionsGroupFactory;
+import be.shad.tsqb.values.TypeSafeValue;
 
 public class WhereTests extends TypeSafeQueryTest {
 
@@ -48,6 +49,19 @@ public class WhereTests extends TypeSafeQueryTest {
         House house1 = query.from(House.class);
         House house2 = query.from(House.class);
         query.where(house1.getStyle()).eq(house2.getStyle());
+        validate(" from House hobj1, House hobj2 where hobj1.style = hobj2.style");
+    }
+
+    /**
+     * Where left and right are both references (using select).
+     */
+    @Test
+    public void whereByReferenceUsingTypeSafeValueSelect() {
+        House house1 = query.from(House.class);
+        House house2 = query.from(House.class);
+        
+        TypeSafeValue<Style> value = query.toValue(house1.getStyle());
+        query.where(value.select()).eq(house2.getStyle());
         validate(" from House hobj1, House hobj2 where hobj1.style = hobj2.style");
     }
 
