@@ -23,14 +23,32 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import be.shad.tsqb.NamedParameter;
+import be.shad.tsqb.helper.TypeSafeQueryHelper;
+import be.shad.tsqb.helper.TypeSafeQueryHelperImpl;
 import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.query.TypeSafeRootQuery;
+import be.shad.tsqb.query.TypeSafeRootQueryImpl;
 
 public class TypeSafeQueryDaoImpl implements TypeSafeQueryDao {
     private final SessionFactory sessionFactory;
+    private final TypeSafeQueryHelper typeSafeQueryHelper;
+    
+    public TypeSafeQueryDaoImpl(SessionFactory sessionFactory,
+            TypeSafeQueryHelper typeSafeQueryHelper) {
+        this.typeSafeQueryHelper = typeSafeQueryHelper;
+        this.sessionFactory = sessionFactory;
+    }
     
     public TypeSafeQueryDaoImpl(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
+        this(sessionFactory, new TypeSafeQueryHelperImpl(sessionFactory));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public TypeSafeRootQuery createQuery() {
+        return new TypeSafeRootQueryImpl(typeSafeQueryHelper);
     }
 
     /**

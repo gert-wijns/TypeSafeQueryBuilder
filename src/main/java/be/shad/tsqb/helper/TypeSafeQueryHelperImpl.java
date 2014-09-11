@@ -41,8 +41,6 @@ import be.shad.tsqb.proxy.TypeSafeQueryProxyFactory;
 import be.shad.tsqb.proxy.TypeSafeQueryProxyType;
 import be.shad.tsqb.proxy.TypeSafeQuerySelectionProxy;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
-import be.shad.tsqb.query.TypeSafeRootQuery;
-import be.shad.tsqb.query.TypeSafeRootQueryImpl;
 import be.shad.tsqb.query.TypeSafeRootQueryInternal;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroup;
 
@@ -82,14 +80,6 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
     @Override
     public String getEntityName(Class<?> entityClass) {
         return sessionFactory.getClassMetadata(entityClass).getEntityName();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public TypeSafeRootQuery createQuery() {
-        return new TypeSafeRootQueryImpl(this);
     }
 
     /**

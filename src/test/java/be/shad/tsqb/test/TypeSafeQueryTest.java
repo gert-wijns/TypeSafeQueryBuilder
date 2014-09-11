@@ -59,7 +59,6 @@ public class TypeSafeQueryTest {
         Configuration config = new Configuration();
         config.configure("be/shad/tsqb/tests/hibernate.cfg.xml");
         sessionFactory = config.buildSessionFactory();
-        typeSafeQueryDao = new TypeSafeQueryDaoImpl(sessionFactory);
         helper = new TypeSafeQueryHelperImpl(sessionFactory) {
             // trim package for readability:
             @Override
@@ -68,7 +67,8 @@ public class TypeSafeQueryTest {
                 return entityName.substring(entityName.lastIndexOf(".")+1);
             }
         };
-        query = helper.createQuery();
+        typeSafeQueryDao = new TypeSafeQueryDaoImpl(sessionFactory, helper);
+        query = typeSafeQueryDao.createQuery();
         sessionFactory.getCurrentSession().beginTransaction();
     }
     
@@ -82,7 +82,7 @@ public class TypeSafeQueryTest {
     }
 
     protected TypeSafeRootQuery createQuery() {
-        return helper.createQuery();
+        return typeSafeQueryDao.createQuery();
     }
     
     /**
@@ -124,10 +124,10 @@ public class TypeSafeQueryTest {
             }
         }
         
-        String expectedHql = String.format("\nExpected:\n%s\n--- params: %s\n", expected.getHql(), expected.getParams());
-        String result = String.format("\nResult:\n%s\n--- params: %s\n", hqlQuery.getHql(), hqlQuery.getParams());
+        String expectedHql = String.format("\nExpected:\n%s\n--- params: %s\n", expected.getHql().trim(), expected.getParams());
+        String result = String.format("\nResult:\n%s\n--- params: %s\n", hqlQuery.getHql().trim(), hqlQuery.getParams());
         
-        assertEquals(expectedHql + result, expected.getHql(), hqlQuery.getHql());
+        assertEquals(expectedHql + result, expected.getHql().trim(), hqlQuery.getHql().trim());
         assertEquals(expectedHql + result, expected.getParams(), actualParams);
     }
 

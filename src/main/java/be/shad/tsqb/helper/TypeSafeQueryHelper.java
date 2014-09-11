@@ -18,16 +18,10 @@ package be.shad.tsqb.helper;
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.data.TypeSafeQuerySelectionProxyData;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
-import be.shad.tsqb.query.TypeSafeRootQuery;
 import be.shad.tsqb.query.TypeSafeRootQueryInternal;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroup;
 
 public interface TypeSafeQueryHelper {
-    
-    /**
-     * Creates a fresh query instance. This is the starting point to create a new query.
-     */
-    TypeSafeRootQuery createQuery();
     
     /**
      * Retrieves the entity name from hibernate. Used to construct the from clause.

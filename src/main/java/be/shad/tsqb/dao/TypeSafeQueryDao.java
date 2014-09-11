@@ -20,6 +20,11 @@ import java.util.List;
 import be.shad.tsqb.query.TypeSafeRootQuery;
 
 public interface TypeSafeQueryDao {
+    
+    /**
+     * Creates a fresh query instance. This is the starting point to create a new query.
+     */
+    TypeSafeRootQuery createQuery();
 
     /**
      * Transforms the query to a HqlQuery, creates a hibernate query object for
