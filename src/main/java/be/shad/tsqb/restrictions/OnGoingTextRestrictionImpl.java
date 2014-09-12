@@ -17,7 +17,10 @@ package be.shad.tsqb.restrictions;
 
 import static be.shad.tsqb.restrictions.RestrictionOperator.LIKE;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.restrictions.named.SingleNamedParameterBinder;
@@ -65,6 +68,52 @@ public class OnGoingTextRestrictionImpl
         return String.class;
     }
     
+    /**
+     * @return null if values is null and a set containing the values otherwise
+     */
+    private Collection<String> toCollection(String[] values) {
+        if (values == null) {
+            return null;
+        }
+        Set<String> valuesSet = new HashSet<>(values.length);
+        for(String value: values) {
+            valuesSet.add(value);
+        }
+        return valuesSet;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ContinuedOnGoingTextRestriction notIn(String[] values) {
+        return notIn(toCollection(values));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ContinuedOnGoingTextRestriction notIn(String[] values, RestrictionPredicate predicate) {
+        return notIn(toCollection(values), predicate);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ContinuedOnGoingTextRestriction in(String[] values) {
+        return in(toCollection(values));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ContinuedOnGoingTextRestriction in(String[] values, RestrictionPredicate predicate) {
+        return in(toCollection(values), predicate);
+    }
+
     /**
      * {@inheritDoc}
      */

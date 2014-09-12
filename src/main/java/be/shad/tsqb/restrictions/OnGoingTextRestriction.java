@@ -15,6 +15,8 @@
  */
 package be.shad.tsqb.restrictions;
 
+import java.util.Collection;
+
 import be.shad.tsqb.restrictions.named.SingleNamedParameterBinder;
 import be.shad.tsqb.restrictions.predicate.RestrictionPredicate;
 import be.shad.tsqb.values.TypeSafeValue;
@@ -41,7 +43,27 @@ public interface OnGoingTextRestriction extends OnGoingRestriction<String, Conti
      * @return binder with a method to set an alias for the parameter
      */
     SingleNamedParameterBinder<String, ContinuedOnGoingTextRestriction, OnGoingTextRestriction> contains();
-    
+
+    /**
+     * Delegates to {@link #notIn(Collection)} after converting the values to a collection
+     */
+    ContinuedOnGoingTextRestriction notIn(String[] values);
+
+    /**
+     * Delegates to {@link #notIn(Collection, RestrictionPredicate)} after converting the values to a collection
+     */
+    ContinuedOnGoingTextRestriction notIn(String[] values, RestrictionPredicate predicate);
+
+    /**
+     * Delegates to {@link #not(Collection)} after converting the values to a collection
+     */
+    ContinuedOnGoingTextRestriction in(String[] values);
+
+    /**
+     * Delegates to {@link #not(Collection, RestrictionPredicate)} after converting the values to a collection
+     */
+    ContinuedOnGoingTextRestriction in(String[] values, RestrictionPredicate predicate);
+
     /**
      * Generates: left like ? with (? = '%value')
      */

@@ -15,7 +15,9 @@
  */
 package be.shad.tsqb.test.restrictions;
 
+import static be.shad.tsqb.restrictions.predicate.RestrictionPredicate.IGNORE_EMPTY_COLLECTION;
 import static be.shad.tsqb.restrictions.predicate.RestrictionPredicate.IGNORE_NULL;
+import static java.util.Arrays.asList;
 
 import org.junit.Test;
 
@@ -26,6 +28,38 @@ import be.shad.tsqb.values.DirectTypeSafeValue;
 public class OnGoingTextRestrictionTest extends TypeSafeQueryTest {
     private String NAMED_PARAM_1 = "NAMED_PARAM_1";
     private String NAMED_PARAM_2 = "NAMED_PARAM_2";
+
+    @Test
+    public void inStringsArrayTest() {
+        String[] namesArray = {"Josh", "Eve"};
+        Person person = query.from(Person.class);
+        query.where(person.getName()).in(namesArray);
+        validate(" from Person hobj1 where hobj1.name in (:np1)", asList(namesArray));
+    }
+    
+    @Test
+    public void inStringsArrayIgnorableTest() {
+        String[] namesArray = {};
+        Person person = query.from(Person.class);
+        query.where(person.getName()).in(namesArray, IGNORE_EMPTY_COLLECTION);
+        validate(" from Person hobj1");
+    }
+
+    @Test
+    public void notInStringsArrayTest() {
+        String[] namesArray = {"Josh", "Eve"};
+        Person person = query.from(Person.class);
+        query.where(person.getName()).notIn(namesArray);
+        validate(" from Person hobj1 where hobj1.name not in (:np1)", asList(namesArray));
+    }
+
+    @Test
+    public void notInStringsArrayIgnorableTest() {
+        String[] namesArray = {};
+        Person person = query.from(Person.class);
+        query.where(person.getName()).notIn(namesArray, IGNORE_EMPTY_COLLECTION);
+        validate(" from Person hobj1");
+    }
 
     @Test
     public void likeValueTest() {

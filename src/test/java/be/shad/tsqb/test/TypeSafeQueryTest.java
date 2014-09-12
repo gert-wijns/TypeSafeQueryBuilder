@@ -17,7 +17,11 @@ package be.shad.tsqb.test;
 
 import static be.shad.tsqb.values.HqlQueryValueImpl.hql;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -128,7 +132,23 @@ public class TypeSafeQueryTest {
         String result = String.format("\nResult:\n%s\n--- params: %s\n", hqlQuery.getHql().trim(), hqlQuery.getParams());
         
         assertEquals(expectedHql + result, expected.getHql().trim(), hqlQuery.getHql().trim());
-        assertEquals(expectedHql + result, expected.getParams(), actualParams);
+        assertEquals(expectedHql + result, expected.getParams().size(), actualParams.size());
+        Iterator<Object> expectedIt = expected.getParams().iterator();
+        Iterator<Object> actualIt = actualParams.iterator();
+        for(;expectedIt.hasNext() && actualIt.hasNext();) {
+            Object expectedParam = expectedIt.next();
+            Object actualParam = actualIt.next();
+            if (expectedParam instanceof Collection) {
+                // don't care if the collection has a different order, 
+                // as long as the elements are the same:
+                assertTrue(expectedHql + result, actualParam instanceof Collection);
+                assertEquals(expectedHql + result, 
+                        new HashSet<>((Collection<?>) expectedParam), 
+                        new HashSet<>((Collection<?>) actualParam));
+            } else {
+                assertEquals(expectedHql + result, expectedParam, actualParam);
+            }
+        }
     }
 
 }
