@@ -36,10 +36,8 @@ public class GroupingTest extends TypeSafeQueryTest {
     @Test
     public void testGroupByMoreThanOneValue() {
         Building building = query.from(Building.class);
-        query.select(building.getConstructionDate());
-        query.select(building.getStyle());
-        query.groupBy(building.getConstructionDate());
-        query.groupBy(building.getStyle());
+        query.select(query.groupBy(building.getConstructionDate()).select());
+        query.select(query.groupBy(building.getStyle()).select());
 
         validate("select hobj1.constructionDate, hobj1.style "
                 + "from Building hobj1 "

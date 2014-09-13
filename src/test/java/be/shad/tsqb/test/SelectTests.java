@@ -43,6 +43,7 @@ import be.shad.tsqb.query.JoinType;
 import be.shad.tsqb.query.TypeSafeSubQuery;
 import be.shad.tsqb.selection.SelectionValueTransformer;
 import be.shad.tsqb.values.CaseTypeSafeValue;
+import be.shad.tsqb.values.TypeSafeValueFunctions;
 
 
 public class SelectTests extends TypeSafeQueryTest {
@@ -209,11 +210,13 @@ public class SelectTests extends TypeSafeQueryTest {
     public void selectCountDistinct() {
         House house = query.from(House.class);
 
+        TypeSafeValueFunctions fun = query.hqlFunction();
         @SuppressWarnings("unchecked")
-        MutableObject<Long> dto = query.select(MutableObject.class);
-        dto.setValue(query.hqlFunction().countDistinct(house.getFloors()).select());
+        MutablePair<Long, Integer> dto = query.select(MutablePair.class);
+        dto.setLeft(fun.countDistinct(house.getFloors()).select());
+        dto.setRight(query.groupBy(house.getFloors()).select());
 
-        validate("select count(distinct hobj1.floors) as value from House hobj1");
+        validate("select count(distinct hobj1.floors) as left, hobj1.floors as right from House hobj1 group by hobj1.floors");
     }
 
     /**
@@ -409,7 +412,8 @@ public class SelectTests extends TypeSafeQueryTest {
 
         ProductDetailsDto dto = query.select(ProductDetailsDto.class);
         dto.setId(product.getId());
-        dto.setValidUntilDate(query.select(Date.class, product.getManyProperties().getProperty1(),
+        dto.setValidUntilDate(query.select(Date.class, 
+                product.getManyProperties().getProperty1(), 
                 new SelectionValueTransformer<String, Date>() {
             @Override
             public Date convert(String a) {

@@ -42,7 +42,6 @@ import be.shad.tsqb.query.TypeSafeSubQuery;
 import be.shad.tsqb.restrictions.OnGoingTextRestriction;
 import be.shad.tsqb.restrictions.RestrictionsGroup;
 import be.shad.tsqb.restrictions.RestrictionsGroupFactory;
-import be.shad.tsqb.restrictions.WhereRestrictions;
 import be.shad.tsqb.values.CustomTypeSafeValue;
 
 public class ExamplesTest extends TypeSafeQueryTest {
@@ -253,10 +252,8 @@ public class ExamplesTest extends TypeSafeQueryTest {
         Person parent = query.from(Person.class);
         
         Relation childRelation = query.join(parent.getChildRelations());
-        Person child = query.join(childRelation.getChild());
-        
-        WhereRestrictions childJoin = query.joinWith(child);
-        childJoin.where(child.getName()).eq("Bob");
+        Person child = childRelation.getChild();
+        query.joinWith(child).where(child.getName()).eq("Bob");
 
         validate(" from Person hobj1 join hobj1.childRelations hobj2 join hobj2.child hobj3 with hobj3.name = :np1", "Bob");
     }
@@ -274,10 +271,10 @@ public class ExamplesTest extends TypeSafeQueryTest {
     @Test
     public void testRestrictionChaining() {
         Person person = query.from(Person.class);
-
+        
         query.where(person.getAge()).lt(20).
                 and(person.getName()).startsWith("Alex");
-
+        
         validate(" from Person hobj1 where hobj1.age < :np1 and hobj1.name like :np2", 20, "Alex%");
     }
 
