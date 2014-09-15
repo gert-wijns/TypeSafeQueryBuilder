@@ -17,6 +17,7 @@ package be.shad.tsqb.dao;
 
 import java.util.List;
 
+import be.shad.tsqb.dao.result.QueryResult;
 import be.shad.tsqb.query.TypeSafeRootQuery;
 
 public interface TypeSafeQueryDao {
@@ -31,8 +32,17 @@ public interface TypeSafeQueryDao {
      * the current session and sets the start/max results.
      * <p>
      * The values are transformed using the transformer which was created
-     * when the query was transformed.
+     * when the query was transformed and are wrapped in the query result.
      */
-    <T> List<T> doQuery(TypeSafeRootQuery query);
+    <T> QueryResult<T> doQuery(TypeSafeRootQuery query);
     
+    /**
+     * Delegates to {@link #doQuery(TypeSafeRootQuery)} and returns the first result.
+     */
+    <T> T doQueryFirstResult(TypeSafeRootQuery query);
+
+    /**
+     * Delegates to {@link #doQuery(TypeSafeRootQuery)} and returns the results.
+     */
+    <T> List<T> doQueryResults(TypeSafeRootQuery query);
 }
