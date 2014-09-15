@@ -23,6 +23,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import be.shad.tsqb.NamedParameter;
+import be.shad.tsqb.dao.result.QueryResult;
 import be.shad.tsqb.helper.TypeSafeQueryHelper;
 import be.shad.tsqb.helper.TypeSafeQueryHelperImpl;
 import be.shad.tsqb.hql.HqlQuery;
@@ -56,7 +57,7 @@ public class TypeSafeQueryDaoImpl implements TypeSafeQueryDao {
      */
     @Override
     @SuppressWarnings("unchecked")
-    public <T> List<T> doQuery(TypeSafeRootQuery tsqbQuery) {
+    public <T> QueryResult<T> doQuery(TypeSafeRootQuery tsqbQuery) {
         HqlQuery hqlQuery = tsqbQuery.toHqlQuery();
         
         Session currentSession = sessionFactory.getCurrentSession();
@@ -82,7 +83,25 @@ public class TypeSafeQueryDaoImpl implements TypeSafeQueryDao {
         }
         query.setResultTransformer(hqlQuery.getResultTransformer());
         
-        return query.list();
+        return new QueryResult<>(query.list());
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <T> T doQueryFirstResult(TypeSafeRootQuery query) {
+        query.setMaxResults(1);
+        QueryResult<T> queryResult = doQuery(query);
+        return queryResult.getFirstResult();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <T> List<T> doQueryResults(TypeSafeRootQuery query) {
+        QueryResult<T> queryResult = doQuery(query);
+        return queryResult.getResults();
+    }
 }

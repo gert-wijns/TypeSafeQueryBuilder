@@ -98,7 +98,7 @@ public class TypeSafeQueryTest {
     protected HqlQuery doQuery(TypeSafeRootQuery typeSafeQuery) {
         HqlQuery hqlQuery = typeSafeQuery.toHqlQuery();
         
-        doQueryResult = typeSafeQueryDao.doQuery(typeSafeQuery);
+        doQueryResult = typeSafeQueryDao.doQueryResults(typeSafeQuery);
         logger.debug("{}:\n{}\n--- params: {}\n", name.getMethodName(), 
                 hqlQuery.getHql(), hqlQuery.getParams());
         
