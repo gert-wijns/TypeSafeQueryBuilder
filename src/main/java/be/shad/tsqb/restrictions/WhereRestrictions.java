@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,12 +27,12 @@ public interface WhereRestrictions {
      * Adds the restrictions as 'and' to the where restrictions
      */
     RestrictionChainable and(RestrictionHolder restriction, RestrictionHolder... restrictions);
-    
+
     /**
      * Adds the restrictions as 'and' to the where restrictions
      */
     RestrictionChainable or(RestrictionHolder restriction, RestrictionHolder... restrictions);
-    
+
     /**
      * In case part of the restrictions were already built, but no reference was kept
      * to the last restriction chainable, this method can be used to get the last
@@ -54,7 +54,7 @@ public interface WhereRestrictions {
      * Adds a restriction as and to the existing where clause.
      */
     RestrictionChainable where(Restriction restriction);
-    
+
     /**
      * The general restrict by enum method. Anything which represents a number
      * can be used with this method.
@@ -66,7 +66,7 @@ public interface WhereRestrictions {
      * or a value of a TypeSafeQueryProxy getter.
      */
     <E extends Enum<E>> OnGoingEnumRestriction<E> where(E value);
-    
+
     /**
      * The general restrict by boolean method. Anything which represents a boolean
      * can be used with this method.
@@ -75,7 +75,7 @@ public interface WhereRestrictions {
 
     /**
      * Restrict a boolean value. This can be a direct value (an actual boolean),
-     * or a value of a TypeSafeQueryProxy getter. 
+     * or a value of a TypeSafeQueryProxy getter.
      */
     OnGoingBooleanRestriction where(Boolean value);
 
@@ -87,7 +87,7 @@ public interface WhereRestrictions {
 
     /**
      * Restrict a number value. This can be a direct value (an actual number),
-     * or a value of a TypeSafeQueryProxy getter. 
+     * or a value of a TypeSafeQueryProxy getter.
      */
     OnGoingNumberRestriction where(Number value);
 
@@ -99,7 +99,7 @@ public interface WhereRestrictions {
 
     /**
      * Restrict a number value. This can be a direct value (an actual date),
-     * or a value of a TypeSafeQueryProxy getter. 
+     * or a value of a TypeSafeQueryProxy getter.
      */
     OnGoingDateRestriction where(Date value);
 
@@ -111,7 +111,7 @@ public interface WhereRestrictions {
 
     /**
      * Restrict a string value. This can be a direct value (an actual string),
-     * or a value of a TypeSafeQueryProxy getter. 
+     * or a value of a TypeSafeQueryProxy getter.
      */
     OnGoingTextRestriction where(String value);
 
@@ -124,5 +124,10 @@ public interface WhereRestrictions {
      * Adds a not exists restriction.
      */
     RestrictionChainable whereNotExists(TypeSafeSubQuery<?> subquery);
-    
+
+    /**
+     * Restrict an object value. This can be a direct value (an actual enum value),
+     * or a value of a TypeSafeQueryProxy getter.
+     */
+    <T> OnGoingObjectRestriction<T> where(TypeSafeValue<T> value);
 }

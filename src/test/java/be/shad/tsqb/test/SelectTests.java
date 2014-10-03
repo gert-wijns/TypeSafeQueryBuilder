@@ -35,6 +35,7 @@ import be.shad.tsqb.domain.people.Person;
 import be.shad.tsqb.domain.people.PersonProperty;
 import be.shad.tsqb.domain.people.Relation;
 import be.shad.tsqb.domain.properties.PlanningProperties;
+import be.shad.tsqb.domain.usertype.TextWrappingObject;
 import be.shad.tsqb.dto.FunctionsDto;
 import be.shad.tsqb.dto.PersonDto;
 import be.shad.tsqb.dto.ProductDetailsDto;
@@ -352,6 +353,18 @@ public class SelectTests extends TypeSafeQueryTest {
     }
 
     @Test
+    public void selectUserTypeValue() {
+        Building building = query.from(Building.class);
+
+        @SuppressWarnings("unchecked")
+        MutablePair<TextWrappingObject, Style> result = query.select(MutablePair.class);
+        result.setLeft(building.getText());
+        result.setRight(building.getStyle());
+
+        validate("select hobj1.text as left, hobj1.style as right from Building hobj1");
+    }
+
+    @Test
     public void selectComponentTypeValues() {
         Town town = query.from(Town.class);
 
@@ -412,8 +425,8 @@ public class SelectTests extends TypeSafeQueryTest {
 
         ProductDetailsDto dto = query.select(ProductDetailsDto.class);
         dto.setId(product.getId());
-        dto.setValidUntilDate(query.select(Date.class, 
-                product.getManyProperties().getProperty1(), 
+        dto.setValidUntilDate(query.select(Date.class,
+                product.getManyProperties().getProperty1(),
                 new SelectionValueTransformer<String, Date>() {
             @Override
             public Date convert(String a) {

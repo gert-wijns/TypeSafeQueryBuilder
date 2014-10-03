@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,17 +26,17 @@ import be.shad.tsqb.query.TypeSafeSubQuery;
 import be.shad.tsqb.values.TypeSafeValue;
 
 public abstract class RestrictionChainableImpl implements RestrictionChainable {
-    
+
     protected abstract RestrictionsGroupInternal getRestrictionsGroup();
 
     private Restriction exists(TypeSafeSubQuery<?> subquery) {
         return new RestrictionImpl<>(getRestrictionsGroup(), null, null, EXISTS, subquery);
     }
-    
+
     private Restriction notExists(TypeSafeSubQuery<?> subquery) {
         return new RestrictionImpl<>(getRestrictionsGroup(), null, null, NOT_EXISTS, subquery);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -44,7 +44,7 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable {
     public RestrictionChainable andExists(TypeSafeSubQuery<?> subquery) {
         return getRestrictionsGroup().and(exists(subquery));
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -75,6 +75,14 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable {
     @Override
     public <E extends Enum<E>> OnGoingEnumRestriction<E> and(E value) {
         return new OnGoingEnumRestrictionImpl<E>(getRestrictionsGroup(), And, value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <T> OnGoingObjectRestriction<T> and(TypeSafeValue<T> value) {
+        return new OnGoingObjectRestrictionImpl<T>(getRestrictionsGroup(), And, value);
     }
 
     /**
@@ -153,6 +161,14 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable {
      * {@inheritDoc}
      */
     @Override
+    public <T> OnGoingObjectRestriction<T> or(TypeSafeValue<T> value) {
+        return new OnGoingObjectRestrictionImpl<T>(getRestrictionsGroup(), Or, value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public OnGoingTextRestriction or(String value) {
         return new OnGoingTextRestrictionImpl(getRestrictionsGroup(), Or, value);
     }
@@ -180,7 +196,7 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable {
     public OnGoingNumberRestriction orNumber(TypeSafeValue<Number> value) {
         return new OnGoingNumberRestrictionImpl(getRestrictionsGroup(), Or, value);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -228,5 +244,5 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable {
     public RestrictionAndChainable or(ContinuedRestrictionChainable continuedRestrictionChainable) {
         return or(continuedRestrictionChainable.getRestrictionsGroup());
     }
-    
+
 }

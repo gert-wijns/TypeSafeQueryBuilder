@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -47,18 +47,18 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
     private RestrictionsGroupBracketsPolicy bracketsPolicy;
 
     public RestrictionsGroupImpl(TypeSafeQueryInternal query,
-            TypeSafeQueryProxyData join, 
+            TypeSafeQueryProxyData join,
             RestrictionsGroupBracketsPolicy bracketsPolicy) {
         this.query = query;
         this.join = join;
         this.bracketsPolicy = bracketsPolicy;
     }
-    
+
     public RestrictionsGroupImpl(TypeSafeQueryInternal query,
             TypeSafeQueryProxyData join) {
         this(query, join, RestrictionsGroupBracketsPolicy.WhenMoreThanOne);
     }
-    
+
     public RestrictionsGroupImpl(CopyContext context, RestrictionsGroupImpl original) {
         this.query = context.get(original.query);
         this.join = context.get(original.join);
@@ -89,37 +89,37 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
         }
         return this;
     }
-    
+
     @Override
     public Restriction getRestriction() {
         return getRestrictions();
     }
-    
+
     @Override
     public TypeSafeQueryInternal getQuery() {
         return query;
     }
-    
+
     @Override
     public boolean isEmpty() {
         return restrictions.isEmpty();
     }
-    
+
     @Override
     public RestrictionChainable where(HqlQueryValue restriction) {
         return and(restriction);
     }
-    
+
     @Override
     public RestrictionChainable where(RestrictionsGroup group) {
         return and(group.getRestrictions());
     }
-    
+
     @Override
     public RestrictionChainable where(Restriction restriction) {
         return and(restriction);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -127,7 +127,7 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
     public RestrictionsGroupImpl getRestrictionsGroup() {
         return this;
     }
-    
+
     /**
      * Creates a new group which is used to restrict the where part of a query.
      */
@@ -142,14 +142,14 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
     public static RestrictionsGroup group(TypeSafeQuery query, TypeSafeQueryProxyData join) {
         return new RestrictionsGroupImpl((TypeSafeQueryInternal) query, join);
     }
-    
+
     /**
      * The joined entity proxy data, might be null if this group is not used in a with (restrictions) clause.
      */
     public TypeSafeQueryProxyData getJoin() {
         return join;
     }
-    
+
     /**
      * Loops the restrictions and links them together with ands and ors.
      */
@@ -183,7 +183,7 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
         }
         return new HqlQueryValueImpl("(" + value.getHql() + ")", value.getParams());
     }
-    
+
     private boolean isRestrictionApplicable(Restriction restriction) {
         if (restriction instanceof RestrictionGuard) {
             return ((RestrictionGuard) restriction).isRestrictionApplicable();
@@ -220,7 +220,7 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
     public RestrictionChainable where() {
         return this;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -267,12 +267,12 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
     public RestrictionChainable or(HqlQueryValue customValue) {
         return add(customValue, Or);
     }
-    
+
     private RestrictionChainable add(HqlQueryValue customValue, RestrictionNodeType type) {
         TypeSafeValue<Object> value = new CustomTypeSafeValue<Object>(query, Object.class, customValue);
         return add(new RestrictionImpl<>(this, null, value, null, null), type);
     }
-    
+
     /**
      * Wraps the restriction in a group if its group was different.
      * This happens when a group was created to group 'ors' for example,
@@ -316,6 +316,14 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
      */
     @Override
     public <E extends Enum<E>> OnGoingEnumRestriction<E> where(E value) {
+        return and(value);
+    }
+
+    /**
+     * Delegate the call to and().
+     */
+    @Override
+    public <VAL> OnGoingObjectRestriction<VAL> where(TypeSafeValue<VAL> value) {
         return and(value);
     }
 

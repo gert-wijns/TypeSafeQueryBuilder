@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -35,6 +35,7 @@ import be.shad.tsqb.restrictions.OnGoingBooleanRestriction;
 import be.shad.tsqb.restrictions.OnGoingDateRestriction;
 import be.shad.tsqb.restrictions.OnGoingEnumRestriction;
 import be.shad.tsqb.restrictions.OnGoingNumberRestriction;
+import be.shad.tsqb.restrictions.OnGoingObjectRestriction;
 import be.shad.tsqb.restrictions.OnGoingTextRestriction;
 import be.shad.tsqb.restrictions.Restriction;
 import be.shad.tsqb.restrictions.RestrictionChainable;
@@ -70,12 +71,12 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
     private final RestrictionsGroupFactory groupedRestrictionsBuilder;
     private final ArithmeticTypeSafeValueFactory arithmeticsBuilder;
     private final TypeSafeQueryProxyDataTree dataTree;
-    private final TypeSafeQueryProjections projections; 
+    private final TypeSafeQueryProjections projections;
     private final RestrictionsGroupInternal whereRestrictions;
     private final RestrictionsGroupInternal havingRestrictions;
     private final TypeSafeQueryGroupBys groupBys;
     private final TypeSafeQueryOrderBys orderBys;
-    
+
     /**
      * Copy constructor
      */
@@ -95,7 +96,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
         this.groupBys = context.get(original.groupBys);
         this.orderBys = context.get(original.orderBys);
     }
-    
+
     /**
      * Provide the opportunity to initialize the empty lists/initial counters,
      * required because super values are initialized before subclass values.
@@ -140,7 +141,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
     public TypeSafeRootQueryInternal getRootQuery() {
         return rootQuery;
     }
-    
+
     /**
      * Allow subclasses to set the rootQuery.
      */
@@ -175,7 +176,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
     public <S, T extends S> T getAsSubtype(S proxy, Class<T> subtype) {
         return helper.createTypeSafeSubtypeProxy(this, proxy, subtype);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -220,7 +221,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
     public <T> T join(Collection<T> anyCollection, JoinType joinType, String name) {
         return handleJoin((T) null, joinType, name, false);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -242,7 +243,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
     public <T> T join(Collection<T> anyCollection, JoinType joinType, boolean createAdditionalJoin) {
         return handleJoin((T) null, joinType, null, createAdditionalJoin);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -291,7 +292,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
                     + "which does not represent an entity. ", data.getAlias()));
         }
         if( createAdditionalJoin ) {
-            data = helper.createTypeSafeJoinProxy(this, data.getParent(), 
+            data = helper.createTypeSafeJoinProxy(this, data.getParent(),
                     data.getPropertyPath(), data.getPropertyType());
         }
         data.setJoinType(joinType == null ? JoinType.Default: joinType);
@@ -364,7 +365,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
     public RestrictionsGroupFactory getGroupedRestrictionsBuilder() {
         return groupedRestrictionsBuilder;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -380,7 +381,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
     public RestrictionChainable whereNotExists(TypeSafeSubQuery<?> subquery) {
         return whereRestrictions.andNotExists(subquery);
     }
-    
+
     /**
      * Delegate to restrictions.
      */
@@ -393,10 +394,18 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      * Delegate to restrictions.
      */
     @Override
+    public <VAL> OnGoingObjectRestriction<VAL> where(TypeSafeValue<VAL> value) {
+        return whereRestrictions.and(value);
+    }
+
+    /**
+     * Delegate to restrictions.
+     */
+    @Override
     public <E extends Enum<E>> OnGoingEnumRestriction<E> whereEnum(TypeSafeValue<E> value) {
         return whereRestrictions.andEnum(value);
     }
-    
+
     /**
      * Delegate to restrictions.
      */
@@ -412,7 +421,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
     public OnGoingBooleanRestriction whereBoolean(TypeSafeValue<Boolean> value) {
         return whereRestrictions.andBoolean(value);
     }
-    
+
     /**
      * Delegate to restrictions.
      */
@@ -444,7 +453,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
     public OnGoingTextRestriction whereString(TypeSafeValue<String> value) {
         return whereRestrictions.andString(value);
     }
-    
+
     /**
      * Delegate to restrictions.
      */
@@ -460,7 +469,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
     public OnGoingDateRestriction whereDate(TypeSafeValue<Date> value) {
         return whereRestrictions.andDate(value);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -588,7 +597,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
     public RestrictionChainable havingNotExists(TypeSafeSubQuery<?> subquery) {
         return havingRestrictions.andNotExists(subquery);
     }
-    
+
     /**
      * Kicks off order by's. Use desc/asc afterwards to order by something.
      */
@@ -635,12 +644,12 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
     public TypeSafeValue<String> groupBy(String val) {
         return groupBys.add(toValue(val));
     }
-    
+
     @Override
     public <T> TypeSafeValue<T> groupBy(TypeSafeValue<T> val) {
         return groupBys.add(val);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -673,7 +682,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
                 return new ReferenceTypeSafeValue<VAL>(this, ((TypeSafeQueryProxy) value).getTypeSafeProxyData());
             } else if (value instanceof String) {
                 @SuppressWarnings("unchecked")
-                DirectTypeSafeValue<VAL> directValue = (DirectTypeSafeValue<VAL>) 
+                DirectTypeSafeValue<VAL> directValue = (DirectTypeSafeValue<VAL>)
                         new DirectTypeSafeStringValue(this, (String) value);
                 return directValue;
             } else {
@@ -688,7 +697,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
                     + "made before transforming it to a value.", invocations.size()));
         }
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -707,7 +716,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * Delegates to the dataTree.
      */
     @Override
@@ -732,7 +741,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
     public void validateInScope(TypeSafeValue<?> value, TypeSafeQueryProxyData join) {
         new TypeSafeQueryScopeValidatorImpl(this, join).validateInScope(value);
     }
-    
+
     /**
      * The projections, can be called to add extra projections.
      */
@@ -785,29 +794,29 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      */
     protected HqlQuery toHqlQuery(HqlQueryBuilderParams params) {
         HqlQuery query = new HqlQuery();
-        
+
         // append select part:
         projections.appendTo(query, params);
-        
+
         // append from part + their joins:
         dataTree.appendTo(query, params);
-        
+
         // append where part:
         HqlQueryValue hqlWhereRestrictions = whereRestrictions.toHqlQueryValue(params);
         query.appendWhere(hqlWhereRestrictions.getHql());
         query.addParams(hqlWhereRestrictions.getParams());
-        
+
         // append group part:
         groupBys.appendTo(query, params);
 
         HqlQueryValue hqlHavingRestrictions = havingRestrictions.toHqlQueryValue(params);
         query.appendHaving(hqlHavingRestrictions.getHql());
         query.addParams(hqlHavingRestrictions.getParams());
-        
+
         // append order part:
         orderBys.appendTo(query, params);
-        
+
         return query;
     }
-    
+
 }

@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -43,10 +43,10 @@ import be.shad.tsqb.query.TypeSafeRootQuery;
 import be.shad.tsqb.values.HqlQueryValue;
 
 public class TypeSafeQueryTest {
-    
+
     protected final Logger logger = LogManager.getLogger(getClass());
     @Rule public TestName name = new TestName();
-    
+
     private SessionFactory sessionFactory;
     private TypeSafeQueryDao typeSafeQueryDao;
     private TypeSafeQueryHelperImpl helper;
@@ -55,7 +55,7 @@ public class TypeSafeQueryTest {
 
     /**
      * Initialize the sessionFactory and helper.
-     * The helper has an override to generate shorter entity names 
+     * The helper has an override to generate shorter entity names
      * for readability (and it also works in hibernate...)
      */
     @Before
@@ -75,12 +75,12 @@ public class TypeSafeQueryTest {
         query = typeSafeQueryDao.createQuery();
         sessionFactory.getCurrentSession().beginTransaction();
     }
-    
+
     @After
     public void teardown() {
         sessionFactory.getCurrentSession().getTransaction().rollback();
     }
-    
+
     public SessionFactory getSessionFactory() {
         return sessionFactory;
     }
@@ -88,20 +88,20 @@ public class TypeSafeQueryTest {
     protected TypeSafeRootQuery createQuery() {
         return typeSafeQueryDao.createQuery();
     }
-    
+
     /**
-     * Creates a query using a session calls list, hibernate should 
+     * Creates a query using a session calls list, hibernate should
      * not complain if the query is syntactically correct.
      * <p>
      * The hql query is returned.
      */
     protected HqlQuery doQuery(TypeSafeRootQuery typeSafeQuery) {
         HqlQuery hqlQuery = typeSafeQuery.toHqlQuery();
-        
+
         doQueryResult = typeSafeQueryDao.doQueryResults(typeSafeQuery);
-        logger.debug("{}:\n{}\n--- params: {}\n", name.getMethodName(), 
+        logger.debug("{}:\n{}\n--- params: {}\n", name.getMethodName(),
                 hqlQuery.getHql(), hqlQuery.getParams());
-        
+
         // return for additional checks:
         return hqlQuery;
     }
@@ -113,7 +113,7 @@ public class TypeSafeQueryTest {
     protected void validate(String hql, Object... params) {
         validate(query, hql(hql, params));
     }
-    
+
     protected void validate(TypeSafeRootQuery query, HqlQueryValue expected) {
         HqlQuery hqlQuery = doQuery(query);
 
@@ -127,10 +127,10 @@ public class TypeSafeQueryTest {
                 }
             }
         }
-        
+
         String expectedHql = String.format("\nExpected:\n%s\n--- params: %s\n", expected.getHql().trim(), expected.getParams());
         String result = String.format("\nResult:\n%s\n--- params: %s\n", hqlQuery.getHql().trim(), hqlQuery.getParams());
-        
+
         assertEquals(expectedHql + result, expected.getHql().trim(), hqlQuery.getHql().trim());
         assertEquals(expectedHql + result, expected.getParams().size(), actualParams.size());
         Iterator<Object> expectedIt = expected.getParams().iterator();
@@ -139,11 +139,11 @@ public class TypeSafeQueryTest {
             Object expectedParam = expectedIt.next();
             Object actualParam = actualIt.next();
             if (expectedParam instanceof Collection) {
-                // don't care if the collection has a different order, 
+                // don't care if the collection has a different order,
                 // as long as the elements are the same:
                 assertTrue(expectedHql + result, actualParam instanceof Collection);
-                assertEquals(expectedHql + result, 
-                        new HashSet<>((Collection<?>) expectedParam), 
+                assertEquals(expectedHql + result,
+                        new HashSet<>((Collection<?>) expectedParam),
                         new HashSet<>((Collection<?>) actualParam));
             } else {
                 assertEquals(expectedHql + result, expectedParam, actualParam);
