@@ -688,9 +688,20 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
             } else {
                 return new DirectTypeSafeValue<VAL>(this, value);
             }
-        } else if( invocations.size() == 1 ) {
+        } else if (invocations.size() == 1) {
             // invoked with proxy
-            return new ReferenceTypeSafeValue<VAL>(this, invocations.get(0));
+            TypeSafeQueryProxyData data = invocations.get(0);
+            if (value != null) {
+                // validate value is the same as the dummy value if not null
+                Object dummyValue = helper.getDummyValue(data.getPropertyType());
+                if (!value.equals(dummyValue)) {
+                    throw new IllegalArgumentException(String.format(
+                            "Expected default value when an invocation was queued. " +
+                            "The property [%s] was queued to be used, but in addition value [%s] was provided.",
+                            data, value));
+                }
+            }
+            return new ReferenceTypeSafeValue<VAL>(this, data);
         } else {
             // invalid call, only expected one invocation
             throw new IllegalStateException(String.format("[%d] invocations were "

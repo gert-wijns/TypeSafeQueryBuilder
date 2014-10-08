@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -45,6 +45,14 @@ import be.shad.tsqb.query.TypeSafeRootQueryInternal;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroup;
 
 public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
+    private static final Integer DEFAULT_INTEGER = 84;
+    private static final Double DEFAULT_DOUBLE = DEFAULT_INTEGER.doubleValue();
+    private static final Long DEFAULT_LONG = DEFAULT_INTEGER.longValue();
+    private static final Byte DEFAULT_BYTE = DEFAULT_INTEGER.byteValue();
+    private static final Short DEFAULT_SHORT = DEFAULT_INTEGER.shortValue();
+    private static final Float DEFAULT_FLOAT = DEFAULT_INTEGER.floatValue();
+    private static final Character DEFAULT_CHAR = 'g';
+
     private final SessionFactory sessionFactory;
     private final TypeSafeQueryProxyFactory proxyFactory;
 
@@ -52,7 +60,7 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
         this.sessionFactory = sessionFactory;
         this.proxyFactory = new TypeSafeQueryProxyFactory();
     }
-    
+
     private Type getTargetType(TypeSafeQueryProxyData data, String property) {
         if ( data.getProxyType().isComposite() ) {
             return sessionFactory.getClassMetadata(data.getCompositeTypeEntityParent().getPropertyType()).
@@ -73,7 +81,7 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
         }
         return propertyType.getReturnedClass();
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -99,8 +107,8 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
      * {@inheritDoc}
      */
     @Override
-    public TypeSafeQuerySelectionProxyData createTypeSafeSelectSubProxy(TypeSafeRootQueryInternal query, 
-            TypeSafeQuerySelectionProxyData parent, String propertyName, 
+    public TypeSafeQuerySelectionProxyData createTypeSafeSelectSubProxy(TypeSafeRootQueryInternal query,
+            TypeSafeQuerySelectionProxyData parent, String propertyName,
             Class<?> targetClass, boolean setter) {
         TypeSafeQuerySelectionProxyData childData = query.getDataTree().createSelectionData(
                 parent, propertyName, targetClass, parent.getGroup(), null);
@@ -111,11 +119,11 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
         }
         return childData;
     }
-    
+
     /**
      * Build nested property path when values are retrieved, link to projections when values are set.
      */
-    void setSelectionDtoMethodHandler(final TypeSafeRootQueryInternal query, 
+    void setSelectionDtoMethodHandler(final TypeSafeRootQueryInternal query,
             final TypeSafeQuerySelectionProxyData data) {
         if (data.getProxy() == null) {
             TypeSafeQuerySelectionProxy childProxy = null;
@@ -163,17 +171,17 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
     @Override
     public <T> T createTypeSafeFromProxy(TypeSafeQueryInternal query, Class<T> clazz) {
         T proxy = proxyFactory.getProxy(clazz, EntityType);
-        TypeSafeQueryProxyData data = query.getDataTree().createData(null, 
+        TypeSafeQueryProxyData data = query.getDataTree().createData(null,
                 null, clazz, EntityType, null, (TypeSafeQueryProxy) proxy);
         setEntityProxyMethodListener(query, (TypeSafeQueryProxy) proxy, data);
         return proxy;
     }
 
     /**
-     * Sets the method handler on the proxy to create new proxies when 
+     * Sets the method handler on the proxy to create new proxies when
      * hibernate entities are traversed via the getter/setters.
      */
-    private void setEntityProxyMethodListener(final TypeSafeQueryInternal query, 
+    private void setEntityProxyMethodListener(final TypeSafeQueryInternal query,
             final TypeSafeQueryProxy proxy, final TypeSafeQueryProxyData data) {
         ((ProxyObject) proxy).setHandler(new EntityProxyMethodHandler(this, query, data));
     }
@@ -186,7 +194,7 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
         Class<?> targetClass = getTargetEntityClass(propertyType);
         ClassMetadata metadata = sessionFactory.getClassMetadata(targetClass);
         if( metadata == null && !propertyType.isComponentType() ) {
-            return query.getDataTree().createData(parent, property, targetClass); 
+            return query.getDataTree().createData(parent, property, targetClass);
         }
         TypeSafeQueryProxyType proxyType = null;
         if( metadata != null ) {
@@ -195,17 +203,17 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
             proxyType = propertyType instanceof ComponentType ? ComponentType: CompositeType;
         }
         TypeSafeQueryProxy proxy = (TypeSafeQueryProxy) proxyFactory.getProxy(targetClass, proxyType);
-        TypeSafeQueryProxyData data = query.getDataTree().createData(parent, property, targetClass, 
+        TypeSafeQueryProxyData data = query.getDataTree().createData(parent, property, targetClass,
                 proxyType, metadata == null ? null: metadata.getIdentifierPropertyName(), proxy);
         setEntityProxyMethodListener(query, proxy, data);
         return data;
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public TypeSafeQueryProxyData createTypeSafeJoinProxy(TypeSafeQueryInternal query, 
+    public TypeSafeQueryProxyData createTypeSafeJoinProxy(TypeSafeQueryInternal query,
             TypeSafeQueryProxyData parent, String propertyName, Class<?> targetClass) {
         return createChildData(query, parent, propertyName);
     }
@@ -306,19 +314,19 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
         if (primitiveClass == Boolean.TYPE) {
             return Boolean.FALSE;
         } else if (primitiveClass == Integer.TYPE) {
-            return Integer.valueOf(0);
+            return DEFAULT_INTEGER;
         } else if (primitiveClass == Long.TYPE) {
-            return Long.valueOf(0);
+            return DEFAULT_LONG;
         } else if (primitiveClass == Double.TYPE) {
-            return Double.valueOf(0);
+            return DEFAULT_DOUBLE;
         } else if (primitiveClass == Byte.TYPE) {
-            return Byte.valueOf((byte) 0);
+            return DEFAULT_BYTE;
         } else if (primitiveClass == Short.TYPE) {
-            return Short.valueOf((short) 0);
+            return DEFAULT_SHORT;
         } else if (primitiveClass == Float.TYPE) {
-            return Float.valueOf(0);
+            return DEFAULT_FLOAT;
         } else if (primitiveClass == Character.TYPE) {
-            return Character.valueOf('a');
+            return DEFAULT_CHAR;
         }
         throw new IllegalArgumentException("Didn't take a primtiive class into account: " + primitiveClass);
     }
