@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -39,7 +39,7 @@ import be.shad.tsqb.selection.parallel.SelectionMerger;
 public class SelectionTreeGroup extends SelectionTree {
 
     private TypeSafeQuerySelectionGroup group;
-    
+
     private final SelectionTreeGroup parent;
     private final Field parentCollectionField;
     private final Class collectionClass;
@@ -52,26 +52,26 @@ public class SelectionTreeGroup extends SelectionTree {
      * during the {@link #createFromTuple(SelectionTreeData[], Object[])} phase.
      */
     public SelectionTreeGroup(
-            TypeSafeQuerySelectionGroup group, 
+            TypeSafeQuerySelectionGroup group,
             List<SelectionTreeValue> tupleValues,
             SelectionTreeGroup parent) throws NoSuchFieldException, SecurityException {
         super(group.getResultClass());
         this.group = group;
         this.parent = parent;
-        
+
         Set<String> identityPaths = group.getResultIdentifierPropertyPaths();
         identityFields = new SelectionTreeField[identityPaths.size()];
         otherFields = new SelectionTreeField[tupleValues.size() - identityFields.length];
-        
+
         int fieldsCount = tupleValues.size();
         if (group.getCollectionPropertyPath() != null) {
             fieldsCount++;
         }
-        
-        int fieldIndex = 0; 
+
+        int fieldIndex = 0;
         int otherFieldsIndex = 0;
         int identityFieldsIndex = 0;
-        Field[] fields = new Field[fieldsCount]; 
+        Field[] fields = new Field[fieldsCount];
         for(SelectionTreeValue value: tupleValues) {
             SelectionTreeField field = createSelectionTreeField(value);
             if (identityPaths.contains(value.propertyPath)) {
@@ -91,7 +91,7 @@ public class SelectionTreeGroup extends SelectionTree {
             parentCollectionField = null;
             collectionClass = null;
         }
-        
+
         // set the entire array accessible at once (for this object):
         AccessibleObject.setAccessible(fields, true);
     }
@@ -117,7 +117,7 @@ public class SelectionTreeGroup extends SelectionTree {
             fieldClass = HashSet.class;
         } else if (!Collection.class.isAssignableFrom(fieldClass)) {
             throw new IllegalArgumentException(format(
-                    "Class [%s] can't be used as collection.", 
+                    "Class [%s] can't be used as collection.",
                     type));
         }
         return fieldClass;
@@ -129,10 +129,10 @@ public class SelectionTreeGroup extends SelectionTree {
      */
     private SelectionTreeField createSelectionTreeField(SelectionTreeValue value) {
         SubtreeField subtreeField = getSubtreeField(this, value.propertyPath);
-        return new SelectionTreeField(subtreeField.subtree, value.valueTransformer, 
+        return new SelectionTreeField(subtreeField.subtree, value.valueTransformer,
                 subtreeField.field, value.tupleValueIndex);
     }
-    
+
     /**
      * Traverses the subtrees by using the nested property path until just before the last path part.
      * Wraps the subtreetree (= owner of the field) and the field into a subtreefield.
@@ -150,24 +150,32 @@ public class SelectionTreeGroup extends SelectionTree {
         Field field = getField(valueTree.getResultType(), alias[alias.length-1]);
         return new SubtreeField(valueTree, field);
     }
-    
+
     /**
-     * 
+     *
      */
-    public void createFromTuple(SelectionTreeData[] dataArray, Object[] tuple) 
+    public void createFromTuple(SelectionTreeData[] dataArray, Object[] tuple)
             throws IllegalArgumentException, IllegalAccessException, InstantiationException {
         // populate 'new instances' of this and composite/embedded objects
         Object resultValue = getResultType().newInstance();
-        Object parentValue = null; 
+        Object parentValue = null;
+        Collection<Object> collection = null;
         if (parent != null) {
             parentValue = dataArray[parent.getResultIndex()].getCurrentValue();
             if (parentValue == null) {
                 // parent is null while there should be one, so don't consider this result either.
                 return;
             }
+            if (parentCollectionField != null) {
+                collection = (Collection<Object>) parentCollectionField.get(parentValue);
+                if (collection == null) {
+                    collection = (Collection<Object>) collectionClass.newInstance();
+                    parentCollectionField.set(parentValue, collection);
+                }
+            }
         }
         initialize(dataArray, resultValue);
-        
+
         // populate identity fields:
         if (identityFields.length > 0) {
             SelectionTreeData data = dataArray[getResultIndex()];
@@ -181,7 +189,7 @@ public class SelectionTreeGroup extends SelectionTree {
             }
             for(SelectionTreeField field: identityFields) {
                 Object value = setField(dataArray, field, tuple);
-                if (value != null) {
+                if (nullIdentity && value != null) {
                     nullIdentity = false;
                 }
                 SelectionIdentityTree nextIdentity = identity.getSubtree(value);
@@ -192,7 +200,7 @@ public class SelectionTreeGroup extends SelectionTree {
                 }
                 identity = nextIdentity;
             }
-            
+
             if (nullIdentity) {
                 data.setCurrentValue(null);
                 data.setDuplicate(false);
@@ -207,13 +215,28 @@ public class SelectionTreeGroup extends SelectionTree {
             }
             // remember value for future identity check
             identity.setIdentityValue(resultValue);
+
+            // object didn't exist, set remaining fields:
+            for(SelectionTreeField field: otherFields) {
+                setField(dataArray, field, tuple);
+            }
+        } else {
+            // object didn't exist, set remaining fields:
+            boolean nullValue = true;
+            for(SelectionTreeField field: otherFields) {
+                Object value = setField(dataArray, field, tuple);
+                if (nullValue && value != null) {
+                    nullValue = false;
+                }
+            }
+            if (nullValue) {
+                SelectionTreeData data = dataArray[getResultIndex()];
+                data.setCurrentValue(null);
+                data.setDuplicate(false);
+                return;
+            }
         }
-        
-        // object didn't exist, set remaining fields:
-        for(SelectionTreeField field: otherFields) {
-            setField(dataArray, field, tuple);
-        }
-        
+
         if (parent != null) {
             SelectionMerger selectionMerger = group.getSelectionMerger();
             if (selectionMerger != null) {
@@ -221,17 +244,12 @@ public class SelectionTreeGroup extends SelectionTree {
                 selectionMerger.mergeIntoResult(parentValue, resultValue);
             } else {
                 // subselect collection result dto:
-                Collection<Object> collection = (Collection<Object>) parentCollectionField.get(parentValue);
-                if (collection == null) {
-                    collection = (Collection<Object>) collectionClass.newInstance();
-                    parentCollectionField.set(parentValue, collection);
-                }
                 collection.add(resultValue);
             }
         }
     }
 
-    private Object setField(SelectionTreeData[] dataArray, SelectionTreeField field, Object[] tuple) 
+    private Object setField(SelectionTreeData[] dataArray, SelectionTreeField field, Object[] tuple)
             throws IllegalArgumentException, IllegalAccessException, InstantiationException {
         Object value = tuple[field.tupleValueIndex];
         if (field.valueTransformer != null) {
@@ -250,9 +268,9 @@ public class SelectionTreeGroup extends SelectionTree {
         final SelectionTree valueTree;
         final int tupleValueIndex;
         final Field field;
-        
-        public SelectionTreeField(SelectionTree valueTree, 
-                SelectionValueTransformer valueTransformer, 
+
+        public SelectionTreeField(SelectionTree valueTree,
+                SelectionValueTransformer valueTransformer,
                 Field field, int tupleValueIndex) {
             this.valueTree = valueTree;
             this.valueTransformer = valueTransformer;
@@ -260,14 +278,14 @@ public class SelectionTreeGroup extends SelectionTree {
             this.tupleValueIndex = tupleValueIndex;
         }
     }
-    
+
     /**
      * Pair containing a subtree and one of its resultType fields.
      */
     private final static class SubtreeField {
         final SelectionTree subtree;
         final Field field;
-        
+
         public SubtreeField(SelectionTree subtree, Field field) {
             this.subtree = subtree;
             this.field = field;

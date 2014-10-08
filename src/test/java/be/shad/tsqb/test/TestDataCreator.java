@@ -2,6 +2,7 @@ package be.shad.tsqb.test;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
+import java.util.Set;
 
 import org.hibernate.SessionFactory;
 
@@ -19,7 +20,7 @@ import be.shad.tsqb.domain.people.Relation;
 public class TestDataCreator {
     private final SessionFactory sessionFactory;
     private long idGen = 1;
-    
+
     public TestDataCreator(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
     }
@@ -73,6 +74,14 @@ public class TestDataCreator {
         apartment.setRevenue(revenue);
         sessionFactory.getCurrentSession().save(apartment);
         return apartment;
+    }
+
+    public Town createTestTownWithPeople(Set<String> names) {
+        Town town = createTestTown();
+        for(String name: names) {
+            createTestPerson(town, name);
+        }
+        return town;
     }
 
 }
