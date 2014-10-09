@@ -696,8 +696,8 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
                 Object dummyValue = helper.getDummyValue(data.getPropertyType());
                 if (!value.equals(dummyValue)) {
                     throw new IllegalArgumentException(String.format(
-                            "Expected default value when an invocation was queued. " +
-                            "The property [%s] was queued to be used, but in addition value [%s] was provided.",
+                            "Expected usage of property [%s]. But got value [%s]. "
+                            + "Don't calculate values using proxied getters.",
                             data, value));
                 }
             }
