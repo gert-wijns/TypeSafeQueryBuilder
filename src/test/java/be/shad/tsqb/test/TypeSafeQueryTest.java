@@ -80,6 +80,10 @@ public class TypeSafeQueryTest {
     public void teardown() {
         sessionFactory.getCurrentSession().getTransaction().rollback();
     }
+    
+    public TypeSafeQueryHelperImpl getHelper() {
+        return helper;
+    }
 
     public SessionFactory getSessionFactory() {
         return sessionFactory;

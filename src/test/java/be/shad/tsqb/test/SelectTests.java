@@ -294,7 +294,7 @@ public class SelectTests extends TypeSafeQueryTest {
     public void selectCaseWhenValue() throws ParseException {
         House house = query.from(House.class);
 
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // seems to be the format of hqldb:mem
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String dateString = "1500-02-08 12:00:00";
         Date date = df.parse(dateString);
         CaseTypeSafeValue<String> value = new CaseTypeSafeValue<String>(query, String.class);
@@ -312,7 +312,7 @@ public class SelectTests extends TypeSafeQueryTest {
                 + "then 'Test1' "
                 + "when (hobj1.name like 'Castle%') "
                 + "then null "
-                + "when (hobj1.constructionDate < '" + dateString + "') "
+                + "when (hobj1.constructionDate < " + getHelper().toLiteral(date) + ") "
                 + "then 'Old' "
                 + "else hobj1.name end) as left "
                 + "from House hobj1");
