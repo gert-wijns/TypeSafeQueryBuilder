@@ -23,7 +23,7 @@ public interface ArithmeticGroupFunctions {
      * Divides a numerator value by the denominator value
      * The returned ArithmeticTypeSafeValue will be wrapped with brackets. 
      * 
-     * @returns (a/b) when divide(a, b)
+     * @return (a/b) when divide(a, b)
      */
     ArithmeticTypeSafeValue divide(
             TypeSafeValue<? extends Number> numerator, 
@@ -33,7 +33,7 @@ public interface ArithmeticGroupFunctions {
      * Adds multiple values together.
      * The returned ArithmeticTypeSafeValue will be wrapped with brackets.
      *  
-     * @returns (a+b+c+d) when add(a, b, c, d)
+     * @return (a+b+c+d) when add(a, b, c, d)
      */
     ArithmeticTypeSafeValue add(
             TypeSafeValue<? extends Number> value1, 
@@ -44,7 +44,7 @@ public interface ArithmeticGroupFunctions {
      * Subtracts multiple values from the first value.
      * The returned ArithmeticTypeSafeValue will be wrapped with brackets. 
      * 
-     * @returns (a-b-c-d) When subtract(a, b, c, d)
+     * @return (a-b-c-d) When subtract(a, b, c, d)
      */
     ArithmeticTypeSafeValue subtract(
             TypeSafeValue<? extends Number> value1, 
@@ -55,7 +55,7 @@ public interface ArithmeticGroupFunctions {
      * Multiplies multiple values together.
      * The returned ArithmeticTypeSafeValue will be wrapped with brackets.
      * 
-     * @returns (a*b*c*d) when multiply(a, b, c, d)
+     * @return (a*b*c*d) when multiply(a, b, c, d)
      */
     ArithmeticTypeSafeValue multiply(
             TypeSafeValue<? extends Number> value1, 

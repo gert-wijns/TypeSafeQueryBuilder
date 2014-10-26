@@ -25,7 +25,7 @@ public interface OnGoingCaseWhen<T> {
     OnGoingCase<T> is(TypeSafeValue<T> value);
     
     /**
-     * Delegates to {@link #then(TypeSafeValue)} with a converted value;
+     * Delegates to {@link #is(TypeSafeValue)} with a converted value;
      */
     OnGoingCase<T> is(T value);
     

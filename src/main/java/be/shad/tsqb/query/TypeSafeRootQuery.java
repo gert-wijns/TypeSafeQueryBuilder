@@ -83,7 +83,7 @@ public interface TypeSafeRootQuery extends TypeSafeQuery {
     void select(Object value);
     
     /**
-     * Delegates to {@link #select(Class, ResultIdentifierProvider)} with null.
+     * Delegates to {@link #select(Class, ResultIdentifierBinder)} with null.
      */
     <T> T select(Class<T> resultClass);
 
@@ -104,7 +104,7 @@ public interface TypeSafeRootQuery extends TypeSafeQuery {
      * catDto.setAge(ageSQ.getValue()); // selects the subquery's selected value into the age property of the catDto
      * </pre>
      * 
-     * @param ResultIdentifierBinder identifier binder in case a collection of this dto will be subselected
+     * @param resultIdentifierBinder identifier binder in case a collection of this dto will be subselected
      *                               In the usual case, it is most convenient to just subclass IdentityFieldProvider.
      */
     <ID, T extends ID> T select(Class<T> resultClass, ResultIdentifierBinder<ID> resultIdentifierBinder);
@@ -116,7 +116,7 @@ public interface TypeSafeRootQuery extends TypeSafeQuery {
      * owner of the collection, then that one will be used to decide where to add the item.
      * If no resultIdentifierProvider was set, then all properties of the owner are checked for equality.
      * 
-     * @param ResultIdentifierBinder identifier binder in case a collection of this dto will be subselected
+     * @param resultIdentifierBinder identifier binder in case a collection of this dto will be subselected
      *                               In the usual case, it is most convenient to just subclass IdentityFieldProvider.
      */
     <ID, T extends ID> T select(Collection<T> collection, Class<T> collectionItemClass, ResultIdentifierBinder<ID> resultIdentifierBinder);

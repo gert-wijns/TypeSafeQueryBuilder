@@ -18,7 +18,7 @@ package be.shad.tsqb.query;
 import java.util.Collection;
 import java.util.Date;
 
-import be.shad.tsqb.helper.TypeSafeQueryHelper;
+import be.shad.tsqb.dao.TypeSafeQueryDao;
 import be.shad.tsqb.ordering.OnGoingOrderBy;
 import be.shad.tsqb.restrictions.HavingRestrictions;
 import be.shad.tsqb.restrictions.RestrictionsGroupFactory;
@@ -43,7 +43,7 @@ import be.shad.tsqb.values.arithmetic.ArithmeticTypeSafeValueFactory;
  * <p>
  * A type safe query is created in two ways.
  * <ul>
- * <li> By using {@link TypeSafeQueryHelper#createQuery()}: This will create a root query, which is always the 
+ * <li> By using {@link TypeSafeQueryDao#createQuery()}: This will create a root query, which is always the 
  *          starting point to create a query to return data
  * <li> By using {@link #subquery(Class)}: This can be used to create a subquery, 
  *          which will select a value of the Class type.

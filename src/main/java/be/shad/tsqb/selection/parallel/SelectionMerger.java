@@ -29,8 +29,8 @@ public interface SelectionMerger<RES, PAR> {
      * which happen to depend on one another.
      * (though that sounds a bit too exotic maybe, that's how it works).
      * 
-     * @param result the (partially) transformed result at the time of conversion
-     * @param the populated parallel selected dto which is to be merged into the result
+     * @param partialResult the (partially) transformed result at the time of conversion
+     * @param parallelDto the populated parallel selected dto which is to be merged into the result
      */
     void mergeIntoResult(RES partialResult, PAR parallelDto);
     

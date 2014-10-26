@@ -55,12 +55,12 @@ public interface OnGoingTextRestriction extends OnGoingRestriction<String, Conti
     ContinuedOnGoingTextRestriction notIn(String[] values, RestrictionPredicate predicate);
 
     /**
-     * Delegates to {@link #not(Collection)} after converting the values to a collection
+     * Delegates to {@link #in(Collection)} after converting the values to a collection
      */
     ContinuedOnGoingTextRestriction in(String[] values);
 
     /**
-     * Delegates to {@link #not(Collection, RestrictionPredicate)} after converting the values to a collection
+     * Delegates to {@link #in(Collection, RestrictionPredicate)} after converting the values to a collection
      */
     ContinuedOnGoingTextRestriction in(String[] values, RestrictionPredicate predicate);
 

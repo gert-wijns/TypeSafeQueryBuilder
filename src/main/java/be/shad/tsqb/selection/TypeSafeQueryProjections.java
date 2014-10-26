@@ -36,7 +36,7 @@ import be.shad.tsqb.values.TypeSafeValue;
 
 /**
  * Container for all projections of a query.
- * Projections can be added using the {@link #project(Object, String)}.
+ * Projections can be added using the {@link #project(Object, TypeSafeQuerySelectionProxyData)}.
  * This method should not be called from outside the query builder,
  * but it would be allowed if needed.
  */
