@@ -15,6 +15,7 @@
  */
 package be.shad.tsqb.restrictions;
 
+import be.shad.tsqb.query.TypeSafeQuery;
 import be.shad.tsqb.values.HqlQueryValueBuilder;
 
 
@@ -30,6 +31,11 @@ public interface RestrictionsGroup extends RestrictionsGroupBuilder, Restriction
         Never,
         WhenMoreThanOne;
     }
+    
+    /**
+     * @return the query to which this restrictions group belongs.
+     */
+    TypeSafeQuery getQuery();
 
     /**
      * The RestrictionsGroup doesn't implement the Restriction itself

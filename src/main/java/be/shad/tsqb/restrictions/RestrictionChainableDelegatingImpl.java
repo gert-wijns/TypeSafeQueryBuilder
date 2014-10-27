@@ -45,6 +45,10 @@ public abstract class RestrictionChainableDelegatingImpl extends RestrictionChai
         return group;
     }
 
+    public RestrictionsGroupInternal getGroup() {
+        return group;
+    }
+    
     /**
      * {@inheritDoc}
      */
