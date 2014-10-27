@@ -3,6 +3,15 @@ The goal of <i>`TypeSafeQueryBuilder`</i> is to allow writing queries using your
 For an overview of the available functionality, see [Functionality overview](https://github.com/gert-wijns/TypeSafeQueryBuilder/wiki/Functionality-overview). The rest of this page will be a basic tutorial to get started. Basic knowledge of HQL is required to understand the examples and functionality overview.
 
 #### Setup
+Add library using maven:
+```xml
+<dependency>
+    <groupId>com.github.gert-wijns</groupId>
+    <artifactId>TypeSafeQueryBuilder</artifactId>
+    <version>1.15.0</version>
+</dependency>
+```
+
 To obtain a query, create a <i>TypeSafeQueryDao</i> with the hibernate sessionFactory and call the <i>`createQuery()`</i> method on it. 
 
 ```java
