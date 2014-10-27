@@ -60,6 +60,9 @@ public class Person extends DomainObject {
     
     @Column
     private String name;
+
+    @Column
+    private String nickname;
     
     @Column
     private int age;
@@ -84,6 +87,14 @@ public class Person extends DomainObject {
 
     public void setName(String name) {
         this.name = name;
+    }
+    
+    public String getNickname() {
+        return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 
     public int getAge() {
