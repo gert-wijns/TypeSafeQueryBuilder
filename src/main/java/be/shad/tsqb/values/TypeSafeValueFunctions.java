@@ -60,6 +60,36 @@ public class TypeSafeValueFunctions {
     public <VAL, CAST> TypeSafeValue<CAST> cast(TypeSafeValue<VAL> val, Class<CAST> type) {
         return new CastTypeSafeValue<>(query, type, val);
     }
+
+    /**
+     * Initiates a concat function value with the given value.
+     */
+    public ConcatTypeSafeValue concat(String val) {
+        return concat(query.toValue(val));
+    }
+
+    /**
+     * Initiates a concat function value with the given value.
+     */
+    public ConcatTypeSafeValue concat(Enum<?> val) {
+        return concat(query.toValue(val));
+    }
+
+    /**
+     * Initiates a concat function value with the given value.
+     */
+    public ConcatTypeSafeValue concat(Number val) {
+        return concat(query.toValue(val));
+    }
+    
+    /**
+     * Initiates a concat function value with the given value.
+     */
+    public ConcatTypeSafeValue concat(TypeSafeValue<?> val) {
+        ConcatTypeSafeValue concat = new ConcatTypeSafeValue(query);
+        concat.append(val);
+        return concat;
+    }
     
     public <VAL> CoalesceTypeSafeValue<VAL> coalesce(VAL val) {
         return coalesce(query.toValue(val));
