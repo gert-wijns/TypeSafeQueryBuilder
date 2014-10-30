@@ -32,7 +32,7 @@ import be.shad.tsqb.values.TypeSafeValue;
 public class TypeSafeQueryOrderBys implements OnGoingOrderBy, HqlQueryBuilder, Copyable {
     private final List<OrderBy> orderBys = new LinkedList<>();
     private final TypeSafeQueryInternal query;
-
+    private boolean ignoreCase;
     public TypeSafeQueryOrderBys(TypeSafeQueryInternal query) {
         this.query = query;
     }
@@ -51,14 +51,14 @@ public class TypeSafeQueryOrderBys implements OnGoingOrderBy, HqlQueryBuilder, C
             TypeSafeRootQueryInternal query = (TypeSafeRootQueryInternal) this.query;
             String lastInvokedProjectionPath = query.dequeueInvokedProjectionPath();
             if (lastInvokedProjectionPath != null) {
-                return by(new OrderByProjection(query, lastInvokedProjectionPath, desc));
+                return by(new OrderByProjection(query, lastInvokedProjectionPath, desc,ignoreCase));
             }
         }
         if (val instanceof TypeSafeQuerySelectionProxy) {
             throw new IllegalArgumentException("Ordering by a selection proxy "
                     + "is not allowed. This was attempted for proxy: " + val);
         }
-        return by(new OrderByImpl(query.toValue(val), desc));
+        return by(new OrderByImpl(query.toValue(val), desc,ignoreCase));
     }
 
     /**
@@ -83,6 +83,15 @@ public class TypeSafeQueryOrderBys implements OnGoingOrderBy, HqlQueryBuilder, C
      */
     @Override
     public OnGoingOrderBy desc(String val) {
+        return orderBy(val, true);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public OnGoingOrderBy desc(String val, boolean ignoreCase) {
+        this.ignoreCase = ignoreCase;
         return orderBy(val, true);
     }
 
@@ -134,6 +143,15 @@ public class TypeSafeQueryOrderBys implements OnGoingOrderBy, HqlQueryBuilder, C
         return orderBy(val, false);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public OnGoingOrderBy asc(String val, boolean ignoreCase) {
+        this.ignoreCase = ignoreCase;
+        return orderBy(val, true);
+    }
+    
     /**
      * {@inheritDoc}
      */

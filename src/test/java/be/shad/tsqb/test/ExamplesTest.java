@@ -437,7 +437,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
         PersonDto dto = query.select(PersonDto.class);
         dto.setThePersonsName(person.getName());
 
-        query.orderBy().by(new OrderByProjection(query, "thePersonsName", true));
+        query.orderBy().by(new OrderByProjection(query, "thePersonsName", true,false));
 
         validate("select hobj1.name as thePersonsName from Person hobj1 order by hobj1.name desc");
     }

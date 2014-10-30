@@ -63,7 +63,7 @@ public class OrderingTest extends TypeSafeQueryTest {
         select.setLeft(building.getId());
         select.setRight(building.getConstructionDate());
         
-        query.orderBy().by(new OrderByProjection(query, "right", true));
+        query.orderBy().by(new OrderByProjection(query, "right", true,false));
 
         validate("select hobj1.id as left, hobj1.constructionDate as right from Building hobj1 order by hobj1.constructionDate desc");
     }
@@ -104,8 +104,18 @@ public class OrderingTest extends TypeSafeQueryTest {
         select.setLeft(maxId.select());
         select.setRight(building.getConstructionDate());
         
-        query.orderBy().by(new OrderByProjection(query, "left", true));
+        query.orderBy().by(new OrderByProjection(query, "left", true,false));
 
         validate("select (select max(hobj2.id) from Building hobj2) as left, hobj1.constructionDate as right from Building hobj1 order by 1 desc");
+    }
+
+    @Test
+    public void testOrderByIgnoreCase() {
+        Product product = query.from(Product.class);
+        Product dto = query.select(Product.class);
+        dto.getManyProperties().setProperty1(product.getName());
+        query.orderBy().desc(dto.getManyProperties().getProperty1(), true);
+
+        validate("select hobj1.name as manyProperties_property1 from Product hobj1 order by lower(hobj1.name) desc");
     }
 }
