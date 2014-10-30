@@ -24,10 +24,12 @@ import be.shad.tsqb.values.TypeSafeValue;
 public class OrderByImpl implements OrderBy {
     private TypeSafeValue<?> value;
     private boolean descending;
-    
-    public OrderByImpl(TypeSafeValue<?> value, boolean descending) {
+    private boolean ignoreCase;
+
+    public OrderByImpl(TypeSafeValue<?> value, boolean descending, boolean ignoreCase) {
         this.value = value;
         this.descending = descending;
+        this.ignoreCase = ignoreCase;
     }
 
     /**
@@ -40,14 +42,22 @@ public class OrderByImpl implements OrderBy {
 
     @Override
     public void appendTo(HqlQuery query, HqlQueryBuilderParams params) {
-        //ascending is the default
-        String order = descending ? " desc": "";
-        query.appendOrderBy(value.toHqlQueryValue(params).getHql() + order);
+        // ascending is the default
+        String order = descending ? " desc" : "";
+
+        String hqlPart = value.toHqlQueryValue(params).getHql();
+
+        boolean lower = ignoreCase && (value.getValueClass().isAssignableFrom(String.class));
+        if (lower) {
+            hqlPart = "lower(" + hqlPart + ")";
+        }
+
+        query.appendOrderBy(hqlPart + order);
     }
 
     @Override
     public Copyable copy(CopyContext context) {
         return new OrderByImpl(context, this);
     }
-    
+
 }

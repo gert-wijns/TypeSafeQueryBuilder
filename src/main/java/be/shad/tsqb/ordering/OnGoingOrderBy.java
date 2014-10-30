@@ -35,7 +35,12 @@ public interface OnGoingOrderBy {
      * Converts to a TypesafeValue and delegates to {@link #desc(TypeSafeValue)}
      */
     OnGoingOrderBy desc(String val);
-
+    
+    /**
+     * Converts to a TypesafeValue and delegates to {@link #desc(TypeSafeValue)}
+     */
+    OnGoingOrderBy desc(String val,boolean ignoreCase);
+    
     /**
      * Converts to a TypesafeValue and delegates to {@link #desc(TypeSafeValue)}
      */
@@ -65,6 +70,11 @@ public interface OnGoingOrderBy {
      * Converts to a TypesafeValue and delegates to {@link #asc(TypeSafeValue)}
      */
     OnGoingOrderBy asc(String val);
+    
+    /**
+     * Converts to a TypesafeValue and delegates to {@link #asc(TypeSafeValue)}
+     */
+    OnGoingOrderBy asc(String val,boolean ignoreCase);
 
     /**
      * Converts to a TypesafeValue and delegates to {@link #asc(TypeSafeValue)}

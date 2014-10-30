@@ -33,11 +33,13 @@ public class OrderByProjection implements OrderBy {
     private final TypeSafeQuery query;
     private final String propertyPath;
     private boolean descending;
+    private boolean ignoreCase;
 
-    public OrderByProjection(TypeSafeQuery query, String propertyPath, boolean descending) {
+    public OrderByProjection(TypeSafeQuery query, String propertyPath, boolean descending, boolean ignoreCase) {
         this.query = query;
         this.propertyPath = propertyPath;
         this.descending = descending;
+        this.ignoreCase = ignoreCase;
     }
 
     /**
@@ -57,24 +59,32 @@ public class OrderByProjection implements OrderBy {
      */
     @Override
     public void appendTo(HqlQuery hqlQuery, HqlQueryBuilderParams params) {
-        //ascending is the default
-        String order = descending ? " desc": "";
-        
-        // look for the projection with the correct alias and append it as order by:
+        // ascending is the default
+        String order = descending ? " desc" : "";
+
+        // look for the projection with the correct alias and append it as order
+        // by:
         int aliasIndex = 1;
         TypeSafeRootQueryInternal query = (TypeSafeRootQueryInternal) this.query;
         TypeSafeQueryProjections projections = query.getProjections();
-        for(TypeSafeValueProjection projection: projections.getProjections()) {
+        for (TypeSafeValueProjection projection : projections.getProjections()) {
             if (propertyPath.equals(projection.getPropertyPath())) {
                 if (projection.getValue() instanceof TypeSafeSubQuery<?>) {
-                    // if sorting by alias index is supported, this can be a workaround
-                    // when trying to order by a column which is a subquery result
+                    // if sorting by alias index is supported, this can be a
+                    // workaround
+                    // when trying to order by a column which is a subquery
+                    // result
                     hqlQuery.appendOrderBy(aliasIndex + order);
                 } else {
                     boolean previous = params.setRequiresLiterals(true);
                     HqlQueryValue value = projection.getValue().toHqlQueryValue(params);
                     params.setRequiresLiterals(previous);
-                    hqlQuery.appendOrderBy(value.getHql() + order);
+                    String hqlPart = value.getHql();
+                    boolean lower = ignoreCase && (projection.getValue().getValueClass().isAssignableFrom(String.class));
+                    if (lower) {
+                        hqlPart = "lower(" + hqlPart + ")";
+                    }
+                    hqlQuery.appendOrderBy(hqlPart + order);
                 }
                 return;
             }
