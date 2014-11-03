@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -31,21 +31,27 @@ public interface TypeSafeRootQueryInternal extends TypeSafeRootQuery, TypeSafeQu
      * if there was any.
      */
     String dequeueInvokedProjectionPath();
-    
+
     /**
      * Queues the invoked projection path when this projection path was
      * that of a basic type. This projection path is used later during order by
      * and is reset when an invocation is queued to remove ambiguity.
      */
     void queueInvokedSelection(TypeSafeQuerySelectionProxyData lastInvokedSelection);
-    
+
+    /**
+     * Clears the last invoked selection so no selection is still pending
+     * when a setter is called.
+     */
+    void clearInvokedSelection();
+
     /**
      * Queues the value as a selected value, this value will
      * take precedence over everything else when a proxy call to
      * a resultDto setter handled.
      */
     <T> T queueValueSelected(TypeSafeValue<T> selected);
-    
+
     /**
      * Sets the queued value back to null and returns the value
      * if there was any.
@@ -53,9 +59,9 @@ public interface TypeSafeRootQueryInternal extends TypeSafeRootQuery, TypeSafeQu
     TypeSafeValue<?> dequeueSelectedValue();
 
     /**
-     * Unique group name to be used when values are selected 
+     * Unique group name to be used when values are selected
      * into a grouped collection dto.
      */
     String createSelectGroupAlias();
-    
+
 }

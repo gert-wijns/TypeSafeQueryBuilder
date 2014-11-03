@@ -672,7 +672,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
             // direct selection
             if (value == null) {
                 if (provider != null) {
-                    return provider.createEmptyDirectValue();
+                    return provider.createEmptyDirectValue(this);
                 }
                 throw new IllegalArgumentException("No invocation was queued and the value and provider is null. "
                         + "When using restrictions, don't use .eq(null), use .isNull() instead.");

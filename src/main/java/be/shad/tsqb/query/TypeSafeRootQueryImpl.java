@@ -167,8 +167,16 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
      * {@inheritDoc}
      */
     @Override
+    public void clearInvokedSelection() {
+        this.lastInvokedSelectionData = null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public String dequeueInvokedProjectionPath() {
-        String lastInvokedProjectionPath = lastInvokedSelectionData != null ? 
+        String lastInvokedProjectionPath = lastInvokedSelectionData != null ?
                 lastInvokedSelectionData.getEffectivePropertyPath(): null;
         this.lastInvokedSelectionData = null;
         return lastInvokedProjectionPath;
@@ -302,7 +310,7 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
         T proxy = helper.createTypeSafeSelectProxy(this, resultClass, resultGroup);
         return doBind(proxy, resultGroup, resultIdentifierBinder);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -317,7 +325,7 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
         lastInvokedSelectionData = null;
         return doBind(proxy, resultGroup, resultIdentifierBinder);
     }
-    
+
     /**
      * If the binder is not null, then call it and capture all of the 'bind' calls
      * to use as identity paths.
@@ -338,7 +346,7 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
         }
         return proxy;
     }
-    
+
 
     /**
      * {@inheritDoc}
@@ -425,9 +433,22 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
         return selectMergeValues(resultDto, SelectTriplet.class, (SelectionMerger) merger);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public HqlQuery toHqlQuery() {
         return super.toHqlQuery(new HqlQueryBuilderParamsImpl());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toFormattedString() {
+        HqlQueryBuilderParamsImpl params = new HqlQueryBuilderParamsImpl();
+        params.setBuildingForDisplay(true);
+        return super.toHqlQuery(params).toFormattedString();
     }
 
     /**
