@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -33,14 +33,14 @@ import be.shad.tsqb.values.TypeSafeValue;
  * Mostly delegates methods to the root query.
  * <p>
  * Overrides the isInScope method to also check parent queries.
- * 
+ *
  * @see TypeSafeSubQuery
  */
 public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements TypeSafeSubQuery<T> {
     private TypeSafeQueryInternal parentQuery;
     private final Class<T> valueClass;
 
-    public TypeSafeSubQueryImpl(Class<T> valueClass, 
+    public TypeSafeSubQueryImpl(Class<T> valueClass,
             TypeSafeQueryHelper helper,
             TypeSafeQueryInternal parentQuery) {
         super(helper);
@@ -48,12 +48,12 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
         this.parentQuery = parentQuery;
         setRootQuery(parentQuery.getRootQuery());
     }
-    
+
     @Override
     protected void initializeDefaults() {
         // no defaults in subquery.
     }
-    
+
     @Override
     public Copyable copy(CopyContext context) {
         return new TypeSafeSubQueryImpl<T>(context, this);
@@ -75,7 +75,7 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
     public TypeSafeQueryInternal getParentQuery() {
         return parentQuery;
     }
-    
+
     @Override
     public Class<T> getValueClass() {
         return valueClass;
@@ -98,7 +98,7 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
         getProjections().project(value, null).getValueClass();
         return helper.getDummyValue(valueClass);
     }
-    
+
     /**
      * Create an hql query as value for this subquery.
      */
@@ -108,6 +108,11 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
             throw new IllegalStateException("Attempting to use a subquery without projections. This is most likely a mistake. "
                     + "If you are using exists/not exists, then use it by calling the selectExists or selectNotExists on "
                     + "this subquery instead of another custom way, or select a value.");
+        }
+        if (params.isCreatingOrderingBy()) {
+            throw new IllegalStateException("Attempting to use a subquery in an order by within a function, "
+                    + "hibernate does not support this. An alternative can be to apply the function on the "
+                    + "subquery select value and use the subquery as a whole without the function to order.");
         }
         HqlQuery query = toHqlQuery(params);
         return new HqlQueryValueImpl("(" +query.getHql() + ")", query.getParams());
@@ -123,7 +128,7 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
         }
         return parentQuery.isInScope(data, join);
     }
-    
+
     /**
      * Delegate to root.
      */
@@ -155,7 +160,7 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
     public String createEntityAlias() {
         return getRootQuery().createEntityAlias();
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -192,7 +197,7 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
     public <V> V getByHqlAlias(String alias) {
         return getRootQuery().getByHqlAlias(alias);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -239,5 +244,5 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
     public TypeSafeNameds named() {
         return getRootQuery().named();
     }
-    
+
 }

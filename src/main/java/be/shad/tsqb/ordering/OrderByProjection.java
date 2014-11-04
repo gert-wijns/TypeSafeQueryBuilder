@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,10 +21,10 @@ import be.shad.tsqb.query.TypeSafeRootQueryInternal;
 import be.shad.tsqb.query.TypeSafeSubQuery;
 import be.shad.tsqb.query.copy.CopyContext;
 import be.shad.tsqb.query.copy.Copyable;
-import be.shad.tsqb.selection.TypeSafeQueryProjections;
 import be.shad.tsqb.selection.TypeSafeValueProjection;
 import be.shad.tsqb.values.HqlQueryBuilderParams;
 import be.shad.tsqb.values.HqlQueryValue;
+import be.shad.tsqb.values.TypeSafeValue;
 
 /**
  * Allows ordering by an alias which should also be part of the select string.
@@ -59,32 +59,34 @@ public class OrderByProjection implements OrderBy {
     public void appendTo(HqlQuery hqlQuery, HqlQueryBuilderParams params) {
         //ascending is the default
         String order = descending ? " desc": "";
-        
+
         // look for the projection with the correct alias and append it as order by:
-        int aliasIndex = 1;
         TypeSafeRootQueryInternal query = (TypeSafeRootQueryInternal) this.query;
-        TypeSafeQueryProjections projections = query.getProjections();
-        for(TypeSafeValueProjection projection: projections.getProjections()) {
-            if (propertyPath.equals(projection.getPropertyPath())) {
-                if (projection.getValue() instanceof TypeSafeSubQuery<?>) {
-                    // if sorting by alias index is supported, this can be a workaround
-                    // when trying to order by a column which is a subquery result
-                    hqlQuery.appendOrderBy(aliasIndex + order);
-                } else {
-                    boolean previous = params.setRequiresLiterals(true);
-                    HqlQueryValue value = projection.getValue().toHqlQueryValue(params);
-                    params.setRequiresLiterals(previous);
-                    hqlQuery.appendOrderBy(value.getHql() + order);
+        TypeSafeValue<?> value = query.getProjections().getTypeSafeValue(propertyPath,
+                params.isBuildingForDisplay());
+
+        String hqlString = null;
+        if (value instanceof TypeSafeSubQuery<?>) {
+            int aliasIndex = 1;
+            for(TypeSafeValueProjection projection: query.getProjections().getProjections()) {
+                if (propertyPath.equals(projection.getPropertyPath())) {
+                    break;
                 }
-                return;
+                aliasIndex++;
             }
-            aliasIndex++;
+            hqlString = Integer.toString(aliasIndex);
+        } else {
+            boolean previous = params.setRequiresLiterals(true);
+            HqlQueryValue hqlValue = value.toHqlQueryValue(params);
+            params.setRequiresLiterals(previous);
+            hqlString = hqlValue.getHql();
         }
+        hqlQuery.appendOrderBy(hqlString + order);
     }
-    
+
     @Override
     public Copyable copy(CopyContext context) {
         return new OrderByProjection(context, this);
     }
-    
+
 }

@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,10 +26,25 @@ import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.query.TypeSafeRootQueryInternal;
 import be.shad.tsqb.query.copy.CopyContext;
 import be.shad.tsqb.query.copy.Copyable;
+import be.shad.tsqb.restrictions.DirectValueProvider;
 import be.shad.tsqb.values.HqlQueryBuilderParams;
+import be.shad.tsqb.values.ProjectionTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
 
 public class TypeSafeQueryOrderBys implements OnGoingOrderBy, HqlQueryBuilder, Copyable {
+    private static final DirectValueProvider<String> PROJECTION_VALUE_PROVIDER = new DirectValueProvider<String>() {
+        @Override
+        public TypeSafeValue<String> createEmptyDirectValue(TypeSafeQueryInternal query) {
+            if (query instanceof TypeSafeRootQueryInternal) {
+                String lastInvokedProjectionPath = ((TypeSafeRootQueryInternal) query).dequeueInvokedProjectionPath();
+                if (lastInvokedProjectionPath != null) {
+                    return new ProjectionTypeSafeValue<>(query, String.class, lastInvokedProjectionPath);
+                }
+            }
+            return null;
+        }
+    };
+
     private final List<OrderBy> orderBys = new LinkedList<>();
     private final TypeSafeQueryInternal query;
 
@@ -45,20 +60,30 @@ public class TypeSafeQueryOrderBys implements OnGoingOrderBy, HqlQueryBuilder, C
     }
 
     private OnGoingOrderBy orderBy(Object val, boolean desc) {
-        if (query instanceof TypeSafeRootQueryInternal) {
-            // if the last invoked projection path was set, then the value
-            // is a result of a getter of the selection dto.
-            TypeSafeRootQueryInternal query = (TypeSafeRootQueryInternal) this.query;
-            String lastInvokedProjectionPath = query.dequeueInvokedProjectionPath();
-            if (lastInvokedProjectionPath != null) {
-                return by(new OrderByProjection(query, lastInvokedProjectionPath, desc));
-            }
+        String lastInvokedProjectionPath = getLastInvokedProjectionPath();
+        if (lastInvokedProjectionPath != null) {
+            return by(new OrderByProjection(query, lastInvokedProjectionPath, desc));
         }
         if (val instanceof TypeSafeQuerySelectionProxy) {
             throw new IllegalArgumentException("Ordering by a selection proxy "
                     + "is not allowed. This was attempted for proxy: " + val);
         }
-        return by(new OrderByImpl(query.toValue(val), desc));
+        TypeSafeValue<?> typeSafeValue = null;
+        if (val instanceof TypeSafeValue<?>) {
+            typeSafeValue = (TypeSafeValue<?>) val;
+        } else {
+            typeSafeValue = query.toValue(val);
+        }
+        return by(new OrderByImpl(typeSafeValue, desc));
+    }
+
+    private String getLastInvokedProjectionPath() {
+        if (query instanceof TypeSafeRootQueryInternal) {
+            // if the last invoked projection path was set, then the value
+            // is a result of a getter of the selection dto.
+            return ((TypeSafeRootQueryInternal) this.query).dequeueInvokedProjectionPath();
+        }
+        return null;
     }
 
     /**
@@ -69,7 +94,7 @@ public class TypeSafeQueryOrderBys implements OnGoingOrderBy, HqlQueryBuilder, C
         orderBys.add(orderBy);
         return this;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -84,6 +109,14 @@ public class TypeSafeQueryOrderBys implements OnGoingOrderBy, HqlQueryBuilder, C
     @Override
     public OnGoingOrderBy desc(String val) {
         return orderBy(val, true);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public OnGoingOrderBy descIgnoreCase(String val) {
+        return desc(query.hqlFunction().upper(query.toValue(val, PROJECTION_VALUE_PROVIDER)));
     }
 
     /**
@@ -138,6 +171,14 @@ public class TypeSafeQueryOrderBys implements OnGoingOrderBy, HqlQueryBuilder, C
      * {@inheritDoc}
      */
     @Override
+    public OnGoingOrderBy ascIgnoreCase(String val) {
+        return asc(query.hqlFunction().upper(query.toValue(val, PROJECTION_VALUE_PROVIDER)));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public OnGoingOrderBy asc(Enum<?> val) {
         return orderBy(val, false);
     }
@@ -165,12 +206,14 @@ public class TypeSafeQueryOrderBys implements OnGoingOrderBy, HqlQueryBuilder, C
     public OnGoingOrderBy asc(TypeSafeValue<?> val) {
         return orderBy(val, false);
     }
-    
+
     @Override
     public void appendTo(HqlQuery query, HqlQueryBuilderParams params) {
+        params.setCreatingOrderingBy(true);
         for(OrderBy orderBy: orderBys) {
             orderBy.appendTo(query, params);
         }
+        params.setCreatingOrderingBy(false);
     }
 
     @Override
