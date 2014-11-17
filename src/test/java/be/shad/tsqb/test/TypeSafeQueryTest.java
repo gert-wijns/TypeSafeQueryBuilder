@@ -35,6 +35,7 @@ import org.junit.Rule;
 import org.junit.rules.TestName;
 
 import be.shad.tsqb.NamedParameter;
+import be.shad.tsqb.dao.HibernateQueryConfigurer;
 import be.shad.tsqb.dao.TypeSafeQueryDao;
 import be.shad.tsqb.dao.TypeSafeQueryDaoImpl;
 import be.shad.tsqb.helper.TypeSafeQueryHelperImpl;
@@ -80,7 +81,7 @@ public class TypeSafeQueryTest {
     public void teardown() {
         sessionFactory.getCurrentSession().getTransaction().rollback();
     }
-    
+
     public TypeSafeQueryHelperImpl getHelper() {
         return helper;
     }
@@ -99,15 +100,19 @@ public class TypeSafeQueryTest {
      * <p>
      * The hql query is returned.
      */
-    protected HqlQuery doQuery(TypeSafeRootQuery typeSafeQuery) {
+    protected HqlQuery doQuery(TypeSafeRootQuery typeSafeQuery, HibernateQueryConfigurer configurer) {
         HqlQuery hqlQuery = typeSafeQuery.toHqlQuery();
 
-        doQueryResult = typeSafeQueryDao.doQueryResults(typeSafeQuery);
+        doQueryResult = typeSafeQueryDao.doQueryResults(typeSafeQuery, configurer);
         logger.debug("{}:\n{}\n--- params: {}\n", name.getMethodName(),
                 hqlQuery.getHql(), hqlQuery.getParams());
 
         // return for additional checks:
         return hqlQuery;
+    }
+
+    protected HqlQuery doQuery(TypeSafeRootQuery typeSafeQuery) {
+        return doQuery(typeSafeQuery, null);
     }
 
     protected void validate(HqlQueryValue expected) {

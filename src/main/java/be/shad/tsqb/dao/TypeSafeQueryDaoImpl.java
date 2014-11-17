@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -33,13 +33,13 @@ import be.shad.tsqb.query.TypeSafeRootQueryImpl;
 public class TypeSafeQueryDaoImpl implements TypeSafeQueryDao {
     private final SessionFactory sessionFactory;
     private final TypeSafeQueryHelper typeSafeQueryHelper;
-    
+
     public TypeSafeQueryDaoImpl(SessionFactory sessionFactory,
             TypeSafeQueryHelper typeSafeQueryHelper) {
         this.typeSafeQueryHelper = typeSafeQueryHelper;
         this.sessionFactory = sessionFactory;
     }
-    
+
     public TypeSafeQueryDaoImpl(SessionFactory sessionFactory) {
         this(sessionFactory, new TypeSafeQueryHelperImpl(sessionFactory));
     }
@@ -56,10 +56,34 @@ public class TypeSafeQueryDaoImpl implements TypeSafeQueryDao {
      * {@inheritDoc}
      */
     @Override
+    public <T> QueryResult<T> doQuery(TypeSafeRootQuery query) {
+        return doQuery(query, null);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <T> T doQueryFirstResult(TypeSafeRootQuery query) {
+        return doQueryFirstResult(query, null);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <T> List<T> doQueryResults(TypeSafeRootQuery query) {
+        return doQueryResults(query, null);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     @SuppressWarnings("unchecked")
-    public <T> QueryResult<T> doQuery(TypeSafeRootQuery tsqbQuery) {
+    public <T> QueryResult<T> doQuery(TypeSafeRootQuery tsqbQuery, HibernateQueryConfigurer configurer) {
         HqlQuery hqlQuery = tsqbQuery.toHqlQuery();
-        
+
         Session currentSession = sessionFactory.getCurrentSession();
         Query query = currentSession.createQuery(hqlQuery.getHql());
         int position = 0;
@@ -82,17 +106,27 @@ public class TypeSafeQueryDaoImpl implements TypeSafeQueryDao {
             query.setMaxResults(tsqbQuery.getMaxResults());
         }
         query.setResultTransformer(hqlQuery.getResultTransformer());
-        
-        return new QueryResult<>(query.list());
+
+        if (configurer != null) {
+            configurer.beforeQuery(currentSession);
+            configurer.configureQuery(query);
+            try {
+                return new QueryResult<>(query.list());
+            } finally {
+                configurer.afterQuery(currentSession);
+            }
+        } else {
+            return new QueryResult<>(query.list());
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public <T> T doQueryFirstResult(TypeSafeRootQuery query) {
+    public <T> T doQueryFirstResult(TypeSafeRootQuery query, HibernateQueryConfigurer configurer) {
         query.setMaxResults(1);
-        QueryResult<T> queryResult = doQuery(query);
+        QueryResult<T> queryResult = doQuery(query, configurer);
         return queryResult.getFirstResult();
     }
 
@@ -100,8 +134,8 @@ public class TypeSafeQueryDaoImpl implements TypeSafeQueryDao {
      * {@inheritDoc}
      */
     @Override
-    public <T> List<T> doQueryResults(TypeSafeRootQuery query) {
-        QueryResult<T> queryResult = doQuery(query);
+    public <T> List<T> doQueryResults(TypeSafeRootQuery query, HibernateQueryConfigurer configurer) {
+        QueryResult<T> queryResult = doQuery(query, configurer);
         return queryResult.getResults();
     }
 }
