@@ -20,13 +20,13 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.gert-wijns</groupId>
     <artifactId>TypeSafeQueryBuilder</artifactId>
-    <version>1.15-SNAPSHOT</version>
+    <version>1.15.1</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
-    <description>Allow writing queries using your hibernate configured entity classes 
+    <description>Allow writing queries using your hibernate configured entity classes
         rather than hand-coded HQL strings with minimal configuration</description>
     <url>https://github.com/gert-wijns/TypeSafeQueryBuilder/wiki</url>
-    
+
     <licenses>
         <license>
             <name>The Apache License, Version 2.0</name>
@@ -119,7 +119,7 @@
                     </descriptorRefs>
                 </configuration>
             </plugin>
-            
+
             <!-- add sources jar generation -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -134,7 +134,7 @@
                     </execution>
                 </executions>
             </plugin>
-            
+
             <!-- add javadoc jar generation -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -172,7 +172,7 @@
                             </execution>
                         </executions>
                     </plugin>
-        
+
                     <!-- used to deploy components to sonatype (central maven nexus) -->
                     <plugin>
                         <groupId>org.sonatype.plugins</groupId>
