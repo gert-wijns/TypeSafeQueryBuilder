@@ -106,8 +106,8 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
     }
 
     @Override
-    public RestrictionChainable where(HqlQueryValue restriction) {
-        return and(restriction);
+    public RestrictionChainable where(HqlQueryValue hqlQueryvalue) {
+        return and(hqlQueryvalue);
     }
 
     @Override
