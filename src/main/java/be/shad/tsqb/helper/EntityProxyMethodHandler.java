@@ -56,6 +56,15 @@ class EntityProxyMethodHandler implements MethodHandler {
         if( child == null ) {
             child = helper.createChildData(query, data, method2Name);
         }
+        if (query.getActiveMultiJoinType() != null) {
+            if (!child.getProxyType().isEntity()) {
+                throw new IllegalStateException("query.join(JoinType) was used but it seems "
+                        + "to not have been followed up with one of the join methods, "
+                        + "causing the activeMultiJoinType to have remained active.");
+            }
+            // join type override is active, update the child join type:
+            child.setJoinType(query.getActiveMultiJoinType());
+        }
         if ( !Collection.class.isAssignableFrom(m.getReturnType()) && child.getProxy() != null ) {
             // return the proxy without adding to the invocation queue to allow method chaining.
             return child.getProxy();
