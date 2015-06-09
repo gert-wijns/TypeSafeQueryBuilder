@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,6 +24,7 @@ import be.shad.tsqb.restrictions.OnGoingBooleanRestriction;
 import be.shad.tsqb.restrictions.OnGoingDateRestriction;
 import be.shad.tsqb.restrictions.OnGoingEnumRestriction;
 import be.shad.tsqb.restrictions.OnGoingNumberRestriction;
+import be.shad.tsqb.restrictions.OnGoingObjectRestriction;
 import be.shad.tsqb.restrictions.OnGoingTextRestriction;
 import be.shad.tsqb.restrictions.Restriction;
 import be.shad.tsqb.restrictions.RestrictionChainable;
@@ -50,7 +51,7 @@ public class OnGoingCaseImpl<T> extends RestrictionChainableDelegatingImpl imple
     public TypeSafeValue<T> getValue() {
         return value;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -90,9 +91,25 @@ public class OnGoingCaseImpl<T> extends RestrictionChainableDelegatingImpl imple
     public RestrictionChainable whenExists(TypeSafeSubQuery<?> subquery) {
         return andExists(subquery);
     }
-    
+
     /**
-     * Delegate to 
+     * {@inheritDoc}
+     */
+    @Override
+    public RestrictionChainable whenNotExists(TypeSafeSubQuery<?> subquery) {
+        return andNotExists(subquery);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <U> OnGoingObjectRestriction<U> when(TypeSafeValue<U> value) {
+        return and(value);
+    }
+
+    /**
+     * {@inheritDoc}
      */
     @Override
     public <E extends Enum<E>> OnGoingEnumRestriction<E> when(E value) {
@@ -100,15 +117,15 @@ public class OnGoingCaseImpl<T> extends RestrictionChainableDelegatingImpl imple
     }
 
     /**
-     * Delegate to 
+     * {@inheritDoc}
      */
     @Override
     public <E extends Enum<E>> OnGoingEnumRestriction<E> whenEnum(TypeSafeValue<E> value) {
         return andEnum(value);
     }
-    
+
     /**
-     * Delegate to 
+     * {@inheritDoc}
      */
     @Override
     public OnGoingBooleanRestriction when(Boolean value) {
@@ -116,15 +133,15 @@ public class OnGoingCaseImpl<T> extends RestrictionChainableDelegatingImpl imple
     }
 
     /**
-     * Delegate to 
+     * {@inheritDoc}
      */
     @Override
     public OnGoingBooleanRestriction whenBoolean(TypeSafeValue<Boolean> value) {
         return andBoolean(value);
     }
-    
+
     /**
-     * Delegate to 
+     * {@inheritDoc}
      */
     @Override
     public OnGoingNumberRestriction when(Number value) {
@@ -132,7 +149,7 @@ public class OnGoingCaseImpl<T> extends RestrictionChainableDelegatingImpl imple
     }
 
     /**
-     * Delegate to 
+     * {@inheritDoc}
      */
     @Override
     public OnGoingTextRestriction when(String value) {
@@ -140,7 +157,7 @@ public class OnGoingCaseImpl<T> extends RestrictionChainableDelegatingImpl imple
     }
 
     /**
-     * Delegate to 
+     * {@inheritDoc}
      */
     @Override
     public <N extends Number> OnGoingNumberRestriction whenNumber(TypeSafeValue<N> value) {
@@ -148,15 +165,15 @@ public class OnGoingCaseImpl<T> extends RestrictionChainableDelegatingImpl imple
     }
 
     /**
-     * Delegate to 
+     * {@inheritDoc}
      */
     @Override
     public OnGoingTextRestriction whenString(TypeSafeValue<String> value) {
         return andString(value);
     }
-    
+
     /**
-     * Delegate to 
+     * {@inheritDoc}
      */
     @Override
     public OnGoingDateRestriction when(Date value) {
@@ -164,21 +181,27 @@ public class OnGoingCaseImpl<T> extends RestrictionChainableDelegatingImpl imple
     }
 
     /**
-     * Delegate to 
+     * {@inheritDoc}
      */
     @Override
     public OnGoingDateRestriction whenDate(TypeSafeValue<Date> value) {
         return andDate(value);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public TypeSafeValue<T> otherwise() {
         return value;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Copyable copy(CopyContext context) {
         return new OnGoingCaseImpl<>(context, this);
     }
-    
+
 }

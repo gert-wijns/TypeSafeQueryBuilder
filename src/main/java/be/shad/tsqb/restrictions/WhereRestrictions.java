@@ -43,7 +43,7 @@ public interface WhereRestrictions {
     /**
      * Adds a custom restriction as and to the existing where clause.
      */
-    RestrictionChainable where(HqlQueryValue restriction);
+    RestrictionChainable where(HqlQueryValue hqlQueryvalue);
 
     /**
      * Adds a restriction group as and to the existing where clause.
