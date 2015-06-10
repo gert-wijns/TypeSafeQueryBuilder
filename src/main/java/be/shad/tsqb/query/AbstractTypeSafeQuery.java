@@ -76,6 +76,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
     private final RestrictionsGroupInternal havingRestrictions;
     private final TypeSafeQueryGroupBys groupBys;
     private final TypeSafeQueryOrderBys orderBys;
+    private JoinType activeMultiJoinType;
 
     /**
      * Copy constructor
@@ -95,6 +96,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
         this.havingRestrictions = context.get(original.havingRestrictions);
         this.groupBys = context.get(original.groupBys);
         this.orderBys = context.get(original.orderBys);
+        this.activeMultiJoinType = original.activeMultiJoinType;
     }
 
     /**
@@ -175,6 +177,20 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
     @Override
     public <S, T extends S> T getAsSubtype(S proxy, Class<T> subtype) {
         return helper.createTypeSafeSubtypeProxy(this, proxy, subtype);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public TypeSafeQueryJoin join(JoinType joinType) {
+        if (activeMultiJoinType != null) {
+            throw new IllegalStateException("query.join(JoinType) was used previous but it seems "
+                    + "to not have been followed up with one of the join methods, "
+                    + "causing the activeMultiJoinType to have remained active.");
+        }
+        activeMultiJoinType = joinType;
+        return new TypeSafeQueryMultiJoin(this, joinType);
     }
 
     /**
@@ -283,6 +299,12 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      */
     @SuppressWarnings("unchecked")
     private <T> T handleJoin(T obj, JoinType joinType, String name, boolean createAdditionalJoin) {
+        if (activeMultiJoinType != null) {
+            throw new IllegalStateException("query.join(JoinType) was used but it seems "
+                    + "to not have been followed up with one of the join methods, "
+                    + "causing the activeMultiJoinType to have remained active.");
+        }
+        
         TypeSafeQueryProxyData data = rootQuery.dequeueInvocation();
         if( obj instanceof TypeSafeQueryProxy ) {
             data = ((TypeSafeQueryProxy) obj).getTypeSafeProxyData();
@@ -300,6 +322,22 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
             named().name(data.getProxy(), name);
         }
         return (T) data.getProxy();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JoinType getActiveMultiJoinType() {
+        return activeMultiJoinType;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void resetActiveMultiJoinType() {
+        this.activeMultiJoinType = null;
     }
 
     /**

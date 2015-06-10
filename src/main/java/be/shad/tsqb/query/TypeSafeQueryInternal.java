@@ -115,6 +115,19 @@ public interface TypeSafeQueryInternal extends TypeSafeQuery, Copyable {
     TypeSafeQueryProxyDataTree getDataTree();
 
     /**
+     * When not null, multi join is active.
+     * <p>
+     * During multi join, all proxies retrieved through
+     * method chaining get this joinType.
+     */
+    JoinType getActiveMultiJoinType();
+    
+    /**
+     * Sets
+     */
+    void resetActiveMultiJoinType();
+
+    /**
      * Convenience method to provide the helper where the internal query was provided.
      */
     TypeSafeQueryHelper getHelper();
