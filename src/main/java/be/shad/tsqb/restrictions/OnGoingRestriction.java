@@ -95,10 +95,27 @@ public interface OnGoingRestriction<VAL, CONTINUED extends ContinuedOnGoingRestr
     <T extends VAL> CONTINUED notIn(Collection<T> values);
 
     /**
+     * Generates: left not in ( actualValues )
+     *
+     * @param batchSize Can be used for 1 and only 1 collection within a query for which the collection exceeds the batchSize.
+     *                  During typeSafeQueryDao, the query will be executed for the partitioned collection of values.
+     */
+    <T extends VAL> CONTINUED notIn(Collection<T> values, Integer batchSize);
+
+    /**
      * Same as {@link #notIn(Collection)}, but the restriction will only be added to the
      * resulting query when the value passes the predicate.
      */
     <T extends VAL> CONTINUED notIn(Collection<T> values, RestrictionPredicate predicate);
+
+    /**
+     * Same as {@link #notIn(Collection)}, but the restriction will only be added to the
+     * resulting query when the value passes the predicate.
+     *
+     * @param batchSize Can be used for 1 and only 1 collection within a query for which the collection exceeds the batchSize.
+     *                  During typeSafeQueryDao, the query will be executed for the partitioned collection of values.
+     */
+    <T extends VAL> CONTINUED notIn(Collection<T> values, RestrictionPredicate predicate, Integer batchSize);
 
     /**
      * Generates: left not in ( valuesRepresentative )
@@ -114,10 +131,27 @@ public interface OnGoingRestriction<VAL, CONTINUED extends ContinuedOnGoingRestr
     <T extends VAL> CONTINUED in(Collection<T> values);
 
     /**
+     * Generates: left not in ( actualValues )
+     *
+     * @param batchSize Can be used for 1 and only 1 collection within a query for which the collection exceeds the batchSize.
+     *                  During typeSafeQueryDao, the query will be executed for the partitioned collection of values.
+     */
+    <T extends VAL> CONTINUED in(Collection<T> values, Integer batchSize);
+
+    /**
      * Same as {@link #in(Collection)}, but the restriction will only be added to the
      * resulting query when the value passes the predicate.
      */
     <T extends VAL> CONTINUED in(Collection<T> values, RestrictionPredicate predicate);
+
+    /**
+     * Same as {@link #in(Collection)}, but the restriction will only be added to the
+     * resulting query when the value passes the predicate.
+     *
+     * @param batchSize Can be used for 1 and only 1 collection within a query for which the collection exceeds the batchSize.
+     *                  During typeSafeQueryDao, the query will be executed for the partitioned collection of values.
+     */
+    <T extends VAL> CONTINUED in(Collection<T> values, RestrictionPredicate predicate, Integer batchSize);
 
     /**
      * Generates: left in ( valuesRepresentative )

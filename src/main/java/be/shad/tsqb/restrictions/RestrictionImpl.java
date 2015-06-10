@@ -137,7 +137,9 @@ public class RestrictionImpl<VAL> implements Restriction, RestrictionGuard {
             } else {
                 value.appendHql(operator.getOperator());
             }
-            value.appendHql(" ");
+            if (right != null) {
+                value.appendHql(" ");
+            }
             if ((operator == EXISTS || operator == NOT_EXISTS)
                     && right instanceof TypeSafeSubQuery<?>) {
                 addDummySubQuerySelectIfMissing((TypeSafeSubQuery<?>) right);

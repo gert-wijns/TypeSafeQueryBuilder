@@ -147,7 +147,15 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
      */
     @Override
     public <T extends VAL> CONTINUED in(Collection<T> values) {
-        return in(values, null);
+        return in(values, null, null);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <T extends VAL> CONTINUED in(Collection<T> values, Integer batchSize) {
+        return in(values, null, batchSize);
     }
 
     /**
@@ -163,7 +171,15 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
      */
     @Override
     public <T extends VAL> CONTINUED notIn(Collection<T> values) {
-        return notIn(values, null);
+        return notIn(values, null, null);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <T extends VAL> CONTINUED notIn(Collection<T> values, Integer batchSize) {
+        return notIn(values, null, batchSize);
     }
 
     /**
@@ -278,11 +294,16 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
     }
 
     @Override
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     public <T extends VAL> CONTINUED notIn(Collection<T> values, RestrictionPredicate predicate) {
+        return notIn(values, predicate, null);
+    }
+
+    @Override
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public <T extends VAL> CONTINUED notIn(Collection<T> values, RestrictionPredicate predicate, Integer batchSize) {
         this.predicate = predicate;
         // suppressing warnings because we know T is a kind of VAL, and we won't be changing the collection internally
-        return notIn(new CollectionTypeSafeValue<>(group.getQuery(), getSupportedValueClass(), (Collection) values));
+        return notIn(new CollectionTypeSafeValue<>(group.getQuery(), getSupportedValueClass(), (Collection) values, batchSize));
     }
 
     @Override
@@ -291,10 +312,15 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
     }
 
     @Override
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     public <T extends VAL> CONTINUED in(Collection<T> values, RestrictionPredicate predicate) {
+        return in(values, predicate, null);
+    }
+
+    @Override
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public <T extends VAL> CONTINUED in(Collection<T> values, RestrictionPredicate predicate, Integer batchSize) {
         this.predicate = predicate;
         // suppressing warnings because we know T is a kind of VAL, and we won't be changing the collection internally
-        return in(new CollectionTypeSafeValue<>(group.getQuery(), getSupportedValueClass(), (Collection) values));
+        return in(new CollectionTypeSafeValue<>(group.getQuery(), getSupportedValueClass(), (Collection) values, batchSize));
     }
 }

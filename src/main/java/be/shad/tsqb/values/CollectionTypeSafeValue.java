@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import be.shad.tsqb.NamedParameter;
+import be.shad.tsqb.CollectionNamedParameter;
 import be.shad.tsqb.query.TypeSafeQuery;
 import be.shad.tsqb.query.copy.CopyContext;
 import be.shad.tsqb.query.copy.Copyable;
@@ -32,6 +32,7 @@ import be.shad.tsqb.restrictions.RestrictionOperator;
  */
 public class CollectionTypeSafeValue<T> extends TypeSafeValueImpl<T> implements NamedValueEnabled, OperatorAwareValue, DirectTypeSafeValueWrapper<Collection<T>> {
     private Collection<T> values;
+    private Integer batchSize;
 
     /**
      * Copy constructor
@@ -52,9 +53,11 @@ public class CollectionTypeSafeValue<T> extends TypeSafeValueImpl<T> implements 
         }
     }
 
-    public CollectionTypeSafeValue(TypeSafeQuery query, Class<T> valueClass, Collection<T> value) {
+    public CollectionTypeSafeValue(TypeSafeQuery query, Class<T> valueClass,
+            Collection<T> value, Integer batchSize) {
         this(query, valueClass);
         setValues(value);
+        this.batchSize = batchSize;
     }
 
     public CollectionTypeSafeValue(TypeSafeQuery query, Class<T> valueClass) {
@@ -94,7 +97,8 @@ public class CollectionTypeSafeValue<T> extends TypeSafeValueImpl<T> implements 
             return new HqlQueryValueImpl(sb.toString());
         } else {
             String name = params.createNamedParameter();
-            return new HqlQueryValueImpl(new StringBuilder("(:").append(name).append(")").toString(), new NamedParameter(name, values));
+            return new HqlQueryValueImpl(new StringBuilder("(:").append(name).append(")").toString(),
+                    new CollectionNamedParameter(name, values, batchSize));
         }
     }
 
