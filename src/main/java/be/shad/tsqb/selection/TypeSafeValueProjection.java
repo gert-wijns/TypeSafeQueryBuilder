@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,14 +32,14 @@ public class TypeSafeValueProjection implements Copyable {
     private final TypeSafeQuerySelectionProxyData selectionData;
     private final SelectionValueTransformer<?, ?> transformer;
 
-    public TypeSafeValueProjection(TypeSafeValue<?> value, 
-            TypeSafeQuerySelectionProxyData selectionData, 
+    public TypeSafeValueProjection(TypeSafeValue<?> value,
+            TypeSafeQuerySelectionProxyData selectionData,
             SelectionValueTransformer<?, ?> transformer) {
         this.selectionData = selectionData;
         this.transformer = transformer;
         this.value = value;
     }
-    
+
     /**
      * Copy constructor
      */
@@ -60,7 +60,7 @@ public class TypeSafeValueProjection implements Copyable {
     public TypeSafeQuerySelectionProxyData getSelectionData() {
         return selectionData;
     }
-    
+
     public String getAlias() {
         if (selectionData != null) {
             return selectionData.getAlias();
@@ -79,5 +79,5 @@ public class TypeSafeValueProjection implements Copyable {
     public Copyable copy(CopyContext context) {
         return new TypeSafeValueProjection(context, this);
     }
-    
+
 }

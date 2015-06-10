@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -42,7 +42,7 @@ public class WikiTests extends TypeSafeQueryTest {
     @Test
     public void testFrom() {
         Person person = query.from(Person.class);
-        
+
         validate("from Person hobj1");
     }
 
@@ -51,27 +51,27 @@ public class WikiTests extends TypeSafeQueryTest {
         Person person = query.from(Person.class);
         PersonDto personDto = query.select(PersonDto.class); // proxy instance of dto class
         personDto.setPersonAge(person.getAge());
-        
+
         validate("select hobj1.age as personAge from Person hobj1");
     }
-    
+
     @Test
     public void testWhere() {
         Person person = query.from(Person.class);
         query.where(person.getAge()).gt(50);
-        
+
         validate("from Person hobj1 where hobj1.age > :np1", 50);
     }
-    
+
     @Test
     public void testJoin() {
         Person parent = query.from(Person.class);
-        
+
         // join and obtain a proxy of a collection element
-        Relation childRelation = query.join(parent.getChildRelations()); 
+        Relation childRelation = query.join(parent.getChildRelations());
         // join implicitly, returns a proxy of the getter type
-        Person child = childRelation.getChild(); 
-        
+        Person child = childRelation.getChild();
+
         validate("from Person hobj1 join hobj1.childRelations hobj2 join hobj2.child hobj3");
     }
 
@@ -80,45 +80,45 @@ public class WikiTests extends TypeSafeQueryTest {
         Person person = query.from(Person.class);
         query.orderBy().desc(person.getName()).
                          asc(person.getAge());
-        
+
         validate("from Person hobj1 order by hobj1.name desc, hobj1.age");
     }
-    
+
     @Test
     public void testGroupBy() {
         Person person = query.from(Person.class);
         PersonDto personDto = query.select(PersonDto.class); // proxy instance of dto class
         personDto.setPersonAge(person.getAge());
         query.groupBy(person.getAge());
-        
+
         validate("select hobj1.age as personAge from Person hobj1 group by hobj1.age");
     }
-    
+
     /**
      * Call 'from' multiple times to create a query
      * with multiple from clause elements.
      * <p>
-     * Can be used when manual 'join' is required 
+     * Can be used when manual 'join' is required
      * because no property path is available.
      */
     @Test
     public void testMultipleFrom() {
         Person person = query.from(Person.class);
         Town town = query.from(Town.class);
-        
+
         query.where(person.getTown().getId()).eq(town.getId());
-        
+
         validate("from Person hobj1, Town hobj2 where hobj1.town.id = hobj2.id");
     }
 
     /**
-     * 
+     *
      */
     @Test
     public void testFromWithCustomHqlAlias() {
         Person person = query.from(Person.class);
         Town town = person.getTown();
-        
+
         query.setHqlAlias(person, "p");
         query.setHqlAlias(town, "t");
 
@@ -126,18 +126,18 @@ public class WikiTests extends TypeSafeQueryTest {
     }
 
     /**
-     * 
+     *
      */
     @Test
     public void testSelectSingleValue() {
         Person person = query.from(Person.class);
         query.select(person);
-        
+
         validate("select hobj1 from Person hobj1");
     }
-    
+
     /**
-     * 
+     *
      */
     @Test
     public void testSelectObjectArrayList() {
@@ -147,15 +147,15 @@ public class WikiTests extends TypeSafeQueryTest {
 
         validate("select hobj1.id, hobj1.name from Person hobj1");
     }
-    
-    
+
+
     /**
-     * 
+     *
      */
     @Test
     public void testSelectHqlFunctionValues() {
         Person person = query.from(Person.class);
-        
+
         TypeSafeValueFunctions fun = query.hqlFunction();
         PersonDto dto = query.select(PersonDto.class);
         dto.setPersonAge(fun.avg(person.getAge()).select());
@@ -166,10 +166,10 @@ public class WikiTests extends TypeSafeQueryTest {
         Person person = query.from(Person.class);
         PersonDto dto = query.select(PersonDto.class);
         dto.setId(person.getId());
-        
+
         SelectPair<Integer, String> subset = query.selectMergeValues(
                 dto, new SelectionMerger2<PersonDto, Integer, String>() {
-            public void mergeValuesIntoResult(PersonDto partialResult, 
+            public void mergeValuesIntoResult(PersonDto partialResult,
                     Integer personAge, String personName) {
                 // do custom result decoration with fetched values
             }
@@ -192,7 +192,7 @@ public class WikiTests extends TypeSafeQueryTest {
         query.where(inhabitant.getName()).startsWith("G");
 
         // select a townDto, and provide the identity field
-        TownDto townDto = query.select(TownDto.class, 
+        TownDto townDto = query.select(TownDto.class,
                 new IdentityFieldProvider<TownDto>() {
             @Override
             protected Object getIdentifier(TownDto resultProxy) {
@@ -205,11 +205,11 @@ public class WikiTests extends TypeSafeQueryTest {
         // create a personDto to select inhabitants into
         // the town dto's inhabitants
         PersonDto personDto = query.select(
-                townDto.getInhabitants(), 
+                townDto.getInhabitants(),
                 PersonDto.class, null);
         // set some personDto fields
         bindPersonDto(personDto, inhabitant);
-        
+
         validate("select hobj1.id as id, "
                 + "hobj2.id as g1__id, "
                 + "hobj2.age as g1__personAge, "
@@ -237,15 +237,15 @@ public class WikiTests extends TypeSafeQueryTest {
 
         validate("select hobj1.name as name, hobj1.name as properties_planning_algorithm from Product hobj1");
     }
-    
+
     @Test
     public void testQueryAgainWithAlteredRestriction() {
         Person person = query.from(Person.class);
-        
+
         OnGoingTextRestriction nameRes = query.where(person.getName());
         nameRes.contains("a");
         validate("from Person hobj1 where hobj1.name like :np1", "%a%");
-        
+
         nameRes.eq("Eve");
         validate("from Person hobj1 where hobj1.name = :np1", "Eve");
     }
@@ -256,7 +256,7 @@ public class WikiTests extends TypeSafeQueryTest {
         selector.setMinimumAge(18);
         selector.setMaximumAge(null);
         selector.setNames(Collections.<String>emptySet());
-        
+
         Person person = query.from(Person.class);
         query.setDefaultRestrictionPredicate(IGNORE_NULL_OR_EMPTY);
         query.where(person.getAge()).
@@ -266,7 +266,7 @@ public class WikiTests extends TypeSafeQueryTest {
 
         validate("from Person hobj1 where hobj1.age > :np1", 18);
     }
-    
+
     @Test
     public void testDefaultJoinWithNonIdentifier() {
         Person person = query.from(Person.class);
@@ -274,24 +274,24 @@ public class WikiTests extends TypeSafeQueryTest {
 
         validate("from Person hobj1 join hobj1.town hobj2 where hobj2.name like :np1", "New %");
     }
-    
+
     @Test
     public void testDefaultJoinWithIdentifier() {
         Person person = query.from(Person.class);
         query.where(person.getTown().getId()).eq(1L);
-        
+
         validate("from Person hobj1 where hobj1.town.id = :np1", 1L);
     }
-    
+
     @Test
     public void testExplicitNoneJoinType() {
         Person person = query.from(Person.class);
         Town town = query.join(person.getTown(), JoinType.None);
         query.where(town.getName()).startsWith("New ");
-        
+
         validate("from Person hobj1 where hobj1.town.name like :np1", "New %");
     }
-    
+
     private void bindPersonDto(PersonDto personDto, Person person) {
         personDto.setId(person.getId());
         personDto.setPersonAge(person.getAge());

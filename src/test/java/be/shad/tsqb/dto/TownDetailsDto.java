@@ -9,11 +9,11 @@ public class TownDetailsDto {
     private Long id;
     private String name;
     private String customString;
-    
+
     public Long getId() {
         return id;
     }
-    
+
     public void setId(Long id) {
         this.id = id;
     }
@@ -49,7 +49,7 @@ public class TownDetailsDto {
     public void setName(String name) {
         this.name = name;
     }
-    
+
     public Date getLastUfoSpottingDate() {
         return lastUfoSpottingDate;
     }
@@ -57,5 +57,5 @@ public class TownDetailsDto {
     public void setLastUfoSpottingDate(Date lastUfoSpottingDate) {
         this.lastUfoSpottingDate = lastUfoSpottingDate;
     }
-    
+
 }

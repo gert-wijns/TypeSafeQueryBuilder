@@ -27,12 +27,12 @@ public interface TypeSafeQueryJoin {
      * Delegates to {@link #join(Collection, JoinType)} with {@link JoinType#Inner}
      */
     <T> T join(Collection<T> anyCollection);
-    
+
     /**
      * Delegates to {@link #join(Collection, JoinType, String)} with {@link JoinType#Inner}
      */
     <T> T join(Collection<T> anyCollection, String name);
-    
+
     /**
      * Delegates to {@link #join(Object, JoinType)} with {@link JoinType#Inner}
      */
@@ -42,5 +42,5 @@ public interface TypeSafeQueryJoin {
      * Delegates to {@link #join(Object, JoinType, String)} with {@link JoinType#Inner}
      */
     <T> T join(T anyObject, String name);
-    
+
 }

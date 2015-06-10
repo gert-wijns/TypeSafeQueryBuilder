@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -36,7 +36,7 @@ public class OnGoingTextRestrictionTest extends TypeSafeQueryTest {
         query.where(person.getName()).in(namesArray);
         validate(" from Person hobj1 where hobj1.name in (:np1)", asList(namesArray));
     }
-    
+
     @Test
     public void inStringsArrayIgnorableTest() {
         String[] namesArray = {};
@@ -74,19 +74,19 @@ public class OnGoingTextRestrictionTest extends TypeSafeQueryTest {
         query.where(person.getName()).contains("isto"); // Kristof, Christophe, ...
         validate(" from Person hobj1 where hobj1.name like :np1", "%isto%");
     }
-    
+
     @Test
     public void containsTestIgnored() {
         Person person = query.from(Person.class);
-        query.where(person.getName()).contains(null, IGNORE_NULL); 
+        query.where(person.getName()).contains(null, IGNORE_NULL);
         validate(" from Person hobj1");
     }
-    
+
     @Test
     public void namedContainsTest() {
         Person person = query.from(Person.class);
         query.where(person.getName()).contains().named(NAMED_PARAM_1);
-        
+
         query.named().setValue(NAMED_PARAM_1, "isto");
         validate(" from Person hobj1 where hobj1.name like :np1", "%isto%");
 
@@ -100,11 +100,11 @@ public class OnGoingTextRestrictionTest extends TypeSafeQueryTest {
         query.where(person.getName()).startsWith("Kris");
         validate(" from Person hobj1 where hobj1.name like :np1", "Kris%");
     }
-    
+
     @Test
     public void startsWithTestIgnored() {
         Person person = query.from(Person.class);
-        query.where(person.getName()).startsWith(null, IGNORE_NULL); 
+        query.where(person.getName()).startsWith(null, IGNORE_NULL);
         validate(" from Person hobj1");
     }
 
@@ -112,33 +112,33 @@ public class OnGoingTextRestrictionTest extends TypeSafeQueryTest {
     public void namedStartsWithTest() {
         Person person = query.from(Person.class);
         query.where(person.getName()).startsWith().named(NAMED_PARAM_1);
-        
+
         query.named().setValue(NAMED_PARAM_1, "Kris");
         validate(" from Person hobj1 where hobj1.name like :np1", "Kris%");
 
         query.named().setValue(NAMED_PARAM_1, "John");
         validate(" from Person hobj1 where hobj1.name like :np1", "John%");
     }
-    
+
     @Test
     public void endsWithTest() {
         Person person = query.from(Person.class);
         query.where(person.getName()).endsWith("e");
         validate(" from Person hobj1 where hobj1.name like :np1", "%e");
     }
-    
+
     @Test
     public void endsWithTestIgnored() {
         Person person = query.from(Person.class);
-        query.where(person.getName()).endsWith(null, IGNORE_NULL); 
+        query.where(person.getName()).endsWith(null, IGNORE_NULL);
         validate(" from Person hobj1");
     }
-    
+
     @Test
     public void namedEndsWithTest() {
         Person person = query.from(Person.class);
         query.where(person.getName()).endsWith().named(NAMED_PARAM_1);
-        
+
         query.named().setValue(NAMED_PARAM_1, "e");
         validate(" from Person hobj1 where hobj1.name like :np1", "%e");
 
@@ -152,7 +152,7 @@ public class OnGoingTextRestrictionTest extends TypeSafeQueryTest {
         query.where(person.getName()).startsWith("Jos").or().startsWith("Kris");
         validate(" from Person hobj1 where hobj1.name like :np1 or hobj1.name like :np2", "Jos%", "Kris%");
     }
-    
+
     @Test
     public void namedStartsWithOrStartsWithTest() {
         Person person = query.from(Person.class);
@@ -166,5 +166,5 @@ public class OnGoingTextRestrictionTest extends TypeSafeQueryTest {
         query.named().setValue(NAMED_PARAM_2, "Victor");
         validate(" from Person hobj1 where hobj1.name like :np1 or hobj1.name like :np2", "Manny%", "Victor%");
     }
-    
+
 }

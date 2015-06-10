@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,7 +24,7 @@ import javax.persistence.Table;
 @Table(name = "House")
 public class House extends Building {
     private static final long serialVersionUID = -425181889170426826L;
-    
+
     private int floors;
     private String name;
     private BigDecimal price;
@@ -44,13 +44,13 @@ public class House extends Building {
     public void setName(String name) {
         this.name = name;
     }
-    
+
     public BigDecimal getPrice() {
         return price;
     }
-    
+
     public void setPrice(BigDecimal price) {
         this.price = price;
     }
-    
+
 }

@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -47,19 +47,19 @@ import be.shad.tsqb.values.TypeSafeValue;
  * The rest requires both parts.
  */
 public class RestrictionImpl<VAL> implements Restriction, RestrictionGuard {
-    
+
     private final RestrictionsGroupInternal group;
     private final TypeSafeQueryInternal query;
-    
+
     private RestrictionPredicate predicate;
     private TypeSafeValue<VAL> left;
     private RestrictionOperator operator;
     private TypeSafeValue<VAL> right;
-    
-    public RestrictionImpl(RestrictionsGroupInternal group, 
+
+    public RestrictionImpl(RestrictionsGroupInternal group,
             RestrictionPredicate predicate,
-            TypeSafeValue<VAL> left, 
-            RestrictionOperator operator, 
+            TypeSafeValue<VAL> left,
+            RestrictionOperator operator,
             TypeSafeValue<VAL> right) {
         this.group = group;
         this.query = group.getQuery();
@@ -90,35 +90,35 @@ public class RestrictionImpl<VAL> implements Restriction, RestrictionGuard {
     public RestrictionsGroup getRestrictionsGroup() {
         return group;
     }
-    
+
     public TypeSafeValue<?> getLeft() {
         return left;
     }
-    
+
     public void setLeft(TypeSafeValue<VAL> left) {
         this.left = left;
         validateInScope(left);
     }
-    
+
     public TypeSafeValue<VAL> getRight() {
         return right;
     }
-    
+
     public void setRight(TypeSafeValue<VAL> right) {
         this.right = right;
         validateInScope(right);
     }
-    
+
     private void validateInScope(TypeSafeValue<VAL> value) {
         query.validateInScope(value, group.getJoin());
     }
-    
+
     @Override
     public HqlQueryValue toHqlQueryValue(HqlQueryBuilderParams params) {
         HqlQueryValueImpl value = new HqlQueryValueImpl();
-        if( left != null ) {
+        if (left != null) {
             HqlQueryValue hqlQueryValue;
-            if( leftSideRequiresLiterals() && !params.isRequiresLiterals()) {
+            if (leftSideRequiresLiterals() && !params.isRequiresLiterals()) {
                 boolean previous = params.setRequiresLiterals(true);
                 hqlQueryValue = left.toHqlQueryValue(params);
                 params.setRequiresLiterals(previous);
@@ -128,8 +128,8 @@ public class RestrictionImpl<VAL> implements Restriction, RestrictionGuard {
             value.appendHql(hqlQueryValue.getHql());
             value.addParams(hqlQueryValue.getParams());
         }
-        if( operator != null ) {
-            if( left != null ) {
+        if (operator != null) {
+            if (left != null) {
                 value.appendHql(" ");
             }
             if (right != null && right instanceof OperatorAwareValue) {
@@ -143,9 +143,9 @@ public class RestrictionImpl<VAL> implements Restriction, RestrictionGuard {
                 addDummySubQuerySelectIfMissing((TypeSafeSubQuery<?>) right);
             }
         }
-        if( right != null ) {
+        if (right != null) {
             HqlQueryValue hqlQueryValue;
-            if( rightSideRequiresLiterals() && !params.isRequiresLiterals()) {
+            if (rightSideRequiresLiterals() && !params.isRequiresLiterals()) {
                 boolean previous = params.setRequiresLiterals(true);
                 hqlQueryValue = right.toHqlQueryValue(params);
                 params.setRequiresLiterals(previous);
@@ -157,7 +157,7 @@ public class RestrictionImpl<VAL> implements Restriction, RestrictionGuard {
         }
         return value;
     }
-    
+
     /**
      * Adds a dummy 'select 1' to subqueries in case of exists/not exists.
      * This is the easiest way to allow validating the user selected value
@@ -195,7 +195,7 @@ public class RestrictionImpl<VAL> implements Restriction, RestrictionGuard {
         }
         return right instanceof CastTypeSafeValue<?>;
     }
-    
+
     /**
      * See remark {@link #leftSideRequiresLiterals()}
      */
@@ -209,7 +209,7 @@ public class RestrictionImpl<VAL> implements Restriction, RestrictionGuard {
         }
         return left instanceof CastTypeSafeValue<?>;
     }
-    
+
     @Override
     public Copyable copy(CopyContext context) {
         return new RestrictionImpl<VAL>(context, this);
@@ -231,5 +231,5 @@ public class RestrictionImpl<VAL> implements Restriction, RestrictionGuard {
         }
         return true;
     }
-    
+
 }

@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,7 +26,7 @@ import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.query.TypeSafeSubQuery;
 
 public class LoadTest extends TypeSafeQueryTest {
-    
+
     public static final void main(String[] argv) {
         LoadTest loadTest = new LoadTest();
         loadTest.initialize();
@@ -47,25 +47,25 @@ public class LoadTest extends TypeSafeQueryTest {
             Town town = query.from(Town.class);
             Person inhabitant = query.join(town.getInhabitants());
             Relation childRelation = query.join(inhabitant.getChildRelations());
-            
+
             query.where(childRelation.getChild().getTown().getName()).eq(town.getName());
             query.groupBy(town.getName());
-            
+
             TypeSafeSubQuery<Long> subquery = query.subquery(long.class);
             Person personCnt = subquery.from(Person.class);
             subquery.where(personCnt.getAge()).gte(50).
                        and(personCnt.getName()).in(names);
             subquery.select(query.hqlFunction().count().select());
-            
+
             LoadTestDto dto = query.select(LoadTestDto.class);
             dto.setTownName(town.getName());
             dto.setMaxAge(query.hqlFunction().max(childRelation.getChild().getAge()).select());
             dto.setFiftyPlusCount(subquery.select());
-            
+
             last = query.toHqlQuery();
         }
         time = (System.currentTimeMillis() - time);
         logger.debug(time / (double) n + "ms/query\n" + last.toFormattedString());
     }
-    
+
 }

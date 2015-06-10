@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -44,7 +44,7 @@ public interface HavingRestrictions {
      * Adds a restriction as and to the existing having clause.
      */
     RestrictionChainable having(Restriction restriction);
-    
+
     /**
      * The general restrict by enum method. Anything which represents a number
      * can be used with this method.
@@ -56,7 +56,7 @@ public interface HavingRestrictions {
      * or a value of a TypeSafeQueryProxy getter.
      */
     <E extends Enum<E>> OnGoingEnumRestriction<E> having(E value);
-    
+
     /**
      * The general restrict by boolean method. Anything which represents a boolean
      * can be used with this method.
@@ -65,7 +65,7 @@ public interface HavingRestrictions {
 
     /**
      * Restrict a boolean value. This can be a direct value (an actual boolean),
-     * or a value of a TypeSafeQueryProxy getter. 
+     * or a value of a TypeSafeQueryProxy getter.
      */
     OnGoingBooleanRestriction having(Boolean value);
 
@@ -77,7 +77,7 @@ public interface HavingRestrictions {
 
     /**
      * Restrict a number value. This can be a direct value (an actual number),
-     * or a value of a TypeSafeQueryProxy getter. 
+     * or a value of a TypeSafeQueryProxy getter.
      */
     OnGoingNumberRestriction having(Number value);
 
@@ -89,7 +89,7 @@ public interface HavingRestrictions {
 
     /**
      * Restrict a number value. This can be a direct value (an actual date),
-     * or a value of a TypeSafeQueryProxy getter. 
+     * or a value of a TypeSafeQueryProxy getter.
      */
     OnGoingDateRestriction having(Date value);
 
@@ -101,7 +101,7 @@ public interface HavingRestrictions {
 
     /**
      * Restrict a string value. This can be a direct value (an actual string),
-     * or a value of a TypeSafeQueryProxy getter. 
+     * or a value of a TypeSafeQueryProxy getter.
      */
     OnGoingTextRestriction having(String value);
 
@@ -114,5 +114,5 @@ public interface HavingRestrictions {
      * Adds a not exists restriction.
      */
     RestrictionChainable havingNotExists(TypeSafeSubQuery<?> subquery);
-    
+
 }

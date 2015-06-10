@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,19 +32,19 @@ public final class TypeSafeQueryProxyFactory {
 
     private static final MethodFilter METHOD_FILTER = new MethodFilter() {
         public boolean isHandled(Method m) {
-            switch( m.getName() ) {
+            switch (m.getName()) {
                 case "finalize":
                 case "hashCode":
                 case "equals":
                     return false;
-                default: 
+                default:
                     return true;
             }
         }
     };
-    
+
     private final Map<Class<?>, Class<?>>[] proxyClasses;
-    
+
     @SuppressWarnings("unchecked")
     public TypeSafeQueryProxyFactory() {
         proxyClasses = new HashMap[TypeSafeQueryProxyType.values().length];
@@ -60,15 +60,15 @@ public final class TypeSafeQueryProxyFactory {
             throw new RuntimeException(e);
         }
     }
-    
+
     @SuppressWarnings("unchecked")
     private <T> Class<T> getProxyClass(Class<T> fromClass, TypeSafeQueryProxyType type) {
-        synchronized ( proxyClasses ) { 
+        synchronized ( proxyClasses) {
             Class<?> proxyClass = proxyClasses[type.ordinal()].get(fromClass);
-            if( proxyClass == null ) {
+            if (proxyClass == null) {
                 ProxyFactory f = new ProxyFactory();
                 f.setSuperclass(fromClass); // what if the super class is final?? guess it will give an exception..
-                if( type.isEntity() || type.isComposite() ) {
+                if (type.isEntity() || type.isComposite()) {
                     f.setInterfaces(new Class[] { TypeSafeQueryProxy.class });
                 } else {
                     f.setInterfaces(new Class[] { TypeSafeQuerySelectionProxy.class });
@@ -80,5 +80,5 @@ public final class TypeSafeQueryProxyFactory {
             return (Class<T>) proxyClass;
         }
     }
-    
+
 }

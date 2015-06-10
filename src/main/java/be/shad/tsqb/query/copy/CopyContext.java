@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,7 +21,7 @@ public class CopyContext {
 
     // using identity map/set to make sure equals doesn't break the copy
     private final IdentityHashMap<Object, Object> data = new IdentityHashMap<>();
-    
+
     /**
      * Looks up the copy of <code>originalOrCopy</code>.
      * If it was already a copy, then itself will be returned.
@@ -51,7 +51,7 @@ public class CopyContext {
         Object copy = data.get(originalOrCopy);
         if (copy == null) {
             if (originalOrCopy instanceof Copyable) {
-                // if no copy exists, create a copy and 
+                // if no copy exists, create a copy and
                 copy = ((Copyable) originalOrCopy).copy(this);
             } else if (copyableRequired) {
                 throw new IllegalStateException(String.format("Object [%s] is not copyable, "
@@ -64,9 +64,9 @@ public class CopyContext {
         }
         return (T) copy;
     }
-    
+
     /**
-     * Add the original and its copy to the identity 
+     * Add the original and its copy to the identity
      * map so future gets will yield the copied object
      * <p>
      * This should be called first in the copy constructor of
@@ -77,5 +77,5 @@ public class CopyContext {
         data.put(original, copy);
         return copy;
     }
-    
+
 }

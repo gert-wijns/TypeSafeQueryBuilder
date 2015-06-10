@@ -62,7 +62,7 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
     }
 
     private Type getTargetType(TypeSafeQueryProxyData data, String property) {
-        if ( data.getProxyType().isComposite() ) {
+        if (data.getProxyType().isComposite()) {
             return sessionFactory.getClassMetadata(data.getCompositeTypeEntityParent().getPropertyType()).
                     getPropertyType(data.getCompositePropertyPath() + "." + property);
         }
@@ -73,7 +73,7 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
      * Retrieves the type information from hibernate.
      */
     private Class<?> getTargetEntityClass(Type propertyType) {
-        if( CollectionType.class.isAssignableFrom(propertyType.getClass()) ) {
+        if (CollectionType.class.isAssignableFrom(propertyType.getClass())) {
             CollectionType collectionType = (CollectionType) propertyType;
             Type elementType = collectionType.getElementType(
                     (SessionFactoryImplementor) sessionFactory);
@@ -193,11 +193,11 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
         Type propertyType = getTargetType(parent, property);
         Class<?> targetClass = getTargetEntityClass(propertyType);
         ClassMetadata metadata = sessionFactory.getClassMetadata(targetClass);
-        if( metadata == null && !propertyType.isComponentType() ) {
+        if (metadata == null && !propertyType.isComponentType()) {
             return query.getDataTree().createData(parent, property, targetClass);
         }
         TypeSafeQueryProxyType proxyType = null;
-        if( metadata != null ) {
+        if (metadata != null) {
             proxyType = propertyType.isCollectionType() ? EntityCollectionType: EntityType;
         } else {
             proxyType = propertyType instanceof ComponentType ? ComponentType: CompositeType;
@@ -224,11 +224,11 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
     String method2PropertyName(Method m) {
         String name = m.getName();
         int start;
-        if (name.startsWith("get") ) {
+        if (name.startsWith("get")) {
             start = 3;
-        } else if ( name.startsWith("is") ) {
+        } else if (name.startsWith("is")) {
             start = 2;
-        } else if( name.startsWith("set") ) {
+        } else if (name.startsWith("set")) {
             start = 3;
         } else {
             return name;
@@ -246,13 +246,13 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
     @SuppressWarnings("unchecked")
     @Override
     public String toLiteral(Object value) {
-        if( value == null ) {
+        if (value == null) {
             return "null";
         }
         BasicType basic = sessionFactory.getTypeHelper().basic(value.getClass());
-        if( basic instanceof StringRepresentableType<?> ) {
+        if (basic instanceof StringRepresentableType<?>) {
             String literal = ((StringRepresentableType<Object>) basic).toString(value);
-            if( value instanceof Number || value instanceof Boolean ) {
+            if (value instanceof Number || value instanceof Boolean) {
                 return literal;
             }
             return "'" + literal + "'";
@@ -275,7 +275,7 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
     @SuppressWarnings("unchecked")
     public <T> T getDummyValue(Class<T> clazz) {
         Class<?> primitiveClass = getPrimitiveClass(clazz);
-        if( primitiveClass != null ) {
+        if (primitiveClass != null) {
             return (T) defaultPrimitiveValue(primitiveClass);
         }
         return null;

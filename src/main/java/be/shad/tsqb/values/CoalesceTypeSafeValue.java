@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,7 +24,7 @@ import be.shad.tsqb.query.copy.CopyContext;
 import be.shad.tsqb.query.copy.Copyable;
 
 /**
- * Represents a coalesce function. A coalesce is a fallback where the first 
+ * Represents a coalesce function. A coalesce is a fallback where the first
  * value in the list which is not null is selected.
  */
 public class CoalesceTypeSafeValue<T> extends TypeSafeValueImpl<T> implements TypeSafeValueContainer {
@@ -39,7 +39,7 @@ public class CoalesceTypeSafeValue<T> extends TypeSafeValueImpl<T> implements Ty
             values.add(context.get(value));
         }
     }
-    
+
     public CoalesceTypeSafeValue(TypeSafeQuery query, Class<T> valueType) {
         super(query, valueType);
     }
@@ -47,7 +47,7 @@ public class CoalesceTypeSafeValue<T> extends TypeSafeValueImpl<T> implements Ty
     public CoalesceTypeSafeValue<T> or(T value) {
         return or(query.toValue(value));
     }
-    
+
     public CoalesceTypeSafeValue<T> or(TypeSafeValue<T> value) {
         this.values.add(value);
         return this;
@@ -58,7 +58,7 @@ public class CoalesceTypeSafeValue<T> extends TypeSafeValueImpl<T> implements Ty
         StringBuilder coalesce = new StringBuilder();
         List<Object> params = new LinkedList<>();
         for(TypeSafeValue<T> value: values) {
-            if( coalesce.length() > 0 ) {
+            if (coalesce.length() > 0) {
                 coalesce.append(",");
             } else {
                 coalesce.append("coalesce (");
@@ -70,7 +70,7 @@ public class CoalesceTypeSafeValue<T> extends TypeSafeValueImpl<T> implements Ty
             }
         }
         String hql = "";
-        if( coalesce.length() > 0 ) {
+        if (coalesce.length() > 0) {
             hql = coalesce.append(")").toString();
         }
         return new HqlQueryValueImpl(hql, params);
@@ -82,10 +82,10 @@ public class CoalesceTypeSafeValue<T> extends TypeSafeValueImpl<T> implements Ty
             validator.validateInScope(value);
         }
     }
-    
+
     @Override
     public Copyable copy(CopyContext context) {
         return new CoalesceTypeSafeValue<>(context, this);
     }
-    
+
 }

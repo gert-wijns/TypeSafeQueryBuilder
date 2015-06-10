@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -53,7 +53,7 @@ public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder {
         this.helper = helper;
         this.query = query;
     }
-    
+
     /**
      * Replays the original data tree into this datatree.
      * This data tree should still be empty when replay is called.
@@ -62,19 +62,19 @@ public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder {
         if (!queryData.isEmpty()) {
             throw new IllegalStateException("Replaying on a non-empty tree is not supported.");
         }
-        // query data contains the history of created proxy data, 
+        // query data contains the history of created proxy data,
         // so replaying this results in the same data tree.
         for(TypeSafeQueryProxyData originalData: original.queryData) {
             TypeSafeQueryProxyData copyData;
             if (originalData.getParent() == null) {
                 // is a from:
-                copyData = ((TypeSafeQueryProxy) helper.createTypeSafeFromProxy(query, 
+                copyData = ((TypeSafeQueryProxy) helper.createTypeSafeFromProxy(query,
                         originalData.getPropertyType())).getTypeSafeProxyData();
             } else {
                 // is a join or select, both call the 'join' method:
                 TypeSafeQueryProxyData parent = context.get(originalData.getParent());
-                copyData = helper.createTypeSafeJoinProxy(query, parent, 
-                        originalData.getPropertyPath(), 
+                copyData = helper.createTypeSafeJoinProxy(query, parent,
+                        originalData.getPropertyPath(),
                         originalData.getPropertyType());
                 // alias and jointype may have been changed:
                 copyData.setJoinType(originalData.getJoinType());
@@ -89,14 +89,14 @@ public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder {
             TypeSafeQuerySelectionProxyData copyData = null;
             if (originalData.getParent() == null) {
                 copyData = ((TypeSafeQuerySelectionProxy) helper.createTypeSafeSelectProxy(
-                        query.getRootQuery(), originalData.getPropertyType(), 
+                        query.getRootQuery(), originalData.getPropertyType(),
                         context.get(originalData.getGroup()))).getTypeSafeQuerySelectionProxyData();
                 context.put(originalData.getProxy(), copyData.getProxy());
             } else {
-                copyData = helper.createTypeSafeSelectSubProxy(query.getRootQuery(), 
+                copyData = helper.createTypeSafeSelectSubProxy(query.getRootQuery(),
                         context.get(originalData.getParent()),
-                        originalData.getPropertyPath(), 
-                        originalData.getPropertyType(), 
+                        originalData.getPropertyPath(),
+                        originalData.getPropertyType(),
                         originalData.getProxy() != null);
             }
             context.put(originalData, copyData);
@@ -118,7 +118,7 @@ public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder {
         selectionData.add(selectionProxyData);
         return selectionProxyData;
     }
-    
+
     /**
      * Create proxy data for the given proxy.
      * <p>
@@ -126,22 +126,22 @@ public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder {
      * when the parent is null. When data is part of the root, the data
      * is used to construct a FROM part of the query.
      */
-    public TypeSafeQueryProxyData createData(TypeSafeQueryProxyData parent, 
+    public TypeSafeQueryProxyData createData(TypeSafeQueryProxyData parent,
             String propertyName, Class<?> propertyType, TypeSafeQueryProxyType proxyType,
             String identifierPath, TypeSafeQueryProxy proxy) {
-        TypeSafeQueryProxyData child = new TypeSafeQueryProxyData(parent, propertyName, 
+        TypeSafeQueryProxyData child = new TypeSafeQueryProxyData(parent, propertyName,
                 propertyType, proxyType, proxy, identifierPath, query.createEntityAlias());
         child.setJoinType(JoinType.Default); // default join type
-        if( parent == null ) {
+        if (parent == null) {
             froms.add(new TypeSafeQueryFrom(helper, child));
         } else {
             parent.putChild(child);
             TypeSafeQueryProxyData root = parent;
-            while( root.getParent() != null ) {
+            while( root.getParent() != null) {
                 root = root.getParent();
             }
             for(TypeSafeQueryFrom from: froms) {
-                if( from.getRoot().equals(root) ) {
+                if (from.getRoot().equals(root)) {
                     TypeSafeQueryJoin<Object> join = new TypeSafeQueryJoin<>(query, child);
                     joins.put(child, join);
                     from.addJoin(join);
@@ -160,34 +160,34 @@ public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder {
             String propertyName, Class<?> propertyType) {
         TypeSafeQueryProxyData child = new TypeSafeQueryProxyData(
                 parent, propertyName, propertyType);
-        if( parent == null ) {
+        if (parent == null) {
             throw new IllegalArgumentException("");
         }
         parent.putChild(child);
         queryData.add(child);
         return child;
     }
-    
+
     /**
      * Check if this dataTree contains the data.
-     * 
+     *
      * @param join optional parameter, in case of creating a where clause in a join
      *             then the join data must be the data or must be added after data.
      */
     public boolean isInScope(TypeSafeQueryProxyData data, TypeSafeQueryProxyData join) {
-        if( join == null ) {
+        if (join == null) {
             return queryData.contains(data);
-        } else if ( !queryData.contains(data) ) {
+        } else if (!queryData.contains(data)) {
             return false;
         }
-        
+
         // if the property is not an entity, then use the parent instead,
         // the parent should be part of one of the joins in the froms.
         TypeSafeQueryProxyData entityData = data;
-        while( !entityData.getProxyType().isEntity() ) {
+        while( !entityData.getProxyType().isEntity()) {
             entityData = entityData.getParent();
         }
-        if( entityData.equals(join) ) {
+        if (entityData.equals(join)) {
             return true;
         }
         if(true) {
@@ -195,27 +195,27 @@ public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder {
             throw new ValueNotInScopeException("Unfortunantly, hibernate would throw a QuerySyntaxException: "
                     + "'with-clause referenced two different from-clause elements.' even though sql could handle it.");
         }
-        
+
         @SuppressWarnings("unused")
         TypeSafeQueryProxyData dataRoot = entityData;
-        while( dataRoot.getParent() != null ) {
+        while( dataRoot.getParent() != null) {
             dataRoot = dataRoot.getParent();
         }
-        if( join.equals(dataRoot) ) {
+        if (join.equals(dataRoot)) {
             return true;
         }
-        
+
         // check if data was joined before join.
         for(TypeSafeQueryFrom from: froms) {
-            if( dataRoot.equals(from.getRoot()) ) {
-                if( from.getRoot().equals(entityData) ) {
+            if (dataRoot.equals(from.getRoot())) {
+                if (from.getRoot().equals(entityData)) {
                     return true;
                 }
                 for(TypeSafeQueryJoin<?> joined: from.getJoins()) {
-                    if( joined.getData().equals(entityData) ) {
+                    if (joined.getData().equals(entityData)) {
                         return true;
                     }
-                    if( joined.getData().equals(join) ) {
+                    if (joined.getData().equals(join)) {
                         return false; // found join before data
                     }
                 }
@@ -230,5 +230,5 @@ public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder {
             from.appendTo(query, params);
         }
     }
-    
+
 }

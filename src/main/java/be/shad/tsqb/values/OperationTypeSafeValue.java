@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -33,7 +33,7 @@ public class OperationTypeSafeValue<T> extends TypeSafeValueImpl<T> implements T
         Never,
         WhenMoreThanOne;
     }
-    
+
     private List<TypeSafeValue<? extends T>> values = new LinkedList<>();
     private List<String> operations = new LinkedList<>();
     private OperationTypeSafeValueBracketsPolicy bracketsPolicy;
@@ -51,20 +51,20 @@ public class OperationTypeSafeValue<T> extends TypeSafeValueImpl<T> implements T
             this.operations.add(operation);
         }
     }
-    
-    public OperationTypeSafeValue(TypeSafeQuery query, TypeSafeValue<T> firstValue, 
+
+    public OperationTypeSafeValue(TypeSafeQuery query, TypeSafeValue<T> firstValue,
             OperationTypeSafeValueBracketsPolicy bracketsPolicy) {
         super(query, firstValue.getValueClass());
         this.values.add(firstValue);
         this.bracketsPolicy = bracketsPolicy;
     }
-    
+
     @SuppressWarnings("unchecked")
     public void add(String operation, TypeSafeValue<? extends T> value) {
         values.add((TypeSafeValue<T>) value);
         operations.add(operation);
     }
-    
+
     @Override
     public void validateContainedInScope(TypeSafeQueryScopeValidator validator) {
         for(TypeSafeValue<? extends T> value: values) {
@@ -79,14 +79,14 @@ public class OperationTypeSafeValue<T> extends TypeSafeValueImpl<T> implements T
         if (addBrackets) {
             combined.appendHql("(");
         }
-        
+
         Iterator<TypeSafeValue<? extends T>> valuesIt = values.iterator();
         Iterator<String> operationsIt = operations.iterator();
-        
+
         HqlQueryValue valueHql = valuesIt.next().toHqlQueryValue(params);
         combined.appendHql(valueHql.getHql());
         combined.addParams(valueHql.getParams());
-        
+
         while (valuesIt.hasNext()) {
             valueHql = valuesIt.next().toHqlQueryValue(params);
             String operation = operationsIt.next();
@@ -97,10 +97,10 @@ public class OperationTypeSafeValue<T> extends TypeSafeValueImpl<T> implements T
         if (addBrackets) {
             combined.appendHql(")");
         }
-        
+
         return combined;
     }
-    
+
     /**
      * Evaluates brackets policy to decide whether to add brackets or not.
      */
@@ -112,7 +112,7 @@ public class OperationTypeSafeValue<T> extends TypeSafeValueImpl<T> implements T
             default:              return true;
         }
     }
-    
+
     @Override
     public Copyable copy(CopyContext context) {
         return new OperationTypeSafeValue<>(context, this);

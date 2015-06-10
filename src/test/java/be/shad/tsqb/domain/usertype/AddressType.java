@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -41,7 +41,7 @@ public class AddressType implements CompositeUserType {
     @Override
     public Object getPropertyValue(final Object component, final int property) throws HibernateException {
         final Address address = (Address) component;
-        switch( property ) {
+        switch (property) {
             case 0: return address.getStreet();
             case 1: return address.getNumber();
             default: throw new IllegalArgumentException(""+property);
@@ -51,7 +51,7 @@ public class AddressType implements CompositeUserType {
     @Override
     public void setPropertyValue(final Object component, final int property, final Object setValue) throws HibernateException {
         final Address address = (Address) component;
-        switch( property ) {
+        switch (property) {
             case 0: address.setStreet((String) setValue); break;
             case 1: address.setNumber((String) setValue); break;
             default: throw new IllegalArgumentException(""+property);
@@ -59,7 +59,7 @@ public class AddressType implements CompositeUserType {
     }
 
     @Override
-    public Object nullSafeGet(final ResultSet resultSet, final String[] names, final SessionImplementor paramSessionImplementor, 
+    public Object nullSafeGet(final ResultSet resultSet, final String[] names, final SessionImplementor paramSessionImplementor,
             final Object paramObject) throws HibernateException, SQLException {
         Address address = null;
         final String street = resultSet.getString(names[0]);
@@ -72,7 +72,7 @@ public class AddressType implements CompositeUserType {
     }
 
     @Override
-    public void nullSafeSet(final PreparedStatement preparedStatement, final Object value, final int property, 
+    public void nullSafeSet(final PreparedStatement preparedStatement, final Object value, final int property,
             final SessionImplementor sessionImplementor) throws HibernateException, SQLException {
         if (null == value) {
             preparedStatement.setNull(property, StringType.INSTANCE.sqlType());
@@ -90,13 +90,13 @@ public class AddressType implements CompositeUserType {
     }
 
     @Override
-    public Object assemble(final Serializable cached, final SessionImplementor sessionImplementor, 
+    public Object assemble(final Serializable cached, final SessionImplementor sessionImplementor,
             final Object owner) throws HibernateException {
         return cached;
     }
 
     @Override
-    public Object replace(final Object original, final Object target, final SessionImplementor paramSessionImplementor, 
+    public Object replace(final Object original, final Object target, final SessionImplementor paramSessionImplementor,
             final Object owner) throws HibernateException {
         return this.deepCopy(original);
     }
@@ -133,7 +133,7 @@ public class AddressType implements CompositeUserType {
 
     @Override
     public Object deepCopy(final Object value) throws HibernateException {
-        if( value == null ) {
+        if (value == null) {
             return null;
         }
         final Address addressToCopy = (Address) value;

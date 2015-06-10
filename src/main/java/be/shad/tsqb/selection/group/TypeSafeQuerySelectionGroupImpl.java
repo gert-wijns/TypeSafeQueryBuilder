@@ -71,17 +71,17 @@ public class TypeSafeQuerySelectionGroupImpl implements TypeSafeQuerySelectionGr
     public Set<String> getResultIdentifierPropertyPaths() {
         return resultIdentifierPropertyPaths;
     }
-    
+
     @Override
     public void addResultIdentifierPropertyPath(String resultIdentifierPropertyPath) {
         this.resultIdentifierPropertyPaths.add(resultIdentifierPropertyPath);
-    } 
-    
+    }
+
     @Override
     public TypeSafeQuerySelectionGroup getParent() {
         return parent;
     }
-    
+
     @Override
     public String getCollectionPropertyPath() {
         return collectionPropertyPath;
@@ -122,7 +122,7 @@ public class TypeSafeQuerySelectionGroupImpl implements TypeSafeQuerySelectionGr
         return obj instanceof TypeSafeQuerySelectionGroupImpl
                 && aliasPrefix.equals(((TypeSafeQuerySelectionGroupImpl) obj).aliasPrefix);
     }
-    
+
     @Override
     public String toString() {
         return aliasPrefix + " [" + parent + "]";

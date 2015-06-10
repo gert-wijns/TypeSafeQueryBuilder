@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -36,7 +36,7 @@ public class SelectionIdentityTree {
     public SelectionIdentityTree getSubtree(Object value) {
         return subtrees.get(value);
     }
-    
+
     /**
      * Creates a subtree for the value, future calls to getSubtree with
      * the same value will return the same subtree.
@@ -46,14 +46,14 @@ public class SelectionIdentityTree {
         subtrees.put(value, subtree);
         return subtree;
     }
-    
+
     /**
      * The value associated with the identity path.
      */
     public Object getIdentityValue() {
         return identityValue;
     }
-    
+
     /**
      * Set the value identified by the identity path.
      */

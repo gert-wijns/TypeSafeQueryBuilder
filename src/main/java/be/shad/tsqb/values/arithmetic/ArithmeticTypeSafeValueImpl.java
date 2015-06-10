@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,7 +32,7 @@ public class ArithmeticTypeSafeValueImpl extends TypeSafeValueImpl<Number> imple
 
     public ArithmeticTypeSafeValueImpl(TypeSafeQuery query, TypeSafeValue<Number> firstValue) {
         super(query, firstValue.getValueClass());
-        this.combinedValue = new OperationTypeSafeValue<>(query, firstValue, 
+        this.combinedValue = new OperationTypeSafeValue<>(query, firstValue,
                 OperationTypeSafeValueBracketsPolicy.WhenMoreThanOne);
     }
 
@@ -91,7 +91,7 @@ public class ArithmeticTypeSafeValueImpl extends TypeSafeValueImpl<Number> imple
     @Override
     public HqlQueryValue toHqlQueryValue(HqlQueryBuilderParams params) {
         // when calculating a value, hibernate checks if all number types are exactly the same,
-        // this problem is avoided by replacing the values with literals 
+        // this problem is avoided by replacing the values with literals
         boolean previous = params.setRequiresLiterals(true);
         HqlQueryValue hqlQueryValue = combinedValue.toHqlQueryValue(params);
         params.setRequiresLiterals(previous);
@@ -105,31 +105,31 @@ public class ArithmeticTypeSafeValueImpl extends TypeSafeValueImpl<Number> imple
 
     @Override
     public ArithmeticTypeSafeValue divide(
-            TypeSafeValue<? extends Number> numerator, 
+            TypeSafeValue<? extends Number> numerator,
             TypeSafeValue<? extends Number> denominator) {
         return query.getArithmeticsBuilder().divide(numerator, denominator);
     }
 
     @Override
     public ArithmeticTypeSafeValue add(
-            TypeSafeValue<? extends Number> value1, 
-            TypeSafeValue<? extends Number> value2, 
+            TypeSafeValue<? extends Number> value1,
+            TypeSafeValue<? extends Number> value2,
             ArithmeticTypeSafeValue... values) {
         return query.getArithmeticsBuilder().add(value1, value2, values);
     }
 
     @Override
     public ArithmeticTypeSafeValue subtract(
-            TypeSafeValue<? extends Number> value1, 
-            TypeSafeValue<? extends Number> value2, 
+            TypeSafeValue<? extends Number> value1,
+            TypeSafeValue<? extends Number> value2,
             ArithmeticTypeSafeValue... values) {
         return query.getArithmeticsBuilder().subtract(value1, value2, values);
     }
 
     @Override
     public ArithmeticTypeSafeValue multiply(
-            TypeSafeValue<? extends Number> value1, 
-            TypeSafeValue<? extends Number> value2, 
+            TypeSafeValue<? extends Number> value1,
+            TypeSafeValue<? extends Number> value2,
             ArithmeticTypeSafeValue... values) {
         return query.getArithmeticsBuilder().multiply(value1, value2, values);
     }

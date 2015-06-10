@@ -10,7 +10,7 @@ import be.shad.tsqb.values.NamedValueEnabled;
 
 public class TypeSafeNamedsImpl implements TypeSafeNameds, Copyable {
     private final Map<String, Object> nameds = new HashMap<>();
-    
+
     public TypeSafeNamedsImpl() {
         // nothing extra
     }
@@ -38,12 +38,12 @@ public class TypeSafeNamedsImpl implements TypeSafeNameds, Copyable {
         Object named = nameds.put(name, object);
         if (named != null && !named.equals(object)) {
             throw new IllegalArgumentException(String.format("Naming [%s] with name [%s] is illegal "
-                    + "because another named object [%s] already used the name.", 
+                    + "because another named object [%s] already used the name.",
                     object, name, named));
         }
         return object;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -52,7 +52,7 @@ public class TypeSafeNamedsImpl implements TypeSafeNameds, Copyable {
     public <T> T get(String name) throws IllegalArgumentException {
         return (T) get(Object.class, name);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -68,7 +68,7 @@ public class TypeSafeNamedsImpl implements TypeSafeNameds, Copyable {
     public void setValue(String name, Object value) {
         named(NamedValueEnabled.class, name).setNamedValue(value);
     }
-    
+
     /**
      * Get the named value and validates null and assignability.
      */
@@ -80,7 +80,7 @@ public class TypeSafeNamedsImpl implements TypeSafeNameds, Copyable {
         }
         if (!clazz.isAssignableFrom(object.getClass())) {
             throw new IllegalArgumentException(String.format(
-                    "Named object [%s] doesn't have the correct type.", 
+                    "Named object [%s] doesn't have the correct type.",
                     object, clazz));
         }
         return clazz.cast(object);
@@ -92,7 +92,7 @@ public class TypeSafeNamedsImpl implements TypeSafeNameds, Copyable {
     }
 
     /**
-     * Copied (partially) from StringUtils.isBlank(String), 
+     * Copied (partially) from StringUtils.isBlank(String),
      * <p>
      * See {@link org.apache.commons.lang3.StringUtils#isBlank(String)}
      */

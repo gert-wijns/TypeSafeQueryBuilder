@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,14 +26,14 @@ import be.shad.tsqb.values.arithmetic.ArithmeticTypeSafeValueFactory;
 public class ArithmeticOperationsTest extends TypeSafeQueryTest {
 
     private ArithmeticTypeSafeValueFactory arithmetics;
-    
+
     @Before
     public void setup() {
         arithmetics = query.getArithmeticsBuilder();
     }
-    
+
     @Test
-    public void testAddDirectValue() { 
+    public void testAddDirectValue() {
         Person person = query.from(Person.class);
         query.select(arithmetics.value(person.getId()).add(10d));
         validate("select (hobj1.id + 10.0) from Person hobj1");
@@ -52,7 +52,7 @@ public class ArithmeticOperationsTest extends TypeSafeQueryTest {
         query.select(arithmetics.value(person.getId()).subtract(10d));
         validate("select (hobj1.id - 10.0) from Person hobj1");
     }
-    
+
     @Test
     public void testSubtractReferencedValue() {
         Person person = query.from(Person.class);
@@ -61,12 +61,12 @@ public class ArithmeticOperationsTest extends TypeSafeQueryTest {
     }
 
     @Test
-    public void testMultiplyDirectValue() { 
+    public void testMultiplyDirectValue() {
         Person person = query.from(Person.class);
         query.select(arithmetics.value(person.getId()).multiply(10d));
         validate("select (hobj1.id * 10.0) from Person hobj1");
     }
-    
+
     @Test
     public void testMultiplyReferencedValue() {
         Person person = query.from(Person.class);
@@ -75,12 +75,12 @@ public class ArithmeticOperationsTest extends TypeSafeQueryTest {
     }
 
     @Test
-    public void testDivideDirectValue() { 
+    public void testDivideDirectValue() {
         Person person = query.from(Person.class);
         query.select(arithmetics.value(person.getId()).divide(10d));
         validate("select (hobj1.id / 10.0) from Person hobj1");
     }
-    
+
     @Test
     public void testDivideReferencedValue() {
         Person person = query.from(Person.class);
@@ -109,9 +109,9 @@ public class ArithmeticOperationsTest extends TypeSafeQueryTest {
             arithmetics.add(
                 arithmetics.value(person.getId()),
                 arithmetics.divide(
-                    arithmetics.value(1D), 
+                    arithmetics.value(1D),
                     arithmetics.subtract(
-                        arithmetics.value(10d), 
+                        arithmetics.value(10d),
                         arithmetics.value(person.getAge()))),
                 arithmetics.value(person.getId())
         ));
@@ -136,7 +136,7 @@ public class ArithmeticOperationsTest extends TypeSafeQueryTest {
     @Test
     public void testaArithmeticsWithSubqueryValue() {
         Person person = query.from(Person.class);
-        
+
         TypeSafeSubQuery<Integer> childrenSQ = query.subquery(Integer.class);
         Person child = childrenSQ.from(Person.class);
         Relation relations = childrenSQ.join(child.getParentRelations());
@@ -149,9 +149,9 @@ public class ArithmeticOperationsTest extends TypeSafeQueryTest {
                 arithmetics.value(childrenSQ).subtract(person.getAge()))).
             add(arithmetics.value(person.getId())
         ));
-        
+
         String expectedSQHql = "(select max(hobj2.age) from Person hobj2 join hobj2.parentRelations hobj3 where hobj3.parent.id = hobj1.id)";
         validate("select (hobj1.id + (1.0 / (" + expectedSQHql + " - hobj1.age)) + hobj1.id) from Person hobj1");
-        
+
     }
 }

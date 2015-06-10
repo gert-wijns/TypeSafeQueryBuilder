@@ -29,12 +29,12 @@ public class JoinTypeTest extends TypeSafeQueryTest {
     public void testJoinTypeNoneWhenOnlyIdentifierUsed() {
         Person parent = query.from(Person.class);
         Relation relation = query.join(parent.getChildRelations());
-        
+
         query.select(relation.getChild().getId());
-        
+
         validate("select hobj2.child.id from Person hobj1 join hobj1.childRelations hobj2");
     }
-    
+
     /**
      * Test if jointype (unless set explicitly) is defaulted so when a parent
      * join is "Left", the child join is also left.
@@ -43,9 +43,9 @@ public class JoinTypeTest extends TypeSafeQueryTest {
     public void testJoinTypeLeftWhenParentEffectiveJoinTypeIsLeft() {
         Person parent = query.from(Person.class);
         Relation relation = query.join(parent.getChildRelations(), JoinType.Left);
-        
+
         query.select(relation.getChild().getAge());
-        
+
         validate("select hobj3.age from Person hobj1 left join hobj1.childRelations hobj2 left join hobj2.child hobj3");
     }
 
@@ -57,12 +57,12 @@ public class JoinTypeTest extends TypeSafeQueryTest {
     public void testJoinTypeLeftWhenParentEffectiveJoinTypeIsLeftEvenWhenOnlyIdSelected() {
         Person parent = query.from(Person.class);
         Relation relation = query.join(parent.getChildRelations(), JoinType.Left);
-        
+
         query.select(relation.getChild().getId());
-        
+
         validate("select hobj3.id from Person hobj1 left join hobj1.childRelations hobj2 left join hobj2.child hobj3");
     }
-    
+
     @Test
     public void testFetchOuterEntityFetchesParentEntityByDefault() {
         Person parent = query.from(Person.class);
@@ -102,10 +102,10 @@ public class JoinTypeTest extends TypeSafeQueryTest {
         s1.getSpouse(); // adds join
 
         validate("from Person hobj1 join hobj1.spouse hobj2 join hobj2.spouse hobj3");
-        
+
         // override jointype of second spouse and set jointype for next spouses
         query.join(JoinType.LeftFetch).join(s1.getSpouse().getSpouse().getSpouse());
-        
+
         // original spouse is fetched because next spouses specify fetching
         validate("from Person hobj1 "
                 + "join fetch hobj1.spouse hobj2 "
@@ -120,7 +120,7 @@ public class JoinTypeTest extends TypeSafeQueryTest {
         query.join(JoinType.LeftFetch);
         query.join(person.getSpouse());
     }
-    
+
     @Test(expected=IllegalStateException.class)
     public void testExceptionWhenReusingJoinJoinType() {
         Person person = query.from(Person.class);
@@ -138,12 +138,12 @@ public class JoinTypeTest extends TypeSafeQueryTest {
         // pending multi joins cannot be relevant anymore.
         query.where(person.getSpouse().getId()).eq(1L);
     }
-    
+
     @Test(expected=IllegalStateException.class)
     public void testExceptionWhenRestrictionAfterDanglingMultiJoinForUserType() {
         Town town = query.from(Town.class);
         query.join(JoinType.LeftFetch);
-        
+
         // getGeographicCoordinate doesn't return an entity, this means any
         // pending multi joins cannot be relevant anymore.
         query.where(town.getGeographicCoordinate().getLattitude()).eq(1d);

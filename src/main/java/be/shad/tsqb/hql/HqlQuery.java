@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -37,7 +37,7 @@ public class HqlQuery implements HqlQueryValue {
     public ResultTransformer getResultTransformer() {
         return resultTransformer;
     }
-    
+
     public void setResultTransformer(ResultTransformer resultTransformer) {
         this.resultTransformer = resultTransformer;
     }
@@ -46,16 +46,16 @@ public class HqlQuery implements HqlQueryValue {
     public Collection<Object> getParams() {
         return params;
     }
-    
+
     public String getSelect() {
-        if( select.length() > 0 ) {
+        if (select.length() > 0) {
             return "select " + select.toString();
         }
         return "";
     }
-    
+
     public void appendSelect(String selectPart) {
-        if( select.length() > 0 ) {
+        if (select.length() > 0) {
             select.append(", ");
         }
         select.append(selectPart);
@@ -64,65 +64,65 @@ public class HqlQuery implements HqlQueryValue {
     public String getFrom() {
         return " from " + from.toString();
     }
-    
+
     public void appendFrom(String fromPart) {
-        if( from.length() > 0 ) {
+        if (from.length() > 0) {
             from.append(", ");
         }
         from.append(fromPart);
     }
 
     public String getWhere() {
-        if( where.length() > 0 ) {
+        if (where.length() > 0) {
             return " where " + where.toString();
         }
         return "";
     }
-    
+
     public void appendWhere(String wherePart) {
-        if( where.length() >  0 ) {
+        if (where.length() >  0) {
             where.append(" and ");
         }
         where.append(wherePart);
     }
 
     public String getGroupBy() {
-        if( groupBy.length() > 0 ) {
+        if (groupBy.length() > 0) {
             return " group by " + groupBy.toString();
         }
         return "";
     }
-    
+
     public void appendGroupBy(String groupByPart) {
-        if( groupBy.length() > 0 ) {
+        if (groupBy.length() > 0) {
             groupBy.append(", ");
         }
         groupBy.append(groupByPart);
     }
-    
+
     public String getHaving() {
-        if( having.length() > 0 ) {
+        if (having.length() > 0) {
             return " having " + having.toString();
         }
         return "";
     }
-    
+
     public void appendHaving(String havingPart) {
-        if( having.length() >  0 ) {
+        if (having.length() >  0) {
             having.append(" and ");
         }
         having.append(havingPart);
     }
-    
+
     public String getOrderBy() {
-        if( orderBy.length() > 0 ) {
+        if (orderBy.length() > 0) {
             return " order by " + orderBy.toString();
         }
         return "";
     }
-    
+
     public void appendOrderBy(String orderByPart) {
-        if( orderBy.length() > 0 ) {
+        if (orderBy.length() > 0) {
             orderBy.append(", ");
         }
         orderBy.append(orderByPart);
@@ -145,10 +145,10 @@ public class HqlQuery implements HqlQueryValue {
         prettyHql = prettyHql.replaceAll("((from|join|select|where)\\n\\s*)", "$2 ");
         return prettyHql + "\n --- with: " + params.toString().replace("PARAM [", "\n[");
     }
-    
+
     @Override
     public String toString() {
         return getHql() + " --- with: " + params;
     }
-    
+
 }

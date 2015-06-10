@@ -304,16 +304,16 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
                     + "to not have been followed up with one of the join methods, "
                     + "causing the activeMultiJoinType to have remained active.");
         }
-        
+
         TypeSafeQueryProxyData data = rootQuery.dequeueInvocation();
-        if( obj instanceof TypeSafeQueryProxy ) {
+        if (obj instanceof TypeSafeQueryProxy) {
             data = ((TypeSafeQueryProxy) obj).getTypeSafeProxyData();
         }
-        if( !data.getProxyType().isEntity() ) {
+        if (!data.getProxyType().isEntity()) {
             throw new JoinException(String.format("Attempting to join an object "
                     + "which does not represent an entity. ", data.getAlias()));
         }
-        if( createAdditionalJoin ) {
+        if (createAdditionalJoin) {
             data = helper.createTypeSafeJoinProxy(this, data.getParent(),
                     data.getPropertyPath(), data.getPropertyType());
         }
@@ -706,7 +706,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
             return selectedValue;
         }
         List<TypeSafeQueryProxyData> invocations = dequeueInvocations();
-        if( invocations.isEmpty() ) {
+        if (invocations.isEmpty()) {
             // direct selection
             if (value == null) {
                 if (provider != null) {
@@ -778,7 +778,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      */
     @Override
     public void validateInScope(TypeSafeQueryProxyData data, TypeSafeQueryProxyData join) {
-        if( !isInScope(data, join) ) {
+        if (!isInScope(data, join)) {
             throw new ValueNotInScopeException("Attempting to use data which is not in scope. " + data);
         }
     }

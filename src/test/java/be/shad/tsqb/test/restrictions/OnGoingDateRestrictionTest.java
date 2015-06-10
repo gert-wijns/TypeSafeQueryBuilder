@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -40,7 +40,7 @@ public class OnGoingDateRestrictionTest extends TypeSafeQueryTest {
         query.where(building.getConstructionDate()).before(date);
         validate(" from Building hobj1 where hobj1.constructionDate < :np1", date);
     }
-    
+
     @Test
     public void testBeforeIgnored() {
         Building building = query.from(Building.class);
@@ -52,10 +52,10 @@ public class OnGoingDateRestrictionTest extends TypeSafeQueryTest {
     public void testBeforeNamed() {
         Building building = query.from(Building.class);
         query.where(building.getConstructionDate()).before().named(NAMED_PARAM_1);
-        
+
         query.named().setValue(NAMED_PARAM_1, date);
         validate(" from Building hobj1 where hobj1.constructionDate < :np1", date);
-        
+
         query.named().setValue(NAMED_PARAM_1, date2);
         validate(" from Building hobj1 where hobj1.constructionDate < :np1", date2);
     }
@@ -80,15 +80,15 @@ public class OnGoingDateRestrictionTest extends TypeSafeQueryTest {
         query.where(building.getConstructionDate()).after(null, IGNORE_NULL);
         validate(" from Building hobj1");
     }
-    
+
     @Test
     public void testAfterNamed() {
         Building building = query.from(Building.class);
         query.where(building.getConstructionDate()).after().named(NAMED_PARAM_1);
-        
+
         query.named().setValue(NAMED_PARAM_1, date);
         validate(" from Building hobj1 where hobj1.constructionDate > :np1", date);
-        
+
         query.named().setValue(NAMED_PARAM_1, date2);
         validate(" from Building hobj1 where hobj1.constructionDate > :np1", date2);
     }
@@ -144,7 +144,7 @@ public class OnGoingDateRestrictionTest extends TypeSafeQueryTest {
         query.named().setValue(NAMED_PARAM_1, date2);
         validate(" from Building hobj1 where hobj1.constructionDate <= :np1", date2);
     }
-    
+
     @Test
     public void testTypeSafeValueNotAfter() {
         Building building = query.from(Building.class);
@@ -170,10 +170,10 @@ public class OnGoingDateRestrictionTest extends TypeSafeQueryTest {
     public void testNotBeforeNamed() {
         Building building = query.from(Building.class);
         query.where(building.getConstructionDate()).notBefore().named(NAMED_PARAM_1);
-        
+
         query.named().setValue(NAMED_PARAM_1, date);
         validate(" from Building hobj1 where hobj1.constructionDate >= :np1", date);
-        
+
         query.named().setValue(NAMED_PARAM_1, date2);
         validate(" from Building hobj1 where hobj1.constructionDate >= :np1", date2);
     }
@@ -196,10 +196,10 @@ public class OnGoingDateRestrictionTest extends TypeSafeQueryTest {
     public void testAfterOrEqeNamed() {
         Building building = query.from(Building.class);
         query.where(building.getConstructionDate()).afterOrEq().named(NAMED_PARAM_1);
-        
+
         query.named().setValue(NAMED_PARAM_1, date);
         validate(" from Building hobj1 where hobj1.constructionDate >= :np1", date);
-        
+
         query.named().setValue(NAMED_PARAM_1, date2);
         validate(" from Building hobj1 where hobj1.constructionDate >= :np1", date2);
     }
@@ -265,5 +265,5 @@ public class OnGoingDateRestrictionTest extends TypeSafeQueryTest {
         query.named().setValue(NAMED_PARAM_3, Style.the1990s);
         validate(" from Building hobj1 where hobj1.constructionDate > :np1 and hobj1.constructionDate < :np2 and hobj1.style = :np3", date, date2, Style.the1990s);
     }
-    
+
 }

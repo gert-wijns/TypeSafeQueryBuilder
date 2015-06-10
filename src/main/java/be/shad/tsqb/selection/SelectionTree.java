@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,7 +23,7 @@ import java.util.Map.Entry;
 /**
  * Tree of values created once per query.
  * <p>
- * Call populate per tuple to create the values, so they are available without further 
+ * Call populate per tuple to create the values, so they are available without further
  * if-logic for performance when selecting many rows.
  * <p>
  * Works together with TypeSafeQueryResultTransformer in order to select nested values fast.
@@ -36,11 +36,11 @@ public class SelectionTree {
     public SelectionTree(Class<?> resultType) {
         this.resultType = resultType;
     }
-    
+
     public Class<?> getResultType() {
         return resultType;
     }
-    
+
     /**
      * Sets the resultIndexes on this and the subtrees
      * and returns the max resultIndex
@@ -71,7 +71,7 @@ public class SelectionTree {
             subtree.getValue().collectFields(fields);
         }
     }
-    
+
     /**
      * Add a property path to the tree, if it wasn't added before.
      * Return the existing subtree otherwise
@@ -79,14 +79,14 @@ public class SelectionTree {
     public SelectionTree getSubtree(String property) throws NoSuchFieldException, SecurityException {
         Field field = getField(resultType, property);
         SelectionTree subtree = subtrees.get(field);
-        if( subtree == null ) {
+        if (subtree == null) {
             field.setAccessible(true);
             subtree = new SelectionTree(field.getType());
             subtrees.put(field, subtree);
         }
         return subtree;
     }
-    
+
     /**
      * Sets the value object to a new value and creates sets its subobjects if they were part of the projections.
      */
@@ -96,14 +96,14 @@ public class SelectionTree {
         for(Entry<Field, SelectionTree> entry: subtrees.entrySet()) {
             Field field = entry.getKey();
             Object object = field.get(value);
-            if( object == null ) {
+            if (object == null) {
                 object = field.getType().newInstance();
                 field.set(value, object);
             }
             entry.getValue().initialize(dataArray, object);
         }
     }
-    
+
     /**
      * Search for the field on the class or one of its super classes.
      */
@@ -117,7 +117,7 @@ public class SelectionTree {
             }
             current = current.getSuperclass();
         }
-        
+
         throw new IllegalArgumentException(String.format("Couldn't find field [%s] on class [%s]", name, clazz.getName()));
     }
 }

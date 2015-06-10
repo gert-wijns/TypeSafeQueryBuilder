@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -92,7 +92,7 @@ public interface OnGoingNumberRestriction extends OnGoingRestriction<Number, Con
      * Generates: left >= numberRepresentative
      */
     ContinuedOnGoingNumberRestriction nlt(TypeSafeValue<Number> value);
-    
+
     /**
      * Generates: left >= (referencedValue or actualValue)
      */
@@ -108,7 +108,7 @@ public interface OnGoingNumberRestriction extends OnGoingRestriction<Number, Con
      * Generates: left <= numberRepresentative
      */
     ContinuedOnGoingNumberRestriction ngt(TypeSafeValue<Number> value);
-    
+
     /**
      * Generates: left <= (referencedValue or actualValue)
      */
@@ -124,17 +124,17 @@ public interface OnGoingNumberRestriction extends OnGoingRestriction<Number, Con
      * Generates: left > 0
      */
     ContinuedOnGoingNumberRestriction isPositive();
-    
+
     /**
      * Generates: left < 0
      */
     ContinuedOnGoingNumberRestriction isNegative();
-    
+
     /**
      * Generates: left = 0
      */
     ContinuedOnGoingNumberRestriction isZero();
-    
+
     /**
      * @see #nlt(Number)
      * @return binder with a method to set an alias for the parameter
@@ -146,7 +146,7 @@ public interface OnGoingNumberRestriction extends OnGoingRestriction<Number, Con
      * @return binder with a method to set an alias for the parameter
      */
     SingleNamedParameterBinder<Number, ContinuedOnGoingNumberRestriction, OnGoingNumberRestriction> ngt();
-    
+
     /**
      * @see #gte(Number)
      * @return binder with a method to set an alias for the parameter
@@ -170,5 +170,5 @@ public interface OnGoingNumberRestriction extends OnGoingRestriction<Number, Con
      * @return binder with a method to set an alias for the parameter
      */
     SingleNamedParameterBinder<Number, ContinuedOnGoingNumberRestriction, OnGoingNumberRestriction> lt();
-    
+
 }

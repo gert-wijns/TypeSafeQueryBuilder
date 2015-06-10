@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,7 +24,7 @@ import be.shad.tsqb.values.HqlQueryValue;
 public abstract class RestrictionChainableDelegatingImpl extends RestrictionChainableImpl {
 
     protected final RestrictionsGroupInternal group;
-    
+
     public RestrictionChainableDelegatingImpl(RestrictionsGroupInternal group) {
         this.group = group;
     }
@@ -39,7 +39,7 @@ public abstract class RestrictionChainableDelegatingImpl extends RestrictionChai
     public RestrictionsGroupInternal getRestrictionsGroup() {
         return group;
     }
-    
+
     @Override
     public Restriction getRestriction() {
         return group;
@@ -48,7 +48,7 @@ public abstract class RestrictionChainableDelegatingImpl extends RestrictionChai
     public RestrictionsGroupInternal getGroup() {
         return group;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -96,5 +96,5 @@ public abstract class RestrictionChainableDelegatingImpl extends RestrictionChai
     public RestrictionAndChainable or(RestrictionsGroup group) {
         return this.group.or(group);
     }
-    
+
 }

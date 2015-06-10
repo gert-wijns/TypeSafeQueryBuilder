@@ -46,14 +46,14 @@ public class TypeSafeQueryProxyData {
     private String customAlias;
     private JoinType joinType;
     private boolean childFetched;
-    
+
     /**
      * Package protected so that the data is correctly add to the data tree.
      */
     TypeSafeQueryProxyData(TypeSafeQueryProxyData parent, String propertyPath, Class<?> propertyType) {
         this(parent, propertyPath, propertyType, EntityPropertyType, null, null, null);
     }
-    
+
     /**
      *
      * Package protected so that the data is correctly add to the data tree.
@@ -70,8 +70,8 @@ public class TypeSafeQueryProxyData {
         this.alias = alias;
 
         // set composite related data:
-        if( proxyType.isComposite() ) {
-            if (parent.getProxyType().isComposite() ) {
+        if (proxyType.isComposite()) {
+            if (parent.getProxyType().isComposite()) {
                 compositeTypeEntityParent = parent.compositeTypeEntityParent;
                 compositeTypePropertyPath = parent.compositeTypePropertyPath + "." + propertyPath;
             } else {
@@ -83,42 +83,42 @@ public class TypeSafeQueryProxyData {
             compositeTypePropertyPath = null;
         }
     }
-    
+
     public TypeSafeQueryProxyType getProxyType() {
         return proxyType;
     }
-    
+
     public String getIdentifierPath() {
         return identifierPath;
     }
-    
+
     public TypeSafeQueryProxyData getParent() {
         return parent;
     }
-    
+
     public Collection<TypeSafeQueryProxyData> getChildren() {
         return children.values();
     }
-    
+
     public TypeSafeQueryProxyData getChild(String name) {
         return children.get(name);
     }
-    
+
     public void putChild(TypeSafeQueryProxyData child) {
         children.put(child.propertyPath, child);
     }
-    
+
     public String getAlias() {
-        if( parent != null && (joinType == null || getEffectiveJoinType() == None) ) {
+        if (parent != null && (joinType == null || getEffectiveJoinType() == None)) {
             return parent.getAlias() + "." + propertyPath;
         }
         return customAlias == null ? alias: customAlias;
     }
-    
+
     public String getCustomAlias() {
         return customAlias;
     }
-    
+
     public void setCustomAlias(String customAlias) {
         if (this.customAlias != null && !this.customAlias.equals(customAlias)) {
             throw new IllegalArgumentException(String.format("A custom alias was already set. [%s, %s]",
@@ -126,15 +126,15 @@ public class TypeSafeQueryProxyData {
         }
         this.customAlias = customAlias;
     }
-    
+
     public TypeSafeQueryProxy getProxy() {
         return proxy;
     }
-    
+
     public TypeSafeQueryProxyData getCompositeTypeEntityParent() {
         return compositeTypeEntityParent;
     }
-    
+
     public String getCompositePropertyPath() {
         return compositeTypePropertyPath;
     }
@@ -153,7 +153,7 @@ public class TypeSafeQueryProxyData {
      * Otherwise the default join type is Inner.
      */
     public JoinType getEffectiveJoinType() {
-        if( proxyType.isComposite() ) {
+        if (proxyType.isComposite()) {
             return JoinType.None;
         }
         if (joinType == Default) {
@@ -177,7 +177,7 @@ public class TypeSafeQueryProxyData {
         }
         return joinType;
     }
-    
+
     public void setJoinType(JoinType joinType) {
         if (proxy == null && joinType != null) {
             throw new IllegalStateException("Trying to join on a field "
@@ -188,7 +188,7 @@ public class TypeSafeQueryProxyData {
             parent.updateChildFetched(joinType == LeftFetch || joinType == Fetch);
         }
     }
-    
+
     /**
      * Sets the childFetched to false in case none of
      * the children are fetched. Assuming the flag ripples up
@@ -213,7 +213,7 @@ public class TypeSafeQueryProxyData {
             }
         }
     }
-    
+
     public Class<?> getPropertyType() {
         return propertyType;
     }
@@ -221,15 +221,15 @@ public class TypeSafeQueryProxyData {
     @Override
     public String toString() {
         String s;
-        if( parent != null ) {
+        if (parent != null) {
             s = parent.toString() + "." + propertyPath;
         } else {
             s = propertyType.getSimpleName();
         }
-        if( proxy == null ) {
+        if (proxy == null) {
             s += ":"+propertyType.getSimpleName();
         }
         return s;
     }
-    
+
 }

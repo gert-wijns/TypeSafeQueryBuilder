@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -34,17 +34,17 @@ public class TypeSafeQueryFrom implements HqlQueryBuilder {
     private final TypeSafeQueryHelper helper;
     private final TypeSafeQueryProxyData root;
     private List<TypeSafeQueryJoin<?>> joins = new LinkedList<>();
-    
+
     public TypeSafeQueryFrom(TypeSafeQueryHelper helper,
             TypeSafeQueryProxyData root) {
         this.helper = helper;
         this.root = root;
     }
-    
+
     public List<TypeSafeQueryJoin<?>> getJoins() {
         return joins;
     }
-    
+
     public TypeSafeQueryProxyData getRoot() {
         return root;
     }
@@ -60,20 +60,20 @@ public class TypeSafeQueryFrom implements HqlQueryBuilder {
         from.appendHql(" ").append(root.getAlias());
         for(TypeSafeQueryJoin<?> join: joins) {
             TypeSafeQueryProxyData data = join.getData();
-            if( data.getProxy() == null ) {
+            if (data.getProxy() == null) {
                 throw new IllegalStateException(format("Data [%s] was added as a join, but does not have a proxy.", data));
             }
-            if( data.getEffectiveJoinType() == null ) {
+            if (data.getEffectiveJoinType() == null) {
                 throw new IllegalArgumentException("The getter for [" + data.getProxy() + "] was called, "
                         + "but it was not passed to query.join(object, jointype).");
             }
-            if( data.getEffectiveJoinType() != JoinType.None ) {
-                // example: 'left join fetch' 'hobj1'.'propertyPath' 'hobj2' 
-                from.appendHql(format(" %s %s.%s %s", getJoinTypeString(data.getEffectiveJoinType()), 
+            if (data.getEffectiveJoinType() != JoinType.None) {
+                // example: 'left join fetch' 'hobj1'.'propertyPath' 'hobj2'
+                from.appendHql(format(" %s %s.%s %s", getJoinTypeString(data.getEffectiveJoinType()),
                         data.getParent().getAlias(), data.getPropertyPath(), data.getAlias()));
                 HqlQueryValue hqlQueryValue = join.getRestrictions().toHqlQueryValue(params);
                 String withHql = hqlQueryValue.getHql();
-                if( withHql.length() > 0 ) {
+                if (withHql.length() > 0) {
                     from.appendHql(" with ").append(withHql);
                     from.addParams(hqlQueryValue.getParams());
                 }
@@ -97,5 +97,5 @@ public class TypeSafeQueryFrom implements HqlQueryBuilder {
         }
         throw new IllegalArgumentException("JoinType " + joinType + " is no allowed.");
     }
-    
+
 }

@@ -293,7 +293,7 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
      */
     private RestrictionAndChainable add(Restriction restriction, RestrictionNodeType type) {
         Restriction addRestriction = restriction;
-        if( restriction.getRestrictionsGroup() != this ) {
+        if (restriction.getRestrictionsGroup() != this) {
             addRestriction = restriction.getRestrictionsGroup().getRestrictions();
         } else if (restriction == this) {
             throw new IllegalArgumentException("Attempting to add a restriction group to itself. "

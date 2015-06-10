@@ -7,7 +7,7 @@ import be.shad.tsqb.query.copy.Copyable;
 
 /**
  * Couldn't use WrappedTypeSafeValue because that one adds brackets
- * around the value. 
+ * around the value.
  * <p>
  * For a distinct value the brackets only work if the distinct
  * isn't wrapped in a count...
@@ -15,7 +15,7 @@ import be.shad.tsqb.query.copy.Copyable;
 public class DistinctTypeSafeValue<VAL> extends TypeSafeValueImpl<VAL> implements TypeSafeValueContainer, IsMaybeDistinct {
     private final TypeSafeValue<VAL> value;
 
-    public DistinctTypeSafeValue(TypeSafeQuery query, 
+    public DistinctTypeSafeValue(TypeSafeQuery query,
             TypeSafeValue<VAL> value) {
         super(query, value.getValueClass());
         this.value = value;

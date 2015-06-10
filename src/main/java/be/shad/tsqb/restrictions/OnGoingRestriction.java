@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,14 +25,14 @@ import be.shad.tsqb.values.TypeSafeValue;
 /**
  * Exposes the basic restrictions available for all value types.
  */
-public interface OnGoingRestriction<VAL, CONTINUED extends ContinuedOnGoingRestriction<VAL, CONTINUED, ORIGINAL>, 
+public interface OnGoingRestriction<VAL, CONTINUED extends ContinuedOnGoingRestriction<VAL, CONTINUED, ORIGINAL>,
         ORIGINAL extends OnGoingRestriction<VAL, CONTINUED, ORIGINAL>> {
-    
+
     /**
      * @return the group to which this restriction belongs
      */
     RestrictionsGroup getGroup();
-    
+
     /**
      * @see #notEq(VAL)
      * @return binder with a method to set an alias for the parameter
@@ -44,24 +44,24 @@ public interface OnGoingRestriction<VAL, CONTINUED extends ContinuedOnGoingRestr
      * @return binder with a method to set an alias for the parameter
      */
     SingleNamedParameterBinder<VAL, CONTINUED, ORIGINAL> eq();
-    
+
     /**
      * @see #notIn(Collection)
      * @return binder with a method to set an alias for the parameter
      */
     CollectionNamedParameterBinder<VAL, CONTINUED, ORIGINAL> notIn();
-    
+
     /**
      * @see #in(Collection)
      * @return binder with a method to set an alias for the parameter
      */
     CollectionNamedParameterBinder<VAL, CONTINUED, ORIGINAL> in();
-    
+
     /**
      * Generates: left <> (referencedValue or actualValue)
      */
     CONTINUED notEq(VAL value);
-    
+
     /**
      * Same as {@link #notEq(VAL)}, but the restriction will only be added to the
      * resulting query when the value passes the predicate.
@@ -77,7 +77,7 @@ public interface OnGoingRestriction<VAL, CONTINUED extends ContinuedOnGoingRestr
      * Generates: left = (referencedValue or actualValue)
      */
     CONTINUED eq(VAL value);
-    
+
     /**
      * Same as {@link #eq(VAL)}, but the restriction will only be added to the
      * resulting query when the value passes the predicate.
@@ -93,7 +93,7 @@ public interface OnGoingRestriction<VAL, CONTINUED extends ContinuedOnGoingRestr
      * Generates: left not in ( actualValues )
      */
     <T extends VAL> CONTINUED notIn(Collection<T> values);
-    
+
     /**
      * Same as {@link #notIn(Collection)}, but the restriction will only be added to the
      * resulting query when the value passes the predicate.

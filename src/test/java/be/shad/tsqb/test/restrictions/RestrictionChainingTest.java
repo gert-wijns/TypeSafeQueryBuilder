@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -66,7 +66,7 @@ public class RestrictionChainingTest extends TypeSafeQueryTest {
         query.where(house.getFloors()).gt(4).or(house.isOccupied()).eq(null, IGNORE_NULL).or(house.getName()).eq("Domus");
         validate(" from House hobj1 where hobj1.floors > :np1 or hobj1.name = :np2", 4, "Domus");
     }
-    
+
     @Test
     public void testAnds() {
         House house = query.from(House.class);
@@ -84,7 +84,7 @@ public class RestrictionChainingTest extends TypeSafeQueryTest {
     @Test
     public void testGroups() {
         House house = query.from(House.class);
-        
+
         // hopelessly complex grouping:
         query.where().and(group(query).
                 and(house.getFloors()).gt(4).and(group(query).
@@ -95,7 +95,7 @@ public class RestrictionChainingTest extends TypeSafeQueryTest {
                         or(house.getName()).startsWith("Chu")
                 ));
 
-        validate(" from House hobj1 where (hobj1.floors > :np1 and (hobj1.occupied = :np2 or hobj1.price = :np3) and (hobj1.name like :np4 or hobj1.name like :np5))", 
+        validate(" from House hobj1 where (hobj1.floors > :np1 and (hobj1.occupied = :np2 or hobj1.price = :np3) and (hobj1.name like :np4 or hobj1.name like :np5))",
                 4, FALSE, ZERO, "Cas%", "Chu%");
     }
 
@@ -117,7 +117,7 @@ public class RestrictionChainingTest extends TypeSafeQueryTest {
                 gb.where(house.getPrice()).gt(null, IGNORE_NULL)
             ));
 
-        validate(" from House hobj1 where (hobj1.floors > :np1 and (hobj1.occupied = :np2 or hobj1.price = :np3) and (hobj1.name like :np4 or hobj1.name like :np5))", 
+        validate(" from House hobj1 where (hobj1.floors > :np1 and (hobj1.occupied = :np2 or hobj1.price = :np3) and (hobj1.name like :np4 or hobj1.name like :np5))",
                 4, FALSE, ZERO, "Cas%", "Chu%");
     }
 
@@ -129,7 +129,7 @@ public class RestrictionChainingTest extends TypeSafeQueryTest {
         House house = query.from(House.class);
         RestrictionsGroupFactory gb = query.getGroupedRestrictionsBuilder();
         query.setDefaultRestrictionPredicate(IGNORE_NULL_OR_EMPTY);
-        
+
         // hopelessly complex grouping:
         query.where().and(
             gb.where(house.getFloors()).gt(4).and(
@@ -140,10 +140,10 @@ public class RestrictionChainingTest extends TypeSafeQueryTest {
                 gb.where(house.getPrice()).gt((BigDecimal) null)
             ));
 
-        validate(" from House hobj1 where (hobj1.floors > :np1 and (hobj1.occupied = :np2 or hobj1.price = :np3) and (hobj1.name like :np4 or hobj1.name like :np5))", 
+        validate(" from House hobj1 where (hobj1.floors > :np1 and (hobj1.occupied = :np2 or hobj1.price = :np3) and (hobj1.name like :np4 or hobj1.name like :np5))",
                 4, FALSE, ZERO, "Cas%", "Chu%");
     }
-    
+
     /**
      * Test dates restriction is included when set.
      */
@@ -151,12 +151,12 @@ public class RestrictionChainingTest extends TypeSafeQueryTest {
     public void testGroupsWithSelectorsConstructionDateIncludedWhenSet() {
         PredicatesTestSelector selector = new PredicatesTestSelector();
         selector.setConstructionDates(Arrays.asList(new Date()));
-        validate(selector, 
+        validate(selector,
                 " from House hobj1 "
                 + "where (hobj1.floors > :np1 "
                 + "and (hobj1.occupied = :np2 or hobj1.price = :np3 "
                 + "and hobj1.constructionDate = (:np4)) "
-                + "and (hobj1.name like :np5 or hobj1.name like :np6))", 
+                + "and (hobj1.name like :np5 or hobj1.name like :np6))",
                 4, FALSE, ZERO, selector.getConstructionDates(), "Cas%", "Chu%");
     }
 
@@ -167,11 +167,11 @@ public class RestrictionChainingTest extends TypeSafeQueryTest {
     public void testGroupsWithSelectorsStreetIncludedWhenSet() {
         PredicatesTestSelector selector = new PredicatesTestSelector();
         selector.setStreet("SomeStreet");
-        validate(selector, 
+        validate(selector,
                 " from House hobj1 "
                 + "where (hobj1.floors > :np1 "
                 + "and (hobj1.occupied = :np2 or hobj1.price = :np3) "
-                + "and (hobj1.name like :np4 and hobj1.address.street like :np5 or hobj1.name like :np6))", 
+                + "and (hobj1.name like :np4 and hobj1.address.street like :np5 or hobj1.name like :np6))",
                 4, FALSE, ZERO, "Cas%", "SomeStreet%", "Chu%");
     }
 
@@ -182,15 +182,15 @@ public class RestrictionChainingTest extends TypeSafeQueryTest {
     public void testGroupsWithSelectorsPriceIncludedWhenSet() {
         PredicatesTestSelector selector = new PredicatesTestSelector();
         selector.setPrice(new BigDecimal("5.00"));
-        validate(selector, 
+        validate(selector,
                 " from House hobj1 "
                 + "where (hobj1.floors > :np1 "
                 + "and (hobj1.occupied = :np2 or hobj1.price = :np3) "
                 + "and (hobj1.name like :np4 or hobj1.name like :np5) "
-                + "and hobj1.price > :np6)", 
+                + "and hobj1.price > :np6)",
                 4, FALSE, ZERO, "Cas%", "Chu%", selector.getPrice());
     }
-    
+
     private void validate(PredicatesTestSelector selector, String hql, Object... params) {
         House house = query.from(House.class);
         RestrictionsGroupFactory gb = query.getGroupedRestrictionsBuilder();
@@ -204,7 +204,7 @@ public class RestrictionChainingTest extends TypeSafeQueryTest {
             ).and(
                 gb.where(house.getPrice()).gt(selector.getPrice(), IGNORE_NULL)
             ));
-        
+
         validate(hql, params);
     }
 
@@ -215,16 +215,16 @@ public class RestrictionChainingTest extends TypeSafeQueryTest {
     public void testSpecificPredicateUsedWhenQueryDefaultPredicateSet() {
         House house = query.from(House.class);
         query.setDefaultRestrictionPredicate(IGNORE_NULL_OR_EMPTY);
-        
+
         query.where(house.getFloors()).gt(4).or(house.isOccupied()).eq(null, IGNORE_NEVER).or(house.getName()).eq("Domus");
         query.toHqlQuery();
     }
-    
+
     @Test
     public void testWhereCustomHql() {
         query.from(House.class);
         query.where(new HqlQueryValueImpl("hobj1.floors > ?", 10));
         validate(" from House hobj1 where hobj1.floors > ?", 10);
     }
-    
+
 }

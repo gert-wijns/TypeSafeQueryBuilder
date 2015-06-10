@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,11 +28,11 @@ public class TypeSafeValueFunctions {
     public TypeSafeValueFunctions(TypeSafeQueryInternal query) {
         this.query = query;
     }
-    
+
     public <VAL> CaseTypeSafeValue<VAL> caseWhen(Class<VAL> valueClass) {
         return new CaseTypeSafeValue<>(query, valueClass);
     }
-    
+
     public <VAL> TypeSafeValue<VAL> distinct(VAL val) {
         return distinct(query.toValue(val));
     }
@@ -44,7 +44,7 @@ public class TypeSafeValueFunctions {
     public TypeSafeValue<Long> count() {
         return new CustomTypeSafeValue<>(query, Long.class, "count(*)");
     }
-    
+
     public <VAL> TypeSafeValue<Long> countDistinct(VAL val) {
         return countDistinct(query.toValue(val));
     }
@@ -52,7 +52,7 @@ public class TypeSafeValueFunctions {
     public <VAL> TypeSafeValue<Long> countDistinct(TypeSafeValue<VAL> val) {
         return new CountTypeSafeValue(query, distinct(val));
     }
-    
+
     public <VAL, CAST> TypeSafeValue<CAST> cast(VAL val, Class<CAST> type) {
         return cast(query.toValue(val), type);
     }
@@ -81,7 +81,7 @@ public class TypeSafeValueFunctions {
     public ConcatTypeSafeValue concat(Number val) {
         return concat(query.toValue(val));
     }
-    
+
     /**
      * Initiates a concat function value with the given value.
      */
@@ -90,11 +90,11 @@ public class TypeSafeValueFunctions {
         concat.append(val);
         return concat;
     }
-    
+
     public <VAL> CoalesceTypeSafeValue<VAL> coalesce(VAL val) {
         return coalesce(query.toValue(val));
     }
-    
+
     public <VAL> CoalesceTypeSafeValue<VAL> coalesce(TypeSafeValue<VAL> val) {
         CoalesceTypeSafeValue<VAL> coalesce = new CoalesceTypeSafeValue<>(query, val.getValueClass());
         coalesce.or(val);
@@ -108,7 +108,7 @@ public class TypeSafeValueFunctions {
     public TypeSafeValue<String> upper(TypeSafeValue<String> val) {
         return new WrappedTypeSafeValue<>(query, "upper", val);
     }
-    
+
     public TypeSafeValue<String> lower(String val) {
         return lower(query.toValue(val));
     }
@@ -124,7 +124,7 @@ public class TypeSafeValueFunctions {
     public <N extends Number> TypeSafeValue<N> minn(TypeSafeValue<N> nv) {
         return new WrappedTypeSafeValue<>(query, "min", nv);
     }
-    
+
     public TypeSafeValue<Date> max(Date n) {
         return maxd(query.toValue(n));
     }
@@ -132,7 +132,7 @@ public class TypeSafeValueFunctions {
     public TypeSafeValue<Date> maxd(TypeSafeValue<Date> nv) {
         return new WrappedTypeSafeValue<>(query, "max", nv);
     }
-    
+
     public TypeSafeValue<Date> min(Date n) {
         return mind(query.toValue(n));
     }
@@ -140,7 +140,7 @@ public class TypeSafeValueFunctions {
     public TypeSafeValue<Date> mind(TypeSafeValue<Date> nv) {
         return new WrappedTypeSafeValue<>(query, "min", nv);
     }
-    
+
     public <N extends Number> TypeSafeValue<N> max(N n) {
         return maxn(query.toValue(n));
     }
@@ -148,7 +148,7 @@ public class TypeSafeValueFunctions {
     public <N extends Number> TypeSafeValue<N> maxn(TypeSafeValue<N> nv) {
         return new WrappedTypeSafeValue<>(query, "max", nv);
     }
-    
+
     public <N extends Number> TypeSafeValue<N> avg(N n) {
         return avg(query.toValue(n));
     }
@@ -156,7 +156,7 @@ public class TypeSafeValueFunctions {
     public <N extends Number> TypeSafeValue<N> avg(TypeSafeValue<N> nv) {
         return new WrappedTypeSafeValue<>(query, "avg", nv);
     }
-    
+
     public <N extends Number> TypeSafeValue<N> sum(N n) {
         return sum(query.toValue(n));
     }
@@ -171,5 +171,5 @@ public class TypeSafeValueFunctions {
     public <N> TypeSafeValue<N> wrap(TypeSafeValue<N> value) {
         return new WrappedTypeSafeValue<>(query, "", value);
     }
-    
+
 }

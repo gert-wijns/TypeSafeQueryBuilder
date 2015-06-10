@@ -206,10 +206,10 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     @Override
     public TypeSafeQueryProxyData dequeueInvocation() {
         List<TypeSafeQueryProxyData> invocations = dequeueInvocations();
-        if( invocations.isEmpty() ) {
+        if (invocations.isEmpty()) {
             return null;
         }
-        if( invocations.size() > 1 ) {
+        if (invocations.size() > 1) {
             throw new IllegalStateException(String.format("There are %d invocations pending. Only 1 should be pending. "
                     + "The one that was used to call join(value, joinType).", invocations.size()));
         }

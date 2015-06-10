@@ -17,7 +17,7 @@ public class TownDetailsNestedDto {
     public Date getOldestBuildingConstructionDate() {
         return oldestBuildingConstructionDate;
     }
-    
+
     public void setOldestBuildingConstructionDate(Date oldestBuildingConstructionDate) {
         this.oldestBuildingConstructionDate = oldestBuildingConstructionDate;
     }

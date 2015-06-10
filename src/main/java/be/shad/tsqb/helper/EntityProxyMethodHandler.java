@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,21 +23,21 @@ import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 
 class EntityProxyMethodHandler implements MethodHandler {
-    private final TypeSafeQueryInternal query; 
+    private final TypeSafeQueryInternal query;
     private final TypeSafeQueryHelperImpl helper;
     private final TypeSafeQueryProxyData data;
-    
+
     public EntityProxyMethodHandler(
-            TypeSafeQueryHelperImpl helper, 
-            TypeSafeQueryInternal query, 
+            TypeSafeQueryHelperImpl helper,
+            TypeSafeQueryInternal query,
             TypeSafeQueryProxyData data) {
         this.query = query;
         this.helper = helper;
         this.data = data;
     }
-    
+
     public Object invoke(Object self, Method m, Method proceed, Object[] args) throws Throwable {
-        if( m.getReturnType().equals(TypeSafeQueryProxyData.class) ) {
+        if (m.getReturnType().equals(TypeSafeQueryProxyData.class)) {
             return data;
         }
         if ("toString".equals(m.getName())) {
@@ -50,10 +50,10 @@ class EntityProxyMethodHandler implements MethodHandler {
                     + "If this setter was called to add a restriction, then use the "
                     + "query.where(...) methods instead.");
         }
-        
+
         String method2Name = helper.method2PropertyName(m);
         TypeSafeQueryProxyData child = data.getChild(method2Name);
-        if( child == null ) {
+        if (child == null) {
             child = helper.createChildData(query, data, method2Name);
         }
         if (query.getActiveMultiJoinType() != null) {
@@ -65,7 +65,7 @@ class EntityProxyMethodHandler implements MethodHandler {
             // join type override is active, update the child join type:
             child.setJoinType(query.getActiveMultiJoinType());
         }
-        if ( !Collection.class.isAssignableFrom(m.getReturnType()) && child.getProxy() != null ) {
+        if (!Collection.class.isAssignableFrom(m.getReturnType()) && child.getProxy() != null) {
             // return the proxy without adding to the invocation queue to allow method chaining.
             return child.getProxy();
         }
@@ -73,5 +73,5 @@ class EntityProxyMethodHandler implements MethodHandler {
         query.invocationWasMade(child);
         return helper.getDummyValue(m.getReturnType());
     }
-    
+
 }

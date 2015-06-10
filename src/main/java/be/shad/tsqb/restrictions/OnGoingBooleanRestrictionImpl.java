@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,27 +26,27 @@ import be.shad.tsqb.values.TypeSafeValue;
 
 /**
  * Restrictions for booleans, boolean specific restrictions are added here.
- * 
+ *
  * @see OnGoingRestrictionImpl
  */
-public class OnGoingBooleanRestrictionImpl 
-        extends OnGoingRestrictionImpl<Boolean, ContinuedOnGoingBooleanRestriction, OnGoingBooleanRestriction> 
+public class OnGoingBooleanRestrictionImpl
+        extends OnGoingRestrictionImpl<Boolean, ContinuedOnGoingBooleanRestriction, OnGoingBooleanRestriction>
         implements OnGoingBooleanRestriction, ContinuedOnGoingBooleanRestriction {
     private boolean isContinued;
 
-    public OnGoingBooleanRestrictionImpl(RestrictionsGroupInternal group, 
+    public OnGoingBooleanRestrictionImpl(RestrictionsGroupInternal group,
             RestrictionNodeType restrictionNodeType, Boolean argument) {
         super(group, restrictionNodeType, argument);
         this.isContinued = false;
     }
 
-    public OnGoingBooleanRestrictionImpl(RestrictionsGroupInternal group, 
+    public OnGoingBooleanRestrictionImpl(RestrictionsGroupInternal group,
             RestrictionNodeType restrictionNodeType, TypeSafeValue<Boolean> argument) {
         this(group, restrictionNodeType, false, argument);
     }
 
-    private OnGoingBooleanRestrictionImpl(RestrictionsGroupInternal group, 
-            RestrictionNodeType restrictionNodeType, 
+    private OnGoingBooleanRestrictionImpl(RestrictionsGroupInternal group,
+            RestrictionNodeType restrictionNodeType,
             boolean isContinued, TypeSafeValue<Boolean> startValue) {
         super(group, restrictionNodeType, startValue);
         this.isContinued = isContinued;
@@ -57,18 +57,18 @@ public class OnGoingBooleanRestrictionImpl
             RestrictionNodeType restrictionNodeType, TypeSafeValue<Boolean> startValue) {
         return new OnGoingBooleanRestrictionImpl(group, restrictionNodeType, true, startValue);
     }
-    
+
     @Override
     protected OnGoingBooleanRestriction createOriginalOnGoingRestriction(
             RestrictionNodeType restrictionNodeType, TypeSafeValue<Boolean> startValue) {
         return createContinuedOnGoingRestriction(restrictionNodeType, startValue);
     }
-    
+
     @Override
     protected Class<Boolean> getSupportedValueClass() {
         return Boolean.class;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -97,7 +97,7 @@ public class OnGoingBooleanRestrictionImpl
         createNamedParameterBinder(value, continued).named(alias);
         return continued;
     }
-    
+
     /**
      * When automatic true, (restriction is continued without providing a value),
      * then only actually add as true. Otherwise skip automatic true.
@@ -317,5 +317,5 @@ public class OnGoingBooleanRestrictionImpl
     public RestrictionAndChainable or(RestrictionsGroup group) {
         return isAutomaticTrue().or(group);
     }
-    
+
 }

@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,7 +28,7 @@ public class TypeSafeQuerySelectionProxyData {
     private final String propertyPath;
     private final TypeSafeQuerySelectionGroup group;
     private TypeSafeQuerySelectionProxy proxy;
-    
+
     TypeSafeQuerySelectionProxyData(TypeSafeQuerySelectionProxyData parent,
             String propertyPath, Class<?> propertyType, TypeSafeQuerySelectionGroup group,
             TypeSafeQuerySelectionProxy proxy) {
@@ -41,34 +41,34 @@ public class TypeSafeQuerySelectionProxyData {
             parent.putChild(this);
         }
     }
-    
+
     public TypeSafeQuerySelectionProxyData getChild(String propertyName) {
         return children.get(propertyName);
     }
-    
+
     private void putChild(TypeSafeQuerySelectionProxyData child) {
         children.put(child.propertyPath, child);
     }
-    
+
     public TypeSafeQuerySelectionProxyData getParent() {
         return parent;
     }
-    
+
     public String getEffectivePropertyPath() {
         if (parent != null && parent.getParent() != null) {
             return parent.getEffectivePropertyPath() + "." + propertyPath;
         }
         return propertyPath;
     }
-    
+
     public String getPropertyPath() {
         return propertyPath;
     }
-    
+
     public Class<?> getPropertyType() {
         return propertyType;
     }
-    
+
     public TypeSafeQuerySelectionProxy getProxy() {
         return proxy;
     }

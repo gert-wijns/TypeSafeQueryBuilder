@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,13 +23,13 @@ import be.shad.tsqb.query.copy.CopyContext;
 import be.shad.tsqb.query.copy.Copyable;
 
 /**
- * Wraps an hql stringbuilder and params and provides 
+ * Wraps an hql stringbuilder and params and provides
  * convenient methods to append to them.
  */
 public class HqlQueryValueImpl implements HqlQueryValue, Copyable {
     private List<Object> params = new LinkedList<>();
     private StringBuilder hql;
-    
+
     /**
      * Factory method for shorthand hql query value creation.
      * Use hql(...) + static import to make shorter code.
@@ -45,11 +45,11 @@ public class HqlQueryValueImpl implements HqlQueryValue, Copyable {
     public static final HqlQueryValue hql(String hql, Collection<Object> params) {
         return new HqlQueryValueImpl(hql, params);
     }
-    
+
     public HqlQueryValueImpl() {
         this("");
     }
-    
+
     public HqlQueryValueImpl(String hql) {
         this.hql = new StringBuilder(hql);
     }
@@ -65,13 +65,13 @@ public class HqlQueryValueImpl implements HqlQueryValue, Copyable {
 
     public HqlQueryValueImpl(String hql, Collection<Object> params) {
         this(hql);
-        if( params != null ) {
+        if (params != null) {
             for(Object param: params) {
                 addParam(param);
             }
         }
     }
-    
+
     /**
      * Copy constructor
      */
@@ -85,20 +85,20 @@ public class HqlQueryValueImpl implements HqlQueryValue, Copyable {
     public String getHql() {
         return hql.toString();
     }
-    
+
     public void setHql(String hql) {
         this.hql = new StringBuilder(hql);
     }
-    
+
     public StringBuilder appendHql(String hql) {
         this.hql.append(hql);
         return this.hql;
     }
-    
+
     public Collection<Object> getParams() {
         return params;
     }
-    
+
     public void addParam(Object param) {
         params.add(param);
     }
@@ -111,5 +111,5 @@ public class HqlQueryValueImpl implements HqlQueryValue, Copyable {
     public Copyable copy(CopyContext context) {
         return new HqlQueryValueImpl(context, this);
     }
-    
+
 }

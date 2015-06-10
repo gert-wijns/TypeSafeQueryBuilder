@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -45,8 +45,9 @@ public class TestResultTransformer extends TypeSafeQueryTest {
     private TypeSafeQueryProjections getProjections() {
         return ((TypeSafeRootQueryInternal) this.query).getProjections();
     }
+
     /**
-     * 
+     *
      */
     @Test
     public void testResultTransformerSetsNestedFields() {
@@ -62,12 +63,12 @@ public class TestResultTransformer extends TypeSafeQueryTest {
         HqlQueryBuilderParams params = new HqlQueryBuilderParamsImpl();
         HqlQuery query = new HqlQuery();
         getProjections().appendTo(query, params);
-        
+
         TypeSafeQueryResultTransformer tf = (TypeSafeQueryResultTransformer) query.getResultTransformer();
         Object transformTuple = tf.transformTuple(new Object[] {"Name", "Algo"}, new String[paths.size()]);
         List<?> transformList = tf.transformList(Arrays.asList(transformTuple));
         Object transformed = transformList.get(0);
-        
+
         assertTrue(transformed instanceof Product);
         Product product = (Product) transformed;
         assertEquals("Name", product.getName());
@@ -78,22 +79,22 @@ public class TestResultTransformer extends TypeSafeQueryTest {
     public void testResultTransformerSetsConvertedFields() {
         //String hql = "select hobj1.name as name, hobj1.name as properties_planning from Product hobj1";
         Product fromProxy = query.from(Product.class);
-        
+
         Product selectProxy = query.select(Product.class);
         selectProxy.setName("Name");
-        selectProxy.getProperties().setPlanning(query.select(PlanningProperties.class, 
-                fromProxy.getProperties().getPlanning().getAlgorithm(), 
+        selectProxy.getProperties().setPlanning(query.select(PlanningProperties.class,
+                fromProxy.getProperties().getPlanning().getAlgorithm(),
                 new StringToPlanningPropertiesTransformer()));
 
         HqlQueryBuilderParams params = new HqlQueryBuilderParamsImpl();
         HqlQuery query = new HqlQuery();
         getProjections().appendTo(query, params);
-        
+
         TypeSafeQueryResultTransformer tf = (TypeSafeQueryResultTransformer) query.getResultTransformer();
         Object transformTuple = tf.transformTuple(new Object[] {"Name", "Algo"}, new String[2]);
         List<?> transformList = tf.transformList(Arrays.asList(transformTuple));
         Object transformed = transformList.get(0);
-        
+
         assertTrue(transformed instanceof Product);
         Product product = (Product) transformed;
         assertEquals("Name", product.getName());
@@ -104,7 +105,7 @@ public class TestResultTransformer extends TypeSafeQueryTest {
     public void resultTransformerLoadTest() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
         Product product = query.select(Product.class);
         ManyProperties manyProperties = product.getManyProperties();
-        
+
         List<String> aliases = new ArrayList<>();
         List<String> aliasToBeanResultAliases = new ArrayList<>();
         for(int i=1; i < 80; i++) {
@@ -119,7 +120,7 @@ public class TestResultTransformer extends TypeSafeQueryTest {
         for(int i=0; i < aliasesArray.length; i++) {
             valuesArray[i] = "value"+i;
         }
-        
+
         int outer = 5;
         int inner = 100000;
         long time = System.currentTimeMillis();
@@ -131,7 +132,7 @@ public class TestResultTransformer extends TypeSafeQueryTest {
         }
         time = (System.currentTimeMillis() - time);
         logger.debug((time / (double) (outer*inner)) + "ms/transform (original)");
-        
+
         time = System.currentTimeMillis();
         for(int i=0; i < outer; i++) {
             HqlQueryBuilderParams params = new HqlQueryBuilderParamsImpl();
@@ -144,5 +145,5 @@ public class TestResultTransformer extends TypeSafeQueryTest {
         time = (System.currentTimeMillis() - time);
         logger.debug((time / (double) (outer*inner)) + "ms/transform");
     }
-    
+
 }

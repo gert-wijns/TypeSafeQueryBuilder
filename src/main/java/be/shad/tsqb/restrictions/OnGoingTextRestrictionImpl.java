@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -31,43 +31,43 @@ import be.shad.tsqb.values.TypeSafeValue;
 
 /**
  * Restrictions for text. Text specific restrictions are added here.
- * 
+ *
  * @see OnGoingRestrictionImpl
  */
-public class OnGoingTextRestrictionImpl 
-        extends OnGoingRestrictionImpl<String, ContinuedOnGoingTextRestriction, OnGoingTextRestriction> 
+public class OnGoingTextRestrictionImpl
+        extends OnGoingRestrictionImpl<String, ContinuedOnGoingTextRestriction, OnGoingTextRestriction>
         implements OnGoingTextRestriction, ContinuedOnGoingTextRestriction {
 
     private final static String EMPTY = "";
     private final static String WILDCARD = "%";
 
-    public OnGoingTextRestrictionImpl(RestrictionsGroupInternal group, 
+    public OnGoingTextRestrictionImpl(RestrictionsGroupInternal group,
             RestrictionNodeType restrictionNodeType, String argument) {
         super(group, restrictionNodeType, argument);
     }
-    
-    public OnGoingTextRestrictionImpl(RestrictionsGroupInternal group, 
+
+    public OnGoingTextRestrictionImpl(RestrictionsGroupInternal group,
             RestrictionNodeType restrictionNodeType, TypeSafeValue<String> argument) {
         super(group, restrictionNodeType, argument);
     }
-    
+
     @Override
     protected OnGoingTextRestrictionImpl createContinuedOnGoingRestriction(
             RestrictionNodeType restrictionNodeType, TypeSafeValue<String> startValue) {
         return new OnGoingTextRestrictionImpl(group, restrictionNodeType, startValue);
     }
-    
+
     @Override
     protected OnGoingTextRestriction createOriginalOnGoingRestriction(
             RestrictionNodeType restrictionNodeType, TypeSafeValue<String> startValue) {
         return createContinuedOnGoingRestriction(restrictionNodeType, startValue);
     }
-    
+
     @Override
     protected Class<String> getSupportedValueClass() {
         return String.class;
     }
-    
+
     /**
      * @return null if values is null and a set containing the values otherwise
      */
@@ -180,19 +180,19 @@ public class OnGoingTextRestrictionImpl
         DirectTypeSafeValue<String> value = createDirectValue(EMPTY, WILDCARD);
         return createNamedParameterBinder(value, like(value));
     }
-    
+
     /**
      * Adds wildcards to the value in case it is a direct value.
      * Validates no wildcards are used otherwise.
      */
     private TypeSafeValue<String> toValue(String prefix, String value, String postfix, RestrictionPredicate predicate) {
-        if( value instanceof String ) {
+        if (value instanceof String) {
             DirectTypeSafeStringValue toValue = (DirectTypeSafeStringValue) toValue(value, predicate);
             return setWildCards(prefix, toValue, postfix);
         }
-        if( !prefix.isEmpty() || !postfix.isEmpty()) {
+        if (!prefix.isEmpty() || !postfix.isEmpty()) {
             List<TypeSafeQueryProxyData> dequeued = group.getQuery().dequeueInvocations();
-            if( !dequeued.isEmpty() ) {
+            if (!dequeued.isEmpty()) {
                 throw new UnsupportedOperationException("Like not supported for "
                         + "referenced value [" + dequeued.get(0) + "].");
             }
@@ -200,11 +200,11 @@ public class OnGoingTextRestrictionImpl
         TypeSafeValue<String> toValue = toValue(value, predicate);
         return toValue;
     }
-    
+
     protected DirectTypeSafeStringValue createDummyDirectValue() {
         return new DirectTypeSafeStringValue(group.getQuery());
     }
-    
+
     /**
      * Creates an empty value and sets the prefix and postfix.
      */
@@ -212,11 +212,11 @@ public class OnGoingTextRestrictionImpl
         DirectTypeSafeStringValue directValue = createDummyDirectValue();
         return setWildCards(prefix, directValue, postfix);
     }
-    
+
     /**
      * Sets the prefix and postfix of the string parameter.
      */
-    private DirectTypeSafeValue<String> setWildCards(String prefix, 
+    private DirectTypeSafeValue<String> setWildCards(String prefix,
             DirectTypeSafeStringValue parameter, String postfix) {
         parameter.setPrefix(prefix);
         parameter.setPostfix(postfix);

@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -57,14 +57,14 @@ public class ScopeValidationTests extends TypeSafeQueryTest {
     @Test(expected=ValueNotInScopeException.class)
     public void testSubqueryProxyNotUsedInOuterRestrictions() {
         House house = query.from(House.class);
-        
+
         TypeSafeSubQuery<Date> subquery = query.subquery(Date.class);
         Building building = subquery.from(Building.class);
-        
+
         // not proper use:, should select max in the subquery and use after(subquery):
         query.where(house.getConstructionDate()).after(query.hqlFunction().max(building.getConstructionDate()));
     }
-    
+
     @Test(expected=ValueNotInScopeException.class)
     public void testSubSubqueryNotSelectableInRoot() {
         query.from(House.class);
@@ -96,12 +96,12 @@ public class ScopeValidationTests extends TypeSafeQueryTest {
         Building building = subquery.from(Building.class);
         subquery.select(subquery.hqlFunction().max(building.getConstructionDate()));
         query.select(subquery);
-        
+
         validate("select (select max(hobj2.constructionDate) from Building hobj2) from Town hobj1");
     }
 
     /**
-     * 
+     *
      */
     @Test(expected=ValueNotInScopeException.class)
     public void testWithLaterJoinedNotInScope() {
@@ -110,7 +110,7 @@ public class ScopeValidationTests extends TypeSafeQueryTest {
         Person child = query.join(relation.getChild());
         Relation relation2 = query.join(child.getChildRelations());
         Person grandChild = query.join(relation2.getChild());
-        
+
         query.joinWith(child).where(child.getName()).eq(grandChild.getName());
     }
 
@@ -119,11 +119,11 @@ public class ScopeValidationTests extends TypeSafeQueryTest {
         Person parent = query.from(Person.class);
         Person child = query.from(Person.class);
         Relation relation = query.join(child.getChildRelations());
-        
+
         query.joinWith(relation).where(parent.getId()).eq(relation.getId());
         validate("");
     }
-    
+
     @Test
     public void testWithFilterByParam() {
         Person parent = query.from(Person.class);
@@ -140,5 +140,5 @@ public class ScopeValidationTests extends TypeSafeQueryTest {
         Person child = query.join(relation.getChild());
         query.joinWith(child).where(child.getName()).eq(parent.getName());
     }
-    
+
 }

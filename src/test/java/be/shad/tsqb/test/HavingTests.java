@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -47,11 +47,11 @@ public class HavingTests extends TypeSafeQueryTest {
         Date dateArg = new Date();
         query.having(building.getConstructionDate()).before(dateArg);
         query.having(building.getStyle()).eq(Style.the1980s);
-        
+
         validate("select hobj1.constructionDate, hobj1.style "
                 + "from Building hobj1 "
                 + "group by hobj1.constructionDate, hobj1.style "
-                + "having hobj1.constructionDate < :np1 and hobj1.style = :np2", 
+                + "having hobj1.constructionDate < :np1 and hobj1.style = :np2",
                 dateArg, Style.the1980s);
     }
 

@@ -28,7 +28,7 @@ final class TypeSafeQueryMultiJoin implements TypeSafeQueryJoin {
     private final TypeSafeQueryInternal query;
     private final JoinType joinType;
     private boolean joined;
-    
+
     TypeSafeQueryMultiJoin(TypeSafeQueryInternal query, JoinType joinType) {
         this.query = query;
         this.joinType = joinType;

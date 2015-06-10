@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,23 +29,23 @@ import be.shad.tsqb.values.TypeSafeValue;
 
 /**
  * Restrictions for dates. Date specific restrictions are added here.
- * 
+ *
  * @see OnGoingRestrictionImpl
  */
-public class OnGoingDateRestrictionImpl 
-        extends OnGoingRestrictionImpl<Date, ContinuedOnGoingDateRestriction, OnGoingDateRestriction> 
+public class OnGoingDateRestrictionImpl
+        extends OnGoingRestrictionImpl<Date, ContinuedOnGoingDateRestriction, OnGoingDateRestriction>
         implements OnGoingDateRestriction, ContinuedOnGoingDateRestriction {
-    
-    public OnGoingDateRestrictionImpl(RestrictionsGroupInternal group, 
+
+    public OnGoingDateRestrictionImpl(RestrictionsGroupInternal group,
             RestrictionNodeType restrictionNodeType, Date argument) {
         super(group, restrictionNodeType, argument);
     }
 
-    public OnGoingDateRestrictionImpl(RestrictionsGroupInternal group, 
+    public OnGoingDateRestrictionImpl(RestrictionsGroupInternal group,
             RestrictionNodeType restrictionNodeType, TypeSafeValue<Date> argument) {
         super(group, restrictionNodeType, argument);
     }
-    
+
     @Override
     protected OnGoingDateRestrictionImpl createContinuedOnGoingRestriction(
             RestrictionNodeType restrictionNodeType, TypeSafeValue<Date> previousValue) {
@@ -57,7 +57,7 @@ public class OnGoingDateRestrictionImpl
             RestrictionNodeType restrictionNodeType, TypeSafeValue<Date> previousValue) {
         return createContinuedOnGoingRestriction(restrictionNodeType, previousValue);
     }
-    
+
     @Override
     protected Class<Date> getSupportedValueClass() {
         return Date.class;
@@ -78,7 +78,7 @@ public class OnGoingDateRestrictionImpl
     public ContinuedOnGoingDateRestriction beforeOrEq(TypeSafeValue<Date> value) {
         return notAfter(value);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -176,7 +176,7 @@ public class OnGoingDateRestrictionImpl
         DirectTypeSafeValue<Date> value = createDummyDirectValue();
         return createNamedParameterBinder(value, beforeOrEq(value));
     }
-    
+
     /**
      * {@inheritDoc}
      */

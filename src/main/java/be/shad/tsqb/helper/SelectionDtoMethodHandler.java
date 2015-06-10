@@ -59,7 +59,7 @@ class SelectionDtoMethodHandler implements MethodHandler {
         }
 
         Object childDto = null;
-        if( setter ) {
+        if (setter) {
             query.clearInvokedSelection();
             query.getProjections().project(args[0], childData);
         } else if (helper.isBasicType(m.getReturnType())) {

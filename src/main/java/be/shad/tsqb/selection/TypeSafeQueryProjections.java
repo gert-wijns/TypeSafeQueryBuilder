@@ -110,7 +110,7 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
      */
     public TypeSafeValue<?> project(Object select, TypeSafeQuerySelectionProxyData property) {
         TypeSafeValue<?> value = query.getRootQuery().dequeueSelectedValue();
-        if( value != null ) {
+        if (value != null) {
             projectBySelectedValue(value, property);
             return value;
         }
@@ -126,11 +126,11 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
         TypeSafeValue<?> value = null;
 
         List<TypeSafeQueryProxyData> invocations = query.dequeueInvocations();
-        if( invocations.isEmpty() ) {
-            if( select instanceof TypeSafeValue<?> ) {
+        if (invocations.isEmpty()) {
+            if (select instanceof TypeSafeValue<?>) {
                 // any value selection (check if referenced)
                 value = (TypeSafeValue<?>) select;
-            } else if( select instanceof TypeSafeQueryProxy ) {
+            } else if (select instanceof TypeSafeQueryProxy) {
                 // entity selection
                 value = new ReferenceTypeSafeValue<>(query, ((TypeSafeQueryProxy) select).getTypeSafeProxyData());
             } else {
@@ -167,7 +167,7 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
         boolean hasTransformer = false;
         for(TypeSafeValueProjection projection: projections) {
             HqlQueryValue val;
-            if( projection.getValue() instanceof DirectTypeSafeValue<?> ) {
+            if (projection.getValue() instanceof DirectTypeSafeValue<?>) {
                 boolean previous = params.setRequiresLiterals(true);
                 val = projection.getValue().toHqlQueryValue(params);
                 params.setRequiresLiterals(previous);
@@ -176,7 +176,7 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
             }
             String alias = "";
             TypeSafeQuerySelectionProxyData selectionData = projection.getSelectionData();
-            if( selectionData != null ) {
+            if (selectionData != null) {
                 selectionDatas.add(selectionData);
                 alias = " as " + selectionData.getAlias();
             }
@@ -185,9 +185,9 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
             query.appendSelect(val.getHql() + alias);
             query.addParams(val.getParams());
         }
-        if( !selectionDatas.isEmpty() ) {
+        if (!selectionDatas.isEmpty()) {
             query.setResultTransformer(new TypeSafeQueryResultTransformer(selectionDatas, transformers));
-        } else if( hasTransformer ) {
+        } else if (hasTransformer) {
             query.setResultTransformer(new WithoutAliasesQueryResultTransformer(transformers));
         }
     }

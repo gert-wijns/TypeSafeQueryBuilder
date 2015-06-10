@@ -123,7 +123,7 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
      */
     @Override
     public boolean isInScope(TypeSafeQueryProxyData data, TypeSafeQueryProxyData join) {
-        if( super.isInScope(data, join) ) {
+        if (super.isInScope(data, join)) {
             return true;
         }
         return parentQuery.isInScope(data, join);

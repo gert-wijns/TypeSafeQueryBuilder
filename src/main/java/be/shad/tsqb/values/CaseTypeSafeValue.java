@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -41,7 +41,7 @@ public class CaseTypeSafeValue<T> extends TypeSafeValueImpl<T> implements OnGoin
             cases.add(context.get(c));
         }
     }
-    
+
     public CaseTypeSafeValue(TypeSafeQuery query, Class<T> valueType) {
         super(query, valueType);
     }
@@ -62,11 +62,11 @@ public class CaseTypeSafeValue<T> extends TypeSafeValueImpl<T> implements OnGoin
      */
     @Override
     public OnGoingCase<T> is(T value) {
-        if( value == null ) {
+        if (value == null) {
             // this implementation was madto prevent 'null' to slip into the
             // query.toValue because it should never be used that way.
             TypeSafeQueryProxyData data = query.dequeueInvocation();
-            if( data == null ) {
+            if (data == null) {
                 return is(new CustomTypeSafeValue<T>(query, getValueClass(), "null"));
             }
             query.invocationWasMade(data); // add it back to the query.
@@ -88,7 +88,7 @@ public class CaseTypeSafeValue<T> extends TypeSafeValueImpl<T> implements OnGoin
             if (restrictions.isEmpty()) {
                 value.appendHql(" else ");
             } else {
-                if( i == 0 ){
+                if (i == 0 ){
                     value.appendHql("case when (");
                 } else {
                     value.appendHql(" when (");
@@ -102,23 +102,23 @@ public class CaseTypeSafeValue<T> extends TypeSafeValueImpl<T> implements OnGoin
             value.addParams(then.getParams());
 
         }
-        if (!cases.isEmpty() ) {
+        if (!cases.isEmpty()) {
             value.appendHql(" end)");
         }
         params.setRequiresLiterals(previous);
         return value;
     }
-    
+
     @Override
     public void validateContainedInScope(TypeSafeQueryScopeValidator validator) {
         for(OnGoingCaseImpl<T> ongoingCase: cases) {
             validator.validateInScope(ongoingCase.getValue());
         }
     }
-    
+
     @Override
     public Copyable copy(CopyContext context) {
         return new CaseTypeSafeValue<>(context, this);
     }
-    
+
 }

@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,20 +25,20 @@ import be.shad.tsqb.values.TypeSafeValue;
 
 /**
  * Restrictions for numbers. Number specific restrictions are added here.
- * 
+ *
  * @see OnGoingRestrictionImpl
  */
-public class OnGoingNumberRestrictionImpl 
-        extends OnGoingRestrictionImpl<Number, ContinuedOnGoingNumberRestriction, OnGoingNumberRestriction> 
+public class OnGoingNumberRestrictionImpl
+        extends OnGoingRestrictionImpl<Number, ContinuedOnGoingNumberRestriction, OnGoingNumberRestriction>
         implements OnGoingNumberRestriction, ContinuedOnGoingNumberRestriction {
-    
-    public OnGoingNumberRestrictionImpl(RestrictionsGroupInternal group, 
+
+    public OnGoingNumberRestrictionImpl(RestrictionsGroupInternal group,
             RestrictionNodeType restrictionNodeType, Number argument) {
         super(group, restrictionNodeType, argument);
     }
-    
+
     @SuppressWarnings("unchecked")
-    public OnGoingNumberRestrictionImpl(RestrictionsGroupInternal group, 
+    public OnGoingNumberRestrictionImpl(RestrictionsGroupInternal group,
             RestrictionNodeType restrictionNodeType, TypeSafeValue<? extends Number> argument) {
         super(group, restrictionNodeType, (TypeSafeValue<Number>) argument);
     }
@@ -48,7 +48,7 @@ public class OnGoingNumberRestrictionImpl
             RestrictionNodeType restrictionNodeType, TypeSafeValue<Number> previousValue) {
         return new OnGoingNumberRestrictionImpl(group, restrictionNodeType, previousValue);
     }
-    
+
     @Override
     protected OnGoingNumberRestriction createOriginalOnGoingRestriction(
             RestrictionNodeType restrictionNodeType, TypeSafeValue<Number> previousValue) {
@@ -59,7 +59,7 @@ public class OnGoingNumberRestrictionImpl
     protected Class<Number> getSupportedValueClass() {
         return Number.class;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -155,7 +155,7 @@ public class OnGoingNumberRestrictionImpl
     public ContinuedOnGoingNumberRestriction nlt(TypeSafeValue<Number> value) {
         return gte(value);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -173,7 +173,7 @@ public class OnGoingNumberRestrictionImpl
         DirectTypeSafeValue<Number> value = createDummyDirectValue();
         return createNamedParameterBinder(value, nlt(value));
     }
-    
+
     /**
      * {@inheritDoc}
      */

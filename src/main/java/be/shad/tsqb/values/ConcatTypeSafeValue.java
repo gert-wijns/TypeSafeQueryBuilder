@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -81,7 +81,7 @@ public class ConcatTypeSafeValue extends TypeSafeValueImpl<String> implements Ty
         StringBuilder concat = new StringBuilder();
         List<Object> params = new LinkedList<>();
         for(TypeSafeValue<?> value: values) {
-            if( concat.length() > 0 ) {
+            if (concat.length() > 0) {
                 concat.append(", ");
             } else {
                 concat.append("concat(");
@@ -93,7 +93,7 @@ public class ConcatTypeSafeValue extends TypeSafeValueImpl<String> implements Ty
             }
         }
         String hql = "";
-        if( concat.length() > 0 ) {
+        if (concat.length() > 0) {
             hql = concat.append(")").toString();
         }
         return new HqlQueryValueImpl(hql, params);

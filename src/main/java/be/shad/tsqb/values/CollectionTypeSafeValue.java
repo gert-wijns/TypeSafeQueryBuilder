@@ -85,7 +85,7 @@ public class CollectionTypeSafeValue<T> extends TypeSafeValueImpl<T> implements 
         if (params.isRequiresLiterals()) {
             StringBuilder sb = new StringBuilder("(");
             for(Object val: values) {
-                if( sb.length() > 1 ) {
+                if (sb.length() > 1) {
                     sb.append(", ");
                 }
                 sb.append(query.getHelper().toLiteral(val));

@@ -1,12 +1,12 @@
 /*
  * Copyright Gert Wijns gert.wijns@gmail.com
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -37,15 +37,15 @@ import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroup;
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class TypeSafeQueryResultTransformer extends BasicTransformerAdapter {
     private static final long serialVersionUID = 4686800769621139636L;
-    
+
     private final SelectionTreeGroup[] treeGroups;
     private final int resultArraySize;
-    
+
     /**
-     * Compares by depth (so groups without parents are first) 
+     * Compares by depth (so groups without parents are first)
      * and then by alias in case multiple groups with the same depth exist.
      */
-    private static final Comparator<TypeSafeQuerySelectionGroup> SELECTION_GROUPS_COMPARATOR = 
+    private static final Comparator<TypeSafeQuerySelectionGroup> SELECTION_GROUPS_COMPARATOR =
             new Comparator<TypeSafeQuerySelectionGroup>() {
         @Override
         public int compare(TypeSafeQuerySelectionGroup o1, TypeSafeQuerySelectionGroup o2) {
@@ -55,7 +55,7 @@ public class TypeSafeQueryResultTransformer extends BasicTransformerAdapter {
             }
             return o1.getAliasPrefix().compareTo(o2.getAliasPrefix());
         }
-        
+
         private int depth(TypeSafeQuerySelectionGroup group) {
             TypeSafeQuerySelectionGroup current = group;
             int depth = 0;
@@ -66,9 +66,9 @@ public class TypeSafeQueryResultTransformer extends BasicTransformerAdapter {
             return depth;
         }
     };
-    
+
     public TypeSafeQueryResultTransformer(
-            List<TypeSafeQuerySelectionProxyData> selectionDatas, 
+            List<TypeSafeQuerySelectionProxyData> selectionDatas,
             List<SelectionValueTransformer<?, ?>> transformers) {
         try {
             // Group selection data by group (transformed into selectionTreeValues):
@@ -81,22 +81,22 @@ public class TypeSafeQueryResultTransformer extends BasicTransformerAdapter {
                     groupData = new LinkedList<>();
                     dataByGroup.put(selectionData.getGroup(), groupData);
                 }
-                groupData.add(new SelectionTreeValue(tupleValueIndex++, 
-                        selectionData.getEffectivePropertyPath(), 
+                groupData.add(new SelectionTreeValue(tupleValueIndex++,
+                        selectionData.getEffectivePropertyPath(),
                         valueTransformersIt.next()));
             }
-            
+
             // Sort all groups by depth/alias to create groups
             List<TypeSafeQuerySelectionGroup> selectionGroups = new ArrayList<>(dataByGroup.keySet());
             Collections.sort(selectionGroups, SELECTION_GROUPS_COMPARATOR);
-            
+
             int parentResultIndex = -1;
             int treeGroupIdx = 1;
             this.treeGroups = new SelectionTreeGroup[dataByGroup.size()];
             Map<TypeSafeQuerySelectionGroup, SelectionTreeGroup> treeGroupsMap = new HashMap<>();
             for(TypeSafeQuerySelectionGroup group: selectionGroups) {
                 // Create group (with any parent it may have) and save it for treeGroup iteration
-                SelectionTreeGroup tree = new SelectionTreeGroup(group, dataByGroup.get(group), 
+                SelectionTreeGroup tree = new SelectionTreeGroup(group, dataByGroup.get(group),
                         treeGroupsMap.get(group.getParent()));
                 // NOTE: A treeGroup may have child SelectionTrees for embedded/composite objects,
                 //       this means the treeGroups is potentially smaller than the result array,
@@ -122,7 +122,7 @@ public class TypeSafeQueryResultTransformer extends BasicTransformerAdapter {
     public Object transformTuple(Object[] tuple, String[] aliases) {
         return tuple;
     }
-    
+
     @Override
     public List transformList(List list) {
         if (list.isEmpty()) {
@@ -132,7 +132,7 @@ public class TypeSafeQueryResultTransformer extends BasicTransformerAdapter {
             // only one value was selected, nothing needs to be done
             return list;
         }
-        
+
         // prepare result array and set up dataArray to contain the current
         // value objects and identity trees
         List result = new ArrayList(list.size());
