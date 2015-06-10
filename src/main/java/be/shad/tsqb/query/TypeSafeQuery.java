@@ -19,7 +19,6 @@ import java.util.Collection;
 import java.util.Date;
 
 import be.shad.tsqb.dao.TypeSafeQueryDao;
-import be.shad.tsqb.joins.TypeSafeQueryJoining;
 import be.shad.tsqb.ordering.OnGoingOrderBy;
 import be.shad.tsqb.restrictions.HavingRestrictions;
 import be.shad.tsqb.restrictions.RestrictionsGroupFactory;
@@ -56,7 +55,7 @@ import be.shad.tsqb.values.arithmetic.ArithmeticTypeSafeValueFactory;
  * <p>
  * For an example, see {@link TypeSafeRootQuery}.
  */
-public interface TypeSafeQuery extends TypeSafeQueryJoining, WhereRestrictions, HavingRestrictions {
+public interface TypeSafeQuery extends TypeSafeQueryJoin, WhereRestrictions, HavingRestrictions {
     
     /**
      * Delegates to {@link #from(Class, String)} with name = null.
@@ -92,7 +91,7 @@ public interface TypeSafeQuery extends TypeSafeQueryJoining, WhereRestrictions, 
      * The regular <code>join(person.getParent().getAddress(), JoinType.Left)</code>
      * would inner join the parent and left join address.
      */
-    TypeSafeQueryJoining join(JoinType joinType);
+    TypeSafeQueryJoin join(JoinType joinType);
     
     /**
      * Delegates to {@link #join(Collection, JoinType)} with {@link JoinType#Inner}
