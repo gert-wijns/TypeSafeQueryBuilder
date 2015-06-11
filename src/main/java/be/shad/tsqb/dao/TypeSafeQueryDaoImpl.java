@@ -15,13 +15,16 @@
  */
 package be.shad.tsqb.dao;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
+import be.shad.tsqb.CollectionNamedParameter;
 import be.shad.tsqb.NamedParameter;
 import be.shad.tsqb.dao.result.QueryResult;
 import be.shad.tsqb.helper.TypeSafeQueryHelper;
@@ -87,11 +90,22 @@ public class TypeSafeQueryDaoImpl implements TypeSafeQueryDao {
         Session currentSession = sessionFactory.getCurrentSession();
         Query query = currentSession.createQuery(hqlQuery.getHql());
         int position = 0;
+        CollectionNamedParameter batchedParam = null;
         for(Object param: hqlQuery.getParams()) {
             if (param instanceof NamedParameter) {
                 NamedParameter named = (NamedParameter) param;
-                if (named.getValue() instanceof Collection<?>) {
-                    query.setParameterList(named.getName(), (Collection<?>) named.getValue());
+                if (named instanceof CollectionNamedParameter) {
+                    CollectionNamedParameter colParam = (CollectionNamedParameter) named;
+                    if (colParam.hasBatchSize() && colParam.getBatchSize() < colParam.getValue().size()) {
+                        if (batchedParam != null) {
+                            throw new IllegalStateException(String.format(
+                                    "More than one batched param [%s, %s] was used in query [%s].",
+                                    batchedParam.getName(), named.getName(), query.getQueryString()));
+                        }
+                        batchedParam = colParam;
+                    } else {
+                        query.setParameterList(named.getName(), colParam.getValue());
+                    }
                 } else {
                     query.setParameter(named.getName(), named.getValue());
                 }
@@ -107,16 +121,52 @@ public class TypeSafeQueryDaoImpl implements TypeSafeQueryDao {
         }
         query.setResultTransformer(hqlQuery.getResultTransformer());
 
+        List<T> results = null;
         if (configurer != null) {
             configurer.beforeQuery(currentSession);
             configurer.configureQuery(query);
             try {
-                return new QueryResult<>(query.list());
+                results = listAll(query, hqlQuery, batchedParam);
             } finally {
                 configurer.afterQuery(currentSession);
             }
         } else {
-            return new QueryResult<>(query.list());
+            results = listAll(query, hqlQuery, batchedParam);
+        }
+        return new QueryResult<>(results);
+    }
+
+    /**
+     * Lists the same query with an updated collection in the named param for the batched named param.
+     */
+    @SuppressWarnings("unchecked")
+    private <T> List<T> listAll(Query query, HqlQuery hqlQuery, CollectionNamedParameter batchedParam) {
+        if (batchedParam == null) {
+            return query.list();
+        }
+
+        // all results need to be listed before applying the result transformer because
+        // the values may need to be grouped and this grouping could be done incorrectly
+        // if it is applied on a partial result
+        query.setResultTransformer(null);
+
+        List<Object[]> results = new LinkedList<>();
+        int p = batchedParam.getBatchSize();
+        List<Object> values = new ArrayList<>(p);
+        Iterator<?> it = batchedParam.getValue().iterator();
+        while (it.hasNext()) {
+            values.add(it.next());
+            if (values.size() == p || !it.hasNext()) {
+                query.setParameterList(batchedParam.getName(), values);
+                results.addAll(query.list());
+                values.clear();
+            }
+        }
+
+        if (hqlQuery.getResultTransformer() != null) {
+            return (List<T>) hqlQuery.getResultTransformer().transformList(results);
+        } else {
+            return (List<T>) results;
         }
     }
 
