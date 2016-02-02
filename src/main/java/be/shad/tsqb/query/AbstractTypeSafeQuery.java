@@ -53,6 +53,7 @@ import be.shad.tsqb.values.CustomTypeSafeValue;
 import be.shad.tsqb.values.DirectTypeSafeStringValue;
 import be.shad.tsqb.values.DirectTypeSafeValue;
 import be.shad.tsqb.values.HqlQueryBuilderParams;
+import be.shad.tsqb.values.HqlQueryBuilderParamsImpl;
 import be.shad.tsqb.values.HqlQueryValue;
 import be.shad.tsqb.values.HqlQueryValueImpl;
 import be.shad.tsqb.values.ReferenceTypeSafeValue;
@@ -745,6 +746,16 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
             throw new IllegalStateException(String.format("[%d] invocations were "
                     + "made before transforming it to a value.", invocations.size()));
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toFormattedString() {
+        HqlQueryBuilderParamsImpl params = new HqlQueryBuilderParamsImpl();
+        params.setBuildingForDisplay(true);
+        return toHqlQuery(params).toFormattedString();
     }
 
     /**

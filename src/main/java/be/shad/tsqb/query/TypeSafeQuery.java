@@ -295,6 +295,11 @@ public interface TypeSafeQuery extends TypeSafeQueryJoin, WhereRestrictions, Hav
     <T> T getByHqlAlias(String alias);
 
     /**
+     * @return a formatted string representation of the resulting hql
+     */
+    String toFormattedString();
+
+    /**
      * The predicate to use if no more specific predicate was set on the restriction.
      * May be null when not applicable.
      */

@@ -72,11 +72,6 @@ public interface TypeSafeRootQuery extends TypeSafeQuery {
     HqlQuery toHqlQuery();
 
     /**
-     * @return a formatted string representation of the resulting hql
-     */
-    String toFormattedString();
-
-    /**
      * Can be used when not selecting into a result type,
      * or when selecting a single value in a subquery.
      * <p>
