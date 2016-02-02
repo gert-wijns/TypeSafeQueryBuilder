@@ -445,16 +445,6 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
      * {@inheritDoc}
      */
     @Override
-    public String toFormattedString() {
-        HqlQueryBuilderParamsImpl params = new HqlQueryBuilderParamsImpl();
-        params.setBuildingForDisplay(true);
-        return super.toHqlQuery(params).toFormattedString();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public TypeSafeNameds named() {
         return namedObjects;
     }
