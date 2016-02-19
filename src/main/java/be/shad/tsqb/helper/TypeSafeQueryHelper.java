@@ -63,6 +63,10 @@ public interface TypeSafeQueryHelper {
             TypeSafeQueryProxyData parent, String propertyName, Class<?> targetClass);
 
     /**
+     */
+    String getMappedByProperty(TypeSafeQueryProxyData child);
+
+    /**
      * Convert a value to a string. This is only used when hibernate would fail if params are used.
      * <p>
      * Uses the hibernate Type object to convert to a literal.

@@ -27,6 +27,7 @@ import be.shad.tsqb.domain.people.Person;
 import be.shad.tsqb.domain.people.Relation;
 import be.shad.tsqb.dto.PersonDto;
 import be.shad.tsqb.dto.TownDto;
+import be.shad.tsqb.query.ClassJoinType;
 import be.shad.tsqb.query.JoinType;
 import be.shad.tsqb.restrictions.OnGoingTextRestriction;
 import be.shad.tsqb.selection.collection.IdentityFieldProvider;
@@ -73,6 +74,20 @@ public class WikiTests extends TypeSafeQueryTest {
         Person child = childRelation.getChild();
 
         validate("from Person hobj1 join hobj1.childRelations hobj2 join hobj2.child hobj3");
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testNonPropertyPathJoin() {
+        Person personPx = query.from(Person.class);
+        Product productPx = query.join(personPx, Product.class, ClassJoinType.Left);
+        query.joinWith(productPx).where(productPx.getName()).eq(personPx.getName());
+
+        SelectPair<Long, String> select = query.select(SelectPair.class);
+        select.setFirst(personPx.getId());
+        select.setSecond(productPx.getName());
+
+        validate("select hobj1.id as first, hobj2.name as second from Person hobj1 left join Product hobj2 on hobj2.name = hobj1.name");
     }
 
     @Test
@@ -222,9 +237,9 @@ public class WikiTests extends TypeSafeQueryTest {
     @Test
     public void selectNestedComponentTypeValues() {
         Product product = query.from(Product.class);
-        query.select(product.getProperties().getPlanning().getAlgorithm());
+        query.select(product.getProductProperties().getPlanning().getAlgorithm());
 
-        validate("select hobj1.properties.planning.algorithm from Product hobj1");
+        validate("select hobj1.productProperties.planning.algorithm from Product hobj1");
     }
 
     @Test
@@ -233,9 +248,9 @@ public class WikiTests extends TypeSafeQueryTest {
 
         Product productDto = query.select(Product.class);
         productDto.setName(product.getName());
-        productDto.getProperties().getPlanning().setAlgorithm(product.getName());
+        productDto.getProductProperties().getPlanning().setAlgorithm(product.getName());
 
-        validate("select hobj1.name as name, hobj1.name as properties_planning_algorithm from Product hobj1");
+        validate("select hobj1.name as name, hobj1.name as productProperties_planning_algorithm from Product hobj1");
     }
 
     @Test
