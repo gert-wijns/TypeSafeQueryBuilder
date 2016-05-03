@@ -113,4 +113,20 @@ public interface OnGoingTextRestriction extends OnGoingRestriction<String, Conti
      */
     ContinuedOnGoingTextRestriction like(TypeSafeValue<String> value);
 
+    /**
+     * Generates: left not like ? with (? = 'value') (will require value to contain wildcards to be useful)
+     */
+    ContinuedOnGoingTextRestriction notLike(String value);
+
+    /**
+     * Same as {@link #notLike(String)}, but the restriction will only be added to the
+     * resulting query when the value passes the predicate.
+     */
+    ContinuedOnGoingTextRestriction notLike(String value, RestrictionPredicate predicate);
+
+    /**
+     * Generates: left notLike stringRepresentative
+     */
+    ContinuedOnGoingTextRestriction notLike(TypeSafeValue<String> value);
+
 }
