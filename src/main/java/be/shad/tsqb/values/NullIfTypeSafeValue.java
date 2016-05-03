@@ -20,34 +20,23 @@ import be.shad.tsqb.query.copy.CopyContext;
 import be.shad.tsqb.query.copy.Copyable;
 
 /**
- * Represents a coalesce function. A coalesce is a fallback where the first
- * value in the list which is not null is selected.
+ * Represents the nullif function, wrapping a first and second value.
+ * When <code>first</code> = <code>second</code>, then null is returned,
+ * otherwise <code>first</code> is returned.
  */
-public class CoalesceTypeSafeValue<T> extends FunctionTypeSafeValue<T> {
+public class NullIfTypeSafeValue<T> extends FunctionTypeSafeValue<T> {
 
-    /**
-     * Copy constructor
-     */
-    protected CoalesceTypeSafeValue(CopyContext context, CoalesceTypeSafeValue<T> original) {
+    protected NullIfTypeSafeValue(CopyContext context, FunctionTypeSafeValue<T> original) {
         super(context, original);
     }
 
-    public CoalesceTypeSafeValue(TypeSafeQuery query, TypeSafeValue<T> value) {
-        super(query, "coalesce", value);
-    }
-
-    public CoalesceTypeSafeValue<T> or(T value) {
-        add(value);
-        return this;
-    }
-
-    public CoalesceTypeSafeValue<T> or(TypeSafeValue<T> value) {
-        add(value);
-        return this;
+    public NullIfTypeSafeValue(TypeSafeQuery query, TypeSafeValue<T> v1, TypeSafeValue<T> v2) {
+        super(query, "nullif", v1);
+        add(v2);
     }
 
     @Override
     public Copyable copy(CopyContext context) {
-        return new CoalesceTypeSafeValue<>(context, this);
+        return new NullIfTypeSafeValue<>(context, this);
     }
 }

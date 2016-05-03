@@ -18,6 +18,7 @@ package be.shad.tsqb.values;
 import java.util.Date;
 
 import be.shad.tsqb.query.TypeSafeQueryInternal;
+import be.shad.tsqb.values.partial.PartialNullIf;
 
 /**
  * Provides a bunch of functions, this list may grow in time.
@@ -31,6 +32,14 @@ public class TypeSafeValueFunctions {
 
     public <VAL> CaseTypeSafeValue<VAL> caseWhen(Class<VAL> valueClass) {
         return new CaseTypeSafeValue<>(query, valueClass);
+    }
+
+    public <VAL> PartialNullIf<VAL> nullIf(VAL val) {
+        return nullIf(query.toValue(val));
+    }
+
+    public <VAL> PartialNullIf<VAL> nullIf(TypeSafeValue<VAL> val) {
+        return new PartialNullIf<VAL>(query, val);
     }
 
     public <VAL> TypeSafeValue<VAL> distinct(VAL val) {
@@ -96,9 +105,7 @@ public class TypeSafeValueFunctions {
     }
 
     public <VAL> CoalesceTypeSafeValue<VAL> coalesce(TypeSafeValue<VAL> val) {
-        CoalesceTypeSafeValue<VAL> coalesce = new CoalesceTypeSafeValue<>(query, val.getValueClass());
-        coalesce.or(val);
-        return coalesce;
+        return new CoalesceTypeSafeValue<>(query, val);
     }
 
     public TypeSafeValue<String> upper(String val) {
