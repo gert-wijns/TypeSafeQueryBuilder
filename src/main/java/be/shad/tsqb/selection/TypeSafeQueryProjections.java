@@ -185,7 +185,9 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
             query.appendSelect(val.getHql() + alias);
             query.addParams(val.getParams());
         }
-        if (!selectionDatas.isEmpty()) {
+        if (params.isBuildingForDisplay()) {
+            // don't bother setting the result transformer, we're only intereted in the hql string and params
+        } else if (!selectionDatas.isEmpty()) {
             query.setResultTransformer(new TypeSafeQueryResultTransformer(selectionDatas, transformers));
         } else if (hasTransformer) {
             query.setResultTransformer(new WithoutAliasesQueryResultTransformer(transformers));
