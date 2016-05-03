@@ -89,6 +89,15 @@ public class TypeSafeQueryResultTransformer extends BasicTransformerAdapter {
             // Sort all groups by depth/alias to create groups
             List<TypeSafeQuerySelectionGroup> selectionGroups = new ArrayList<>(dataByGroup.keySet());
             Collections.sort(selectionGroups, SELECTION_GROUPS_COMPARATOR);
+            for(TypeSafeQuerySelectionGroup selectionGroup: selectionGroups) {
+                TypeSafeQuerySelectionGroup parentGroup = selectionGroup.getParent();
+                if (parentGroup!= null && ! dataByGroup.containsKey(parentGroup)) {
+                    throw new IllegalStateException("Selecting [" + parentGroup.getResultClass()
+                            + "#" + selectionGroup.getCollectionPropertyPath() + "] is not configured correctly. "
+                            + "At least identity paths [" + parentGroup.getResultIdentifierPropertyPaths()
+                            + "] should be selected for [" + parentGroup.getResultClass() + "]");
+                }
+            }
 
             int parentResultIndex = -1;
             int treeGroupIdx = 1;

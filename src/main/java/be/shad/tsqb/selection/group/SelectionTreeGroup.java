@@ -76,6 +76,9 @@ public class SelectionTreeGroup extends SelectionTree {
             SelectionTreeField field = createSelectionTreeField(value);
             if (identityPaths.contains(value.propertyPath)) {
                 identityFields[identityFieldsIndex++] = field;
+            } else if (otherFieldsIndex == otherFields.length) {
+                // improve to show which identity field?
+                throwMissingIdentityFields(group, tupleValues);
             } else {
                 otherFields[otherFieldsIndex++] = field;
             }
@@ -94,6 +97,21 @@ public class SelectionTreeGroup extends SelectionTree {
 
         // set the entire array accessible at once (for this object):
         AccessibleObject.setAccessible(fields, true);
+    }
+
+    /**
+     * Checks which of the needed identity paths were missing and
+     * throws an exception indicating these paths.
+     */
+    private void throwMissingIdentityFields(TypeSafeQuerySelectionGroup group,
+            List<SelectionTreeValue> tupleValues) {
+        Set<String> missingPaths = new HashSet<>(group.getResultIdentifierPropertyPaths());
+        for(SelectionTreeValue tupleValue: tupleValues) {
+            missingPaths.remove(tupleValue.propertyPath);
+        }
+        throw new IllegalStateException("Identity fields for result type "
+                + "[" + group.getResultClass() + "] were not selected: "
+                + missingPaths);
     }
 
     /**

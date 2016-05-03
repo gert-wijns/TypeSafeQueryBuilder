@@ -213,6 +213,42 @@ public class CollectionSubselectTest extends TypeSafeQueryTest {
     }
 
     @Test
+    public void testNotSelectingIdentityShouldStillYieldFormattedString() {
+        Town townProxy = query.from(Town.class);
+        Person inhabitant = query.join(townProxy.getInhabitants());
+        Town selectTown = query.select(Town.class, identifierProvider);
+        Person selectPerson = query.select(selectTown.getInhabitants(), Person.class, null);
+        selectTown.setName(townProxy.getName());
+        selectPerson.setId(inhabitant.getId());
+        assertEquals("\n    select hobj1.name as name,"
+                + "\n        hobj2.id as g1__id "
+                + "\n    from Town hobj1 "
+                + "\n    join hobj1.inhabitants hobj2"
+                + "\n --- with: []", query.toFormattedString());
+    }
+
+    @Test(expected=IllegalStateException.class)
+    public void testNotSelectingIdentityShouldYieldException() {
+        Town townProxy = query.from(Town.class);
+        Person inhabitant = query.join(townProxy.getInhabitants());
+        Town selectTown = query.select(Town.class, identifierProvider);
+        Person selectPerson = query.select(selectTown.getInhabitants(), Person.class, null);
+        selectTown.setName(townProxy.getName());
+        selectPerson.setId(inhabitant.getId());
+        validate("Should throw illegal state because some parent values but not the binding value was not selected.");
+    }
+
+    @Test(expected=IllegalStateException.class)
+    public void testNotSelectingAnyParentFieldShouldYieldException() {
+        Town townProxy = query.from(Town.class);
+        Person inhabitant = query.join(townProxy.getInhabitants());
+        Town selectTown = query.select(Town.class, identifierProvider);
+        Person selectPerson = query.select(selectTown.getInhabitants(), Person.class, null);
+        selectPerson.setId(inhabitant.getId());
+        validate("Should throw illegal state because no parent values were selected.");
+    }
+
+    @Test
     public void testNestedCollectionsSelection() {
         Town town = creator.createTestTown();
         Person johny = creator.createTestPerson(town, "Johny");
