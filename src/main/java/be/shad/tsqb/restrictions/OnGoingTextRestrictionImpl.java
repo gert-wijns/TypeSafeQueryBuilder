@@ -16,6 +16,7 @@
 package be.shad.tsqb.restrictions;
 
 import static be.shad.tsqb.restrictions.RestrictionOperator.LIKE;
+import static be.shad.tsqb.restrictions.RestrictionOperator.NOT_LIKE;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -134,6 +135,22 @@ public class OnGoingTextRestrictionImpl
      * {@inheritDoc}
      */
     @Override
+    public ContinuedOnGoingTextRestriction notLike(TypeSafeValue<String> value) {
+        return addRestrictionAndContinue(startValue, NOT_LIKE, value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ContinuedOnGoingTextRestriction notLike(String value) {
+        return notLike(toValue(value, null));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public ContinuedOnGoingTextRestriction contains(String value) {
         return contains(value, null);
     }
@@ -236,6 +253,11 @@ public class OnGoingTextRestrictionImpl
     @Override
     public ContinuedOnGoingTextRestriction contains(String value, RestrictionPredicate predicate) {
         return like(toValue(WILDCARD, value, WILDCARD, predicate));
+    }
+
+    @Override
+    public ContinuedOnGoingTextRestriction notLike(String value, RestrictionPredicate predicate) {
+        return notLike(toValue(value, predicate));
     }
 
     @Override

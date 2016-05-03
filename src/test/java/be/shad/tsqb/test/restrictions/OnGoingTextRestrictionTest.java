@@ -69,6 +69,13 @@ public class OnGoingTextRestrictionTest extends TypeSafeQueryTest {
     }
 
     @Test
+    public void notLikeValueTest() {
+        Person person = query.from(Person.class);
+        query.where(person.getName()).notLike(new DirectTypeSafeValue<String>(query, "Jos%h"));
+        validate(" from Person hobj1 where hobj1.name not like :np1", "Jos%h");
+    }
+
+    @Test
     public void containsTest() {
         Person person = query.from(Person.class);
         query.where(person.getName()).contains("isto"); // Kristof, Christophe, ...
