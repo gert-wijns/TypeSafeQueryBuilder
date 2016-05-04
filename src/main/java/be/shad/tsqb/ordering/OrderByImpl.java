@@ -19,6 +19,7 @@ import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.query.copy.CopyContext;
 import be.shad.tsqb.query.copy.Copyable;
 import be.shad.tsqb.values.HqlQueryBuilderParams;
+import be.shad.tsqb.values.HqlQueryValue;
 import be.shad.tsqb.values.TypeSafeValue;
 
 public class OrderByImpl implements OrderBy {
@@ -42,7 +43,9 @@ public class OrderByImpl implements OrderBy {
     public void appendTo(HqlQuery query, HqlQueryBuilderParams params) {
         //ascending is the default
         String order = descending ? " desc": "";
-        query.appendOrderBy(value.toHqlQueryValue(params).getHql() + order);
+        HqlQueryValue hqlValue = value.toHqlQueryValue(params);
+		query.appendOrderBy(hqlValue.getHql() + order);
+		query.addParams(hqlValue.getParams());
     }
 
     @Override
