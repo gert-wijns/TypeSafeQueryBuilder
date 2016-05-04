@@ -21,6 +21,7 @@ public class PersonDto implements HasId {
     private Long id;
     private int personAge;
     private String thePersonsName;
+    private boolean married;
     private TownDetailsDto townDetails;
     private List<PersonDto> children;
 
@@ -48,6 +49,14 @@ public class PersonDto implements HasId {
         this.thePersonsName = thePersonsName;
     }
 
+    public boolean isMarried() {
+		return married;
+	}
+    
+    public void setMarried(boolean married) {
+		this.married = married;
+	}
+    
     public List<PersonDto> getChildren() {
         return children;
     }

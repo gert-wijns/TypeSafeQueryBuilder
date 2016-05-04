@@ -135,4 +135,12 @@ public class OrderingTest extends TypeSafeQueryTest {
         query.orderBy().descIgnoreCase(select.getValue());
         query.toHqlQuery();
     }
+
+    @Test
+    public void testOrderByCoalesce() {
+        Product product = query.from(Product.class);
+        query.orderBy().desc(query.hqlFunction().coalesce(product.getName()).or("lala"));
+
+        validate(" from Product hobj1 order by coalesce (hobj1.name,:np1) desc", "lala");
+    }
 }

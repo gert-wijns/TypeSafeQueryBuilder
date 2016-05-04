@@ -484,4 +484,20 @@ public class SelectTests extends TypeSafeQueryTest {
 
         validate("select hobj1.age as personAge, hobj1.name as thePersonsName from Person hobj1");
     }
+    
+    @Test
+    public void selectDefaultValue() {
+        TestDataCreator creator = new TestDataCreator(getSessionFactory());
+        Town town = creator.createTestTown();
+        creator.createTestPerson(town, "Anonymous");
+
+        Person person = query.from(Person.class);
+        PersonDto personDto = query.select(PersonDto.class);
+        personDto.setPersonAge(1);
+        personDto.setThePersonsName("Johny");
+        personDto.setMarried(false);
+
+        validate("select 1 as personAge, 'Johny' as thePersonsName, false as married from Person hobj1");
+    }
+    
 }
