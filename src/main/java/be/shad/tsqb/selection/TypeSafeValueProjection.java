@@ -18,6 +18,8 @@ package be.shad.tsqb.selection;
 import be.shad.tsqb.data.TypeSafeQuerySelectionProxyData;
 import be.shad.tsqb.query.copy.CopyContext;
 import be.shad.tsqb.query.copy.Copyable;
+import be.shad.tsqb.values.HqlQueryBuilderParams;
+import be.shad.tsqb.values.HqlQueryBuilderParamsImpl;
 import be.shad.tsqb.values.TypeSafeValue;
 
 /**
@@ -73,6 +75,21 @@ public class TypeSafeValueProjection implements Copyable {
             return selectionData.getEffectivePropertyPath();
         }
         return null;
+    }
+
+    @Override
+    public String toString() {
+        HqlQueryBuilderParams params = new HqlQueryBuilderParamsImpl();
+        params.setBuildingForDisplay(true);
+        String valueHql = value.toHqlQueryValue(params).getHql();
+        String alias = getAlias();
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(valueHql);
+        if (alias != null) {
+            sb.append(" as ").append(getAlias());
+        }
+        return sb.toString();
     }
 
     @Override
