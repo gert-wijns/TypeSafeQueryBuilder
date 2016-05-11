@@ -109,11 +109,6 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
                     + "If you are using exists/not exists, then use it by calling the selectExists or selectNotExists on "
                     + "this subquery instead of another custom way, or select a value.");
         }
-        if (params.isCreatingOrderingBy()) {
-            throw new IllegalStateException("Attempting to use a subquery in an order by within a function, "
-                    + "hibernate does not support this. An alternative can be to apply the function on the "
-                    + "subquery select value and use the subquery as a whole without the function to order.");
-        }
         HqlQuery query = toHqlQuery(params);
         return new HqlQueryValueImpl("(" +query.getHql() + ")", query.getParams());
     }
