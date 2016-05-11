@@ -120,9 +120,9 @@ public class OrderingTest extends TypeSafeQueryTest {
         validate("select hobj1.name as manyProperties_property1 from Product hobj1 order by upper(hobj1.name) desc");
     }
 
-    @Test(expected=IllegalStateException.class)
+    @Test
     @SuppressWarnings("unchecked")
-    public void testOrderByWrappedProjectionSubQueryFails() {
+    public void testOrderByWrappedProjectionSubQueryWorks() {
         Person person = query.from(Person.class);
         TypeSafeSubQuery<String> nameSQ = query.subquery(String.class);
         Person personSub = nameSQ.from(Person.class);
@@ -133,7 +133,10 @@ public class OrderingTest extends TypeSafeQueryTest {
         select.setValue(nameSQ.select());
 
         query.orderBy().descIgnoreCase(select.getValue());
-        query.toHqlQuery();
+
+        validate("select (select hobj2.name from Person hobj2 where hobj2.id = hobj1.id) as value "
+                + "from Person hobj1 "
+                + "order by upper((select hobj2.name from Person hobj2 where hobj2.id = hobj1.id)) desc");
     }
 
     @Test
