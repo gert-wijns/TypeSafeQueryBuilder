@@ -46,6 +46,7 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
     private final Deque<TypeSafeValueProjection> projections = new LinkedList<>();
     private SelectionValueTransformer<?, ?> transformerForNextProjection;
     private Class<?> resultClass;
+    private Boolean selectingIntoDto;
 
     public TypeSafeQueryProjections(TypeSafeQueryInternal query) {
         this.query = query;
@@ -78,6 +79,18 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
      * @throws IllegalArgumentException when a distinct value was already added.
      */
     public void addProjection(TypeSafeValueProjection projection) {
+        if (selectingIntoDto == null) {
+            selectingIntoDto = projection.getSelectionData() != null;
+        }
+        if (projection.getSelectionData() != null && !selectingIntoDto) {
+            throw new IllegalArgumentException(String.format("Values have already been selected "
+                    + "without a resultClass. Current projections " + projections
+                    + ", added " + projection));
+        } else if (projection.getSelectionData() == null && selectingIntoDto) {
+            throw new IllegalArgumentException(String.format("Values have already been selected "
+                    + "into a resultClass. Current projections " + projections
+                    + ", added " + projection));
+        }
         if(isDistinct(projection)) {
             if (!projections.isEmpty() && isDistinct(projections.getFirst())) {
                 throw new IllegalArgumentException(String.format("Attempting to add a second distinct projection. "

@@ -192,6 +192,38 @@ public class SelectTests extends TypeSafeQueryTest {
     }
 
     /**
+     * Selecting both into a dto and without a dto doesn't can't be combined
+     */
+    @Test(expected=IllegalArgumentException.class)
+    public void testSelectIntoDtoAfterSelectWithoutDtoThrowsException() {
+        TestDataCreator creator = new TestDataCreator(getSessionFactory());
+        creator.createTestPerson(creator.createTestTown(), "Josh");
+
+        Person person = query.from(Person.class);
+        query.select(person.getAge());
+        PersonDto dtoPx = query.select(PersonDto.class);
+        dtoPx.setId(person.getId());
+
+        validate("select hobj1.age, hobj1.id as id from Person hobj1");
+    }
+
+    /**
+     * Selecting both without a dto and into a dto doesn't can't be combined
+     */
+    @Test(expected=IllegalArgumentException.class)
+    public void testSelectWithoutDtoAfterSelectIntoDtoThrowsException() {
+        TestDataCreator creator = new TestDataCreator(getSessionFactory());
+        creator.createTestPerson(creator.createTestTown(), "Josh");
+
+        Person person = query.from(Person.class);
+        PersonDto dtoPx = query.select(PersonDto.class);
+        dtoPx.setId(person.getId());
+        query.select(person.getAge());
+
+        validate("select hobj1.id as id, hobj1.age from Person hobj1");
+    }
+
+    /**
      * Test distinct function
      */
     @Test
