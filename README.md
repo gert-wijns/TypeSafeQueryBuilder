@@ -8,11 +8,11 @@ Add library using maven:
 <dependency>
     <groupId>com.github.gert-wijns</groupId>
     <artifactId>TypeSafeQueryBuilder</artifactId>
-    <version>1.15.0</version>
+    <version>1.16.0</version>
 </dependency>
 ```
 
-To obtain a query, create a <i>TypeSafeQueryDao</i> with the hibernate sessionFactory and call the <i>`createQuery()`</i> method on it. 
+To obtain a query, create a <i>TypeSafeQueryDao</i> with the hibernate sessionFactory and call the <i>`createQuery()`</i> method on it.
 
 ```java
 TypeSafeQueryDao dao = new TypeSafeQueryDaoImpl(sessionFactory);
@@ -46,9 +46,9 @@ To select data into a dto, create a dto proxy using the <i>`query.select(Class<?
 
 ```java
 // select creates proxy instance of dto class
-PersonDto personDto = query.select(PersonDto.class); 
+PersonDto personDto = query.select(PersonDto.class);
 // binds person age to the personAge property
-personDto.setPersonAge(person.getAge()); 
+personDto.setPersonAge(person.getAge());
 
 => "select hobj1.age as personAge from Person hobj1"
 ```
@@ -85,9 +85,9 @@ It is only possible to obtain a proxy of a collection relation by using the <i>`
 
 ```java
 // join and obtain a proxy of a collection element
-Relation childRelation = query.join(parent.getChildRelations()); 
+Relation childRelation = query.join(parent.getChildRelations());
 // join implicitly, returns a proxy of the getter type
-Person child = childRelation.getChild(); 
+Person child = childRelation.getChild();
 
 => "from Person hobj1 join hobj1.childRelations hobj2 join hobj2.child hobj3"
 ````
@@ -132,9 +132,9 @@ query.groupBy(building.getConstructionDate());
 Date dateArg = new Date();
 query.having(building.getConstructionDate()).after(dateArg);
 
-=> "select hobj1.constructionDate 
-    from Building hobj1 
-    group by hobj1.constructionDate 
+=> "select hobj1.constructionDate
+    from Building hobj1
+    group by hobj1.constructionDate
     having hobj1.constructionDate > :np1"
 params [np1=dateArg]
 ```
