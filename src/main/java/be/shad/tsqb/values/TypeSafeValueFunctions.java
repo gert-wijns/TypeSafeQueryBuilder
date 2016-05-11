@@ -108,6 +108,14 @@ public class TypeSafeValueFunctions {
         return new CoalesceTypeSafeValue<>(query, val);
     }
 
+    public TypeSafeValue<Long> length(String val) {
+        return length(query.toValue(val));
+    }
+
+    public TypeSafeValue<Long> length(TypeSafeValue<String> val) {
+        return new WrappedTypeSafeValue<Long>(query, "length", Long.class, val);
+    }
+
     public TypeSafeValue<String> upper(String val) {
         return upper(query.toValue(val));
     }

@@ -27,7 +27,7 @@ import be.shad.tsqb.query.copy.Copyable;
  * Represents a function with a list of values.
  */
 public class FunctionTypeSafeValue<T> extends TypeSafeValueImpl<T> implements TypeSafeValueContainer {
-    private List<TypeSafeValue<T>> values = new LinkedList<>();
+    private List<TypeSafeValue<?>> values = new LinkedList<>();
     private String function;
 
     /**
@@ -36,22 +36,29 @@ public class FunctionTypeSafeValue<T> extends TypeSafeValueImpl<T> implements Ty
     protected FunctionTypeSafeValue(CopyContext context, FunctionTypeSafeValue<T> original) {
         super(context, original);
         this.function = original.function;
-        for(TypeSafeValue<T> value: original.values) {
+        for(TypeSafeValue<?> value: original.values) {
             values.add(context.get(value));
         }
     }
 
     public FunctionTypeSafeValue(TypeSafeQuery query, String function, TypeSafeValue<T> value) {
-        super(query, value.getValueClass());
-        this.function = function;
+        this(query, function, value.getValueClass());
         add(value);
     }
 
-    protected void add(T value) {
+    public FunctionTypeSafeValue(TypeSafeQuery query, String function, Class<T> functionResultClass)  {
+        super(query, functionResultClass);
+        this.function = function;
+    }
+
+    protected <V> void add(V value) {
         add(query.toValue(value));
     }
 
-    protected void add(TypeSafeValue<T> value) {
+    // can add any value type because the function arguments may not
+    // be the same type as the result type (though the subclasses
+    // which use this protected class should prevent wrong usage
+    protected <V> void add(TypeSafeValue<V> value) {
         this.values.add(value);
     }
 
@@ -60,7 +67,7 @@ public class FunctionTypeSafeValue<T> extends TypeSafeValueImpl<T> implements Ty
         StringBuilder coalesce = new StringBuilder();
         List<Object> params = new LinkedList<>();
         boolean requiresLiterals = parameters.isRequiresLiterals();
-        for(TypeSafeValue<T> value: values) {
+        for(TypeSafeValue<?> value: values) {
             if (coalesce.length() > 0) {
                 coalesce.append(",");
                 parameters.setRequiresLiterals(requiresLiterals);
@@ -83,7 +90,7 @@ public class FunctionTypeSafeValue<T> extends TypeSafeValueImpl<T> implements Ty
 
     @Override
     public void validateContainedInScope(TypeSafeQueryScopeValidator validator) {
-        for(TypeSafeValue<T> value: values) {
+        for(TypeSafeValue<?> value: values) {
             validator.validateInScope(value);
         }
     }
