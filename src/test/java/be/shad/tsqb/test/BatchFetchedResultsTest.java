@@ -18,6 +18,7 @@ package be.shad.tsqb.test;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,6 +28,7 @@ import java.util.Set;
 
 import org.junit.Test;
 
+import be.shad.tsqb.NamedParameter;
 import be.shad.tsqb.domain.DomainObject;
 import be.shad.tsqb.domain.Town;
 import be.shad.tsqb.domain.people.Person;
@@ -36,6 +38,7 @@ import be.shad.tsqb.dto.PersonDto;
 import be.shad.tsqb.dto.TownDto;
 import be.shad.tsqb.query.JoinType;
 import be.shad.tsqb.selection.collection.IdentityFieldProvider;
+import be.shad.tsqb.values.CustomTypeSafeValue;
 
 /**
  * @author Gert
@@ -161,6 +164,17 @@ public class BatchFetchedResultsTest extends TypeSafeQueryTest {
         assertEquals(resultIds.get(alberta.getId()), toIds(fred));
         assertEquals(resultIds.get(becky.getId()), Collections.emptySet());
         assertEquals(resultIds.get(fred.getId()), Collections.emptySet());
+    }
+
+    @Test
+    public void testNonBatchNamedParamWithCollectionDoesntFail() {
+        Town townProxy = query.from(Town.class);
+        List<String> values = Arrays.asList("Becky", "Angie");
+        NamedParameter namedParam = new NamedParameter("test", values);
+        List<Object> params = Arrays.<Object>asList(namedParam);
+        query.where(townProxy.getName()).in(new CustomTypeSafeValue<String>(
+                query, String.class, ":test", params));
+        validate("from Town hobj1 where hobj1.name in :test", values);
     }
 
     private Set<Long> toIds(DomainObject... dtos) {
