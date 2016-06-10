@@ -28,7 +28,7 @@ public class Product extends DomainObject {
     private static final long serialVersionUID = -6807452894720315681L;
 
     @Embedded
-    private ProductProperties properties;
+    private ProductProperties productProperties;
 
     @Embedded
     private ManyProperties manyProperties;
@@ -43,12 +43,12 @@ public class Product extends DomainObject {
         this.manyProperties = manyProperties;
     }
 
-    public ProductProperties getProperties() {
-        return properties;
+    public ProductProperties getProductProperties() {
+        return productProperties;
     }
 
-    public void setProperties(ProductProperties properties) {
-        this.properties = properties;
+    public void setProductProperties(ProductProperties productProperties) {
+        this.productProperties = productProperties;
     }
 
     public String getName() {

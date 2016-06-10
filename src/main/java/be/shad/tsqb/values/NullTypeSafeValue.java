@@ -38,7 +38,7 @@ public final class NullTypeSafeValue<T> extends TypeSafeValueImpl<T> {
     @Override
     public HqlQueryValue toHqlQueryValue(HqlQueryBuilderParams params) {
         // suggested on stackoverflow to select null:
-        return new HqlQueryValueImpl("cast(null as char)");
+        return new HqlQueryValueImpl("NULLIF(1,1)");
     }
 
     @Override

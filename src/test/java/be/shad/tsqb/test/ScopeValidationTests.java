@@ -114,16 +114,6 @@ public class ScopeValidationTests extends TypeSafeQueryTest {
         query.joinWith(child).where(child.getName()).eq(grandChild.getName());
     }
 
-    @Test(expected=ValueNotInScopeException.class)
-    public void testWithJoinedDifferentFromNotInScope() {
-        Person parent = query.from(Person.class);
-        Person child = query.from(Person.class);
-        Relation relation = query.join(child.getChildRelations());
-
-        query.joinWith(relation).where(parent.getId()).eq(relation.getId());
-        validate("");
-    }
-
     @Test
     public void testWithFilterByParam() {
         Person parent = query.from(Person.class);
@@ -133,12 +123,14 @@ public class ScopeValidationTests extends TypeSafeQueryTest {
         validate(" from Person hobj1 join hobj1.childRelations hobj2 join hobj2.child hobj3 with hobj3.name = :np1", "Josh");
     }
 
-    @Test(expected=RuntimeException.class)
-    public void testWithFilterByReferenceNotAllowed() {
+    @Test
+    public void testWithFilterByReference() {
         Person parent = query.from(Person.class);
         Relation relation = query.join(parent.getChildRelations());
         Person child = query.join(relation.getChild());
         query.joinWith(child).where(child.getName()).eq(parent.getName());
+
+        validate(" from Person hobj1 join hobj1.childRelations hobj2 join hobj2.child hobj3 with hobj3.name = hobj1.name");
     }
 
 }

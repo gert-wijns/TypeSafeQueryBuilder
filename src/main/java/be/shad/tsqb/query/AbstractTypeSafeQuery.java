@@ -184,6 +184,43 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      * {@inheritDoc}
      */
     @Override
+    public <T> T join(Object parent, Class<T> entityClazz, ClassJoinType classJoinType) {
+        return join(parent, entityClazz, classJoinType, null);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T join(Object parent, Class<T> entityClazz, ClassJoinType classJoinType, String name) {
+        TypeSafeQueryProxyData parentData = null;
+        if (parent instanceof TypeSafeQueryProxy) {
+            parentData = ((TypeSafeQueryProxy) parent).getTypeSafeProxyData();
+        }
+        if (!parentData.getProxyType().isEntity()) {
+            throw new JoinException(String.format("Attempting to use a parent "
+                    + "which does not represent an entity. ", parentData.getAlias()));
+        }
+        TypeSafeQueryProxyData data = helper.createTypeSafeJoinProxy(this, parentData, null, entityClazz);
+        // use joinType behind the scenes (also used for automatic left join resolution later)
+        JoinType joinType = null;
+        switch (classJoinType) {
+            case Inner: joinType = JoinType.Inner; break;
+            case Left:  joinType = JoinType.Left; break;
+            case Right: joinType = JoinType.Right; break;
+        }
+        data.setJoinType(joinType);
+        if (name != null) {
+            named().name(data.getProxy(), name);
+        }
+        return (T) data.getProxy();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public TypeSafeQueryJoin join(JoinType joinType) {
         if (activeMultiJoinType != null) {
             throw new IllegalStateException("query.join(JoinType) was used previous but it seems "
@@ -291,6 +328,9 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
     public <T> WhereRestrictions joinWith(T obj) {
         if(!(obj instanceof TypeSafeQueryProxy)) {
             throw new IllegalArgumentException("Can only get the join using a TypeSafeQueryProxy instance.");
+        }
+        if (((TypeSafeQueryProxy) obj).getTypeSafeProxyData().getParent() == null) {
+            throw new IllegalArgumentException("Attempting to get join restrictions for a 'from' proxy [" + obj + "].");
         }
         return dataTree.getJoinRestrictions(((TypeSafeQueryProxy) obj).getTypeSafeProxyData());
     }

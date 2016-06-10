@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import be.shad.tsqb.exceptions.ValueNotInScopeException;
 import be.shad.tsqb.helper.TypeSafeQueryHelper;
 import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.hql.HqlQueryBuilder;
@@ -131,7 +130,9 @@ public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder {
             String identifierPath, TypeSafeQueryProxy proxy) {
         TypeSafeQueryProxyData child = new TypeSafeQueryProxyData(parent, propertyName,
                 propertyType, proxyType, proxy, identifierPath, query.createEntityAlias());
-        child.setJoinType(JoinType.Default); // default join type
+        if (propertyName != null) {
+            child.setJoinType(JoinType.Default); // default join type
+        }
         if (parent == null) {
             froms.add(new TypeSafeQueryFrom(helper, child));
         } else {
@@ -190,13 +191,7 @@ public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder {
         if (entityData.equals(join)) {
             return true;
         }
-        if(true) {
-            // hibernate can't handle references in joins if they are from a different entity unfortunantly.
-            throw new ValueNotInScopeException("Unfortunantly, hibernate would throw a QuerySyntaxException: "
-                    + "'with-clause referenced two different from-clause elements.' even though sql could handle it.");
-        }
 
-        @SuppressWarnings("unused")
         TypeSafeQueryProxyData dataRoot = entityData;
         while( dataRoot.getParent() != null) {
             dataRoot = dataRoot.getParent();

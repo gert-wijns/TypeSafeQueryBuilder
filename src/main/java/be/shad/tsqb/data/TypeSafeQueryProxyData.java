@@ -179,6 +179,19 @@ public class TypeSafeQueryProxyData {
     }
 
     public void setJoinType(JoinType joinType) {
+        if (propertyPath == null) {
+            switch (joinType) {
+                case Inner:
+                case Left:
+                case Right:
+                    break;
+                default:
+                    throw new IllegalArgumentException(String.format(
+                            "JoinType can only be Inner/Left/Right for class joins. "
+                            + "Attempting to set JoinType to [%s] for join on class [%s]",
+                            joinType, getPropertyType()));
+            }
+        }
         if (proxy == null && joinType != null) {
             throw new IllegalStateException("Trying to join on a field "
                     + "value instead of an entity. " + toString());
@@ -221,8 +234,10 @@ public class TypeSafeQueryProxyData {
     @Override
     public String toString() {
         String s;
-        if (parent != null) {
+        if (parent != null && propertyPath != null) {
             s = parent.toString() + "." + propertyPath;
+        } else if (parent != null) {
+            s = parent.toString() + "." + getPropertyType().getSimpleName();
         } else {
             s = propertyType.getSimpleName();
         }
