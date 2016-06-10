@@ -191,6 +191,10 @@ public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder {
         if (entityData.equals(join)) {
             return true;
         }
+        String idPath = entityData.getIdentifierPath();
+        if (idPath != null && idPath.equals(data.getPropertyPath())) {
+            entityData = entityData.getParent();
+        }
 
         TypeSafeQueryProxyData dataRoot = entityData;
         while( dataRoot.getParent() != null) {
