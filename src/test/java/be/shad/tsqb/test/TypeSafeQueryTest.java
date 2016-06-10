@@ -31,6 +31,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.rules.TestName;
 
@@ -48,35 +49,47 @@ public class TypeSafeQueryTest {
     protected final Logger logger = LogManager.getLogger(getClass());
     @Rule public TestName name = new TestName();
 
-    private SessionFactory sessionFactory;
-    private TypeSafeQueryDao typeSafeQueryDao;
-    private TypeSafeQueryHelperImpl helper;
+    private static SessionFactory sessionFactory;
+    private static TypeSafeQueryDao typeSafeQueryDao;
+    private static TypeSafeQueryHelperImpl helper;
     protected TypeSafeRootQuery query;
     protected List<?> doQueryResult;
 
     /**
-     * Initialize the sessionFactory and helper.
+     * Initialize the sessionFactory and helper once.
      * The helper has an override to generate shorter entity names
      * for readability (and it also works in hibernate...)
      */
+    @BeforeClass
+    public static void initializeClass() {
+        if (sessionFactory == null) {
+            Configuration config = new Configuration();
+            config.configure("be/shad/tsqb/tests/hibernate.cfg.xml");
+            sessionFactory = config.buildSessionFactory();
+            helper = new TypeSafeQueryHelperImpl(sessionFactory) {
+                // trim package for readability:
+                @Override
+                public String getEntityName(Class<?> entityClass) {
+                    String entityName = super.getEntityName(entityClass);
+                    return entityName.substring(entityName.lastIndexOf(".")+1);
+                }
+            };
+            typeSafeQueryDao = new TypeSafeQueryDaoImpl(sessionFactory, helper);
+        }
+    }
+
+    /**
+     * Create a new query to test and begin the transaction
+     */
     @Before
     public void initialize() {
-        Configuration config = new Configuration();
-        config.configure("be/shad/tsqb/tests/hibernate.cfg.xml");
-        sessionFactory = config.buildSessionFactory();
-        helper = new TypeSafeQueryHelperImpl(sessionFactory) {
-            // trim package for readability:
-            @Override
-            public String getEntityName(Class<?> entityClass) {
-                String entityName = super.getEntityName(entityClass);
-                return entityName.substring(entityName.lastIndexOf(".")+1);
-            }
-        };
-        typeSafeQueryDao = new TypeSafeQueryDaoImpl(sessionFactory, helper);
         query = typeSafeQueryDao.createQuery();
         sessionFactory.getCurrentSession().beginTransaction();
     }
 
+    /**
+     * Rollback anything which was added to the memory db
+     */
     @After
     public void teardown() {
         sessionFactory.getCurrentSession().getTransaction().rollback();
