@@ -8,7 +8,7 @@ Add library using maven:
 <dependency>
     <groupId>com.github.gert-wijns</groupId>
     <artifactId>TypeSafeQueryBuilder</artifactId>
-    <version>2.0.0</version>
+    <version>2.1.0</version>
 </dependency>
 ```
 
@@ -91,6 +91,16 @@ Person child = childRelation.getChild();
 
 => "from Person hobj1 join hobj1.childRelations hobj2 join hobj2.child hobj3"
 ````
+Entities could also be joined even when there is no explicit object relation using class joins.
+```java
+// join to obtain a proxy of an entity, parent is needed to link the joined entity to the parent
+Relation childRelation = query.join(parent, Relation.class, ClassJoinType.Inner);
+// joinWith is required for class joins, specifies how the entities are related in sql
+query.joinWith(childRelation).where(parent.getId()).eq(childRelation.getParent().getId());
+
+=> from Person hobj1 join Relation hobj2 on hobj1.id = hobj2.parent.id
+````
+
 See also:
 - [TypeSafeQueryBuilder JoinTypes](https://github.com/gert-wijns/TypeSafeQueryBuilder/wiki/TypeSafeQueryBuilder-JoinTypes)
 - [HQL joining with](https://github.com/gert-wijns/TypeSafeQueryBuilder/wiki/HQL-joining-with)
