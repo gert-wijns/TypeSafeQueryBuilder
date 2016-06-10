@@ -17,11 +17,16 @@ package be.shad.tsqb.test;
 
 import org.junit.Test;
 
+import be.shad.tsqb.domain.Product;
 import be.shad.tsqb.domain.Town;
 import be.shad.tsqb.domain.people.Person;
+import be.shad.tsqb.domain.people.PersonProperty;
 import be.shad.tsqb.domain.people.Relation;
+import be.shad.tsqb.query.ClassJoinType;
 import be.shad.tsqb.query.JoinType;
 import be.shad.tsqb.query.TypeSafeQueryJoin;
+import be.shad.tsqb.selection.parallel.SelectPair;
+import be.shad.tsqb.selection.parallel.SelectTriplet;
 
 public class JoinTypeTest extends TypeSafeQueryTest {
 
@@ -85,6 +90,112 @@ public class JoinTypeTest extends TypeSafeQueryTest {
         query.join(person.getSpouse().getSpouse().getTown(), JoinType.LeftFetch);
 
         validate("from Person hobj1 join fetch hobj1.spouse hobj2 join fetch hobj2.spouse hobj3 left join fetch hobj3.town hobj4");
+    }
+
+    @Test
+    public void testClassLeftJoin() {
+        Product productPx = query.from(Product.class);
+        Person personPx = query.join(productPx, Person.class, ClassJoinType.Left);
+        query.joinWith(personPx).where(productPx.getName()).eq(personPx.getName());
+
+        validate(" from Product hobj1 left join Person hobj2 on hobj1.name = hobj2.name");
+    }
+
+    @Test(expected=IllegalStateException.class)
+    public void testClassLeftJoinWithMissingJoinWith() {
+        Product productPx = query.from(Product.class);
+        query.join(productPx, Person.class, ClassJoinType.Left);
+        validate(" from Product hobj1 left join Person hobj2");
+    }
+
+    @Test
+    public void testClassLeftJoinWithExtraNonCollectionJoinAfterClassJoin() {
+        Product productPx = query.from(Product.class);
+        Person personPx = query.join(productPx, Person.class, ClassJoinType.Left);
+        Town townPx = personPx.getTown();
+
+        query.joinWith(personPx).where(productPx.getName()).eq(personPx.getName());
+        query.where(townPx.getName()).eq("Springfield");
+
+        @SuppressWarnings("unchecked")
+        SelectTriplet<Long, String, Long> select = query.select(SelectTriplet.class);
+        select.setFirst(personPx.getId());
+        select.setSecond(productPx.getName());
+        select.setThird(townPx.getId());
+
+        validate("select hobj2.id as first, hobj1.name as second, hobj3.id as third "
+                + "from Product hobj1 "
+                + "left join Person hobj2 on hobj1.name = hobj2.name "
+                + "left join Town hobj3 on hobj3.id = hobj2.town.id "
+                + "where hobj3.name = :np1", "Springfield");
+    }
+
+    @Test
+    public void testClassLeftJoinWithExtraCollectionJoinAfterClassJoin() {
+        Product productPx = query.from(Product.class);
+        Person personPx = query.join(productPx, Person.class, ClassJoinType.Left);
+        PersonProperty ppPx = query.join(personPx.getProperties());
+
+        query.joinWith(personPx).where(productPx.getName()).eq(personPx.getName());
+
+        @SuppressWarnings("unchecked")
+        SelectTriplet<Long, String, PersonProperty> select = query.select(SelectTriplet.class);
+        select.setFirst(personPx.getId());
+        select.setSecond(productPx.getName());
+        select.setThird(ppPx);
+
+        validate("select hobj2.id as first, hobj1.name as second, hobj3 as third "
+                + "from Product hobj1 "
+                + "left join Person hobj2 on hobj1.name = hobj2.name "
+                + "left join PersonProperty hobj3 on hobj2.id = hobj3.person.id");
+    }
+
+    @Test
+    public void testClassLeftJoinWithExtraFilters() {
+        Product productPx = query.from(Product.class);
+        Person personPx = query.join(productPx, Person.class, ClassJoinType.Left);
+        PersonProperty ppPx = query.join(personPx.getProperties(), JoinType.Left);
+
+        query.joinWith(personPx).where(productPx.getName()).eq(personPx.getName());
+        query.joinWith(ppPx).where(ppPx.getPropertyKey()).eq("InterestingProperty");
+
+        @SuppressWarnings("unchecked")
+        SelectTriplet<Long, String, PersonProperty> select = query.select(SelectTriplet.class);
+        select.setFirst(personPx.getId());
+        select.setSecond(productPx.getName());
+        select.setThird(ppPx);
+
+        validate("select hobj2.id as first, hobj1.name as second, hobj3 as third "
+                + "from Product hobj1 "
+                + "left join Person hobj2 on hobj1.name = hobj2.name "
+                + "left join PersonProperty hobj3 on hobj2.id = hobj3.person.id and hobj3.propertyKey = :np1",
+                "InterestingProperty");
+    }
+
+    @Test
+    public void testClassLeftJoinWithExtraJoinsOnFrom() {
+        Person personPx = query.from(Person.class);
+        Product productPx = query.join(personPx, Product.class, ClassJoinType.Left);
+        query.joinWith(productPx).where(productPx.getName()).eq(personPx.getName());
+        query.where(personPx.getTown().getName()).eq("Springfield");
+
+        @SuppressWarnings("unchecked")
+        SelectPair<Long, String> select = query.select(SelectPair.class);
+        select.setFirst(personPx.getId());
+        select.setSecond(productPx.getName());
+
+        validate("select hobj1.id as first, hobj2.name as second "
+                + "from Person hobj1 "
+                + "left join Product hobj2 on hobj2.name = hobj1.name "
+                + "join hobj1.town hobj3 "
+                + "where hobj3.name = :np1", "Springfield");
+    }
+
+    @Test(expected=IllegalStateException.class)
+    public void testExceptionClassLeftJoinDoesntHaveRestrictions() {
+        Person personPx = query.from(Person.class);
+        query.join(personPx, Product.class, ClassJoinType.Left);
+        validate("");
     }
 
     @Test

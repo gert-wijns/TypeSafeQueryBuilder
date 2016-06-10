@@ -46,7 +46,7 @@ public class WithDataTest extends TypeSafeQueryTest {
         PersonDto selectProxy = query.select(PersonDto.class);
         selectProxy.setId(new NullTypeSafeValue<>(query, Long.class).select());
         selectProxy.setThePersonsName(personProxy.getName());
-        validate("select cast(null as char) as id, hobj1.name as thePersonsName from Person hobj1");
+        validate("select NULLIF(1,1) as id, hobj1.name as thePersonsName from Person hobj1");
         assertEquals(1, doQueryResult.size());
         PersonDto result = (PersonDto) doQueryResult.get(0);
         assertNull(result.getId());

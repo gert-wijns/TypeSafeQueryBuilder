@@ -28,6 +28,8 @@ import javassist.util.proxy.ProxyObject;
 import org.hibernate.SessionFactory;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.metadata.ClassMetadata;
+import org.hibernate.metadata.CollectionMetadata;
+import org.hibernate.persister.collection.OneToManyPersister;
 import org.hibernate.type.BasicType;
 import org.hibernate.type.CollectionType;
 import org.hibernate.type.ComponentType;
@@ -215,7 +217,25 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
     @Override
     public TypeSafeQueryProxyData createTypeSafeJoinProxy(TypeSafeQueryInternal query,
             TypeSafeQueryProxyData parent, String propertyName, Class<?> targetClass) {
-        return createChildData(query, parent, propertyName);
+        if (propertyName != null) {
+            return createChildData(query, parent, propertyName);
+        } else {
+            return createClassJoinProxy(query, parent, targetClass);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    private TypeSafeQueryProxyData createClassJoinProxy(TypeSafeQueryInternal query,
+            TypeSafeQueryProxyData parent, Class<?> targetClass) {
+        ClassMetadata metadata = sessionFactory.getClassMetadata(targetClass);
+        TypeSafeQueryProxyType proxyType = TypeSafeQueryProxyType.EntityType;
+        TypeSafeQueryProxy proxy = (TypeSafeQueryProxy) proxyFactory.getProxy(targetClass, proxyType);
+        TypeSafeQueryProxyData data = query.getDataTree().createData(parent, null, targetClass,
+                proxyType, metadata.getIdentifierPropertyName(), proxy);
+        setEntityProxyMethodListener(query, proxy, data);
+        return data;
     }
 
     /**
@@ -238,6 +258,25 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
             ret += name.substring(start);
         }
         return ret;
+    }
+
+    /**
+     *
+     */
+    @Override
+    public String getMappedByProperty(TypeSafeQueryProxyData child) {
+        Type propertyType = getTargetType(child.getParent(), child.getPropertyPath());
+        if (!propertyType.isCollectionType()) {
+            throw new IllegalArgumentException("Method not designed to fetch MappedByProperty "
+                    + "for a non-collection type. PropertyType was: " + propertyType);
+        }
+        CollectionMetadata collectionMetadata = sessionFactory.getCollectionMetadata(((CollectionType) propertyType).getRole());
+        if (collectionMetadata instanceof OneToManyPersister) {
+            OneToManyPersister persister = (OneToManyPersister) collectionMetadata;
+            return persister.getMappedByProperty();
+        }
+        // what about many to many?
+        return null;
     }
 
     /**

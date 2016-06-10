@@ -21,6 +21,7 @@ import org.junit.Test;
 
 import be.shad.tsqb.domain.Town;
 import be.shad.tsqb.domain.people.Person;
+import be.shad.tsqb.query.ClassJoinType;
 
 public class NamedJoinTest extends TypeSafeQueryTest {
 
@@ -39,4 +40,12 @@ public class NamedJoinTest extends TypeSafeQueryTest {
         assertNotNull(town);
     }
 
+    @Test
+    public void namedClassJoinTest() {
+        Person personProxy = query.from(Person.class);
+        query.join(personProxy, Town.class, ClassJoinType.Inner, "theTown");
+
+        Town town = query.named().get("theTown");
+        assertNotNull(town);
+    }
 }

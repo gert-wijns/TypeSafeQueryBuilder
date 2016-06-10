@@ -415,10 +415,10 @@ public class SelectTests extends TypeSafeQueryTest {
         @SuppressWarnings("unchecked")
         MutableTriple<String, String, Boolean> triple = query.select(MutableTriple.class);
         triple.setLeft(product.getName());
-        triple.setMiddle(product.getProperties().getPlanning().getAlgorithm());
-        triple.setRight(product.getProperties().getSales().isSalesAllowed());
+        triple.setMiddle(product.getProductProperties().getPlanning().getAlgorithm());
+        triple.setRight(product.getProductProperties().getSales().isSalesAllowed());
 
-        validate("select hobj1.name as left, hobj1.properties.planning.algorithm as middle, hobj1.properties.sales.salesAllowed as right from Product hobj1");
+        validate("select hobj1.name as left, hobj1.productProperties.planning.algorithm as middle, hobj1.productProperties.sales.salesAllowed as right from Product hobj1");
     }
 
     @Test
@@ -427,9 +427,9 @@ public class SelectTests extends TypeSafeQueryTest {
 
         Product productDto = query.select(Product.class);
         productDto.setName(product.getName());
-        productDto.getProperties().getPlanning().setAlgorithm(product.getName());
+        productDto.getProductProperties().getPlanning().setAlgorithm(product.getName());
 
-        validate("select hobj1.name as name, hobj1.name as properties_planning_algorithm from Product hobj1");
+        validate("select hobj1.name as name, hobj1.name as productProperties_planning_algorithm from Product hobj1");
     }
 
     /**
@@ -442,10 +442,10 @@ public class SelectTests extends TypeSafeQueryTest {
 
         Product productDto = query.select(Product.class);
         productDto.setName(product.getName());
-        productDto.getProperties().setPlanning(query.select(PlanningProperties.class,
+        productDto.getProductProperties().setPlanning(query.select(PlanningProperties.class,
                 product.getName(), new StringToPlanningPropertiesTransformer()));
 
-        validate("select hobj1.name as name, hobj1.name as properties_planning from Product hobj1");
+        validate("select hobj1.name as name, hobj1.name as productProperties_planning from Product hobj1");
     }
 
     /**

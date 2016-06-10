@@ -104,6 +104,20 @@ public interface TypeSafeQuery extends TypeSafeQueryJoin, WhereRestrictions, Hav
     <T> T join(Collection<T> anyCollection, String name);
 
     /**
+     * Delegates to {@link #join(Object, Class, ClassJoinType, String)}
+     */
+    <T> T join(Object parent, Class<T> entityClazz, ClassJoinType joinType);
+
+    /**
+     * Create a class join which is to be added to the query after
+     * the parent object was from'ed or joined.
+     *
+     * @param name when name is not null, the created proxy will be named using the given name.
+     *        (Remark: this is not an hql alias! It is a tag by which the proxy can be retrieved from the query)
+     */
+    <T> T join(Object parent, Class<T> entityClazz, ClassJoinType joinType, String name);
+
+    /**
      * Delegates to {@link #join(Object, JoinType)} with {@link JoinType#Inner}
      */
     <T> T join(T anyObject);

@@ -58,7 +58,7 @@ public class TestResultTransformer extends TypeSafeQueryTest {
 
         Product selectProxy = query.select(Product.class);
         selectProxy.setName("Name");
-        selectProxy.getProperties().getPlanning().setAlgorithm("Algo");
+        selectProxy.getProductProperties().getPlanning().setAlgorithm("Algo");
 
         HqlQueryBuilderParams params = new HqlQueryBuilderParamsImpl();
         HqlQuery query = new HqlQuery();
@@ -72,7 +72,7 @@ public class TestResultTransformer extends TypeSafeQueryTest {
         assertTrue(transformed instanceof Product);
         Product product = (Product) transformed;
         assertEquals("Name", product.getName());
-        assertEquals("Algo", product.getProperties().getPlanning().getAlgorithm());
+        assertEquals("Algo", product.getProductProperties().getPlanning().getAlgorithm());
     }
 
     @Test
@@ -82,8 +82,8 @@ public class TestResultTransformer extends TypeSafeQueryTest {
 
         Product selectProxy = query.select(Product.class);
         selectProxy.setName("Name");
-        selectProxy.getProperties().setPlanning(query.select(PlanningProperties.class,
-                fromProxy.getProperties().getPlanning().getAlgorithm(),
+        selectProxy.getProductProperties().setPlanning(query.select(PlanningProperties.class,
+                fromProxy.getProductProperties().getPlanning().getAlgorithm(),
                 new StringToPlanningPropertiesTransformer()));
 
         HqlQueryBuilderParams params = new HqlQueryBuilderParamsImpl();
@@ -98,7 +98,7 @@ public class TestResultTransformer extends TypeSafeQueryTest {
         assertTrue(transformed instanceof Product);
         Product product = (Product) transformed;
         assertEquals("Name", product.getName());
-        assertEquals("Algo", product.getProperties().getPlanning().getAlgorithm());
+        assertEquals("Algo", product.getProductProperties().getPlanning().getAlgorithm());
     }
 
     @Test
