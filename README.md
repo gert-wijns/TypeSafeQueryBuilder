@@ -8,7 +8,7 @@ Add library using maven:
 <dependency>
     <groupId>com.github.gert-wijns</groupId>
     <artifactId>TypeSafeQueryBuilder</artifactId>
-    <version>1.16.1</version>
+    <version>2.0.0</version>
 </dependency>
 ```
 
