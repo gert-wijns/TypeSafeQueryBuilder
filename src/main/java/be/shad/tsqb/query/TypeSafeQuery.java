@@ -105,6 +105,18 @@ public interface TypeSafeQuery extends TypeSafeQueryJoin, WhereRestrictions, Hav
 
     /**
      * Delegates to {@link #join(Object, Class, ClassJoinType, String)}
+     * <ul>
+     * <li><code>ClassJoinType</code> is defaulted to Inner.</li>
+     * <li><code>String</code> is defaulted to null.</li>
+     * </ul>
+     */
+    <T> T join(Object parent, Class<T> entityClazz);
+
+    /**
+     * Delegates to {@link #join(Object, Class, ClassJoinType, String)}
+     * <ul>
+     * <li>String is defaulted to null.</li>
+     * </ul>
      */
     <T> T join(Object parent, Class<T> entityClazz, ClassJoinType joinType);
 

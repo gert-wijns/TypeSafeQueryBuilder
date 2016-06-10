@@ -22,6 +22,7 @@ import be.shad.tsqb.domain.Town;
 import be.shad.tsqb.domain.people.Person;
 import be.shad.tsqb.domain.people.PersonProperty;
 import be.shad.tsqb.domain.people.Relation;
+import be.shad.tsqb.exceptions.JoinException;
 import be.shad.tsqb.query.ClassJoinType;
 import be.shad.tsqb.query.JoinType;
 import be.shad.tsqb.query.TypeSafeQueryJoin;
@@ -90,6 +91,17 @@ public class JoinTypeTest extends TypeSafeQueryTest {
         query.join(person.getSpouse().getSpouse().getTown(), JoinType.LeftFetch);
 
         validate("from Person hobj1 join fetch hobj1.spouse hobj2 join fetch hobj2.spouse hobj3 left join fetch hobj3.town hobj4");
+    }
+
+    @Test(expected=JoinException.class)
+    public void testClassJoinNoneEntityFails() {
+        query.join("Entity?", Person.class);
+    }
+
+    @Test(expected=JoinException.class)
+    public void testClassJoinPropertyFails() {
+        Person person = query.from(Person.class);
+        query.join(person.getName(), Person.class);
     }
 
     @Test

@@ -184,6 +184,14 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      * {@inheritDoc}
      */
     @Override
+    public <T> T join(Object parent, Class<T> entityClazz) {
+        return join(parent, entityClazz, ClassJoinType.Inner, null);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public <T> T join(Object parent, Class<T> entityClazz, ClassJoinType classJoinType) {
         return join(parent, entityClazz, classJoinType, null);
     }
@@ -194,13 +202,14 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
     @Override
     @SuppressWarnings("unchecked")
     public <T> T join(Object parent, Class<T> entityClazz, ClassJoinType classJoinType, String name) {
-        TypeSafeQueryProxyData parentData = null;
-        if (parent instanceof TypeSafeQueryProxy) {
-            parentData = ((TypeSafeQueryProxy) parent).getTypeSafeProxyData();
+        if (!(parent instanceof TypeSafeQueryProxy)) {
+            throw new JoinException(String.format("Attempting to use a parent "
+                    + "which does not represent an entity. Parent is [%s].", parent));
         }
+        TypeSafeQueryProxyData parentData = ((TypeSafeQueryProxy) parent).getTypeSafeProxyData();
         if (!parentData.getProxyType().isEntity()) {
             throw new JoinException(String.format("Attempting to use a parent "
-                    + "which does not represent an entity. ", parentData.getAlias()));
+                    + "which does not represent an entity. Parent alias is [%s].", parentData.getAlias()));
         }
         TypeSafeQueryProxyData data = helper.createTypeSafeJoinProxy(this, parentData, null, entityClazz);
         // use joinType behind the scenes (also used for automatic left join resolution later)

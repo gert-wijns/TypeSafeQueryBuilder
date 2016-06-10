@@ -77,6 +77,18 @@ public class WikiTests extends TypeSafeQueryTest {
     }
 
     @Test
+    public void testJoinClass() {
+        Person parent = query.from(Person.class);
+
+        // join to obtain a proxy of an entity, parent is added for verification
+        Relation childRelation = query.join(parent, Relation.class, ClassJoinType.Inner);
+        // joinWith is required for class joins, specifies how the entities are related in sql
+        query.joinWith(childRelation).where(parent.getId()).eq(childRelation.getParent().getId());
+
+        validate("from Person hobj1 join Relation hobj2 on hobj1.id = hobj2.parent.id");
+    }
+
+    @Test
     @SuppressWarnings("unchecked")
     public void testNonPropertyPathJoin() {
         Person personPx = query.from(Person.class);
