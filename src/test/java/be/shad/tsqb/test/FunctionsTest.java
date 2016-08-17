@@ -50,6 +50,13 @@ public class FunctionsTest extends TypeSafeQueryTest {
     }
 
     @Test
+    public void testMinStringFunction() {
+        Person person = query.from(Person.class);
+        query.select(query.hqlFunction().min(person.getName()));
+        validate("select min(hobj1.name) from Person hobj1");
+    }
+
+    @Test
     public void testSumFunction() {
         Person person = query.from(Person.class);
         query.select(query.hqlFunction().sum(person.getAge()));

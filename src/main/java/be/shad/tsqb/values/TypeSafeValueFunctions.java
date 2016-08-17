@@ -15,10 +15,10 @@
  */
 package be.shad.tsqb.values;
 
-import java.util.Date;
-
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.values.partial.PartialNullIf;
+
+import java.util.Date;
 
 /**
  * Provides a bunch of functions, this list may grow in time.
@@ -138,6 +138,14 @@ public class TypeSafeValueFunctions {
 
     public <N extends Number> TypeSafeValue<N> minn(TypeSafeValue<N> nv) {
         return new WrappedTypeSafeValue<>(query, "min", nv);
+    }
+
+    public <String> TypeSafeValue<String> min(String s) {
+        return mins(query.toValue(s));
+    }
+
+    public <String> TypeSafeValue<String> mins(TypeSafeValue<String> sv) {
+        return new WrappedTypeSafeValue<>(query, "min", sv);
     }
 
     public TypeSafeValue<Date> max(Date n) {
