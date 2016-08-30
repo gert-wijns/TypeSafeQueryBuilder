@@ -15,10 +15,16 @@
  */
 package be.shad.tsqb.test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
+import java.util.SortedMap;
 
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -36,13 +42,17 @@ import be.shad.tsqb.domain.people.PersonProperty;
 import be.shad.tsqb.domain.people.Relation;
 import be.shad.tsqb.domain.properties.PlanningProperties;
 import be.shad.tsqb.domain.usertype.TextWrappingObject;
+import be.shad.tsqb.dto.CustomMap;
 import be.shad.tsqb.dto.FunctionsDto;
+import be.shad.tsqb.dto.MapsDto;
 import be.shad.tsqb.dto.PersonDto;
 import be.shad.tsqb.dto.ProductDetailsDto;
 import be.shad.tsqb.dto.StringToPlanningPropertiesTransformer;
 import be.shad.tsqb.query.JoinType;
 import be.shad.tsqb.query.TypeSafeSubQuery;
 import be.shad.tsqb.selection.SelectionValueTransformer;
+import be.shad.tsqb.selection.SelectionValueTransformerException;
+import be.shad.tsqb.selection.parallel.MapSelectionMerger;
 import be.shad.tsqb.values.CaseTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValueFunctions;
 
@@ -348,6 +358,81 @@ public class SelectTests extends TypeSafeQueryTest {
                 + "then 'Old' "
                 + "else hobj1.name end) as left "
                 + "from House hobj1");
+    }
+
+    @Test
+    public void selectMapsDtoTest() {
+        TestDataCreator creator = new TestDataCreator(getSessionFactory());
+        creator.createTestPerson(creator.createTestTown(), "Josh");
+
+        Person person = query.from(Person.class);
+        MapsDto dtoPx = query.select(MapsDto.class);
+        Map<String, Object> genericMapPx = dtoPx.getNestedMaps().getGenericMap();
+        CustomMap<String,Object> customMapPx = dtoPx.getNestedMaps().getCustomMap();
+        SortedMap<String, Object> sortedMapPx = dtoPx.getSortedMap();
+        genericMapPx.put("person.value", person.getName());
+        customMapPx.put("person.object", person);
+        sortedMapPx.put("person.transformed", query.select(String.class, person.getName(),
+                new SelectionValueTransformer<String, String>() {
+            @Override
+            public String convert(String name) throws SelectionValueTransformerException {
+                return "###" + name + "###";
+            }
+        }));
+
+        // subselect map
+        Map<String, Object> merge1 = query.selectMergeValues(dtoPx,
+                new MapSelectionMerger<MapsDto, String, Object>() {
+            @Override
+            public void mergeMapIntoResult(MapsDto partialResult, Map<String, Object> map) {
+                partialResult.getSortedMap().put("thepersonid", map.get("person.id"));
+            }
+        });
+        merge1.put("person.id", person.getId());
+        validate("select hobj1.name as nestedMaps_genericMap_person_value, "
+                + "hobj1 as nestedMaps_customMap_person_object, "
+                + "hobj1.name as sortedMap_person_transformed, "
+                + "hobj1.id as g1__person_id "
+                + "from Person hobj1");
+        assertTrue(MapsDto.class.isAssignableFrom(doQueryResult.get(0).getClass()));
+
+        MapsDto result = (MapsDto) doQueryResult.get(0);
+        Map<String, Object> genericMap = result.getNestedMaps().getGenericMap();
+        CustomMap<String,Object> customMap = result.getNestedMaps().getCustomMap();
+        SortedMap<String, Object> sortedMap = result.getSortedMap();
+        assertEquals("Josh", genericMap.get("person.value"));
+        assertEquals("###Josh###", sortedMap.get("person.transformed"));
+        assertTrue(Person.class.isAssignableFrom(customMap.get("person.object").getClass()));
+        assertNotNull(sortedMap.get("thepersonid"));
+    }
+
+    @Test
+    public void selectMapDtoTest() {
+        TestDataCreator creator = new TestDataCreator(getSessionFactory());
+        creator.createTestPerson(creator.createTestTown(), "Josh");
+
+        Person person = query.from(Person.class);
+        @SuppressWarnings("unchecked")
+        Map<String, String> mapPx = query.select(Map.class);
+        mapPx.put("person.value", person.getName());
+
+        validate("select hobj1.name as person_value from Person hobj1");
+        assertTrue(Map.class.isAssignableFrom(doQueryResult.get(0).getClass()));
+
+        @SuppressWarnings("unchecked")
+        Map<String, String> result = (Map<String, String>) doQueryResult.get(0);
+        assertEquals("Josh", result.get("person.value"));
+    }
+
+    @Test
+    public void orderByMapValueTest() {
+        Person person = query.from(Person.class);
+        @SuppressWarnings("unchecked")
+        Map<String, String> mapPx = query.select(Map.class);
+        mapPx.put("person.value", person.getName());
+        query.orderBy().desc(mapPx.get("person.value"));
+
+        validate("select hobj1.name as person_value from Person hobj1 order by hobj1.name desc");
     }
 
     @Test
