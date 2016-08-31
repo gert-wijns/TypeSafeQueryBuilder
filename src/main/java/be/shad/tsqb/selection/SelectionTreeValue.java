@@ -24,12 +24,14 @@ package be.shad.tsqb.selection;
 public class SelectionTreeValue {
     public final int tupleValueIndex;
     public final String propertyPath;
+    public final String mapSelectionKey;
     public final SelectionValueTransformer<?, ?> valueTransformer;
 
-    public SelectionTreeValue(int tupleValueIndex, String propertyPath,
+    public SelectionTreeValue(int tupleValueIndex, String propertyPath, String mapSelectionKey,
             SelectionValueTransformer<?, ?> valueTransformer) {
         this.tupleValueIndex = tupleValueIndex;
         this.propertyPath = propertyPath;
+        this.mapSelectionKey = mapSelectionKey;
         this.valueTransformer = valueTransformer;
     }
 }

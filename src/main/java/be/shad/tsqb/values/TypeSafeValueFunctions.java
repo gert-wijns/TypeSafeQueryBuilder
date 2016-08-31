@@ -140,6 +140,14 @@ public class TypeSafeValueFunctions {
         return new WrappedTypeSafeValue<>(query, "min", nv);
     }
 
+    public <String> TypeSafeValue<String> min(String s) {
+        return mins(query.toValue(s));
+    }
+
+    public <String> TypeSafeValue<String> mins(TypeSafeValue<String> sv) {
+        return new WrappedTypeSafeValue<>(query, "min", sv);
+    }
+
     public TypeSafeValue<Date> max(Date n) {
         return maxd(query.toValue(n));
     }

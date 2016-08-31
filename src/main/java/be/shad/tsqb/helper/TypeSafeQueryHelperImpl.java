@@ -57,10 +57,24 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
 
     private final SessionFactory sessionFactory;
     private final TypeSafeQueryProxyFactory proxyFactory;
+    private final ConcreteDtoClassResolver classResolver;
 
     public TypeSafeQueryHelperImpl(SessionFactory sessionFactory) {
+        this(sessionFactory, new ConcreteDtoClassResolverImpl());
+    }
+
+    public TypeSafeQueryHelperImpl(SessionFactory sessionFactory, ConcreteDtoClassResolver classResolver) {
         this.sessionFactory = sessionFactory;
-        this.proxyFactory = new TypeSafeQueryProxyFactory();
+        this.classResolver = classResolver;
+        this.proxyFactory = new TypeSafeQueryProxyFactory(classResolver);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ConcreteDtoClassResolver getConcreteDtoClassResolver() {
+        return classResolver;
     }
 
     private Type getTargetType(TypeSafeQueryProxyData data, String property) {
