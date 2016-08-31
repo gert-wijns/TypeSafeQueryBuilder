@@ -36,6 +36,7 @@ import be.shad.tsqb.selection.collection.ResultIdentifierBinder;
 import be.shad.tsqb.selection.collection.ResultIdentifierBinding;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroup;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroupImpl;
+import be.shad.tsqb.selection.parallel.MapSelectionMerger;
 import be.shad.tsqb.selection.parallel.SelectPair;
 import be.shad.tsqb.selection.parallel.SelectTriplet;
 import be.shad.tsqb.selection.parallel.SelectValue;
@@ -404,6 +405,15 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
         TypeSafeQuerySelectionProxyData parent = ((TypeSafeQuerySelectionProxy) resultDto).getTypeSafeQuerySelectionProxyData();
         return getHelper().createTypeSafeSelectProxy(this, subselectClass, new TypeSafeQuerySelectionGroupImpl(
                 createSelectGroupAlias(), subselectClass, false, merger, parent));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public <T, K, V> Map<K, V> selectMergeValues(T resultDto, MapSelectionMerger<T, K, V> merger) {
+        return selectMergeValues(resultDto, Map.class, (SelectionMerger) merger);
     }
 
     /**

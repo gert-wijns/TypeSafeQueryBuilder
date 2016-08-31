@@ -45,6 +45,7 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
     private final TypeSafeQueryInternal query;
     private final Deque<TypeSafeValueProjection> projections = new LinkedList<>();
     private SelectionValueTransformer<?, ?> transformerForNextProjection;
+    private String mapSelectionKeyForNextProjection;
     private Class<?> resultClass;
     private Boolean selectingIntoDto;
 
@@ -54,6 +55,7 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
 
     public void replay(CopyContext context, TypeSafeQueryProjections original) {
         this.transformerForNextProjection = context.getOrOriginal(original.transformerForNextProjection);
+        this.mapSelectionKeyForNextProjection = original.mapSelectionKeyForNextProjection;
         this.resultClass = original.resultClass;
         for(TypeSafeValueProjection projection: original.projections) {
             projections.add(context.get(projection));
@@ -115,6 +117,14 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
     }
 
     /**
+     * Sets the given mapSelectionKey to be put on the next created projection.
+     * After it is set on a projection, the mapSelectionKeyForNextProjection is reset.
+     */
+    public void setMapSelectionKeyForNextProjection(String mapSelectionKeyForNextProjection) {
+        this.mapSelectionKeyForNextProjection = mapSelectionKeyForNextProjection;
+    }
+
+    /**
      * First checks if a TypeSafeQueryValue.select() was called.
      * This will take precendence over everything else.
      * <p>
@@ -156,8 +166,11 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
         }
 
         query.validateInScope(value, null);
-        addProjection(new TypeSafeValueProjection(value, property, transformerForNextProjection));
+        addProjection(new TypeSafeValueProjection(value,
+                property, transformerForNextProjection,
+                mapSelectionKeyForNextProjection));
         transformerForNextProjection = null;
+        mapSelectionKeyForNextProjection = null;
         return value;
     }
 
@@ -168,8 +181,10 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
             TypeSafeQuerySelectionProxyData property) {
         query.validateInScope(value, null);
         TypeSafeValueProjection projection = new TypeSafeValueProjection(
-                value, property, transformerForNextProjection);
+                value, property, transformerForNextProjection,
+                mapSelectionKeyForNextProjection);
         transformerForNextProjection = null;
+        mapSelectionKeyForNextProjection = null;
         addProjection(projection);
     }
 
@@ -201,7 +216,9 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
         if (params.isBuildingForDisplay()) {
             // don't bother setting the result transformer, we're only intereted in the hql string and params
         } else if (!selectionDatas.isEmpty()) {
-            query.setResultTransformer(new TypeSafeQueryResultTransformer(selectionDatas, transformers));
+            query.setResultTransformer(new TypeSafeQueryResultTransformer(
+                    this.query.getHelper().getConcreteDtoClassResolver(),
+                    selectionDatas, transformers));
         } else if (hasTransformer) {
             query.setResultTransformer(new WithoutAliasesQueryResultTransformer(transformers));
         }
