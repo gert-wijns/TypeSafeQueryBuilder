@@ -49,6 +49,7 @@ import be.shad.tsqb.dto.PersonDto;
 import be.shad.tsqb.dto.ProductDetailsDto;
 import be.shad.tsqb.dto.StringToPlanningPropertiesTransformer;
 import be.shad.tsqb.query.JoinType;
+import be.shad.tsqb.query.TypeSafeRootQueryInternal;
 import be.shad.tsqb.query.TypeSafeSubQuery;
 import be.shad.tsqb.selection.SelectionValueTransformer;
 import be.shad.tsqb.selection.SelectionValueTransformerException;
@@ -360,10 +361,29 @@ public class SelectTests extends TypeSafeQueryTest {
                 + "from House hobj1");
     }
 
+    /**
+     * Test different types of maps can be filled with
+     * values using put. Also tests sorting by one of the
+     * selected map values.
+     */
     @Test
-    public void selectMapsDtoTest() {
+    public void selectMapsDtoTestWithAliases() {
+        selectMapsDtoTest(true);
+    }
+
+    /**
+     * Validate the query with results works when the aliases
+     * are not included in the select statement
+     */
+    @Test
+    public void selectMapsDtoTestWithoutAliases() {
+        selectMapsDtoTest(false);
+    }
+
+    private void selectMapsDtoTest(boolean aliases) {
         TestDataCreator creator = new TestDataCreator(getSessionFactory());
         creator.createTestPerson(creator.createTestTown(), "Josh");
+        ((TypeSafeRootQueryInternal) query).getProjections().setIncludeAliases(aliases);
 
         Person person = query.from(Person.class);
         MapsDto dtoPx = query.select(MapsDto.class);
@@ -389,11 +409,15 @@ public class SelectTests extends TypeSafeQueryTest {
             }
         });
         merge1.put("person.id", person.getId());
-        validate("select hobj1.name as nestedMaps_genericMap_person_value, "
-                + "hobj1 as nestedMaps_customMap_person_object, "
-                + "hobj1.name as sortedMap_person_transformed, "
-                + "hobj1.id as g1__person_id "
-                + "from Person hobj1");
+        if (aliases) {
+            validate("select hobj1.name as nestedMaps_genericMap_person_value, "
+                    + "hobj1 as nestedMaps_customMap_person_object, "
+                    + "hobj1.name as sortedMap_person_transformed, "
+                    + "hobj1.id as g1__person_id "
+                    + "from Person hobj1");
+        } else {
+            validate("select hobj1.name, hobj1, hobj1.name, hobj1.id from Person hobj1");
+        }
         assertTrue(MapsDto.class.isAssignableFrom(doQueryResult.get(0).getClass()));
 
         MapsDto result = (MapsDto) doQueryResult.get(0);

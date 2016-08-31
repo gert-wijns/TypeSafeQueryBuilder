@@ -42,6 +42,7 @@ import be.shad.tsqb.dao.TypeSafeQueryDaoImpl;
 import be.shad.tsqb.helper.TypeSafeQueryHelperImpl;
 import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.query.TypeSafeRootQuery;
+import be.shad.tsqb.query.TypeSafeRootQueryInternal;
 import be.shad.tsqb.values.HqlQueryValue;
 
 public class TypeSafeQueryTest {
@@ -84,6 +85,7 @@ public class TypeSafeQueryTest {
     @Before
     public void initialize() {
         query = typeSafeQueryDao.createQuery();
+        ((TypeSafeRootQueryInternal) query).getProjections().setIncludeAliases(true);
         sessionFactory.getCurrentSession().beginTransaction();
     }
 
