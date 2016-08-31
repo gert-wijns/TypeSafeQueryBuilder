@@ -48,6 +48,7 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
     private String mapSelectionKeyForNextProjection;
     private Class<?> resultClass;
     private Boolean selectingIntoDto;
+    private boolean includeAliases;
 
     public TypeSafeQueryProjections(TypeSafeQueryInternal query) {
         this.query = query;
@@ -57,6 +58,7 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
         this.transformerForNextProjection = context.getOrOriginal(original.transformerForNextProjection);
         this.mapSelectionKeyForNextProjection = original.mapSelectionKeyForNextProjection;
         this.resultClass = original.resultClass;
+        this.includeAliases = original.includeAliases;
         for(TypeSafeValueProjection projection: original.projections) {
             projections.add(context.get(projection));
         }
@@ -68,6 +70,10 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
 
     public Class<?> getResultClass() {
         return resultClass;
+    }
+
+    public void setIncludeAliases(boolean includeAliases) {
+        this.includeAliases = includeAliases;
     }
 
     public Deque<TypeSafeValueProjection> getProjections() {
@@ -206,7 +212,9 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
             TypeSafeQuerySelectionProxyData selectionData = projection.getSelectionData();
             if (selectionData != null) {
                 selectionDatas.add(selectionData);
-                alias = " as " + selectionData.getAlias();
+                if (params.isBuildingForDisplay() || includeAliases) {
+                    alias = " as " + selectionData.getAlias();
+                }
             }
             transformers.add(projection.getTransformer());
             hasTransformer = hasTransformer || projection.getTransformer() != null;
