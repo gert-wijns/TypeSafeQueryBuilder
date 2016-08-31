@@ -17,6 +17,7 @@ package be.shad.tsqb.helper;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.Map;
 
 import javassist.util.proxy.MethodHandler;
 import be.shad.tsqb.data.TypeSafeQuerySelectionProxyData;
@@ -41,11 +42,37 @@ class SelectionDtoMethodHandler implements MethodHandler {
         if (m.getReturnType().equals(TypeSafeQuerySelectionProxyData.class)) {
             return data;
         }
-        if ("toString".equals(m.getName())) {
+        String methodName = m.getName();
+        if ("toString".equals(methodName)) {
             return String.format("Selection Proxy of [%s]", data.toString());
         }
+        if (self instanceof Map) {
+            String mapSelectionKey = (String) args[0];
+            if ("get".equals(methodName)) {
+                TypeSafeQuerySelectionProxyData childData = data.getChild(mapSelectionKey);
+                if (childData == null) {
+                    throw new IllegalArgumentException("Attempting to get data from a map proxy "
+                            + "which was not first put to the map proxy for key: "
+                            + mapSelectionKey);
+                }
+                query.queueInvokedSelection(childData);
+                return null;
+            }
+            if ("put".equals(methodName)) {
+                query.clearInvokedSelection();
+                query.getProjections().setMapSelectionKeyForNextProjection(mapSelectionKey);
 
-        boolean setter = m.getName().startsWith("set");
+                TypeSafeQuerySelectionProxyData childData = data.getChild(mapSelectionKey);
+                if (childData == null) {
+                    childData = helper.createTypeSafeSelectSubProxy(query,
+                            data, mapSelectionKey, Object.class, false);
+                }
+                query.getProjections().project(args[1], childData);
+                return null;
+            }
+        }
+
+        boolean setter = methodName.startsWith("set");
         String propertyName = helper.method2PropertyName(m);
         TypeSafeQuerySelectionProxyData childData = data.getChild(propertyName);
         if (childData == null) {

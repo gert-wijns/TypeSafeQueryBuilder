@@ -27,6 +27,7 @@ import java.util.Map;
 import org.hibernate.transform.BasicTransformerAdapter;
 
 import be.shad.tsqb.data.TypeSafeQuerySelectionProxyData;
+import be.shad.tsqb.helper.ConcreteDtoClassResolver;
 import be.shad.tsqb.selection.group.SelectionTreeGroup;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroup;
 
@@ -68,6 +69,7 @@ public class TypeSafeQueryResultTransformer extends BasicTransformerAdapter {
     };
 
     public TypeSafeQueryResultTransformer(
+            ConcreteDtoClassResolver concreteDtoClassResolver,
             List<TypeSafeQuerySelectionProxyData> selectionDatas,
             List<SelectionValueTransformer<?, ?>> transformers) {
         try {
@@ -81,8 +83,20 @@ public class TypeSafeQueryResultTransformer extends BasicTransformerAdapter {
                     groupData = new LinkedList<>();
                     dataByGroup.put(selectionData.getGroup(), groupData);
                 }
+                String effectivePropertyPath = selectionData.getEffectivePropertyPath();
+                String mapSelectionKey = null;
+                if (Map.class.isAssignableFrom(selectionData.getParent().getPropertyType())) {
+                    String parentEffectivePath = selectionData.getParent().getEffectivePropertyPath();
+                    if (parentEffectivePath == null) {
+                        mapSelectionKey = effectivePropertyPath;
+                        effectivePropertyPath = "value";
+                    } else {
+                        mapSelectionKey = effectivePropertyPath.substring(parentEffectivePath.length()+1);
+                        effectivePropertyPath = parentEffectivePath + ".value";
+                    }
+                }
                 groupData.add(new SelectionTreeValue(tupleValueIndex++,
-                        selectionData.getEffectivePropertyPath(),
+                        effectivePropertyPath, mapSelectionKey,
                         valueTransformersIt.next()));
             }
 
@@ -105,8 +119,8 @@ public class TypeSafeQueryResultTransformer extends BasicTransformerAdapter {
             Map<TypeSafeQuerySelectionGroup, SelectionTreeGroup> treeGroupsMap = new HashMap<>();
             for(TypeSafeQuerySelectionGroup group: selectionGroups) {
                 // Create group (with any parent it may have) and save it for treeGroup iteration
-                SelectionTreeGroup tree = new SelectionTreeGroup(group, dataByGroup.get(group),
-                        treeGroupsMap.get(group.getParent()));
+                SelectionTreeGroup tree = new SelectionTreeGroup(concreteDtoClassResolver,
+                        group, dataByGroup.get(group), treeGroupsMap.get(group.getParent()));
                 // NOTE: A treeGroup may have child SelectionTrees for embedded/composite objects,
                 //       this means the treeGroups is potentially smaller than the result array,
                 //       because the treeGroups only contains explicitly selected dtos.

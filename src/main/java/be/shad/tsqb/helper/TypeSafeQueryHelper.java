@@ -67,6 +67,11 @@ public interface TypeSafeQueryHelper {
     String getMappedByProperty(TypeSafeQueryProxyData child);
 
     /**
+     * Return function which can resolve an interface class to a concrete class.
+     */
+    ConcreteDtoClassResolver getConcreteDtoClassResolver();
+
+    /**
      * Convert a value to a string. This is only used when hibernate would fail if params are used.
      * <p>
      * Uses the hibernate Type object to convert to a literal.

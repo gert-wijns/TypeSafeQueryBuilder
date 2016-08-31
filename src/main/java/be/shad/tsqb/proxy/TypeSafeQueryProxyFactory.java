@@ -21,6 +21,7 @@ import java.util.Map;
 
 import javassist.util.proxy.MethodFilter;
 import javassist.util.proxy.ProxyFactory;
+import be.shad.tsqb.helper.ConcreteDtoClassResolver;
 
 /**
  * Provides the proxies using javaassist.
@@ -44,9 +45,11 @@ public final class TypeSafeQueryProxyFactory {
     };
 
     private final Map<Class<?>, Class<?>>[] proxyClasses;
+    private final ConcreteDtoClassResolver classResolver;
 
     @SuppressWarnings("unchecked")
-    public TypeSafeQueryProxyFactory() {
+    public TypeSafeQueryProxyFactory(ConcreteDtoClassResolver classResolver) {
+        this.classResolver = classResolver;
         proxyClasses = new HashMap[TypeSafeQueryProxyType.values().length];
         for (int i = 0, n = TypeSafeQueryProxyType.values().length; i < n; i++) {
             proxyClasses[i] = new HashMap<>();
@@ -62,12 +65,13 @@ public final class TypeSafeQueryProxyFactory {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> Class<T> getProxyClass(Class<T> fromClass, TypeSafeQueryProxyType type) {
+    private <T> Class<T> getProxyClass(Class<T> requestedClass, TypeSafeQueryProxyType type) {
         synchronized ( proxyClasses) {
-            Class<?> proxyClass = proxyClasses[type.ordinal()].get(fromClass);
+            Class<?> proxyClass = proxyClasses[type.ordinal()].get(requestedClass);
             if (proxyClass == null) {
                 ProxyFactory f = new ProxyFactory();
-                f.setSuperclass(fromClass); // what if the super class is final?? guess it will give an exception..
+                Class<T> concreteClass = classResolver.getConcreteClass(requestedClass);
+                f.setSuperclass(concreteClass); // what if the super class is final?? guess it will give an exception..
                 if (type.isEntity() || type.isComposite()) {
                     f.setInterfaces(new Class[] { TypeSafeQueryProxy.class });
                 } else {
@@ -75,7 +79,10 @@ public final class TypeSafeQueryProxyFactory {
                 }
                 f.setFilter(METHOD_FILTER);
                 proxyClass = f.createClass();
-                proxyClasses[type.ordinal()].put(fromClass, proxyClass);
+                proxyClasses[type.ordinal()].put(requestedClass, proxyClass);
+                if (requestedClass != concreteClass) {
+                    proxyClasses[type.ordinal()].put(concreteClass, proxyClass);
+                }
             }
             return (Class<T>) proxyClass;
         }

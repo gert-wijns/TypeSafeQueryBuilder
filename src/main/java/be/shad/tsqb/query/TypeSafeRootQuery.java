@@ -16,10 +16,12 @@
 package be.shad.tsqb.query;
 
 import java.util.Collection;
+import java.util.Map;
 
 import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.selection.SelectionValueTransformer;
 import be.shad.tsqb.selection.collection.ResultIdentifierBinder;
+import be.shad.tsqb.selection.parallel.MapSelectionMerger;
 import be.shad.tsqb.selection.parallel.SelectPair;
 import be.shad.tsqb.selection.parallel.SelectTriplet;
 import be.shad.tsqb.selection.parallel.SelectValue;
@@ -125,6 +127,13 @@ public interface TypeSafeRootQuery extends TypeSafeQuery {
      * Create an additional proxy to select into, which is merged with the result dto during result transforming.
      */
     <T, SUB> SUB selectMergeValues(T resultDto, Class<SUB> subselectClass, SelectionMerger<T, SUB> merger);
+
+    /**
+     * Convenience method to select a multiple values into a map which can be used to set some values on the resultDto
+     * <p>
+     * For more values or stricter naming, use {@link #selectMergeValues(Object, Class, SelectionMerger)} with a dtoClass.
+     */
+    <T, K, V> Map<K, V> selectMergeValues(T resultDto, MapSelectionMerger<T, K, V> merger);
 
     /**
      * Convenience method to select a single value which can be used to set some value on the resultDto

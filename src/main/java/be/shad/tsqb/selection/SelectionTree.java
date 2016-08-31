@@ -18,7 +18,10 @@ package be.shad.tsqb.selection;
 import java.lang.reflect.Field;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+
+import be.shad.tsqb.helper.ConcreteDtoClassResolver;
 
 /**
  * Tree of values created once per query.
@@ -30,11 +33,21 @@ import java.util.Map.Entry;
  */
 public class SelectionTree {
     private final LinkedHashMap<Field, SelectionTree> subtrees = new LinkedHashMap<>();
+    private final ConcreteDtoClassResolver concreteDtoClassResolver;
     private final Class<?> resultType;
+    private final boolean isMap;
     private int resultIndex;
 
-    public SelectionTree(Class<?> resultType) {
-        this.resultType = resultType;
+    public SelectionTree(
+            ConcreteDtoClassResolver concreteDtoClassResolver,
+            Class<?> resultType) {
+        this.concreteDtoClassResolver = concreteDtoClassResolver;
+        this.resultType = concreteDtoClassResolver.getConcreteClass(resultType);
+        this.isMap = Map.class.isAssignableFrom(this.resultType);
+    }
+
+    public boolean isMap() {
+        return isMap;
     }
 
     public Class<?> getResultType() {
@@ -81,7 +94,7 @@ public class SelectionTree {
         SelectionTree subtree = subtrees.get(field);
         if (subtree == null) {
             field.setAccessible(true);
-            subtree = new SelectionTree(field.getType());
+            subtree = new SelectionTree(concreteDtoClassResolver, field.getType());
             subtrees.put(field, subtree);
         }
         return subtree;
@@ -97,7 +110,7 @@ public class SelectionTree {
             Field field = entry.getKey();
             Object object = field.get(value);
             if (object == null) {
-                object = field.getType().newInstance();
+                object = entry.getValue().getResultType().newInstance();
                 field.set(value, object);
             }
             entry.getValue().initialize(dataArray, object);

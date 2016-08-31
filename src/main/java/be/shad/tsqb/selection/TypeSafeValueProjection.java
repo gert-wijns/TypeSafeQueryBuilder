@@ -33,13 +33,16 @@ public class TypeSafeValueProjection implements Copyable {
     private final TypeSafeValue<?> value;
     private final TypeSafeQuerySelectionProxyData selectionData;
     private final SelectionValueTransformer<?, ?> transformer;
+    private final String mapSelectionKey;
 
     public TypeSafeValueProjection(TypeSafeValue<?> value,
             TypeSafeQuerySelectionProxyData selectionData,
-            SelectionValueTransformer<?, ?> transformer) {
+            SelectionValueTransformer<?, ?> transformer,
+            String mapSelectionKey) {
         this.selectionData = selectionData;
         this.transformer = transformer;
         this.value = value;
+        this.mapSelectionKey = mapSelectionKey;
     }
 
     /**
@@ -49,6 +52,7 @@ public class TypeSafeValueProjection implements Copyable {
         this.value = context.get(original.value);
         this.selectionData = context.get(original.selectionData);
         this.transformer = context.getOrOriginal(original.transformer);
+        this.mapSelectionKey = original.mapSelectionKey;
     }
 
     public SelectionValueTransformer<?, ?> getTransformer() {
@@ -61,6 +65,10 @@ public class TypeSafeValueProjection implements Copyable {
 
     public TypeSafeQuerySelectionProxyData getSelectionData() {
         return selectionData;
+    }
+
+    public String getMapSelectionKey() {
+        return mapSelectionKey;
     }
 
     public String getAlias() {

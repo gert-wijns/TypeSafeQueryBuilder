@@ -23,8 +23,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import be.shad.tsqb.helper.ConcreteDtoClassResolver;
 import be.shad.tsqb.selection.SelectionIdentityTree;
 import be.shad.tsqb.selection.SelectionTree;
 import be.shad.tsqb.selection.SelectionTreeData;
@@ -52,10 +54,11 @@ public class SelectionTreeGroup extends SelectionTree {
      * during the {@link #createFromTuple(SelectionTreeData[], Object[])} phase.
      */
     public SelectionTreeGroup(
+            ConcreteDtoClassResolver concreteDtoClassResolver,
             TypeSafeQuerySelectionGroup group,
             List<SelectionTreeValue> tupleValues,
             SelectionTreeGroup parent) throws NoSuchFieldException, SecurityException {
-        super(group.getResultClass());
+        super(concreteDtoClassResolver, group.getResultClass());
         this.group = group;
         this.parent = parent;
 
@@ -68,10 +71,9 @@ public class SelectionTreeGroup extends SelectionTree {
             fieldsCount++;
         }
 
-        int fieldIndex = 0;
         int otherFieldsIndex = 0;
         int identityFieldsIndex = 0;
-        Field[] fields = new Field[fieldsCount];
+        List<Field> fields = new ArrayList<Field>(fieldsCount);
         for(SelectionTreeValue value: tupleValues) {
             SelectionTreeField field = createSelectionTreeField(value);
             if (identityPaths.contains(value.propertyPath)) {
@@ -82,21 +84,23 @@ public class SelectionTreeGroup extends SelectionTree {
             } else {
                 otherFields[otherFieldsIndex++] = field;
             }
-            fields[fieldIndex++] = field.field;
+            if (field.field != null) {
+                fields.add(field.field);
+            }
         }
 
         if (group.getCollectionPropertyPath() != null) {
             SubtreeField collectionField = getSubtreeField(parent, group.getCollectionPropertyPath());
             parentCollectionField = collectionField.field;
             collectionClass = determineCollectionClassToUse(collectionField.field.getType());
-            fields[fieldIndex] = parentCollectionField;
+            fields.add(parentCollectionField);
         } else {
             parentCollectionField = null;
             collectionClass = null;
         }
 
         // set the entire array accessible at once (for this object):
-        AccessibleObject.setAccessible(fields, true);
+        AccessibleObject.setAccessible(fields.toArray(new Field[fields.size()]), true);
     }
 
     /**
@@ -148,7 +152,7 @@ public class SelectionTreeGroup extends SelectionTree {
     private SelectionTreeField createSelectionTreeField(SelectionTreeValue value) {
         SubtreeField subtreeField = getSubtreeField(this, value.propertyPath);
         return new SelectionTreeField(subtreeField.subtree, value.valueTransformer,
-                subtreeField.field, value.tupleValueIndex);
+                subtreeField.field, value.mapSelectionKey, value.tupleValueIndex);
     }
 
     /**
@@ -165,8 +169,12 @@ public class SelectionTreeGroup extends SelectionTree {
                 throw new RuntimeException(e);
             }
         }
-        Field field = getField(valueTree.getResultType(), alias[alias.length-1]);
-        return new SubtreeField(valueTree, field);
+        if (valueTree.isMap()) {
+            return new SubtreeField(valueTree, null);
+        } else {
+            Field field = getField(valueTree.getResultType(), alias[alias.length-1]);
+            return new SubtreeField(valueTree, field);
+        }
     }
 
     /**
@@ -273,7 +281,12 @@ public class SelectionTreeGroup extends SelectionTree {
         if (field.valueTransformer != null) {
             value = field.valueTransformer.convert(value);
         }
-        field.field.set(dataArray[field.valueTree.getResultIndex()].getCurrentValue(), value);
+        Object currentValue = dataArray[field.valueTree.getResultIndex()].getCurrentValue();
+        if (field.mapSelectionKey != null) {
+            ((Map) currentValue).put(field.mapSelectionKey, value);
+        } else {
+            field.field.set(currentValue, value);
+        }
         return value;
     }
 
@@ -286,13 +299,16 @@ public class SelectionTreeGroup extends SelectionTree {
         final SelectionTree valueTree;
         final int tupleValueIndex;
         final Field field;
+        final String mapSelectionKey;
 
         public SelectionTreeField(SelectionTree valueTree,
                 SelectionValueTransformer valueTransformer,
-                Field field, int tupleValueIndex) {
+                Field field, String mapSelectionKey,
+                int tupleValueIndex) {
             this.valueTree = valueTree;
             this.valueTransformer = valueTransformer;
             this.field = field;
+            this.mapSelectionKey = mapSelectionKey;
             this.tupleValueIndex = tupleValueIndex;
         }
     }
