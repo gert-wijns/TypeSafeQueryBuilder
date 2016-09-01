@@ -18,6 +18,7 @@ package be.shad.tsqb.test.wiki;
 import static be.shad.tsqb.restrictions.predicate.RestrictionPredicate.IGNORE_NULL_OR_EMPTY;
 
 import java.util.Collections;
+import java.util.Map;
 
 import org.junit.Test;
 
@@ -25,6 +26,7 @@ import be.shad.tsqb.domain.Product;
 import be.shad.tsqb.domain.Town;
 import be.shad.tsqb.domain.people.Person;
 import be.shad.tsqb.domain.people.Relation;
+import be.shad.tsqb.dto.MapsDto;
 import be.shad.tsqb.dto.PersonDto;
 import be.shad.tsqb.dto.TownDto;
 import be.shad.tsqb.query.ClassJoinType;
@@ -54,6 +56,28 @@ public class WikiTests extends TypeSafeQueryTest {
         personDto.setPersonAge(person.getAge());
 
         validate("select hobj1.age as personAge from Person hobj1");
+    }
+
+    @Test
+    public void testSelectMap() {
+        Person person = query.from(Person.class);
+        // select creates proxy instance of dto class
+        @SuppressWarnings("unchecked")
+        Map<String, Object> map = query.select(Map.class);
+        // binds person name to the personName key in the resulting map
+        map.put("personName", person.getName());
+        validate("select hobj1.name as personName from Person hobj1");
+    }
+
+    @Test
+    public void testSelectNestedMap() {
+        Person person = query.from(Person.class);
+        // select creates proxy instance of dto class
+        MapsDto maps = query.select(MapsDto.class);
+        Map<String, Object> map = maps.getGenericMap();
+        // binds person name to the personName key in the resulting map
+        map.put("personName", person.getName());
+        validate("select hobj1.name as genericMap_personName from Person hobj1");
     }
 
     @Test

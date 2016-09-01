@@ -60,6 +60,7 @@ See also:
 - [Selecting values into embedded dtos](Selecting values into embedded dtos)
 - [Selecting values from embedded entities](https://github.com/gert-wijns/TypeSafeQueryBuilder/wiki/Selecting-values-from-embedded-entities)
 - [Selecting arbitrary TypeSafeValues](https://github.com/gert-wijns/TypeSafeQueryBuilder/wiki/Selecting-TypeSafeValues)
+- [Selecting values into a Map](https://github.com/gert-wijns/TypeSafeQueryBuilder/wiki/Selecting-values-into-a-Map)
 
 #### Where clause
 To specificy the where clause of a query, start by using the <i>`query.where(property)`</i> method. Depending on the property type, a list of relevant methods to build the restriction will be available. For example: using a Date as property, it is possible to check if the date is not before some other date while this check would not be available when using a Number property.

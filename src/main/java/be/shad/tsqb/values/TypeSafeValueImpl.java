@@ -15,6 +15,7 @@
  */
 package be.shad.tsqb.values;
 
+import be.shad.tsqb.exceptions.EqualsNotAllowedException;
 import be.shad.tsqb.query.TypeSafeQuery;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.query.copy.CopyContext;
@@ -57,6 +58,16 @@ public abstract class TypeSafeValueImpl<T> implements TypeSafeValue<T>, Copyable
     @Override
     public T select() {
         return query.getRootQuery().queueValueSelected(this);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        HqlQueryBuilderParamsImpl params = new HqlQueryBuilderParamsImpl();
+        params.setBuildingForDisplay(true);
+        HqlQueryValue hqlQueryValue = this.toHqlQueryValue(params);
+        throw EqualsNotAllowedException.create(query, obj,
+                "hql: " + hqlQueryValue.getHql() +
+                ", params: " + hqlQueryValue.getParams());
     }
 
 }
