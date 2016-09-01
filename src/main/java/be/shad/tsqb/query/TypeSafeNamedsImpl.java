@@ -36,7 +36,7 @@ public class TypeSafeNamedsImpl implements TypeSafeNameds, Copyable {
             throw new IllegalArgumentException(String.format("Name is blank when trying to set name for [%s].", object));
         }
         Object named = nameds.put(name, object);
-        if (named != null && !named.equals(object)) {
+        if (named != null && named != object) {
             throw new IllegalArgumentException(String.format("Naming [%s] with name [%s] is illegal "
                     + "because another named object [%s] already used the name.",
                     object, name, named));

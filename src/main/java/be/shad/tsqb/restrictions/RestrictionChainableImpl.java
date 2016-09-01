@@ -22,6 +22,7 @@ import static be.shad.tsqb.restrictions.RestrictionOperator.NOT_EXISTS;
 
 import java.util.Date;
 
+import be.shad.tsqb.exceptions.EqualsNotAllowedException;
 import be.shad.tsqb.query.TypeSafeSubQuery;
 import be.shad.tsqb.values.TypeSafeValue;
 
@@ -243,6 +244,11 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable {
     @Override
     public RestrictionAndChainable or(ContinuedRestrictionChainable continuedRestrictionChainable) {
         return or(continuedRestrictionChainable.getRestrictionsGroup());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        throw EqualsNotAllowedException.create(getRestrictionsGroup().getQuery(), obj, "Restriction");
     }
 
 }
