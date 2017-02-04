@@ -48,9 +48,12 @@ import be.shad.tsqb.dto.MapsDto;
 import be.shad.tsqb.dto.PersonDto;
 import be.shad.tsqb.dto.ProductDetailsDto;
 import be.shad.tsqb.dto.StringToPlanningPropertiesTransformer;
+import be.shad.tsqb.exceptions.SelectException;
 import be.shad.tsqb.query.JoinType;
 import be.shad.tsqb.query.TypeSafeRootQueryInternal;
 import be.shad.tsqb.query.TypeSafeSubQuery;
+import be.shad.tsqb.restrictions.ContinuedOnGoingNumberRestriction;
+import be.shad.tsqb.restrictions.RestrictionsGroupFactory;
 import be.shad.tsqb.selection.SelectionValueTransformer;
 import be.shad.tsqb.selection.SelectionValueTransformerException;
 import be.shad.tsqb.selection.parallel.MapSelectionMerger;
@@ -80,6 +83,55 @@ public class SelectTests extends TypeSafeQueryTest {
         result.setFloors(house.getFloors());
 
         validate("select hobj1.floors as floors from House hobj1");
+    }
+
+    /**
+     * Select a restriction.
+     */
+    @Test
+    public void selectBuilderRestriction() {
+        House house = query.from(House.class);
+
+        RestrictionsGroupFactory rb = query.getGroupedRestrictionsBuilder();
+        query.select(rb.where(house.getFloors()).gt(1));
+        validate("select case when(hobj1.floors > 1) then true else false end from House hobj1");
+    }
+
+    @Test(expected=SelectException.class)
+    public void selectQueryRestrictionShouldFailCauseItsUnlikelyThisWasThePurpose() {
+        House house = query.from(House.class);
+        query.select(query.where(house.getFloors()).gt(1));
+    }
+
+    @Test(expected=SelectException.class)
+    public void selectRestrictionWithMultiplePartsFailWhenUsingWhere() {
+        House house = query.from(House.class);
+        query.select(query.where(house.getFloors()).gt(1).lt(10));
+    }
+
+    @Test(expected=SelectException.class)
+    public void selectRestrictionWithMultiplePartsFailWhenAddedSubRestrictionGroup() {
+        House house = query.from(House.class);
+
+        RestrictionsGroupFactory rb = query.getGroupedRestrictionsBuilder();
+        ContinuedOnGoingNumberRestriction check = rb.where(house.getFloors()).gt(1);
+        query.where(check.getRestriction());
+        query.select(check);
+    }
+
+    /**
+     * When the sub restriction is created first and selected before appending to the
+     * query where it bypasses the check whether it's already in the where clause
+     * (this way such a restriction can actually be reused when you know what you're doing).
+     */
+    public void selectRestrictionWithMultiplePartsDoesntFailWhenAddedSubRestrictionGroupInCorrectOrder() {
+        House house = query.from(House.class);
+
+        RestrictionsGroupFactory rb = query.getGroupedRestrictionsBuilder();
+        ContinuedOnGoingNumberRestriction check = rb.where(house.getFloors()).gt(1);
+        query.select(check);
+        query.where(check.getRestriction());
+        validate("select case when(hobj1.floors > 1) then true else false end from House hobj1 where hobj1.floors > :np1", 1L);
     }
 
     /**

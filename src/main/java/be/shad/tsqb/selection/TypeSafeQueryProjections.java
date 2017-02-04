@@ -27,12 +27,15 @@ import be.shad.tsqb.hql.HqlQueryBuilder;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.query.copy.CopyContext;
+import be.shad.tsqb.restrictions.Restriction;
+import be.shad.tsqb.restrictions.RestrictionHolder;
 import be.shad.tsqb.values.CustomTypeSafeValue;
 import be.shad.tsqb.values.DirectTypeSafeValue;
 import be.shad.tsqb.values.HqlQueryBuilderParams;
 import be.shad.tsqb.values.HqlQueryValue;
 import be.shad.tsqb.values.IsMaybeDistinct;
 import be.shad.tsqb.values.ReferenceTypeSafeValue;
+import be.shad.tsqb.values.RestrictionTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
 
 /**
@@ -162,6 +165,12 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
             } else if (select instanceof TypeSafeQueryProxy) {
                 // entity selection
                 value = new ReferenceTypeSafeValue<>(query, ((TypeSafeQueryProxy) select).getTypeSafeProxyData());
+            } else if (select instanceof Restriction) {
+                // select the value as a case when (restriction is true) ...
+                value = new RestrictionTypeSafeValue(query, (Restriction) select);
+            } else if (select instanceof RestrictionHolder) {
+                // select the value as a case when (restriction is true) ...
+                value = new RestrictionTypeSafeValue(query, ((RestrictionHolder) select).getRestriction());
             } else {
                 // direct value selection
                 value = new DirectTypeSafeValue<>(query, select);

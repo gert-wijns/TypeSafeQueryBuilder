@@ -22,11 +22,13 @@ import be.shad.tsqb.helper.TypeSafeQueryHelper;
 import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.query.copy.CopyContext;
 import be.shad.tsqb.query.copy.Copyable;
+import be.shad.tsqb.restrictions.Restriction;
 import be.shad.tsqb.restrictions.predicate.RestrictionPredicate;
 import be.shad.tsqb.values.CaseTypeSafeValue;
 import be.shad.tsqb.values.HqlQueryBuilderParams;
 import be.shad.tsqb.values.HqlQueryValue;
 import be.shad.tsqb.values.HqlQueryValueImpl;
+import be.shad.tsqb.values.RestrictionTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
 
 /**
@@ -175,6 +177,14 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
     @Override
     public T select() {
         return getRootQuery().queueValueSelected(this);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Boolean selectBoolean(Restriction restriction) {
+        return new RestrictionTypeSafeValue(this, restriction).select();
     }
 
     /**

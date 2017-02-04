@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import be.shad.tsqb.hql.HqlQuery;
+import be.shad.tsqb.restrictions.Restriction;
 import be.shad.tsqb.selection.SelectionValueTransformer;
 import be.shad.tsqb.selection.collection.ResultIdentifierBinder;
 import be.shad.tsqb.selection.parallel.MapSelectionMerger;
@@ -88,6 +89,11 @@ public interface TypeSafeRootQuery extends TypeSafeQuery {
      * Delegates to {@link #select(Class, ResultIdentifierBinder)} with null.
      */
     <T> T select(Class<T> resultClass);
+
+    /**
+     * Select the restriction as a case when(restriction) then true else false.
+     */
+    Boolean selectBoolean(Restriction restriction);
 
     /**
      * Create a proxy to select into. The proxy is used to generate aliases for the
