@@ -151,9 +151,6 @@ public class TypeSafeQueryResultTransformer extends BasicTransformerAdapter {
         if (list.isEmpty()) {
             // no values found, though then this transformList is most likely not called.
             return list;
-        } else if (!(list.iterator().next() instanceof Object[])) {
-            // only one value was selected, nothing needs to be done
-            return list;
         }
 
         // prepare result array and set up dataArray to contain the current
@@ -165,7 +162,12 @@ public class TypeSafeQueryResultTransformer extends BasicTransformerAdapter {
         }
 
         try {
+        	Object[] singleValue = new Object[1];
             for(Object obj: list) {
+            	if (!(obj instanceof Object[])) {
+            		singleValue[0] = obj;
+            		obj = singleValue;
+            	}
                 for(SelectionTreeGroup treeGroup: treeGroups) {
                     treeGroup.createFromTuple(data, (Object[]) obj);
                 }

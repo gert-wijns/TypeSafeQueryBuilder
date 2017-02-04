@@ -24,63 +24,63 @@ public class FunctionsTest extends TypeSafeQueryTest {
     @Test
     public void testLengthFunction() {
         Person fromProxy = query.from(Person.class);
-        query.select(query.hqlFunction().length(fromProxy.getName()));
+        query.selectValue(query.hqlFunction().length(fromProxy.getName()));
         validate("select length(hobj1.name) from Person hobj1");
     }
 
     @Test
     public void testAvgFunction() {
         Person person = query.from(Person.class);
-        query.select(query.hqlFunction().avg(person.getAge()));
+        query.selectValue(query.hqlFunction().avg(person.getAge()));
         validate("select avg(hobj1.age) from Person hobj1");
     }
 
     @Test
     public void testMaxFunction() {
         Person person = query.from(Person.class);
-        query.select(query.hqlFunction().max(person.getAge()));
+        query.selectValue(query.hqlFunction().max(person.getAge()));
         validate("select max(hobj1.age) from Person hobj1");
     }
 
     @Test
     public void testMinFunction() {
         Person person = query.from(Person.class);
-        query.select(query.hqlFunction().min(person.getAge()));
+        query.selectValue(query.hqlFunction().min(person.getAge()));
         validate("select min(hobj1.age) from Person hobj1");
     }
 
     @Test
     public void testMinStringFunction() {
         Person person = query.from(Person.class);
-        query.select(query.hqlFunction().min(person.getName()));
+        query.selectValue(query.hqlFunction().min(person.getName()));
         validate("select min(hobj1.name) from Person hobj1");
     }
 
     @Test
     public void testSumFunction() {
         Person person = query.from(Person.class);
-        query.select(query.hqlFunction().sum(person.getAge()));
+        query.selectValue(query.hqlFunction().sum(person.getAge()));
         validate("select sum(hobj1.age) from Person hobj1");
     }
 
     @Test
     public void testLowerFunction() {
         Person person = query.from(Person.class);
-        query.select(query.hqlFunction().lower(person.getName()));
+        query.selectValue(query.hqlFunction().lower(person.getName()));
         validate("select lower(hobj1.name) from Person hobj1");
     }
 
     @Test
     public void testUpperFunction() {
         Person person = query.from(Person.class);
-        query.select(query.hqlFunction().lower(person.getName()));
+        query.selectValue(query.hqlFunction().lower(person.getName()));
         validate("select lower(hobj1.name) from Person hobj1");
     }
 
     @Test
     public void testWrapFunction() {
         Person person = query.from(Person.class);
-        query.select(query.hqlFunction().wrap(query.toValue(person.getName())));
+        query.selectValue(query.hqlFunction().wrap(query.toValue(person.getName())));
         validate("select (hobj1.name) from Person hobj1");
     }
 }

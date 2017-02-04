@@ -75,6 +75,12 @@ public interface TypeSafeRootQuery extends TypeSafeQuery {
     HqlQuery toHqlQuery();
 
     /**
+     * Delegates to {@link #select(Object)}.
+     * @deprecated use {@link #select(Object)} instead.
+     */
+    void select(Object value);
+
+    /**
      * Can be used when not selecting into a result type,
      * or when selecting a single value in a subquery.
      * <p>
@@ -83,7 +89,7 @@ public interface TypeSafeRootQuery extends TypeSafeQuery {
      * <p>
      * The selects will not receive an alias.
      */
-    void select(Object value);
+    void selectValue(Object value);
 
     /**
      * Delegates to {@link #select(Class, ResultIdentifierBinder)} with null.

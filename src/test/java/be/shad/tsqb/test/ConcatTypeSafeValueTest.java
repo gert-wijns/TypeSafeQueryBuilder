@@ -27,7 +27,7 @@ public class ConcatTypeSafeValueTest extends TypeSafeQueryTest {
         TypeSafeValueFunctions fun = query.hqlFunction();
 
         query.from(Person.class);
-        query.select(fun.concat("A").append("B"));
+        query.selectValue(fun.concat("A").append("B"));
 
         validate("select concat(:np1, :np2) from Person hobj1", "A", "B");
     }
@@ -37,7 +37,7 @@ public class ConcatTypeSafeValueTest extends TypeSafeQueryTest {
         TypeSafeValueFunctions fun = query.hqlFunction();
 
         Person person = query.from(Person.class);
-        query.select(fun.concat(person.getName()).append(" aka ").append(person.getNickname()));
+        query.selectValue(fun.concat(person.getName()).append(" aka ").append(person.getNickname()));
 
         validate("select concat(hobj1.name, :np1, hobj1.nickname) from Person hobj1", " aka ");
     }
@@ -47,7 +47,7 @@ public class ConcatTypeSafeValueTest extends TypeSafeQueryTest {
         TypeSafeValueFunctions fun = query.hqlFunction();
 
         Person person = query.from(Person.class);
-        query.select(fun.concat(person.getName()).
+        query.selectValue(fun.concat(person.getName()).
                 append(" (").append(person.getAge()).append(")"));
 
         validate("select concat(hobj1.name, :np1, hobj1.age, :np2) from Person hobj1", " (", ")");
@@ -58,7 +58,7 @@ public class ConcatTypeSafeValueTest extends TypeSafeQueryTest {
         TypeSafeValueFunctions fun = query.hqlFunction();
 
         Person person = query.from(Person.class);
-        query.select(fun.concat(person.getName()).
+        query.selectValue(fun.concat(person.getName()).
                 append(" (").append(5.0).append(")"));
 
         validate("select concat(hobj1.name, :np1, :np2, :np3) from Person hobj1", " (", 5.0, ")");

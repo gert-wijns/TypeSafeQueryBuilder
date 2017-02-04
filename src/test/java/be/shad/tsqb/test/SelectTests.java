@@ -170,7 +170,7 @@ public class SelectTests extends TypeSafeQueryTest {
         Town town = query.from(Town.class);
         Building building = query.join(town.getBuildings());
 
-        query.select(building);
+        query.selectValue(building);
         validate("select hobj2 from Town hobj1 join hobj1.buildings hobj2");
     }
 
@@ -198,7 +198,7 @@ public class SelectTests extends TypeSafeQueryTest {
         Town town = query.from(Town.class);
         Building building = query.join(town.getBuildings());
 
-        query.select(building.getId());
+        query.selectValue(building.getId());
 
         validate("select hobj2.id from Town hobj1 join hobj1.buildings hobj2");
     }
@@ -213,7 +213,7 @@ public class SelectTests extends TypeSafeQueryTest {
 
         nameSubQuery.select(houseSub.getName());
 
-        query.select(nameSubQuery);
+        query.selectValue(nameSubQuery);
         validate("select (select hobj2.name from House hobj2 where hobj1.id = hobj2.id) from House hobj1");
     }
 
@@ -263,7 +263,7 @@ public class SelectTests extends TypeSafeQueryTest {
         creator.createTestPerson(creator.createTestTown(), "Josh");
 
         Person person = query.from(Person.class);
-        query.select(person.getAge());
+        query.selectValue(person.getAge());
         PersonDto dtoPx = query.select(PersonDto.class);
         dtoPx.setId(person.getId());
 
@@ -281,7 +281,7 @@ public class SelectTests extends TypeSafeQueryTest {
         Person person = query.from(Person.class);
         PersonDto dtoPx = query.select(PersonDto.class);
         dtoPx.setId(person.getId());
-        query.select(person.getAge());
+        query.selectValue(person.getAge());
 
         validate("select hobj1.id as id, hobj1.age from Person hobj1");
     }
@@ -366,7 +366,7 @@ public class SelectTests extends TypeSafeQueryTest {
     @Test
     public void selectDistinctWithoutDto() {
         House house = query.from(House.class);
-        query.select(query.distinct(house.getFloors()));
+        query.selectValue(query.distinct(house.getFloors()));
 
         validate("select distinct hobj1.floors from House hobj1");
     }

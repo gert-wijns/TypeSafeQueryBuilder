@@ -220,8 +220,8 @@ public class ExamplesTest extends TypeSafeQueryTest {
         personSQ.where(person.getId()).eq(personSub.getId());
         personSQ.select(personSub.getName());
 
-        query.select(personSQ);
-        query.select(person.isMarried());
+        query.selectValue(personSQ);
+        query.selectValue(person.isMarried());
 
         validate("select (select hobj2.name from Person hobj2 where hobj1.id = hobj2.id), hobj1.married from Person hobj1");
     }
@@ -290,8 +290,8 @@ public class ExamplesTest extends TypeSafeQueryTest {
         favoriteColorSQ.where(person.getId()).eq(personSQ.getId()).
                           and(favColor.getPropertyKey()).eq("FavColorKey");
 
-        query.select(person);
-        query.select(favoriteColorSQ);
+        query.selectValue(person);
+        query.selectValue(favoriteColorSQ);
 
         validate("select hobj1, (select hobj2.propertyValue from PersonProperty hobj2 where hobj1.id = hobj2.person.id and hobj2.propertyKey = :np1) from Person hobj1",
                 "FavColorKey");
@@ -409,8 +409,8 @@ public class ExamplesTest extends TypeSafeQueryTest {
     @Test
     public void testGroupBy() {
         Person person = query.from(Person.class);
-        query.select(person.getName());
-        query.select(person.getAge());
+        query.selectValue(person.getName());
+        query.selectValue(person.getAge());
 
         query.groupBy(person.getName());
         query.groupBy(person.getAge());
@@ -421,8 +421,8 @@ public class ExamplesTest extends TypeSafeQueryTest {
     @Test
     public void testOrderBy() {
         Person person = query.from(Person.class);
-        query.select(person.getName());
-        query.select(person.getAge());
+        query.selectValue(person.getName());
+        query.selectValue(person.getAge());
 
         query.orderBy().desc(person.getName()).
                          asc(person.getAge());

@@ -23,12 +23,14 @@ import static be.shad.tsqb.proxy.TypeSafeQueryProxyType.SelectionDtoType;
 
 import java.lang.reflect.Method;
 
-import javassist.util.proxy.ProxyObject;
+import javax.persistence.EntityManagerFactory;
 
+import org.hibernate.MappingException;
 import org.hibernate.SessionFactory;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.metadata.CollectionMetadata;
+import org.hibernate.metamodel.spi.MetamodelImplementor;
 import org.hibernate.persister.collection.OneToManyPersister;
 import org.hibernate.type.BasicType;
 import org.hibernate.type.CollectionType;
@@ -45,6 +47,7 @@ import be.shad.tsqb.proxy.TypeSafeQuerySelectionProxy;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.query.TypeSafeRootQueryInternal;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroup;
+import javassist.util.proxy.ProxyObject;
 
 public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
     private static final Integer DEFAULT_INTEGER = 84;
@@ -56,6 +59,7 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
     private static final Character DEFAULT_CHAR = 'g';
 
     private final SessionFactory sessionFactory;
+    private final MetamodelImplementor metaModel;
     private final TypeSafeQueryProxyFactory proxyFactory;
     private final ConcreteDtoClassResolver classResolver;
 
@@ -65,6 +69,7 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
 
     public TypeSafeQueryHelperImpl(SessionFactory sessionFactory, ConcreteDtoClassResolver classResolver) {
         this.sessionFactory = sessionFactory;
+        this.metaModel = (MetamodelImplementor) ((EntityManagerFactory) sessionFactory).getMetamodel();
         this.classResolver = classResolver;
         this.proxyFactory = new TypeSafeQueryProxyFactory(classResolver);
     }
@@ -79,10 +84,10 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
 
     private Type getTargetType(TypeSafeQueryProxyData data, String property) {
         if (data.getProxyType().isComposite()) {
-            return sessionFactory.getClassMetadata(data.getCompositeTypeEntityParent().getPropertyType()).
+            return getMetaData(data.getCompositeTypeEntityParent().getPropertyType()).
                     getPropertyType(data.getCompositePropertyPath() + "." + property);
         }
-        return sessionFactory.getClassMetadata(data.getPropertyType()).getPropertyType(property);
+        return getMetaData(data.getPropertyType()).getPropertyType(property);
     }
 
     /**
@@ -103,7 +108,7 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
      */
     @Override
     public String getEntityName(Class<?> entityClass) {
-        return sessionFactory.getClassMetadata(entityClass).getEntityName();
+        return getMetaData(entityClass).getEntityName();
     }
 
     /**
@@ -168,7 +173,7 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
         if (!(proxy instanceof TypeSafeQueryProxy)) {
             throw new IllegalArgumentException(String.format("The provided proxy [%s] is not a TypeSafeQueryProxy.", proxy));
         }
-        ClassMetadata subtypeMeta = sessionFactory.getClassMetadata(subtype);
+        ClassMetadata subtypeMeta = getMetaData(subtype);
         if (subtypeMeta == null) {
             throw new IllegalArgumentException(String.format("The subtype [%s] is not "
                     + "known in hibernate. Maybe you forgot to map it?.", subtype));
@@ -208,7 +213,7 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
     TypeSafeQueryProxyData createChildData(TypeSafeQueryInternal query, TypeSafeQueryProxyData parent, String property) {
         Type propertyType = getTargetType(parent, property);
         Class<?> targetClass = getTargetEntityClass(propertyType);
-        ClassMetadata metadata = sessionFactory.getClassMetadata(targetClass);
+        ClassMetadata metadata = getMetaData(targetClass);
         if (metadata == null && !propertyType.isComponentType()) {
             return query.getDataTree().createData(parent, property, targetClass);
         }
@@ -223,6 +228,14 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
                 proxyType, metadata == null ? null: metadata.getIdentifierPropertyName(), proxy);
         setEntityProxyMethodListener(query, proxy, data);
         return data;
+    }
+
+    private ClassMetadata getMetaData(Class<?> targetClass) {
+        try {
+            return (ClassMetadata) metaModel.entityPersister(targetClass);
+        } catch (MappingException ex) {
+            return null;
+        }
     }
 
     /**
@@ -243,7 +256,7 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
      */
     private TypeSafeQueryProxyData createClassJoinProxy(TypeSafeQueryInternal query,
             TypeSafeQueryProxyData parent, Class<?> targetClass) {
-        ClassMetadata metadata = sessionFactory.getClassMetadata(targetClass);
+        ClassMetadata metadata = getMetaData(targetClass);
         TypeSafeQueryProxyType proxyType = TypeSafeQueryProxyType.EntityType;
         TypeSafeQueryProxy proxy = (TypeSafeQueryProxy) proxyFactory.getProxy(targetClass, proxyType);
         TypeSafeQueryProxyData data = query.getDataTree().createData(parent, null, targetClass,
@@ -284,7 +297,9 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
             throw new IllegalArgumentException("Method not designed to fetch MappedByProperty "
                     + "for a non-collection type. PropertyType was: " + propertyType);
         }
-        CollectionMetadata collectionMetadata = sessionFactory.getCollectionMetadata(((CollectionType) propertyType).getRole());
+
+        CollectionMetadata collectionMetadata = (CollectionMetadata) metaModel.collectionPersister(
+                ((CollectionType) propertyType).getRole());
         if (collectionMetadata instanceof OneToManyPersister) {
             OneToManyPersister persister = (OneToManyPersister) collectionMetadata;
             return persister.getMappedByProperty();

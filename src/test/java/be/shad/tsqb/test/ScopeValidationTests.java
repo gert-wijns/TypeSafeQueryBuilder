@@ -34,7 +34,7 @@ public class ScopeValidationTests extends TypeSafeQueryTest {
     public void testSubqueryProxyNotUsedInSelect() {
         TypeSafeSubQuery<Date> subquery = query.subquery(Date.class);
         Building building = subquery.from(Building.class);
-        query.select(building.getConstructionDate());
+        query.selectValue(building.getConstructionDate());
     }
 
     @Test(expected=ValueNotInScopeException.class)
@@ -70,7 +70,7 @@ public class ScopeValidationTests extends TypeSafeQueryTest {
         query.from(House.class);
         TypeSafeSubQuery<Date> subquery = query.subquery(Date.class);
         TypeSafeSubQuery<Date> subsubquery = subquery.subquery(Date.class);
-        query.select(subsubquery.select());
+        query.selectValue(subsubquery.select());
     }
 
     @Test(expected=ValueNotInScopeException.class)
@@ -95,7 +95,7 @@ public class ScopeValidationTests extends TypeSafeQueryTest {
         TypeSafeSubQuery<Date> subquery = query.subquery(Date.class);
         Building building = subquery.from(Building.class);
         subquery.select(subquery.hqlFunction().max(building.getConstructionDate()));
-        query.select(subquery);
+        query.selectValue(subquery);
 
         validate("select (select max(hobj2.constructionDate) from Building hobj2) from Town hobj1");
     }

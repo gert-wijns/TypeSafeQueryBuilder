@@ -21,7 +21,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
@@ -88,7 +88,7 @@ public class TypeSafeQueryDaoImpl implements TypeSafeQueryDao {
         HqlQuery hqlQuery = tsqbQuery.toHqlQuery();
 
         Session currentSession = sessionFactory.getCurrentSession();
-        Query query = currentSession.createQuery(hqlQuery.getHql());
+        Query<Object[]> query = currentSession.createQuery(hqlQuery.getHql(), Object[].class);
         int position = 0;
         CollectionNamedParameter chunkedParam = null;
         for(Object param: hqlQuery.getParams()) {
@@ -117,7 +117,6 @@ public class TypeSafeQueryDaoImpl implements TypeSafeQueryDao {
         if (tsqbQuery.getMaxResults() > 0) {
             query.setMaxResults(tsqbQuery.getMaxResults());
         }
-        query.setResultTransformer(hqlQuery.getResultTransformer());
 
         List<T> results = null;
         if (configurer != null) {
@@ -151,26 +150,22 @@ public class TypeSafeQueryDaoImpl implements TypeSafeQueryDao {
      * Lists the same query with an updated collection in the named param for the batched named param.
      */
     @SuppressWarnings("unchecked")
-    private <T> List<T> listAll(Query query, HqlQuery hqlQuery, CollectionNamedParameter chunkedParam) {
+    private <T> List<T> listAll(Query<Object[]> query, HqlQuery hqlQuery, CollectionNamedParameter chunkedParam) {
+        List<Object[]> results;
         if (chunkedParam == null) {
-            return query.list();
-        }
-
-        // all results need to be listed before applying the result transformer because
-        // the values may need to be grouped and this grouping could be done incorrectly
-        // if it is applied on a partial result
-        query.setResultTransformer(null);
-
-        List<Object[]> results = new LinkedList<>();
-        int p = chunkedParam.getBatchSize();
-        List<Object> values = new ArrayList<>(p);
-        Iterator<?> it = chunkedParam.getValue().iterator();
-        while (it.hasNext()) {
-            values.add(it.next());
-            if (values.size() == p || !it.hasNext()) {
-                query.setParameterList(chunkedParam.getName(), values);
-                results.addAll(query.list());
-                values.clear();
+        	results = query.getResultList();
+        } else {
+        	results = new LinkedList<>();
+	        int p = chunkedParam.getBatchSize();
+            List<Object> values = new ArrayList<>(p);
+            Iterator<?> it = chunkedParam.getValue().iterator();
+            while (it.hasNext()) {
+                values.add(it.next());
+                if (values.size() == p || !it.hasNext()) {
+                    query.setParameterList(chunkedParam.getName(), values);
+                    results.addAll(query.getResultList());
+                    values.clear();
+                }
             }
         }
 

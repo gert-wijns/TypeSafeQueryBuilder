@@ -220,11 +220,14 @@ public class CollectionSubselectTest extends TypeSafeQueryTest {
         Person selectPerson = query.select(selectTown.getInhabitants(), Person.class, null);
         selectTown.setName(townProxy.getName());
         selectPerson.setId(inhabitant.getId());
-        assertEquals("\n    select hobj1.name as name,"
+        assertEquals("\n    select"
+        		+ "\n        hobj1.name as name,"
                 + "\n        hobj2.id as g1__id "
-                + "\n    from Town hobj1 "
-                + "\n    join hobj1.inhabitants hobj2"
-                + "\n --- with: []", query.toFormattedString());
+                + "\n    from"
+                + "\n        Town hobj1 "
+                + "\n    join"
+                + "\n        hobj1.inhabitants hobj2"
+                + "\n --- with: []", query.toFormattedString().replace("\r", ""));
     }
 
     @Test(expected=IllegalStateException.class)

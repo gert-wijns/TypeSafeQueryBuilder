@@ -182,7 +182,7 @@ public class WikiTests extends TypeSafeQueryTest {
     @Test
     public void testSelectSingleValue() {
         Person person = query.from(Person.class);
-        query.select(person);
+        query.selectValue(person);
 
         validate("select hobj1 from Person hobj1");
     }
@@ -193,8 +193,8 @@ public class WikiTests extends TypeSafeQueryTest {
     @Test
     public void testSelectObjectArrayList() {
         Person person = query.from(Person.class);
-        query.select(person.getId());
-        query.select(person.getName());
+        query.selectValue(person.getId());
+        query.selectValue(person.getName());
 
         validate("select hobj1.id, hobj1.name from Person hobj1");
     }
@@ -273,7 +273,7 @@ public class WikiTests extends TypeSafeQueryTest {
     @Test
     public void selectNestedComponentTypeValues() {
         Product product = query.from(Product.class);
-        query.select(product.getProductProperties().getPlanning().getAlgorithm());
+        query.selectValue(product.getProductProperties().getPlanning().getAlgorithm());
 
         validate("select hobj1.productProperties.planning.algorithm from Product hobj1");
     }

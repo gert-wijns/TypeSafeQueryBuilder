@@ -27,7 +27,7 @@ public class HavingTests extends TypeSafeQueryTest {
     @Test
     public void testHavingSingleValue() {
         Building building = query.from(Building.class);
-        query.select(building.getConstructionDate());
+        query.selectValue(building.getConstructionDate());
         query.groupBy(building.getConstructionDate());
 
         Date dateArg = new Date();
@@ -39,8 +39,8 @@ public class HavingTests extends TypeSafeQueryTest {
     @Test
     public void testGroupByMoreThanOneValue() {
         Building building = query.from(Building.class);
-        query.select(building.getConstructionDate());
-        query.select(building.getStyle());
+        query.selectValue(building.getConstructionDate());
+        query.selectValue(building.getStyle());
         query.groupBy(building.getConstructionDate());
         query.groupBy(building.getStyle());
 

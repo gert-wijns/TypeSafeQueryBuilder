@@ -119,7 +119,7 @@ public class WhereTests extends TypeSafeQueryTest {
         houseSQ.where(houseSQV.getName()).eq(house.getName()).
                   and(houseSQV.getId()).notEq(house.getId());
 
-        query.select(houseSQ.selectExists());
+        query.selectValue(houseSQ.selectExists());
 
         validate("select (case when (exists (select 1 from House hobj2 where hobj2.name = hobj1.name and hobj2.id <> hobj1.id)) then true else false end) from House hobj1");
     }
@@ -133,7 +133,7 @@ public class WhereTests extends TypeSafeQueryTest {
         houseSQ.where(houseSQV.getName()).eq(house.getName()).
                   and(houseSQV.getId()).notEq(house.getId());
 
-        query.select(houseSQ.selectCount());
+        query.selectValue(houseSQ.selectCount());
 
         validate("select (select count(*) from House hobj2 where hobj2.name = hobj1.name and hobj2.id <> hobj1.id) from House hobj1");
     }
@@ -147,7 +147,7 @@ public class WhereTests extends TypeSafeQueryTest {
         houseSQ.where(houseSQV.getName()).eq(house.getName()).
                   and(houseSQV.getId()).notEq(house.getId());
 
-        query.select(houseSQ.selectCountDistinct(houseSQV.getStyle()));
+        query.selectValue(houseSQ.selectCountDistinct(houseSQV.getStyle()));
 
         validate("select (select count(distinct hobj2.style) from House hobj2 where hobj2.name = hobj1.name and hobj2.id <> hobj1.id) from House hobj1");
     }

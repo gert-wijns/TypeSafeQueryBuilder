@@ -292,6 +292,14 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
      */
     @Override
     public void select(Object value) {
+    	selectValue(value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void selectValue(Object value) {
         getProjections().project(value, null);
     }
 
@@ -432,7 +440,7 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public <T, A> SelectValue<A> selectMergeValues(T resultDto, SelectionMerger1<T, A> merger) {
-        return selectMergeValues(resultDto, SelectValue.class, (SelectionMerger) merger);
+        return (SelectValue) selectMergeValues(resultDto, SelectValue.class, (SelectionMerger) merger);
     }
 
     /**
@@ -441,7 +449,7 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public <T, A, B> SelectPair<A, B> selectMergeValues(T resultDto, SelectionMerger2<T, A, B> merger) {
-        return selectMergeValues(resultDto, SelectPair.class, (SelectionMerger) merger);
+        return (SelectPair) selectMergeValues(resultDto, SelectPair.class, (SelectionMerger) merger);
     }
 
     /**
@@ -450,7 +458,7 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public <T, A, B, C> SelectTriplet<A, B, C> selectMergeValues(T resultDto, SelectionMerger3<T, A, B, C> merger) {
-        return selectMergeValues(resultDto, SelectTriplet.class, (SelectionMerger) merger);
+        return (SelectTriplet) selectMergeValues(resultDto, SelectTriplet.class, (SelectionMerger) merger);
     }
 
     /**

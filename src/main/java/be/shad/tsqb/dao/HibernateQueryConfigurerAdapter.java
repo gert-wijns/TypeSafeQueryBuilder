@@ -15,7 +15,7 @@
  */
 package be.shad.tsqb.dao;
 
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 
 /**
@@ -32,6 +32,6 @@ public class HibernateQueryConfigurerAdapter implements HibernateQueryConfigurer
     }
 
     @Override
-    public void configureQuery(Query query) {
+    public <R> void configureQuery(Query<R> query) {
     }
 }

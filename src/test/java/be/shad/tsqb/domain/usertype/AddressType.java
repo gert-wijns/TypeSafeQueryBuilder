@@ -21,7 +21,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.hibernate.HibernateException;
-import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.type.StringType;
 import org.hibernate.type.Type;
 import org.hibernate.usertype.CompositeUserType;
@@ -59,7 +59,8 @@ public class AddressType implements CompositeUserType {
     }
 
     @Override
-    public Object nullSafeGet(final ResultSet resultSet, final String[] names, final SessionImplementor paramSessionImplementor,
+    public Object nullSafeGet(final ResultSet resultSet, final String[] names,
+    		final SharedSessionContractImplementor paramSessionImplementor,
             final Object paramObject) throws HibernateException, SQLException {
         Address address = null;
         final String street = resultSet.getString(names[0]);
@@ -73,7 +74,7 @@ public class AddressType implements CompositeUserType {
 
     @Override
     public void nullSafeSet(final PreparedStatement preparedStatement, final Object value, final int property,
-            final SessionImplementor sessionImplementor) throws HibernateException, SQLException {
+            final SharedSessionContractImplementor sessionImplementor) throws HibernateException, SQLException {
         if (null == value) {
             preparedStatement.setNull(property, StringType.INSTANCE.sqlType());
             preparedStatement.setNull(property + 1, StringType.INSTANCE.sqlType());
@@ -85,18 +86,18 @@ public class AddressType implements CompositeUserType {
     }
 
     @Override
-    public Serializable disassemble(final Object value, final SessionImplementor paramSessionImplementor) throws HibernateException {
+    public Serializable disassemble(final Object value, final SharedSessionContractImplementor paramSessionImplementor) throws HibernateException {
         return (Serializable) value;
     }
 
     @Override
-    public Object assemble(final Serializable cached, final SessionImplementor sessionImplementor,
+    public Object assemble(final Serializable cached, final SharedSessionContractImplementor sessionImplementor,
             final Object owner) throws HibernateException {
         return cached;
     }
 
     @Override
-    public Object replace(final Object original, final Object target, final SessionImplementor paramSessionImplementor,
+    public Object replace(final Object original, final Object target, final SharedSessionContractImplementor paramSessionImplementor,
             final Object owner) throws HibernateException {
         return this.deepCopy(original);
     }

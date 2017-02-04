@@ -29,7 +29,7 @@ public class CastTypeSafeValueTest extends TypeSafeQueryTest {
     public void testCastInSelect() {
         Person person = query.from(Person.class);
 
-        query.select(query.hqlFunction().cast(person.getAge(), String.class));
+        query.selectValue(query.hqlFunction().cast(person.getAge(), String.class));
 
         validate("select cast(hobj1.age as string) from Person hobj1");
     }

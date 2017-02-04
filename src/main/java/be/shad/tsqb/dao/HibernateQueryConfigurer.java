@@ -15,7 +15,7 @@
  */
 package be.shad.tsqb.dao;
 
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 
 public interface HibernateQueryConfigurer {
@@ -33,6 +33,6 @@ public interface HibernateQueryConfigurer {
     /**
      * Configure the query before .list is called.
      */
-    void configureQuery(Query query);
+    <R> void configureQuery(Query<R> query);
 
 }

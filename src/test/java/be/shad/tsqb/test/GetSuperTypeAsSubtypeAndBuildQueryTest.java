@@ -21,7 +21,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
 
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.junit.Test;
 
 import be.shad.tsqb.domain.Apartment;
@@ -42,9 +42,9 @@ public class GetSuperTypeAsSubtypeAndBuildQueryTest extends TypeSafeQueryTest {
      */
     @Test
     public void testHibernateAssumption() {
-        Query query = getSessionFactory().getCurrentSession().
+        Query<?> query = getSessionFactory().getCurrentSession().
                 createQuery("from Building b where b.revenue > 10.0");
-        query.list();
+        query.getResultList();
     }
 
     @Test
@@ -76,7 +76,7 @@ public class GetSuperTypeAsSubtypeAndBuildQueryTest extends TypeSafeQueryTest {
         query.or(
             res.where(apartmentProxy.getRevenue()).gt(revenue),
             res.where(houseProxy.getFloors()).gt(5));
-        query.select(query.hqlFunction().distinct(buildingProxy));
+        query.selectValue(query.hqlFunction().distinct(buildingProxy));
 
         validate("select distinct hobj2 from Town hobj1 "
                 + "left join hobj1.buildings hobj2 "

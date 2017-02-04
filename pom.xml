@@ -20,7 +20,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.gert-wijns</groupId>
     <artifactId>TypeSafeQueryBuilder</artifactId>
-    <version>2.2-BRANCH</version>
+    <version>3.0-BRANCH</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>Allow writing queries using your hibernate configured entity classes
@@ -50,8 +50,8 @@
     </scm>
 
     <properties>
-        <maven.compiler.source>1.7</maven.compiler.source>
-        <maven.compiler.target>1.7</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
         <logger.version>2.0-beta9</logger.version>
         <encoding>UTF-8</encoding>
     </properties>
@@ -67,7 +67,7 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
-            <version>5.1.0.Final</version>
+            <version>5.2.6.Final</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>

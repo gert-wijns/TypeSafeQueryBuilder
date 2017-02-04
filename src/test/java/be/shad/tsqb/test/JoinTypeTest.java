@@ -36,7 +36,7 @@ public class JoinTypeTest extends TypeSafeQueryTest {
         Person parent = query.from(Person.class);
         Relation relation = query.join(parent.getChildRelations());
 
-        query.select(relation.getChild().getId());
+        query.selectValue(relation.getChild().getId());
 
         validate("select hobj2.child.id from Person hobj1 join hobj1.childRelations hobj2");
     }
@@ -50,7 +50,7 @@ public class JoinTypeTest extends TypeSafeQueryTest {
         Person parent = query.from(Person.class);
         Relation relation = query.join(parent.getChildRelations(), JoinType.Left);
 
-        query.select(relation.getChild().getAge());
+        query.selectValue(relation.getChild().getAge());
 
         validate("select hobj3.age from Person hobj1 left join hobj1.childRelations hobj2 left join hobj2.child hobj3");
     }
@@ -64,7 +64,7 @@ public class JoinTypeTest extends TypeSafeQueryTest {
         Person parent = query.from(Person.class);
         Relation relation = query.join(parent.getChildRelations(), JoinType.Left);
 
-        query.select(relation.getChild().getId());
+        query.selectValue(relation.getChild().getId());
 
         validate("select hobj3.id from Person hobj1 left join hobj1.childRelations hobj2 left join hobj2.child hobj3");
     }

@@ -37,7 +37,7 @@ public class NullIfFunctionTest extends TypeSafeQueryTest {
         TypeSafeValueFunctions fun = query.hqlFunction();
 
         Person personPx = query.from(Person.class);
-        query.select(fun.nullIf(personPx.getName()).equalTo("Josh"));
+        query.selectValue(fun.nullIf(personPx.getName()).equalTo("Josh"));
 
         validate("select nullif (hobj1.name,:np1) from Person hobj1", "Josh");
         assertNull(doQueryResult.get(0));
@@ -51,7 +51,7 @@ public class NullIfFunctionTest extends TypeSafeQueryTest {
         TypeSafeValueFunctions fun = query.hqlFunction();
 
         Person personPx = query.from(Person.class);
-        query.select(fun.nullIf(personPx.getName()).equalTo("Emma"));
+        query.selectValue(fun.nullIf(personPx.getName()).equalTo("Emma"));
 
         validate("select nullif (hobj1.name,:np1) from Person hobj1", "Emma");
         assertEquals("Josh", doQueryResult.get(0));
@@ -65,7 +65,7 @@ public class NullIfFunctionTest extends TypeSafeQueryTest {
         TypeSafeValueFunctions fun = query.hqlFunction();
 
         Person personPx = query.from(Person.class);
-        query.select(fun.nullIf("Emma").equalTo(personPx.getName()));
+        query.selectValue(fun.nullIf("Emma").equalTo(personPx.getName()));
 
         validate("select nullif ('Emma',hobj1.name) from Person hobj1");
         assertEquals("Emma", doQueryResult.get(0));
