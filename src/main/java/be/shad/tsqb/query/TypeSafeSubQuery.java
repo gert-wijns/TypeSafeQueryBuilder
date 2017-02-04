@@ -15,6 +15,7 @@
  */
 package be.shad.tsqb.query;
 
+import be.shad.tsqb.restrictions.Restriction;
 import be.shad.tsqb.values.TypeSafeValue;
 
 /**
@@ -61,5 +62,10 @@ public interface TypeSafeSubQuery<T> extends TypeSafeValue<T>, TypeSafeQuery {
      * This method should be called before converting to hql, unless using the exists function.
      */
     T select(TypeSafeValue<T> value);
+
+    /**
+     * Select the restriction as a case when(restriction) then true else false.
+     */
+    Boolean selectBoolean(Restriction restriction);
 
 }

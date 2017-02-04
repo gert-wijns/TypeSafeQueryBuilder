@@ -39,4 +39,9 @@ public interface RestrictionsGroupInternal extends RestrictionsGroup, Restrictio
      */
     boolean isEmpty();
 
+    /**
+     * Check if any of the restrictions in this group is the given restriction.
+     */
+    boolean contains(Restriction restriction);
+
 }

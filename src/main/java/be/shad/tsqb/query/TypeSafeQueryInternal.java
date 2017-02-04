@@ -24,6 +24,7 @@ import be.shad.tsqb.helper.TypeSafeQueryHelper;
 import be.shad.tsqb.ordering.TypeSafeQueryOrderBys;
 import be.shad.tsqb.query.copy.Copyable;
 import be.shad.tsqb.restrictions.DirectValueProvider;
+import be.shad.tsqb.restrictions.Restriction;
 import be.shad.tsqb.restrictions.RestrictionsGroup;
 import be.shad.tsqb.selection.TypeSafeQueryProjections;
 import be.shad.tsqb.values.TypeSafeValue;
@@ -97,6 +98,8 @@ public interface TypeSafeQueryInternal extends TypeSafeQuery, Copyable {
      * @return the known restrictions for this query.
      */
     RestrictionsGroup getRestrictions();
+
+    boolean containsRestriction(Restriction restriction);
 
     /**
      * @return the known order bys for this query.

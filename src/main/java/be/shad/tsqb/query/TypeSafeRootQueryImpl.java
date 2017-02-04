@@ -30,6 +30,7 @@ import be.shad.tsqb.proxy.TypeSafeQueryProxy;
 import be.shad.tsqb.proxy.TypeSafeQuerySelectionProxy;
 import be.shad.tsqb.query.copy.CopyContext;
 import be.shad.tsqb.query.copy.Copyable;
+import be.shad.tsqb.restrictions.Restriction;
 import be.shad.tsqb.restrictions.predicate.RestrictionPredicate;
 import be.shad.tsqb.selection.SelectionValueTransformer;
 import be.shad.tsqb.selection.collection.ResultIdentifierBinder;
@@ -45,6 +46,7 @@ import be.shad.tsqb.selection.parallel.SelectionMerger1;
 import be.shad.tsqb.selection.parallel.SelectionMerger2;
 import be.shad.tsqb.selection.parallel.SelectionMerger3;
 import be.shad.tsqb.values.HqlQueryBuilderParamsImpl;
+import be.shad.tsqb.values.RestrictionTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
 
 /**
@@ -299,6 +301,14 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     @Override
     public <T> T select(Class<T> resultClass) {
         return select(resultClass, null);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Boolean selectBoolean(Restriction restriction) {
+        return new RestrictionTypeSafeValue(this, restriction).select();
     }
 
     /**
