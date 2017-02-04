@@ -818,6 +818,11 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
         return whereRestrictions;
     }
 
+    @Override
+    public boolean containsRestriction(Restriction restriction) {
+        return whereRestrictions.contains(restriction);
+    }
+
     /**
      * {@inheritDoc}
      */
