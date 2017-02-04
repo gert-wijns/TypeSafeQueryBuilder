@@ -20,5 +20,5 @@ public interface ConcreteDtoClassResolver {
      * Resolves the actual class to use when the requested class is an interface.
      * Used to use HashMap when the field is a Map for example.
      */
-    <A, B extends A> Class<B> getConcreteClass(Class<A> requestedClass);
+    Class<?> getConcreteClass(Class<?> requestedClass);
 }

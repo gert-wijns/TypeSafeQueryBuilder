@@ -70,7 +70,7 @@ public final class TypeSafeQueryProxyFactory {
             Class<?> proxyClass = proxyClasses[type.ordinal()].get(requestedClass);
             if (proxyClass == null) {
                 ProxyFactory f = new ProxyFactory();
-                Class<T> concreteClass = classResolver.getConcreteClass(requestedClass);
+                Class<?> concreteClass = classResolver.getConcreteClass(requestedClass);
                 f.setSuperclass(concreteClass); // what if the super class is final?? guess it will give an exception..
                 if (type.isEntity() || type.isComposite()) {
                     f.setInterfaces(new Class[] { TypeSafeQueryProxy.class });

@@ -25,20 +25,19 @@ public class ConcreteDtoClassResolverImpl implements ConcreteDtoClassResolver {
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     @Override
-    public <A, B extends A> Class<B> getConcreteClass(Class<A> requestedClass) {
+    public Class<?> getConcreteClass(Class<?> requestedClass) {
         if (requestedClass.isInterface()) {
             if (SortedMap.class.isAssignableFrom(requestedClass)) {
-                return (Class<B>) TreeMap.class;
+                return TreeMap.class;
             }
             if (Map.class.isAssignableFrom(requestedClass)) {
-                return (Class<B>) HashMap.class;
+                return HashMap.class;
             }
             throw new IllegalArgumentException("Don't know implementation "
                     + "to use for interface: " + requestedClass);
         } else {
-            return (Class<B>) requestedClass;
+            return requestedClass;
         }
     }
 
