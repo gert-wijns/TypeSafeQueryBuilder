@@ -743,8 +743,9 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
             return new ReferenceTypeSafeValue<VAL>(this, data);
         } else {
             // invalid call, only expected one invocation
-            throw new IllegalStateException(String.format("[%d] invocations were "
-                    + "made before transforming it to a value.", invocations.size()));
+            throw new IllegalStateException(String.format("[%d] invocations were made "
+                    + "before transforming it to a value. The invocations were: %s",
+                    invocations.size(), invocations.toString()));
         }
     }
 
