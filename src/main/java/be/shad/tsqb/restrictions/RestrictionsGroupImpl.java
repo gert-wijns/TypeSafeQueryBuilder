@@ -106,6 +106,25 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
     }
 
     @Override
+    public boolean contains(Restriction restriction) {
+        if (restriction == this) {
+            return true;
+        }
+        for(RestrictionNode node: restrictions) {
+            Restriction subRestriction = node.getRestriction();
+            if (restriction == subRestriction) {
+                return true;
+            }
+            if (subRestriction instanceof RestrictionsGroupInternal) {
+                if (((RestrictionsGroupInternal) subRestriction).contains(restriction)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
     public RestrictionChainable where(HqlQueryValue hqlQueryvalue) {
         return and(hqlQueryvalue);
     }
