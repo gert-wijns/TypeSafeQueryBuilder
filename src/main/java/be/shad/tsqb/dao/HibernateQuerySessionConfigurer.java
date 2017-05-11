@@ -15,26 +15,18 @@
  */
 package be.shad.tsqb.dao;
 
-import org.hibernate.Query;
 import org.hibernate.Session;
 
 /**
- * Dummy implementation to allow overriding only the desired configuration method.
+ * Provide own session to the typeSafeQueryDao
  */
-public class HibernateQueryConfigurerAdapter implements HibernateQueryConfigurer {
-
-    @Override
-    public void beforeQuery(Session session) {
+public class HibernateQuerySessionConfigurer extends HibernateQueryConfigurerAdapter {
+    private Session session;
+    
+    public HibernateQuerySessionConfigurer(Session session) {
+        this.session=session;
     }
-
-    @Override
-    public void afterQuery(Session session) {
-    }
-
-    @Override
-    public void configureQuery(Query query) {
-    }
-
+    
     @Override
     public boolean hasSession() {
         return getSession()!=null;
@@ -42,7 +34,11 @@ public class HibernateQueryConfigurerAdapter implements HibernateQueryConfigurer
 
     @Override
     public Session getSession() {
-        return null;
+        return session;
+    }
+    
+    public void setSession(Session session) {
+        this.session = session;
     }
     
 }
