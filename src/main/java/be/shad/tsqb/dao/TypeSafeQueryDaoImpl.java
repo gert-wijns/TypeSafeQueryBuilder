@@ -87,7 +87,12 @@ public class TypeSafeQueryDaoImpl implements TypeSafeQueryDao {
     public <T> QueryResult<T> doQuery(TypeSafeRootQuery tsqbQuery, HibernateQueryConfigurer configurer) {
         HqlQuery hqlQuery = tsqbQuery.toHqlQuery();
 
-        Session currentSession = sessionFactory.getCurrentSession();
+        Session currentSession;
+        if(configurer!=null && configurer.hasSession()){
+            currentSession = configurer.getSession();
+        }else{
+            currentSession = sessionFactory.getCurrentSession();
+        }
         Query query = currentSession.createQuery(hqlQuery.getHql());
         int position = 0;
         CollectionNamedParameter chunkedParam = null;

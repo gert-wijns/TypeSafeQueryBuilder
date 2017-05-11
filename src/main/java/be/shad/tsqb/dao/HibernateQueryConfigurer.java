@@ -34,5 +34,18 @@ public interface HibernateQueryConfigurer {
      * Configure the query before .list is called.
      */
     void configureQuery(Query query);
+    
+    /**
+     * 
+     * @return true if a Session is passed along, 
+     * false if the default getCurrentSession() method of the sessionFactory is to be used.
+     */
+    boolean hasSession();
+    
+    /**
+     * The session that can be passed along to the dao
+     * @return
+     */
+    Session getSession();
 
 }
