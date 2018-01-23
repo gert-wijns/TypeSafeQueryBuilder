@@ -75,8 +75,8 @@ public interface TypeSafeRootQuery extends TypeSafeQuery {
     HqlQuery toHqlQuery();
 
     /**
-     * Delegates to {@link #select(Object)}.
-     * @deprecated use {@link #select(Object)} instead.
+     * Delegates to {@link #selectValue(Object)}.
+     * @deprecated use {@link #selectValue(Object)} instead.
      */
     void select(Object value);
 
