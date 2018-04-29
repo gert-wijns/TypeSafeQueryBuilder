@@ -29,4 +29,8 @@ public interface OnGoingCaseWhen<T> {
      */
     OnGoingCase<T> is(T value);
 
+    /**
+     * Delegates to {@link #is(TypeSafeValue)} with a null type safe value;
+     */
+    OnGoingCase<T> isNull();
 }
