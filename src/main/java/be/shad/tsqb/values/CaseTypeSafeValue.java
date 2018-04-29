@@ -18,11 +18,12 @@ package be.shad.tsqb.values;
 import java.util.LinkedList;
 import java.util.List;
 
-import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.query.TypeSafeQuery;
+import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.query.TypeSafeQueryScopeValidator;
 import be.shad.tsqb.query.copy.CopyContext;
 import be.shad.tsqb.query.copy.Copyable;
+import be.shad.tsqb.restrictions.DirectValueProvider;
 import be.shad.tsqb.restrictions.RestrictionsGroupImpl;
 import be.shad.tsqb.restrictions.RestrictionsGroupInternal;
 
@@ -62,16 +63,22 @@ public class CaseTypeSafeValue<T> extends TypeSafeValueImpl<T> implements OnGoin
      */
     @Override
     public OnGoingCase<T> is(T value) {
-        if (value == null) {
-            // this implementation was madto prevent 'null' to slip into the
-            // query.toValue because it should never be used that way.
-            TypeSafeQueryProxyData data = query.dequeueInvocation();
-            if (data == null) {
-                return is(new CustomTypeSafeValue<T>(query, getValueClass(), "null"));
+        // passing a "null" direct value provider because "null" is allowed in a case when.
+        // if value == null and there is a select/invocation value those will be taken instead.
+        return is(query.toValue(value, new DirectValueProvider<T>() {
+            @Override
+            public TypeSafeValue<T> createEmptyDirectValue(TypeSafeQueryInternal query) {
+                return new CustomTypeSafeValue<T>(query, getValueClass(), "null");
             }
-            query.invocationWasMade(data); // add it back to the query.
-        }
-        return is(query.toValue(value));
+        }));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public OnGoingCase<T> isNull() {
+        return is((T) null);
     }
 
     @Override

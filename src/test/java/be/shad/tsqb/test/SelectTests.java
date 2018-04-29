@@ -93,20 +93,20 @@ public class SelectTests extends TypeSafeQueryTest {
         House house = query.from(House.class);
 
         RestrictionsGroupFactory rb = query.getGroupedRestrictionsBuilder();
-        query.select(rb.where(house.getFloors()).gt(1));
+        query.selectValue(rb.where(house.getFloors()).gt(1));
         validate("select case when(hobj1.floors > 1) then true else false end from House hobj1");
     }
 
     @Test(expected=SelectException.class)
     public void selectQueryRestrictionShouldFailCauseItsUnlikelyThisWasThePurpose() {
         House house = query.from(House.class);
-        query.select(query.where(house.getFloors()).gt(1));
+        query.selectValue(query.where(house.getFloors()).gt(1));
     }
 
     @Test(expected=SelectException.class)
     public void selectRestrictionWithMultiplePartsFailWhenUsingWhere() {
         House house = query.from(House.class);
-        query.select(query.where(house.getFloors()).gt(1).lt(10));
+        query.selectValue(query.where(house.getFloors()).gt(1).lt(10));
     }
 
     @Test(expected=SelectException.class)
@@ -116,7 +116,7 @@ public class SelectTests extends TypeSafeQueryTest {
         RestrictionsGroupFactory rb = query.getGroupedRestrictionsBuilder();
         ContinuedOnGoingNumberRestriction check = rb.where(house.getFloors()).gt(1);
         query.where(check.getRestriction());
-        query.select(check);
+        query.selectValue(check);
     }
 
     /**
@@ -129,7 +129,7 @@ public class SelectTests extends TypeSafeQueryTest {
 
         RestrictionsGroupFactory rb = query.getGroupedRestrictionsBuilder();
         ContinuedOnGoingNumberRestriction check = rb.where(house.getFloors()).gt(1);
-        query.select(check);
+        query.selectValue(check);
         query.where(check.getRestriction());
         validate("select case when(hobj1.floors > 1) then true else false end from House hobj1 where hobj1.floors > :np1", 1L);
     }
