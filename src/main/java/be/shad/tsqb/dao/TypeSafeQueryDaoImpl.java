@@ -16,7 +16,6 @@
 package be.shad.tsqb.dao;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -102,10 +101,8 @@ public class TypeSafeQueryDaoImpl implements TypeSafeQueryDao {
                     }
                     // remember batched param to bind iterate and bind chunks later:
                     chunkedParam = (CollectionNamedParameter) named;
-                } else if (named.getValue() instanceof Collection) {
-                    query.setParameterList(named.getName(), (Collection<?>) named.getValue());
                 } else {
-                    query.setParameter(named.getName(), named.getValue());
+                    typeSafeQueryHelper.bindNamedParameter(query, named);
                 }
             } else {
                 query.setParameter(position++, param);

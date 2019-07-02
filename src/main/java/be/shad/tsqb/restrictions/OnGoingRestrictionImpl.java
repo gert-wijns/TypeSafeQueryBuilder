@@ -303,7 +303,7 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
     public <T extends VAL> CONTINUED notIn(Collection<T> values, RestrictionPredicate predicate, Integer batchSize) {
         this.predicate = predicate;
         // suppressing warnings because we know T is a kind of VAL, and we won't be changing the collection internally
-        return (CONTINUED) notIn(new CollectionTypeSafeValue<>(group.getQuery(), getSupportedValueClass(), (Collection) values, batchSize));
+        return (CONTINUED) notIn(createCollectionTypeSafeValue((Collection<VAL>) values, batchSize));
     }
 
     @Override
@@ -321,6 +321,10 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
     public <T extends VAL> CONTINUED in(Collection<T> values, RestrictionPredicate predicate, Integer batchSize) {
         this.predicate = predicate;
         // suppressing warnings because we know T is a kind of VAL, and we won't be changing the collection internally
-        return (CONTINUED) in(new CollectionTypeSafeValue<>(group.getQuery(), getSupportedValueClass(), (Collection) values, batchSize));
+        return (CONTINUED) in(createCollectionTypeSafeValue((Collection<VAL>) values, batchSize));
+    }
+
+    private TypeSafeValue<VAL> createCollectionTypeSafeValue(Collection<VAL> values, Integer batchSize) {
+        return group.getQuery().getHelper().createCollectionTypeSafeValue(group.getQuery(), getSupportedValueClass(), values, batchSize);
     }
 }

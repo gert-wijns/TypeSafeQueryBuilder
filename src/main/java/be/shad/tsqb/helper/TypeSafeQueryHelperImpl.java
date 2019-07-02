@@ -22,6 +22,7 @@ import static be.shad.tsqb.proxy.TypeSafeQueryProxyType.EntityType;
 import static be.shad.tsqb.proxy.TypeSafeQueryProxyType.SelectionDtoType;
 
 import java.lang.reflect.Method;
+import java.util.Collection;
 
 import javax.persistence.EntityManagerFactory;
 
@@ -32,12 +33,14 @@ import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.metadata.CollectionMetadata;
 import org.hibernate.metamodel.spi.MetamodelImplementor;
 import org.hibernate.persister.collection.OneToManyPersister;
+import org.hibernate.query.Query;
 import org.hibernate.type.BasicType;
 import org.hibernate.type.CollectionType;
 import org.hibernate.type.ComponentType;
 import org.hibernate.type.StringRepresentableType;
 import org.hibernate.type.Type;
 
+import be.shad.tsqb.NamedParameter;
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.data.TypeSafeQuerySelectionProxyData;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
@@ -47,6 +50,9 @@ import be.shad.tsqb.proxy.TypeSafeQuerySelectionProxy;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.query.TypeSafeRootQueryInternal;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroup;
+import be.shad.tsqb.values.CollectionTypeSafeValue;
+import be.shad.tsqb.values.TypeSafeValue;
+
 import javassist.util.proxy.ProxyObject;
 
 public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
@@ -306,6 +312,27 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
         }
         // what about many to many?
         return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <VAL> TypeSafeValue<VAL> createCollectionTypeSafeValue(TypeSafeQueryInternal query,
+              Class<VAL> supportedValueClass, Collection<VAL> values, Integer batchSize) {
+        return new CollectionTypeSafeValue<>(query, supportedValueClass, values, batchSize);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void bindNamedParameter(Query<Object[]> query, NamedParameter param) {
+        if (param.getValue() instanceof Collection) {
+            query.setParameterList(param.getName(), (Collection<?>) param.getValue());
+        } else {
+            query.setParameter(param.getName(), param.getValue());
+        }
     }
 
     /**

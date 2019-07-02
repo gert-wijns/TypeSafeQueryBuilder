@@ -15,11 +15,17 @@
  */
 package be.shad.tsqb.helper;
 
+import java.util.Collection;
+
+import be.shad.tsqb.NamedParameter;
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.data.TypeSafeQuerySelectionProxyData;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.query.TypeSafeRootQueryInternal;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroup;
+import be.shad.tsqb.values.TypeSafeValue;
+
+import org.hibernate.query.Query;
 
 public interface TypeSafeQueryHelper {
 
@@ -89,4 +95,14 @@ public interface TypeSafeQueryHelper {
      */
     <T> T getDummyValue(Class<T> clazz);
 
+    /**
+     * Create a CollectionTypeSafeValue for the given query
+     */
+    <VAL> TypeSafeValue<VAL> createCollectionTypeSafeValue(TypeSafeQueryInternal query,
+            Class<VAL> supportedValueClass, Collection<VAL> values, Integer batchSize);
+
+    /**
+     * Set the param on the query based on the kind of named param.
+     */
+    void bindNamedParameter(Query<Object[]> query, NamedParameter param);
 }
