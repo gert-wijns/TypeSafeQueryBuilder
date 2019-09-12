@@ -142,6 +142,62 @@ public class OnGoingTextRestrictionTest extends TypeSafeQueryTest {
     }
 
     @Test
+    public void lessThanValueTest() {
+        Person person = query.from(Person.class);
+        query.where(person.getName()).lessThan(person.getNickname());
+        validate(" from Person hobj1 where hobj1.name < hobj1.nickname");
+    }
+    
+    @Test
+    public void lessThanEqualValueTest() {
+        Person person = query.from(Person.class);
+        query.where(person.getName()).lessThanEqual(person.getNickname());
+        validate(" from Person hobj1 where hobj1.name <= hobj1.nickname");
+    }
+    
+    @Test
+    public void lessThanTest() {
+        Person person = query.from(Person.class);
+        query.where(person.getName()).lessThan("e");
+        validate(" from Person hobj1 where hobj1.name < :np1", "e");
+    }
+
+    @Test
+    public void lessThanEqualTest() {
+        Person person = query.from(Person.class);
+        query.where(person.getName()).lessThanEqual("e");
+        validate(" from Person hobj1 where hobj1.name <= :np1", "e");
+    }
+
+    @Test
+    public void greaterThanValueTest() {
+        Person person = query.from(Person.class);
+        query.where(person.getName()).greaterThan(person.getNickname());
+        validate(" from Person hobj1 where hobj1.name > hobj1.nickname");
+    }
+
+    @Test
+    public void greaterThanEqualValueTest() {
+        Person person = query.from(Person.class);
+        query.where(person.getName()).greaterThanEqual(person.getNickname());
+        validate(" from Person hobj1 where hobj1.name >= hobj1.nickname");
+    }
+    
+    @Test
+    public void greaterThanTest() {
+        Person person = query.from(Person.class);
+        query.where(person.getName()).greaterThan("e");
+        validate(" from Person hobj1 where hobj1.name > :np1", "e");
+    }
+
+    @Test
+    public void greaterThanEqualTest() {
+        Person person = query.from(Person.class);
+        query.where(person.getName()).greaterThanEqual("e");
+        validate(" from Person hobj1 where hobj1.name >= :np1", "e");
+    }
+    
+    @Test
     public void namedEndsWithTest() {
         Person person = query.from(Person.class);
         query.where(person.getName()).endsWith().named(NAMED_PARAM_1);

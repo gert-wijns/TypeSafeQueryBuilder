@@ -129,4 +129,44 @@ public interface OnGoingTextRestriction extends OnGoingRestriction<String, Conti
      */
     ContinuedOnGoingTextRestriction notLike(TypeSafeValue<String> value);
 
+    /**
+     * Generates: left lessThan value
+     */
+    ContinuedOnGoingTextRestriction lessThan(String value);
+
+    /**
+     * Generates: left lessThan stringRepresentative
+     */
+    ContinuedOnGoingTextRestriction lessThan(TypeSafeValue<String> value);
+
+    /**
+     * Generates: left greaterThan value
+     */
+    ContinuedOnGoingTextRestriction greaterThan(String value);
+
+    /**
+     * Generates: left greaterThan stringRepresentative
+     */
+    ContinuedOnGoingTextRestriction greaterThan(TypeSafeValue<String> value);
+
+    /**
+     * Generates: left lessThan or equal to value
+     */
+    ContinuedOnGoingTextRestriction lessThanEqual(String value);
+
+    /**
+     * Generates: left lessThan or equal to stringRepresentative
+     */
+    ContinuedOnGoingTextRestriction lessThanEqual(TypeSafeValue<String> value);
+
+    /**
+     * Generates: left greaterThan or equal to value
+     */
+    ContinuedOnGoingTextRestriction greaterThanEqual(String value);
+
+    /**
+     * Generates: left greaterThan or equal to stringRepresentative
+     */
+    ContinuedOnGoingTextRestriction greaterThanEqual(TypeSafeValue<String> value);
+   
 }
