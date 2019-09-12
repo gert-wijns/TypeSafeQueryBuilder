@@ -55,20 +55,6 @@ public class JoinTypeTest extends TypeSafeQueryTest {
         validate("select hobj3.age from Person hobj1 left join hobj1.childRelations hobj2 left join hobj2.child hobj3");
     }
 
-    /**
-     * Test if jointype (unless set explicitly) is defaulted so when a parent
-     * join is "Left", the child join is also left.
-     */
-    @Test
-    public void testJoinTypeLeftWhenParentEffectiveJoinTypeIsLeftEvenWhenOnlyIdSelected() {
-        Person parent = query.from(Person.class);
-        Relation relation = query.join(parent.getChildRelations(), JoinType.Left);
-
-        query.selectValue(relation.getChild().getId());
-
-        validate("select hobj3.id from Person hobj1 left join hobj1.childRelations hobj2 left join hobj2.child hobj3");
-    }
-
     @Test
     public void testFetchOuterEntityFetchesParentEntityByDefault() {
         Person parent = query.from(Person.class);
@@ -113,6 +99,15 @@ public class JoinTypeTest extends TypeSafeQueryTest {
         validate(" from Product hobj1 left join Person hobj2 on hobj1.name = hobj2.name");
     }
 
+    @Test
+    public void testClassLeftJoinOnId() {
+        Person personPx = query.from(Person.class);
+        Person spousePx = query.join(personPx, Person.class, ClassJoinType.Left);
+        query.joinWith(spousePx).where(spousePx.getSpouse().getId()).eq(personPx.getId());
+
+        validate(" from Person hobj1 left join Person hobj2 on hobj2.spouse.id = hobj1.id");
+    }
+    
     @Test(expected=IllegalStateException.class)
     public void testClassLeftJoinWithMissingJoinWith() {
         Product productPx = query.from(Product.class);
