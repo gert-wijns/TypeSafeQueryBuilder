@@ -45,6 +45,7 @@ import be.shad.tsqb.selection.parallel.SelectionMerger;
 import be.shad.tsqb.selection.parallel.SelectionMerger1;
 import be.shad.tsqb.selection.parallel.SelectionMerger2;
 import be.shad.tsqb.selection.parallel.SelectionMerger3;
+import be.shad.tsqb.values.HqlQueryBuilderParams;
 import be.shad.tsqb.values.HqlQueryBuilderParamsImpl;
 import be.shad.tsqb.values.RestrictionTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
@@ -54,6 +55,7 @@ import be.shad.tsqb.values.TypeSafeValue;
  */
 public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements TypeSafeRootQuery, TypeSafeRootQueryInternal {
 
+    private static final String MAP_KEY_RESULT_GROUP = "k";
     private static final String SELECT_RESULT_GROUP = "g0";
     private List<TypeSafeQueryProxyData> invocationQueue;
     private Map<String, TypeSafeQueryProxy> customAliasedProxies;
@@ -346,6 +348,17 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <T> T selectMapKey(Class<T> keyClass) {
+        TypeSafeQuerySelectionGroup resultGroup = new TypeSafeQuerySelectionGroupImpl(
+                MAP_KEY_RESULT_GROUP, keyClass, false, null, null);
+        T proxy = getHelper().createTypeSafeSelectProxy(this, keyClass, resultGroup);
+        return proxy;
+    }
+
+    /**
      * If the binder is not null, then call it and capture all of the 'bind' calls
      * to use as identity paths.
      */
@@ -466,7 +479,15 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
      */
     @Override
     public HqlQuery toHqlQuery() {
-        return super.toHqlQuery(new HqlQueryBuilderParamsImpl());
+        return toHqlQuery(new HqlQueryBuilderParamsImpl());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public HqlQuery toHqlQuery(HqlQueryBuilderParams params) {
+        return super.toHqlQuery(params);
     }
 
     /**

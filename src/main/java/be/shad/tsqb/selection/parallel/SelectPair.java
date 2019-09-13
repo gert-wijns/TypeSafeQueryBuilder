@@ -15,6 +15,8 @@
  */
 package be.shad.tsqb.selection.parallel;
 
+import java.util.Objects;
+
 /**
  * Container for two values to be used in the parallel selection.
  * Not suitable for compares/equals and such, suitable for projection binding.
@@ -39,4 +41,19 @@ public class SelectPair<A, B> {
         this.second = second;
     }
 
+    @SuppressWarnings("rawtypes")
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SelectPair that = (SelectPair) o;
+        return Objects.equals(first, that.first) &&
+                Objects.equals(second, that.second);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(first, second);
+    }
+    
 }

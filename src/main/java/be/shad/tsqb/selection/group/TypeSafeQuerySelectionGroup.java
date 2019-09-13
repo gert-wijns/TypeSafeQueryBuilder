@@ -40,6 +40,12 @@ public interface TypeSafeQuerySelectionGroup {
      * will appear in the returned list after querying
      */
     boolean isResultGroup();
+    
+    /**
+     * The map key group, if present, is the group which
+     * contains the key to be grouped by.
+     */
+    boolean isMapKeyGroup();
 
     /**
      * @return when this group is not the result group, a merger should

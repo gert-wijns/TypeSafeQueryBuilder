@@ -16,13 +16,15 @@
 package be.shad.tsqb.dao;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
-import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
 
 import be.shad.tsqb.CollectionNamedParameter;
 import be.shad.tsqb.NamedParameter;
@@ -30,8 +32,13 @@ import be.shad.tsqb.dao.result.QueryResult;
 import be.shad.tsqb.helper.TypeSafeQueryHelper;
 import be.shad.tsqb.helper.TypeSafeQueryHelperImpl;
 import be.shad.tsqb.hql.HqlQuery;
+import be.shad.tsqb.proxy.TypeSafeQuerySelectionProxy;
 import be.shad.tsqb.query.TypeSafeRootQuery;
 import be.shad.tsqb.query.TypeSafeRootQueryImpl;
+import be.shad.tsqb.selection.ResultEntry;
+import be.shad.tsqb.selection.ResultEntryKeySelector;
+import be.shad.tsqb.values.HqlQueryBuilderParams;
+import be.shad.tsqb.values.HqlQueryBuilderParamsImpl;
 
 public class TypeSafeQueryDaoImpl implements TypeSafeQueryDao {
     private final SessionFactory sessionFactory;
@@ -83,8 +90,77 @@ public class TypeSafeQueryDaoImpl implements TypeSafeQueryDao {
      * {@inheritDoc}
      */
     @Override
+    public <K, V> Map<K, List<V>> doGroupByQueryResults(TypeSafeRootQuery query, K key) {
+        return doGroupByQueryResults(query, key, null);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public <K, V> Map<K, List<V>> doGroupByQueryResults(TypeSafeRootQuery query, K key, HibernateQueryConfigurer configurer) {
+        if (!(key instanceof TypeSafeQuerySelectionProxy)) {
+            query.selectMapKey(ResultEntryKeySelector.class).setValue(key);
+        }
+        HqlQueryBuilderParams params = new HqlQueryBuilderParamsImpl();
+        params.setBuildingMapKeyGroupQuery(true);
+        List<ResultEntry> results = this.<ResultEntry>doQuery(
+                query, configurer, params).getResults();
+        Map<Object, List<Object>> map = new HashMap<>();
+        for(ResultEntry result: results) {
+            List<Object> values = map.get(result.getKey());
+            if (values == null) {
+                values = new ArrayList<>();
+                map.put(result.getKey(), values);
+            }
+            values.add(result.getValue());
+        }
+        return (Map) map;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <K, V> Map<K, V> doMapByQueryResults(TypeSafeRootQuery query, K key) {
+        return doMapByQueryResults(query, key, null);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public <K, V> Map<K, V> doMapByQueryResults(TypeSafeRootQuery query, K key, HibernateQueryConfigurer configurer) {
+        if (!(key instanceof TypeSafeQuerySelectionProxy)) {
+            query.selectMapKey(ResultEntryKeySelector.class).setValue(key);
+        }
+        HqlQueryBuilderParams params = new HqlQueryBuilderParamsImpl();
+        params.setBuildingMapKeyGroupQuery(true);
+        List<ResultEntry> results = this.<ResultEntry>doQuery(
+                query, configurer, params).getResults();
+        Map<Object, Object> map = new HashMap<>();
+        for(ResultEntry result: results) {
+            map.put(result.getKey(), result.getValue());
+        }
+        return (Map<K, V>) map;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public <T> QueryResult<T> doQuery(TypeSafeRootQuery tsqbQuery, HibernateQueryConfigurer configurer) {
-        HqlQuery hqlQuery = tsqbQuery.toHqlQuery();
+        return doQuery(tsqbQuery, configurer, new HqlQueryBuilderParamsImpl());
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    private <T> QueryResult<T> doQuery(TypeSafeRootQuery tsqbQuery, 
+            HibernateQueryConfigurer configurer, HqlQueryBuilderParams params) {
+        HqlQuery hqlQuery = tsqbQuery.toHqlQuery(params);
 
         Session currentSession = sessionFactory.getCurrentSession();
         Query<Object[]> query = currentSession.createQuery(hqlQuery.getHql(), Object[].class);

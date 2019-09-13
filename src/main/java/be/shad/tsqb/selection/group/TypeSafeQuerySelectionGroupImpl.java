@@ -101,6 +101,11 @@ public class TypeSafeQuerySelectionGroupImpl implements TypeSafeQuerySelectionGr
     public boolean isResultGroup() {
         return resultGroup;
     }
+    
+    @Override
+    public boolean isMapKeyGroup() {
+        return !resultGroup && parent == null;
+    }
 
     @Override
     public SelectionMerger<?, ?> getSelectionMerger() {
