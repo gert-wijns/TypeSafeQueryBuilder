@@ -41,6 +41,10 @@ public class TypeSafeQuerySelectionProxyData {
             parent.putChild(this);
         }
     }
+    
+    public boolean isPartOfMapKeyGroup() {
+        return group != null && group.isMapKeyGroup();
+    }
 
     public TypeSafeQuerySelectionProxyData getChild(String propertyName) {
         return children.get(propertyName);

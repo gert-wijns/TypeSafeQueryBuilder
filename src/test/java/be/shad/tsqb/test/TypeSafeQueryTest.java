@@ -51,7 +51,7 @@ public class TypeSafeQueryTest {
     @Rule public TestName name = new TestName();
 
     private static SessionFactory sessionFactory;
-    private static TypeSafeQueryDao typeSafeQueryDao;
+    protected static TypeSafeQueryDao typeSafeQueryDao;
     private static TypeSafeQueryHelperImpl helper;
     protected TypeSafeRootQuery query;
     protected List<?> doQueryResult;

@@ -15,6 +15,8 @@
  */
 package be.shad.tsqb.selection.parallel;
 
+import java.util.Objects;
+
 /**
  * Container for a value to be used in the parallel selection.
  * Not suitable for compares/equals and such, suitable for projection binding.
@@ -31,4 +33,17 @@ public class SelectValue<A> {
         this.value = value;
     }
 
+    @SuppressWarnings("rawtypes")
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SelectValue that = (SelectValue) o;
+        return Objects.equals(value, that.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return (value == null ? 0 : value.hashCode());
+    }
 }

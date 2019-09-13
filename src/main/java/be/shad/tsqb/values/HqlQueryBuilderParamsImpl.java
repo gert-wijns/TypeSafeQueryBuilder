@@ -20,6 +20,7 @@ public class HqlQueryBuilderParamsImpl implements HqlQueryBuilderParams {
     private boolean requiresLiterals;
     private boolean creatingOrderingBy;
     private boolean buildingForDisplay;
+    private boolean buildingMapKeyGroupQuery;
 
     @Override
     public boolean isRequiresLiterals() {
@@ -55,6 +56,15 @@ public class HqlQueryBuilderParamsImpl implements HqlQueryBuilderParams {
     @Override
     public String createNamedParameter() {
         return "np" + namedParamCount++;
+    }
+    
+    public boolean isBuildingMapKeyGroupQuery() {
+        return buildingMapKeyGroupQuery;
+    }
+
+    @Override
+    public void setBuildingMapKeyGroupQuery(boolean buildingMapKeyGroupQuery) {
+        this.buildingMapKeyGroupQuery = buildingMapKeyGroupQuery;
     }
 
 }

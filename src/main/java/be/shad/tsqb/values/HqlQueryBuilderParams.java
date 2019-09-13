@@ -53,4 +53,14 @@ public interface HqlQueryBuilderParams {
      * @see #isBuildingForDisplay()
      */
     void setBuildingForDisplay(boolean buildingForDisplay);
+
+    /**
+     * Whether to include the selections made specifically for grouping.
+     */
+    boolean isBuildingMapKeyGroupQuery();
+    
+    /**
+     * Decides whether to include the map key part of the query or not.
+     */
+    void setBuildingMapKeyGroupQuery(boolean buildingMapKeyGroupQuery);
 }

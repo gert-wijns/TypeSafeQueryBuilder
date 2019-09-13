@@ -208,7 +208,22 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
         List<TypeSafeQuerySelectionProxyData> selectionDatas = new ArrayList<>(projections.size());
         List<SelectionValueTransformer<?, ?>> transformers = new ArrayList<>(projections.size());
         boolean hasTransformer = false;
+        boolean hasMapKeyGroup = false;
         for(TypeSafeValueProjection projection: projections) {
+            TypeSafeQuerySelectionProxyData selectionData = projection.getSelectionData();
+            if (!params.isBuildingMapKeyGroupQuery() && selectionData != null && selectionData.isPartOfMapKeyGroup()) {
+                // skip including this selection as we are not building the query for map by/group by result transforming 
+                continue;
+            }
+            String alias = "";
+            if (selectionData != null) {
+                selectionDatas.add(selectionData);
+                if (params.isBuildingForDisplay() || includeAliases) {
+                    alias = " as " + selectionData.getAlias();
+                }
+                hasMapKeyGroup |= selectionData.isPartOfMapKeyGroup();
+            }
+            
             HqlQueryValue val;
             if (projection.getValue() instanceof DirectTypeSafeValue<?>) {
                 boolean previous = params.setRequiresLiterals(true);
@@ -217,18 +232,13 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
             } else {
                 val = projection.getValue().toHqlQueryValue(params);
             }
-            String alias = "";
-            TypeSafeQuerySelectionProxyData selectionData = projection.getSelectionData();
-            if (selectionData != null) {
-                selectionDatas.add(selectionData);
-                if (params.isBuildingForDisplay() || includeAliases) {
-                    alias = " as " + selectionData.getAlias();
-                }
-            }
             transformers.add(projection.getTransformer());
             hasTransformer = hasTransformer || projection.getTransformer() != null;
             query.appendSelect(val.getHql() + alias);
             query.addParams(val.getParams());
+        }
+        if (params.isBuildingMapKeyGroupQuery() && !hasMapKeyGroup) {
+            throw new IllegalStateException("Params indicate including map key selection, though no map key group exists, " + projections);
         }
         if (params.isBuildingForDisplay()) {
             // don't bother setting the result transformer, we're only intereted in the hql string and params

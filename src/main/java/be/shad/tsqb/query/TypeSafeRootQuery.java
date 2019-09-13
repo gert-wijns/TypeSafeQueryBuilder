@@ -18,6 +18,7 @@ package be.shad.tsqb.query;
 import java.util.Collection;
 import java.util.Map;
 
+import be.shad.tsqb.dao.TypeSafeQueryDao;
 import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.restrictions.Restriction;
 import be.shad.tsqb.selection.SelectionValueTransformer;
@@ -30,6 +31,7 @@ import be.shad.tsqb.selection.parallel.SelectionMerger;
 import be.shad.tsqb.selection.parallel.SelectionMerger1;
 import be.shad.tsqb.selection.parallel.SelectionMerger2;
 import be.shad.tsqb.selection.parallel.SelectionMerger3;
+import be.shad.tsqb.values.HqlQueryBuilderParams;
 import be.shad.tsqb.values.TypeSafeValue;
 
 /**
@@ -67,13 +69,20 @@ public interface TypeSafeRootQuery extends TypeSafeQuery {
     TypeSafeRootQuery copy();
 
     /**
+     * Delegates to toHqlQuery with default HqlQueryBuilderParams.
+     */
+    HqlQuery toHqlQuery();
+
+    /**
      * Converts this query to an hqlQuery.
      * <p>
      * The hqlQuery can be used to get the hql and the
      * params to create a hibernate query object.
+     * <p>
+     * Query builder params affect the resulting hql.
      */
-    HqlQuery toHqlQuery();
-
+    HqlQuery toHqlQuery(HqlQueryBuilderParams params);
+    
     /**
      * Delegates to {@link #selectValue(Object)}.
      * @deprecated use {@link #selectValue(Object)} instead.
@@ -135,6 +144,13 @@ public interface TypeSafeRootQuery extends TypeSafeQuery {
      */
     <ID, T extends ID> T select(Collection<T> collection, Class<T> collectionItemClass, ResultIdentifierBinder<ID> resultIdentifierBinder);
 
+    /**
+     * Selects an additional dto to be used as map key when using 
+     * {@link TypeSafeQueryDao#doMapByQueryResults(TypeSafeRootQuery, Object)} or
+     * {@link TypeSafeQueryDao#doGroupByQueryResults(TypeSafeRootQuery, Object)}.
+     */
+    <T> T selectMapKey(Class<T> keyClass);
+    
     /**
      * Create an additional proxy to select into, which is merged with the result dto during result transforming.
      */

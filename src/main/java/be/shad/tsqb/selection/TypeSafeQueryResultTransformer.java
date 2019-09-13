@@ -41,6 +41,7 @@ public class TypeSafeQueryResultTransformer extends BasicTransformerAdapter {
 
     private final SelectionTreeGroup[] treeGroups;
     private final int resultArraySize;
+    private int mapKeyGroupIndex = -1;
 
     /**
      * Compares by depth (so groups without parents are first)
@@ -125,6 +126,9 @@ public class TypeSafeQueryResultTransformer extends BasicTransformerAdapter {
                 //       this means the treeGroups is potentially smaller than the result array,
                 //       because the treeGroups only contains explicitly selected dtos.
                 parentResultIndex = tree.assignResultIndexes(parentResultIndex);
+                if (tree.getGroup().isMapKeyGroup()) {
+                    mapKeyGroupIndex = treeGroupIdx;
+                }
                 if (tree.getGroup().isResultGroup()) {
                     this.treeGroups[0] = tree;
                 } else {
@@ -173,7 +177,14 @@ public class TypeSafeQueryResultTransformer extends BasicTransformerAdapter {
                 }
                 if (!data[0].isDuplicate()) {
                     // only include main result selection if it was not duplicate.
-                    result.add(data[0].getCurrentValue());
+                    if (mapKeyGroupIndex != -1) {
+                        Object keyValue = data[mapKeyGroupIndex].getCurrentValue();
+                        result.add(new ResultEntry(keyValue instanceof ResultEntryKeySelector ? 
+                                ((ResultEntryKeySelector) keyValue).getValue(): keyValue, 
+                                data[0].getCurrentValue()));
+                    } else {
+                        result.add(data[0].getCurrentValue());
+                    }
                 }
             }
         } catch (IllegalArgumentException | IllegalAccessException | InstantiationException e) {

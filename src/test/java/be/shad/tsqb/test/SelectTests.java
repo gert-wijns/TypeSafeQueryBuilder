@@ -23,6 +23,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 
@@ -57,6 +58,7 @@ import be.shad.tsqb.restrictions.RestrictionsGroupFactory;
 import be.shad.tsqb.selection.SelectionValueTransformer;
 import be.shad.tsqb.selection.SelectionValueTransformerException;
 import be.shad.tsqb.selection.parallel.MapSelectionMerger;
+import be.shad.tsqb.selection.parallel.SelectPair;
 import be.shad.tsqb.values.CaseTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValueFunctions;
 
@@ -413,6 +415,137 @@ public class SelectTests extends TypeSafeQueryTest {
                 + "from House hobj1");
     }
 
+    /**
+     * Test map by map key using a map key class
+     */
+    @Test
+    public void selectMapByMapKeyTest() {
+        TestDataCreator creator = new TestDataCreator(getSessionFactory());
+        creator.createTestPerson(creator.createTestTown(), "Josh");
+
+        Person person = query.from(Person.class);
+        PersonDto dtoPx = query.select(PersonDto.class);
+        dtoPx.setThePersonsName(person.getName());
+        
+        @SuppressWarnings("unchecked")
+        SelectPair<String, String> mapKeyPx = query.selectMapKey(SelectPair.class);
+        mapKeyPx.setFirst(person.getName());
+        mapKeyPx.setSecond(person.getNickname());
+        
+        Map<SelectPair<String, String>, PersonDto> result = typeSafeQueryDao
+                .doMapByQueryResults(query, mapKeyPx);
+        SelectPair<String, String> expectedKey = new SelectPair<>();
+        expectedKey.setFirst("Josh");
+        expectedKey.setSecond(null);
+        assertTrue(result.containsKey(expectedKey));
+        assertEquals("Josh", result.get(expectedKey).getThePersonsName());
+    }
+
+    /**
+     * Test map by value directly
+     */
+    @Test
+    public void selectMapByValueTest() {
+        TestDataCreator creator = new TestDataCreator(getSessionFactory());
+        creator.createTestPerson(creator.createTestTown(), "Josh");
+        ((TypeSafeRootQueryInternal) query).getProjections().setIncludeAliases(true);
+
+        Person person = query.from(Person.class);
+        PersonDto dtoPx = query.select(PersonDto.class);
+        dtoPx.setThePersonsName(person.getName());
+        
+        Map<String, PersonDto> result = typeSafeQueryDao
+                .doMapByQueryResults(query, person.getName());
+        assertTrue(result.containsKey("Josh"));
+        assertEquals("Josh", result.get("Josh").getThePersonsName());
+    }
+
+    /**
+     * Test group by map key using a map key class
+     */
+    @Test
+    public void selectGroupByMapKeyTest() {
+        TestDataCreator creator = new TestDataCreator(getSessionFactory());
+        Town town = creator.createTestTown();
+        town.setName("Home");
+        creator.createTestPerson(town, "Josh");
+        creator.createTestPerson(town, "Joan");
+
+        Town town2 = creator.createTestTown();
+        town2.setName("Sea");
+        creator.createTestPerson(town2, "Fish").setAge(1);
+        creator.createTestPerson(town2, "Crab");
+
+        Person person = query.from(Person.class);
+        Town townPx = person.getTown();
+        PersonDto dtoPx = query.select(PersonDto.class);
+        dtoPx.setThePersonsName(person.getName());
+        
+        @SuppressWarnings("unchecked")
+        SelectPair<String, Integer> mapKeyPx = query.selectMapKey(SelectPair.class);
+        mapKeyPx.setFirst(townPx.getName());
+        mapKeyPx.setSecond(person.getAge());
+        
+        Map<SelectPair<String, Integer>, List<PersonDto>> result = typeSafeQueryDao
+                .doGroupByQueryResults(query, mapKeyPx);
+        
+        SelectPair<String, Integer> key1 = new SelectPair<>();
+        key1.setFirst("Home");
+        key1.setSecond(0);
+        assertTrue(result.containsKey(key1));
+        List<PersonDto> list = result.get(key1);
+        assertEquals("Josh", list.get(0).getThePersonsName());
+        assertEquals("Joan", list.get(1).getThePersonsName());
+
+        SelectPair<String, Integer> key2 = new SelectPair<>();
+        key2.setFirst("Sea");
+        key2.setSecond(1);
+        assertTrue(result.containsKey(key2));
+        List<PersonDto> list2 = result.get(key2);
+        assertEquals("Fish", list2.get(0).getThePersonsName());
+        
+        SelectPair<String, Integer> key3 = new SelectPair<>();
+        key3.setFirst("Sea");
+        key3.setSecond(0);
+        assertTrue(result.containsKey(key3));
+        List<PersonDto> list3 = result.get(key3);
+        assertEquals("Crab", list3.get(0).getThePersonsName());
+    }
+
+    /**
+     * Test group by value directly
+     */
+    @Test
+    public void selectGroupByValueTest() {
+        TestDataCreator creator = new TestDataCreator(getSessionFactory());
+        Town town = creator.createTestTown();
+        town.setName("Home");
+        creator.createTestPerson(town, "Josh");
+        creator.createTestPerson(town, "Joan");
+
+        Town town2 = creator.createTestTown();
+        town2.setName("Sea");
+        creator.createTestPerson(town2, "Fish");
+        creator.createTestPerson(town2, "Crab");
+
+        Person person = query.from(Person.class);
+        Town townPx = person.getTown();
+        PersonDto dtoPx = query.select(PersonDto.class);
+        dtoPx.setThePersonsName(person.getName());
+        
+        Map<String, List<PersonDto>> result = typeSafeQueryDao
+                .doGroupByQueryResults(query, townPx.getName());
+        assertTrue(result.containsKey("Home"));
+        List<PersonDto> list = result.get("Home");
+        assertEquals("Josh", list.get(0).getThePersonsName());
+        assertEquals("Joan", list.get(1).getThePersonsName());
+
+        assertTrue(result.containsKey("Sea"));
+        List<PersonDto> list2 = result.get("Sea");
+        assertEquals("Fish", list2.get(0).getThePersonsName());
+        assertEquals("Crab", list2.get(1).getThePersonsName());
+    }
+    
     /**
      * Test different types of maps can be filled with
      * values using put. Also tests sorting by one of the

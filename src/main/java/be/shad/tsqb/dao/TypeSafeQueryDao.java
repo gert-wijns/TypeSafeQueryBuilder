@@ -16,6 +16,7 @@
 package be.shad.tsqb.dao;
 
 import java.util.List;
+import java.util.Map;
 
 import be.shad.tsqb.dao.result.QueryResult;
 import be.shad.tsqb.query.TypeSafeRootQuery;
@@ -41,6 +42,28 @@ public interface TypeSafeQueryDao {
      * Delegates to {@link #doQueryResults(TypeSafeRootQuery, HibernateQueryConfigurer)} without configurer.
      */
     <T> List<T> doQueryResults(TypeSafeRootQuery query);
+    
+    /**
+     * Delegates to {@link #doMapByQueryResults(TypeSafeRootQuery, K, HibernateQueryConfigurer)} without configurer.
+     */
+    <K, V> Map<K, V> doMapByQueryResults(TypeSafeRootQuery query, K key);
+    
+    /**
+     * The query selects a List of values + the key and returns the results mapped by the key.
+     * The key may be a single field, or dto obtained by query.selectMapKey(Class).
+     */
+    <K, V> Map<K, V> doMapByQueryResults(TypeSafeRootQuery query, K key, HibernateQueryConfigurer configurer);
+
+    /**
+     * Delegates to {@link #doGroupByQueryResults(TypeSafeRootQuery, K, HibernateQueryConfigurer)} without configurer.
+     */
+    <K, V> Map<K, List<V>> doGroupByQueryResults(TypeSafeRootQuery query, K key);
+
+    /**
+     * The query selects a List of values + the key and returns the results grouped by the key.
+     * The key may be a single field, or dto obtained by query.selectMapKey(Class).
+     */
+    <K, V> Map<K, List<V>> doGroupByQueryResults(TypeSafeRootQuery query, K key, HibernateQueryConfigurer configurer);
 
     /**
      * Transforms the query to a HqlQuery, creates a hibernate query object for
