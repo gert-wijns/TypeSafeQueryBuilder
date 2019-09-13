@@ -266,42 +266,42 @@ public class OnGoingTextRestrictionImpl
     }
 
     @Override
-    public ContinuedOnGoingTextRestriction lessThan(String value) {
-        return lessThan(toValue(value, null));
+    public ContinuedOnGoingTextRestriction lt(String value) {
+        return lt(toValue(value, null));
     }
 
     @Override
-    public ContinuedOnGoingTextRestriction lessThan(TypeSafeValue<String> value) {
+    public ContinuedOnGoingTextRestriction lt(TypeSafeValue<String> value) {
         return addRestrictionAndContinue(startValue, RestrictionOperator.LESS_THAN, value);
     }
 
     @Override
-    public ContinuedOnGoingTextRestriction greaterThan(String value) {
-        return greaterThan(toValue(value, null));
+    public ContinuedOnGoingTextRestriction gt(String value) {
+        return gt(toValue(value, null));
     }
 
     @Override
-    public ContinuedOnGoingTextRestriction greaterThan(TypeSafeValue<String> value) {
+    public ContinuedOnGoingTextRestriction gt(TypeSafeValue<String> value) {
         return addRestrictionAndContinue(startValue, RestrictionOperator.GREATER_THAN, value);
     }
 
     @Override
-    public ContinuedOnGoingTextRestriction lessThanEqual(String value) {
-        return lessThanEqual(toValue(value, null));
+    public ContinuedOnGoingTextRestriction lte(String value) {
+        return lte(toValue(value, null));
     }
 
     @Override
-    public ContinuedOnGoingTextRestriction lessThanEqual(TypeSafeValue<String> value) {
+    public ContinuedOnGoingTextRestriction lte(TypeSafeValue<String> value) {
         return addRestrictionAndContinue(startValue, RestrictionOperator.LESS_THAN_EQUAL, value);
     }
 
     @Override
-    public ContinuedOnGoingTextRestriction greaterThanEqual(String value) {
-        return greaterThanEqual(toValue(value, null));
+    public ContinuedOnGoingTextRestriction gte(String value) {
+        return gte(toValue(value, null));
     }
 
     @Override
-    public ContinuedOnGoingTextRestriction greaterThanEqual(TypeSafeValue<String> value) {
+    public ContinuedOnGoingTextRestriction gte(TypeSafeValue<String> value) {
         return addRestrictionAndContinue(startValue, RestrictionOperator.GREATER_THAN_EQUAL, value);
     }
 

@@ -144,56 +144,56 @@ public class OnGoingTextRestrictionTest extends TypeSafeQueryTest {
     @Test
     public void lessThanValueTest() {
         Person person = query.from(Person.class);
-        query.where(person.getName()).lessThan(person.getNickname());
+        query.where(person.getName()).lt(person.getNickname());
         validate(" from Person hobj1 where hobj1.name < hobj1.nickname");
     }
     
     @Test
     public void lessThanEqualValueTest() {
         Person person = query.from(Person.class);
-        query.where(person.getName()).lessThanEqual(person.getNickname());
+        query.where(person.getName()).lte(person.getNickname());
         validate(" from Person hobj1 where hobj1.name <= hobj1.nickname");
     }
     
     @Test
     public void lessThanTest() {
         Person person = query.from(Person.class);
-        query.where(person.getName()).lessThan("e");
+        query.where(person.getName()).lt("e");
         validate(" from Person hobj1 where hobj1.name < :np1", "e");
     }
 
     @Test
     public void lessThanEqualTest() {
         Person person = query.from(Person.class);
-        query.where(person.getName()).lessThanEqual("e");
+        query.where(person.getName()).lte("e");
         validate(" from Person hobj1 where hobj1.name <= :np1", "e");
     }
 
     @Test
     public void greaterThanValueTest() {
         Person person = query.from(Person.class);
-        query.where(person.getName()).greaterThan(person.getNickname());
+        query.where(person.getName()).gt(person.getNickname());
         validate(" from Person hobj1 where hobj1.name > hobj1.nickname");
     }
 
     @Test
     public void greaterThanEqualValueTest() {
         Person person = query.from(Person.class);
-        query.where(person.getName()).greaterThanEqual(person.getNickname());
+        query.where(person.getName()).gte(person.getNickname());
         validate(" from Person hobj1 where hobj1.name >= hobj1.nickname");
     }
     
     @Test
     public void greaterThanTest() {
         Person person = query.from(Person.class);
-        query.where(person.getName()).greaterThan("e");
+        query.where(person.getName()).gt("e");
         validate(" from Person hobj1 where hobj1.name > :np1", "e");
     }
 
     @Test
     public void greaterThanEqualTest() {
         Person person = query.from(Person.class);
-        query.where(person.getName()).greaterThanEqual("e");
+        query.where(person.getName()).gte("e");
         validate(" from Person hobj1 where hobj1.name >= :np1", "e");
     }
     
