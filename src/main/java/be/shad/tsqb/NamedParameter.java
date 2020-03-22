@@ -15,6 +15,9 @@
  */
 package be.shad.tsqb;
 
+import org.hibernate.proxy.HibernateProxy;
+import org.hibernate.proxy.LazyInitializer;
+
 public class NamedParameter {
     private final String name;
     private final Object value;
@@ -34,6 +37,12 @@ public class NamedParameter {
 
     @Override
     public String toString() {
+        if (value instanceof HibernateProxy) {
+            LazyInitializer initializer = ((HibernateProxy) value).getHibernateLazyInitializer();
+            if (initializer.isUninitialized()) {
+                return String.format("[:%s, %s]", name, initializer.getEntityName() + ":" + initializer.getIdentifier());
+            }
+        }
         return String.format("[:%s, %s]", name, value);
     }
 }

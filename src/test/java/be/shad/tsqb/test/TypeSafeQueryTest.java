@@ -29,6 +29,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.proxy.HibernateProxy;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -164,6 +165,9 @@ public class TypeSafeQueryTest {
         for(;expectedIt.hasNext() && actualIt.hasNext();) {
             Object expectedParam = expectedIt.next();
             Object actualParam = actualIt.next();
+            if (actualParam instanceof HibernateProxy) {
+                actualParam = ((HibernateProxy) actualParam).getHibernateLazyInitializer().getIdentifier();
+            }
             if (expectedParam instanceof Collection) {
                 // don't care if the collection has a different order,
                 // as long as the elements are the same:

@@ -36,6 +36,8 @@ import be.shad.tsqb.query.copy.CopyContext;
 import be.shad.tsqb.restrictions.WhereRestrictions;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroup;
 import be.shad.tsqb.values.HqlQueryBuilderParams;
+import be.shad.tsqb.values.HqlQueryValue;
+import be.shad.tsqb.values.HqlQueryValueImpl;
 
 /**
  * Contains the proxy data, the from and the joined entities data known in the query.
@@ -223,6 +225,10 @@ public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder {
         return false;
     }
 
+    public List<TypeSafeQueryFrom> getFroms() {
+        return froms;
+    }
+
     @Override
     public void appendTo(HqlQuery query, HqlQueryBuilderParams params) {
         for(TypeSafeQueryFrom from: froms) {
@@ -230,4 +236,16 @@ public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder {
         }
     }
 
+    public HqlQueryValue toHqlQueryValue(HqlQueryBuilderParams params) {
+        HqlQueryValueImpl value = new HqlQueryValueImpl();
+        for(TypeSafeQueryFrom from: froms) {
+            HqlQueryValue hqlQueryValue = from.toHqlQueryValue(params);
+            if (!value.getHql().isEmpty()) {
+                value.appendHql(", ");
+            }
+            value.appendHql(hqlQueryValue.getHql());
+            value.addParams(hqlQueryValue.getParams());
+        }
+        return value;
+    }
 }

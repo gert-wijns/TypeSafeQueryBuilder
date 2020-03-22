@@ -62,6 +62,8 @@ import be.shad.tsqb.values.TypeSafeValueFunctions;
 import be.shad.tsqb.values.arithmetic.ArithmeticTypeSafeValueFactory;
 import be.shad.tsqb.values.arithmetic.ArithmeticTypeSafeValueFactoryImpl;
 
+import org.hibernate.proxy.HibernateProxy;
+
 /**
  * Collects the data and creates the hqlQuery based on this data.
  */
@@ -746,6 +748,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
         return toValue(value, null);
     }
 
+    @SuppressWarnings("unchecked")
     public <VAL> TypeSafeValue<VAL> toValue(VAL value, DirectValueProvider<VAL> provider) {
         if (value instanceof TypeSafeValue<?>) {
             throw new IllegalArgumentException(String.format("The value [%s] is already a type safe value.", value));
@@ -773,6 +776,11 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
                 DirectTypeSafeValue<VAL> directValue = (DirectTypeSafeValue<VAL>)
                         new DirectTypeSafeStringValue(this, (String) value);
                 return directValue;
+            } else if (value instanceof HibernateProxy) {
+                return new DirectTypeSafeValue(this, ((HibernateProxy) value)
+                        .getHibernateLazyInitializer().getIdentifier());
+            } else if (helper.isEntity(value.getClass())) {
+                return new DirectTypeSafeValue(this, helper.getIdentifier(value));
             } else {
                 return new DirectTypeSafeValue<>(this, value);
             }

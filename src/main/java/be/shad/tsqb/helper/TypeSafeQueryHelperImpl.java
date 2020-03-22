@@ -117,6 +117,35 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
         return getMetaDataNonNull(entityClass).getEntityName();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isEntity(Class<?> entityClass) {
+        return getMetaData(entityClass) != null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Class<?> getEntityIdClass(Class<?> entityClass) {
+        return getMetaDataNonNull(entityClass).getIdentifierType().getReturnedClass();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object getIdentifier(Object entity) {
+        String identifierPropertyName = getMetaDataNonNull(entity.getClass()).getIdentifierPropertyName();
+        try {
+            return entity.getClass().getMethod("get" +
+                                Character.toUpperCase(identifierPropertyName.charAt(0))
+                                + identifierPropertyName.substring(1)).invoke(entity);
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
