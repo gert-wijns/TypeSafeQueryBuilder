@@ -139,11 +139,13 @@ public class TypeSafeQueryTest {
     }
 
     protected void validate(TypeSafeRootQuery query, HqlQueryValue expected) {
-        HqlQuery hqlQuery = doQuery(query);
+        validate(doQuery(query), expected);
+    }
 
+    protected void validate(HqlQueryValue actual, HqlQueryValue expected) {
         List<Object> actualParams = new LinkedList<>();
-        if (hqlQuery.getParams() != null) {
-            for(Object queryParam: hqlQuery.getParams()) {
+        if (actual.getParams() != null) {
+            for(Object queryParam: actual.getParams()) {
                 if (queryParam instanceof NamedParameter) {
                     actualParams.add(((NamedParameter) queryParam).getValue());
                 } else {
@@ -153,9 +155,9 @@ public class TypeSafeQueryTest {
         }
 
         String expectedHql = String.format("\nExpected:\n%s\n--- params: %s\n", expected.getHql().trim(), expected.getParams());
-        String result = String.format("\nResult:\n%s\n--- params: %s\n", hqlQuery.getHql().trim(), hqlQuery.getParams());
+        String result = String.format("\nResult:\n%s\n--- params: %s\n", actual.getHql().trim(), actual.getParams());
 
-        assertEquals(expectedHql + result, expected.getHql().trim(), hqlQuery.getHql().trim());
+        assertEquals(expectedHql + result, expected.getHql().trim(), actual.getHql().trim());
         assertEquals(expectedHql + result, expected.getParams().size(), actualParams.size());
         Iterator<Object> expectedIt = expected.getParams().iterator();
         Iterator<Object> actualIt = actualParams.iterator();

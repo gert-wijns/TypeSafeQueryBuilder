@@ -34,7 +34,6 @@ import be.shad.tsqb.restrictions.Restriction;
 import be.shad.tsqb.restrictions.predicate.RestrictionPredicate;
 import be.shad.tsqb.selection.SelectionValueTransformer;
 import be.shad.tsqb.selection.collection.ResultIdentifierBinder;
-import be.shad.tsqb.selection.collection.ResultIdentifierBinding;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroup;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroupImpl;
 import be.shad.tsqb.selection.parallel.MapSelectionMerger;
@@ -47,6 +46,7 @@ import be.shad.tsqb.selection.parallel.SelectionMerger2;
 import be.shad.tsqb.selection.parallel.SelectionMerger3;
 import be.shad.tsqb.values.HqlQueryBuilderParams;
 import be.shad.tsqb.values.HqlQueryBuilderParamsImpl;
+import be.shad.tsqb.values.HqlQueryValue;
 import be.shad.tsqb.values.RestrictionTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
 
@@ -484,6 +484,14 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     @Override
     public HqlQuery toHqlQuery(HqlQueryBuilderParams params) {
         return super.toHqlQuery(params);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public HqlQueryValue toHqlQueryValue(HqlQueryBuilderParams params) {
+        return toHqlQuery(params);
     }
 
     /**
