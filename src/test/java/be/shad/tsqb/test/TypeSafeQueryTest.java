@@ -48,7 +48,7 @@ import be.shad.tsqb.values.HqlQueryValue;
 public class TypeSafeQueryTest {
 
     protected final Logger logger = LogManager.getLogger(getClass());
-    @Rule public TestName name = new TestName();
+    @Rule public final TestName name = new TestName();
 
     private static SessionFactory sessionFactory;
     protected static TypeSafeQueryDao typeSafeQueryDao;

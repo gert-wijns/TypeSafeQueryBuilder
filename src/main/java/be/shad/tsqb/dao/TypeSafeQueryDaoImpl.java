@@ -109,11 +109,8 @@ public class TypeSafeQueryDaoImpl implements TypeSafeQueryDao {
                 query, configurer, params).getResults();
         Map<Object, List<Object>> map = new HashMap<>();
         for(ResultEntry result: results) {
-            List<Object> values = map.get(result.getKey());
-            if (values == null) {
-                values = new ArrayList<>();
-                map.put(result.getKey(), values);
-            }
+            List<Object> values = map.computeIfAbsent(
+                    result.getKey(), (k) -> new ArrayList<>());
             values.add(result.getValue());
         }
         return (Map) map;
@@ -191,7 +188,7 @@ public class TypeSafeQueryDaoImpl implements TypeSafeQueryDao {
             query.setMaxResults(tsqbQuery.getMaxResults());
         }
 
-        List<T> results = null;
+        List<T> results;
         if (configurer != null) {
             configurer.beforeQuery(currentSession);
             configurer.configureQuery(query);

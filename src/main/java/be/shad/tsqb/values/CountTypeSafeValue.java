@@ -26,7 +26,7 @@ import be.shad.tsqb.query.copy.Copyable;
  * Can't use WrappedTypeSafeValue because the wrapped type must be the same as the wrapper type.
  */
 public class CountTypeSafeValue extends TypeSafeValueImpl<Long> implements IsMaybeDistinct, TypeSafeValueContainer {
-    private TypeSafeValue<?> value;
+    private final TypeSafeValue<?> value;
 
     /**
      * Copy constructor

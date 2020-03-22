@@ -15,6 +15,8 @@
  */
 package be.shad.tsqb.values.arithmetic;
 
+import java.util.function.Consumer;
+
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.values.TypeSafeValue;
 
@@ -27,7 +29,7 @@ public class ArithmeticTypeSafeValueFactoryImpl implements ArithmeticTypeSafeVal
 
     @Override
     public ArithmeticTypeSafeValue value(Number number) {
-        return value((TypeSafeValue<Number>)query.toValue(number));
+        return value(query.toValue(number));
     }
 
     /**
@@ -66,11 +68,7 @@ public class ArithmeticTypeSafeValueFactoryImpl implements ArithmeticTypeSafeVal
             ArithmeticTypeSafeValue... values) {
         ArithmeticTypeSafeValue combined = value(value1);
         combined.add(value2);
-        if (values != null && values.length > 0) {
-            for(int i=0; i < values.length; i++) {
-                combined.add(values[i]);
-            }
-        }
+        combine(combined::add, values);
         return wrap(combined);
     }
 
@@ -84,11 +82,7 @@ public class ArithmeticTypeSafeValueFactoryImpl implements ArithmeticTypeSafeVal
             ArithmeticTypeSafeValue... values) {
         ArithmeticTypeSafeValue combined = value(value1);
         combined.subtract(value2);
-        if (values != null && values.length > 0) {
-            for(int i=0; i < values.length; i++) {
-                combined.subtract(values[i]);
-            }
-        }
+        combine(combined::subtract, values);
         return wrap(combined);
     }
 
@@ -102,12 +96,16 @@ public class ArithmeticTypeSafeValueFactoryImpl implements ArithmeticTypeSafeVal
             ArithmeticTypeSafeValue... values) {
         ArithmeticTypeSafeValue combined = value(value1);
         combined.multiply(value2);
-        if (values != null && values.length > 0) {
-            for(int i=0; i < values.length; i++) {
-                combined.multiply(values[i]);
-            }
-        }
+        combine(combined::multiply, values);
         return wrap(combined);
     }
 
+    private void combine(Consumer<ArithmeticTypeSafeValue> combineFn,
+                         ArithmeticTypeSafeValue[] values) {
+        if (values != null && values.length > 0) {
+            for (ArithmeticTypeSafeValue value : values) {
+                combineFn.accept(value);
+            }
+        }
+    }
 }

@@ -22,8 +22,8 @@ package be.shad.tsqb.restrictions;
  * This class is most or only for internal use and is only used in the RestrictionsGroup.
  */
 public class RestrictionNode {
-    private Restriction restriction;
-    private RestrictionNodeType type;
+    private final Restriction restriction;
+    private final RestrictionNodeType type;
 
     public RestrictionNode(Restriction restriction, RestrictionNodeType type) {
         this.restriction = restriction;

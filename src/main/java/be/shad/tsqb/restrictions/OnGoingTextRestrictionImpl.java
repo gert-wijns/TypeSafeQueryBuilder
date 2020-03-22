@@ -19,6 +19,7 @@ import static be.shad.tsqb.restrictions.RestrictionOperator.LIKE;
 import static be.shad.tsqb.restrictions.RestrictionOperator.NOT_LIKE;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -77,9 +78,7 @@ public class OnGoingTextRestrictionImpl
             return null;
         }
         Set<String> valuesSet = new HashSet<>(values.length);
-        for(String value: values) {
-            valuesSet.add(value);
-        }
+        Collections.addAll(valuesSet, values);
         return valuesSet;
     }
 
@@ -203,7 +202,7 @@ public class OnGoingTextRestrictionImpl
      * Validates no wildcards are used otherwise.
      */
     private TypeSafeValue<String> toValue(String prefix, String value, String postfix, RestrictionPredicate predicate) {
-        if (value instanceof String) {
+        if (value != null) {
             DirectTypeSafeStringValue toValue = (DirectTypeSafeStringValue) toValue(value, predicate);
             return setWildCards(prefix, toValue, postfix);
         }
@@ -214,8 +213,7 @@ public class OnGoingTextRestrictionImpl
                         + "referenced value [" + dequeued.get(0) + "].");
             }
         }
-        TypeSafeValue<String> toValue = toValue(value, predicate);
-        return toValue;
+        return toValue(null, predicate);
     }
 
     protected DirectTypeSafeStringValue createDummyDirectValue() {

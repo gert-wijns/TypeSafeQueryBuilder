@@ -26,8 +26,8 @@ import be.shad.tsqb.query.copy.Copyable;
  * {@link TypeSafeValueFunctions#max(Number) max(...)} etc.
  */
 public class WrappedTypeSafeValue<T> extends TypeSafeValueImpl<T> implements TypeSafeValueContainer {
-    private String function; // sum/max/min/trim/count/...
-    private TypeSafeValue<?> value;
+    private final String function; // sum/max/min/trim/count/...
+    private final TypeSafeValue<?> value;
 
     /**
      * Copy constructor
@@ -35,6 +35,7 @@ public class WrappedTypeSafeValue<T> extends TypeSafeValueImpl<T> implements Typ
     protected WrappedTypeSafeValue(CopyContext context, WrappedTypeSafeValue<T> original) {
         super(context, original);
         this.value = context.get(original.value);
+        this.function = original.function;
     }
 
     public WrappedTypeSafeValue(TypeSafeQuery query, String function, TypeSafeValue<T> value) {

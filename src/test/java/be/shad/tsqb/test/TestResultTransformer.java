@@ -20,7 +20,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -66,7 +66,7 @@ public class TestResultTransformer extends TypeSafeQueryTest {
 
         TypeSafeQueryResultTransformer tf = (TypeSafeQueryResultTransformer) query.getResultTransformer();
         Object transformTuple = tf.transformTuple(new Object[] {"Name", "Algo"}, new String[paths.size()]);
-        List<?> transformList = tf.transformList(Arrays.asList(transformTuple));
+        List<?> transformList = tf.transformList(Collections.singletonList(transformTuple));
         Object transformed = transformList.get(0);
 
         assertTrue(transformed instanceof Product);
@@ -92,7 +92,7 @@ public class TestResultTransformer extends TypeSafeQueryTest {
 
         TypeSafeQueryResultTransformer tf = (TypeSafeQueryResultTransformer) query.getResultTransformer();
         Object transformTuple = tf.transformTuple(new Object[] {"Name", "Algo"}, new String[2]);
-        List<?> transformList = tf.transformList(Arrays.asList(transformTuple));
+        List<?> transformList = tf.transformList(Collections.singletonList(transformTuple));
         Object transformed = transformList.get(0);
 
         assertTrue(transformed instanceof Product);

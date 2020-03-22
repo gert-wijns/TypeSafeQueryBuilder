@@ -19,6 +19,7 @@ import static be.shad.tsqb.restrictions.predicate.RestrictionPredicate.IGNORE_EM
 import static be.shad.tsqb.restrictions.predicate.RestrictionPredicate.IGNORE_NULL;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Test;
@@ -31,7 +32,7 @@ import be.shad.tsqb.test.TypeSafeQueryTest;
 import be.shad.tsqb.values.DirectTypeSafeValue;
 
 public class OnGoingRestrictionTest extends TypeSafeQueryTest {
-    private String NAMED_PARAM_1 = "NAMED_PARAM_1";
+    private static final String NAMED_PARAM_1 = "NAMED_PARAM_1";
 
     @Test
     public void testIsNull() {
@@ -58,7 +59,7 @@ public class OnGoingRestrictionTest extends TypeSafeQueryTest {
     @Test
     public void testTypeSafeValueInEmptyCollectionIgnorable() {
         Person person = query.from(Person.class);
-        List<String> names = Arrays.asList();
+        List<String> names = Collections.emptyList();
         query.where(person.getName()).in(names, IGNORE_EMPTY_COLLECTION);
         validate(" from Person hobj1");
     }
@@ -107,7 +108,7 @@ public class OnGoingRestrictionTest extends TypeSafeQueryTest {
     @Test
     public void testNotInIgnorable() {
         Person person = query.from(Person.class);
-        List<String> names = Arrays.asList();
+        List<String> names = Collections.emptyList();
         query.where(person.getName()).notIn(names, IGNORE_EMPTY_COLLECTION);
         validate(" from Person hobj1");
     }
@@ -171,7 +172,7 @@ public class OnGoingRestrictionTest extends TypeSafeQueryTest {
     @Test
     public void testTypeSafeValueEq() {
         Person person = query.from(Person.class);
-        query.where(person.getAge()).eq(new DirectTypeSafeValue<Number>(query, 40));
+        query.where(person.getAge()).eq(new DirectTypeSafeValue<>(query, 40));
         validate(" from Person hobj1 where hobj1.age = :np1", 40);
     }
 
@@ -201,7 +202,7 @@ public class OnGoingRestrictionTest extends TypeSafeQueryTest {
     @Test
     public void testTypeSafeValueNot() {
         Person person = query.from(Person.class);
-        query.where(person.getAge()).notEq(new DirectTypeSafeValue<Number>(query, 40));
+        query.where(person.getAge()).notEq(new DirectTypeSafeValue<>(query, 40));
         validate(" from Person hobj1 where hobj1.age <> :np1", 40);
     }
 

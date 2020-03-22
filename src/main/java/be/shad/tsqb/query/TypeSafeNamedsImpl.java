@@ -80,7 +80,7 @@ public class TypeSafeNamedsImpl implements TypeSafeNameds, Copyable {
         }
         if (!clazz.isAssignableFrom(object.getClass())) {
             throw new IllegalArgumentException(String.format(
-                    "Named object [%s] doesn't have the correct type.",
+                    "Named object [%s] doesn't have the correct type [%s].",
                     object, clazz));
         }
         return clazz.cast(object);
@@ -98,7 +98,7 @@ public class TypeSafeNamedsImpl implements TypeSafeNameds, Copyable {
      */
     private boolean isBlank(String name) {
         for (int i = 0, strLen = name.length(); i < strLen; i++) {
-            if (Character.isWhitespace(name.charAt(i)) == false) {
+            if (!Character.isWhitespace(name.charAt(i))) {
                 return false;
             }
         }

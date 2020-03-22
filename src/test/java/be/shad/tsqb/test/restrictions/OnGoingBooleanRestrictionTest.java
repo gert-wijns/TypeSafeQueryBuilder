@@ -25,7 +25,7 @@ import be.shad.tsqb.domain.people.Person;
 import be.shad.tsqb.test.TypeSafeQueryTest;
 
 public class OnGoingBooleanRestrictionTest extends TypeSafeQueryTest {
-    private String NAMED_PARAM_1 = "NAMED_PARAM_1";
+    private static final String NAMED_PARAM_1 = "NAMED_PARAM_1";
 
     @Test
     public void testIsFalse() {

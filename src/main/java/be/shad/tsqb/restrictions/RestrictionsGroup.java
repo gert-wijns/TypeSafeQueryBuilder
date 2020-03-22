@@ -26,10 +26,10 @@ import be.shad.tsqb.values.HqlQueryValueBuilder;
  */
 public interface RestrictionsGroup extends RestrictionsGroupBuilder, RestrictionChainable, HqlQueryValueBuilder {
 
-    public enum RestrictionsGroupBracketsPolicy {
+    enum RestrictionsGroupBracketsPolicy {
         Always,
         Never,
-        WhenMoreThanOne;
+        WhenMoreThanOne
     }
 
     /**

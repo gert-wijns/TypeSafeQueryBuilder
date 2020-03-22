@@ -85,7 +85,7 @@ public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder {
             }
         }
         for(TypeSafeQuerySelectionProxyData originalData: original.selectionData) {
-            TypeSafeQuerySelectionProxyData copyData = null;
+            TypeSafeQuerySelectionProxyData copyData;
             if (originalData.getParent() == null) {
                 copyData = ((TypeSafeQuerySelectionProxy) helper.createTypeSafeSelectProxy(
                         query.getRootQuery(), originalData.getPropertyType(),
@@ -102,8 +102,8 @@ public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder {
         }
     }
 
-    public <T> WhereRestrictions getJoinRestrictions(TypeSafeQueryProxyData data) {
-        return (WhereRestrictions) joins.get(data);
+    public WhereRestrictions getJoinRestrictions(TypeSafeQueryProxyData data) {
+        return joins.get(data);
     }
 
     /**

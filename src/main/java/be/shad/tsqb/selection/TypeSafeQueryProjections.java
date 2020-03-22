@@ -95,12 +95,12 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
         }
         if (projection.getSelectionData() != null && !selectingIntoDto) {
             throw new IllegalArgumentException(String.format("Values have already been selected "
-                    + "without a resultClass. Current projections " + projections
-                    + ", added " + projection));
+                    + "without a resultClass. Current projections %s, added %s",
+                    projections, projection));
         } else if (projection.getSelectionData() == null && selectingIntoDto) {
             throw new IllegalArgumentException(String.format("Values have already been selected "
-                    + "into a resultClass. Current projections " + projections
-                    + ", added " + projection));
+                    + "into a resultClass. Current projections %s, added %s",
+                    projections, projection));
         }
         if(isDistinct(projection)) {
             if (!projections.isEmpty() && isDistinct(projections.getFirst())) {
@@ -155,7 +155,7 @@ public class TypeSafeQueryProjections implements HqlQueryBuilder {
      *
      */
     private TypeSafeValue<?> projectInvocationQueueValue(Object select, TypeSafeQuerySelectionProxyData property) {
-        TypeSafeValue<?> value = null;
+        TypeSafeValue<?> value;
 
         List<TypeSafeQueryProxyData> invocations = query.dequeueInvocations();
         if (invocations.isEmpty()) {

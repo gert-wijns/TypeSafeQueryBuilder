@@ -25,7 +25,6 @@ import static java.lang.Boolean.FALSE;
 import static java.math.BigDecimal.ZERO;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 
@@ -110,7 +109,7 @@ public class RestrictionChainingTest extends TypeSafeQueryTest {
         // hopelessly complex grouping:
         query.where().and(
             gb.where(house.getFloors()).gt(4).and(
-                gb.where(house.isOccupied()).isFalse().or(house.getPrice()).eq(ZERO).and(house.getConstructionDate()).in(Collections.<Date>emptyList(), IGNORE_EMPTY_COLLECTION)
+                gb.where(house.isOccupied()).isFalse().or(house.getPrice()).eq(ZERO).and(house.getConstructionDate()).in(Collections.emptyList(), IGNORE_EMPTY_COLLECTION)
             ).and(
                 gb.where(house.getName()).startsWith("Cas").and(house.getAddress().getStreet()).startsWith("", IGNORE_EMPTY_STRING).or(house.getName()).startsWith("Chu")
             ).and(
@@ -133,7 +132,7 @@ public class RestrictionChainingTest extends TypeSafeQueryTest {
         // hopelessly complex grouping:
         query.where().and(
             gb.where(house.getFloors()).gt(4).and(
-                gb.where(house.isOccupied()).isFalse().or(house.getPrice()).eq(ZERO).and(house.getConstructionDate()).in(Collections.<Date>emptyList())
+                gb.where(house.isOccupied()).isFalse().or(house.getPrice()).eq(ZERO).and(house.getConstructionDate()).in(Collections.emptyList())
             ).and(
                 gb.where(house.getName()).startsWith("Cas").and(house.getAddress().getStreet()).startsWith("").or(house.getName()).startsWith("Chu")
             ).and(
@@ -150,7 +149,7 @@ public class RestrictionChainingTest extends TypeSafeQueryTest {
     @Test
     public void testGroupsWithSelectorsConstructionDateIncludedWhenSet() {
         PredicatesTestSelector selector = new PredicatesTestSelector();
-        selector.setConstructionDates(Arrays.asList(new Date()));
+        selector.setConstructionDates(Collections.singletonList(new Date()));
         validate(selector,
                 " from House hobj1 "
                 + "where (hobj1.floors > :np1 "

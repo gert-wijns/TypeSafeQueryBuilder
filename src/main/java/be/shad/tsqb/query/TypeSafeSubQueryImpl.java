@@ -58,7 +58,7 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
 
     @Override
     public Copyable copy(CopyContext context) {
-        return new TypeSafeSubQueryImpl<T>(context, this);
+        return new TypeSafeSubQueryImpl<>(context, this);
     }
 
     /**
@@ -208,7 +208,7 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
      */
     @Override
     public boolean selectExists() {
-        CaseTypeSafeValue<Boolean> caseValue = new CaseTypeSafeValue<Boolean>(getParentQuery(), Boolean.class);
+        CaseTypeSafeValue<Boolean> caseValue = new CaseTypeSafeValue<>(getParentQuery(), Boolean.class);
         caseValue.is(Boolean.TRUE).whenExists(this);
         caseValue.is(Boolean.FALSE).otherwise();
         return caseValue.select();
@@ -219,7 +219,7 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
      */
     @Override
     public boolean selectNotExists() {
-        CaseTypeSafeValue<Boolean> caseValue = new CaseTypeSafeValue<Boolean>(getParentQuery(), Boolean.class);
+        CaseTypeSafeValue<Boolean> caseValue = new CaseTypeSafeValue<>(getParentQuery(), Boolean.class);
         caseValue.is(Boolean.FALSE).whenExists(this);
         caseValue.is(Boolean.TRUE).otherwise();
         return caseValue.select();

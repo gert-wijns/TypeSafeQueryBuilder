@@ -27,7 +27,7 @@ import be.shad.tsqb.test.TypeSafeQueryTest;
 import be.shad.tsqb.values.DirectTypeSafeValue;
 
 public class OnGoingNumberRestrictionTest extends TypeSafeQueryTest {
-    private String NAMED_PARAM_1 = "NAMED_PARAM_1";
+    private static final String NAMED_PARAM_1 = "NAMED_PARAM_1";
 
     @Test
     public void testLt() {
@@ -56,7 +56,7 @@ public class OnGoingNumberRestrictionTest extends TypeSafeQueryTest {
     public void testTypeSafeValueLt() {
         Person person = query.from(Person.class);
 
-        query.where(person.getAge()).lt(new DirectTypeSafeValue<Number>(query, 40));
+        query.where(person.getAge()).lt(new DirectTypeSafeValue<>(query, 40));
 
         validate(" from Person hobj1 where hobj1.age < :np1", 40);
     }
@@ -90,7 +90,7 @@ public class OnGoingNumberRestrictionTest extends TypeSafeQueryTest {
     @Test
     public void testTypeSafeValueGt() {
         Person person = query.from(Person.class);
-        query.where(person.getAge()).gt(new DirectTypeSafeValue<Number>(query, 40));
+        query.where(person.getAge()).gt(new DirectTypeSafeValue<>(query, 40));
         validate(" from Person hobj1 where hobj1.age > :np1", 40);
     }
 
@@ -143,7 +143,7 @@ public class OnGoingNumberRestrictionTest extends TypeSafeQueryTest {
     @Test
     public void testTypeSafeValueLte() {
         Person person = query.from(Person.class);
-        query.where(person.getAge()).lte(new DirectTypeSafeValue<Number>(query, 40));
+        query.where(person.getAge()).lte(new DirectTypeSafeValue<>(query, 40));
         validate(" from Person hobj1 where hobj1.age <= :np1", 40);
     }
 
@@ -196,7 +196,7 @@ public class OnGoingNumberRestrictionTest extends TypeSafeQueryTest {
     @Test
     public void testTypeSafeValueGte() {
         Person person = query.from(Person.class);
-        query.where(person.getAge()).gte(new DirectTypeSafeValue<Number>(query, 40));
+        query.where(person.getAge()).gte(new DirectTypeSafeValue<>(query, 40));
         validate(" from Person hobj1 where hobj1.age >= :np1", 40);
     }
 

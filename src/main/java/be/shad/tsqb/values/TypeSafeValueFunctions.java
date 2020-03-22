@@ -39,7 +39,7 @@ public class TypeSafeValueFunctions {
     }
 
     public <VAL> PartialNullIf<VAL> nullIf(TypeSafeValue<VAL> val) {
-        return new PartialNullIf<VAL>(query, val);
+        return new PartialNullIf<>(query, val);
     }
 
     public <VAL> TypeSafeValue<VAL> distinct(VAL val) {
@@ -113,7 +113,7 @@ public class TypeSafeValueFunctions {
     }
 
     public TypeSafeValue<Long> length(TypeSafeValue<String> val) {
-        return new WrappedTypeSafeValue<Long>(query, "length", Long.class, val);
+        return new WrappedTypeSafeValue<>(query, "length", Long.class, val);
     }
 
     public TypeSafeValue<String> upper(String val) {

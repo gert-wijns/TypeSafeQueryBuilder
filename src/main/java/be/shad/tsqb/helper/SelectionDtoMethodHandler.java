@@ -38,7 +38,7 @@ class SelectionDtoMethodHandler implements MethodHandler {
     /**
      *
      */
-    public Object invoke(Object self, Method m, Method proceed, Object[] args) throws Throwable {
+    public Object invoke(Object self, Method m, Method proceed, Object[] args) {
         if (m.getReturnType().equals(TypeSafeQuerySelectionProxyData.class)) {
             return data;
         }

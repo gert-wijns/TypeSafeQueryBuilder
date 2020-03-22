@@ -15,7 +15,6 @@
  */
 package be.shad.tsqb.proxy;
 
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,16 +30,14 @@ import be.shad.tsqb.helper.ConcreteDtoClassResolver;
  */
 public final class TypeSafeQueryProxyFactory {
 
-    private static final MethodFilter METHOD_FILTER = new MethodFilter() {
-        public boolean isHandled(Method m) {
-            switch (m.getName()) {
-                case "finalize":
-                case "hashCode":
-                case "equals":
-                    return false;
-                default:
-                    return true;
-            }
+    private static final MethodFilter METHOD_FILTER = m -> {
+        switch (m.getName()) {
+            case "finalize":
+            case "hashCode":
+            case "equals":
+                return false;
+            default:
+                return true;
         }
     };
 
@@ -58,7 +55,7 @@ public final class TypeSafeQueryProxyFactory {
 
     public <T> T getProxy(Class<T> fromClass, TypeSafeQueryProxyType type) {
         try {
-            return (T) getProxyClass(fromClass, type).newInstance();
+            return getProxyClass(fromClass, type).newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }

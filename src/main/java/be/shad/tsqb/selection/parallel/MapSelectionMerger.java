@@ -24,7 +24,7 @@ import java.util.Map;
 public abstract class MapSelectionMerger<RESULT, K, V> implements SelectionMerger<RESULT, Map<K, V>> {
 
     /**
-     * Delegates to {@link #mergeMapIntoResult(Object, Object)} with the map of extra selected values.
+     * Delegates to {@link #mergeMapIntoResult(Object, Map)} with the map of extra selected values.
      */
     @Override
     public final void mergeIntoResult(RESULT partialResult, Map<K, V> parallelDto) {

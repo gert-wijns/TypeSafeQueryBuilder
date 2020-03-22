@@ -31,12 +31,12 @@ public class OperationTypeSafeValue<T> extends TypeSafeValueImpl<T> implements T
     public enum OperationTypeSafeValueBracketsPolicy {
         Always,
         Never,
-        WhenMoreThanOne;
+        WhenMoreThanOne
     }
 
-    private List<TypeSafeValue<? extends T>> values = new LinkedList<>();
-    private List<String> operations = new LinkedList<>();
-    private OperationTypeSafeValueBracketsPolicy bracketsPolicy;
+    private final List<TypeSafeValue<? extends T>> values = new LinkedList<>();
+    private final List<String> operations = new LinkedList<>();
+    private final OperationTypeSafeValueBracketsPolicy bracketsPolicy;
 
     /**
      * Copy constructor
@@ -47,9 +47,7 @@ public class OperationTypeSafeValue<T> extends TypeSafeValueImpl<T> implements T
         for(TypeSafeValue<? extends T> value: original.values) {
             this.values.add(context.get(value));
         }
-        for(String operation: original.operations) {
-            this.operations.add(operation);
-        }
+        this.operations.addAll(original.operations);
     }
 
     public OperationTypeSafeValue(TypeSafeQuery query, TypeSafeValue<T> firstValue,
@@ -61,7 +59,7 @@ public class OperationTypeSafeValue<T> extends TypeSafeValueImpl<T> implements T
 
     @SuppressWarnings("unchecked")
     public void add(String operation, TypeSafeValue<? extends T> value) {
-        values.add((TypeSafeValue<T>) value);
+        values.add(value);
         operations.add(operation);
     }
 

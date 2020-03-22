@@ -90,10 +90,10 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
 
     private Type getTargetType(TypeSafeQueryProxyData data, String property) {
         if (data.getProxyType().isComposite()) {
-            return getMetaData(data.getCompositeTypeEntityParent().getPropertyType()).
+            return getMetaDataNonNull(data.getCompositeTypeEntityParent().getPropertyType()).
                     getPropertyType(data.getCompositePropertyPath() + "." + property);
         }
-        return getMetaData(data.getPropertyType()).getPropertyType(property);
+        return getMetaDataNonNull(data.getPropertyType()).getPropertyType(property);
     }
 
     /**
@@ -114,7 +114,9 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
      */
     @Override
     public String getEntityName(Class<?> entityClass) {
-        return getMetaData(entityClass).getEntityName();
+        return getMetaDataNonNull(entityClass).getEntityName();
+    }
+
     }
 
     /**
@@ -153,9 +155,8 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
     void setSelectionDtoMethodHandler(final TypeSafeRootQueryInternal query,
             final TypeSafeQuerySelectionProxyData data) {
         if (data.getProxy() == null) {
-            TypeSafeQuerySelectionProxy childProxy = null;
             if (!isBasicType(data.getPropertyType())) {
-                childProxy = (TypeSafeQuerySelectionProxy) proxyFactory.getProxy(
+                TypeSafeQuerySelectionProxy childProxy = (TypeSafeQuerySelectionProxy) proxyFactory.getProxy(
                         data.getPropertyType(), SelectionDtoType);
                 data.setProxy(childProxy);
             } else {
@@ -223,7 +224,7 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
         if (metadata == null && !propertyType.isComponentType()) {
             return query.getDataTree().createData(parent, property, targetClass);
         }
-        TypeSafeQueryProxyType proxyType = null;
+        TypeSafeQueryProxyType proxyType;
         if (metadata != null) {
             proxyType = propertyType.isCollectionType() ? EntityCollectionType: EntityType;
         } else {
@@ -234,6 +235,14 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
                 proxyType, metadata == null ? null: metadata.getIdentifierPropertyName(), proxy);
         setEntityProxyMethodListener(query, proxy, data);
         return data;
+    }
+
+    private ClassMetadata getMetaDataNonNull(Class<?> entityClass) {
+        ClassMetadata metaData = getMetaData(entityClass);
+        if (metaData == null) {
+            throw new IllegalArgumentException(entityClass + " is not an entity!");
+        }
+        return metaData;
     }
 
     private ClassMetadata getMetaData(Class<?> targetClass) {
@@ -262,7 +271,7 @@ public class TypeSafeQueryHelperImpl implements TypeSafeQueryHelper {
      */
     private TypeSafeQueryProxyData createClassJoinProxy(TypeSafeQueryInternal query,
             TypeSafeQueryProxyData parent, Class<?> targetClass) {
-        ClassMetadata metadata = getMetaData(targetClass);
+        ClassMetadata metadata = getMetaDataNonNull(targetClass);
         TypeSafeQueryProxyType proxyType = TypeSafeQueryProxyType.EntityType;
         TypeSafeQueryProxy proxy = (TypeSafeQueryProxy) proxyFactory.getProxy(targetClass, proxyType);
         TypeSafeQueryProxyData data = query.getDataTree().createData(parent, null, targetClass,

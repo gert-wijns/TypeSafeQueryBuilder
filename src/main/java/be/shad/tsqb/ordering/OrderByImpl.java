@@ -23,8 +23,8 @@ import be.shad.tsqb.values.HqlQueryValue;
 import be.shad.tsqb.values.TypeSafeValue;
 
 public class OrderByImpl implements OrderBy {
-    private TypeSafeValue<?> value;
-    private boolean descending;
+    private final TypeSafeValue<?> value;
+    private final boolean descending;
 
     public OrderByImpl(TypeSafeValue<?> value, boolean descending) {
         this.value = value;
@@ -44,8 +44,8 @@ public class OrderByImpl implements OrderBy {
         //ascending is the default
         String order = descending ? " desc": "";
         HqlQueryValue hqlValue = value.toHqlQueryValue(params);
-		query.appendOrderBy(hqlValue.getHql() + order);
-		query.addParams(hqlValue.getParams());
+        query.appendOrderBy(hqlValue.getHql() + order);
+        query.addParams(hqlValue.getParams());
     }
 
     @Override

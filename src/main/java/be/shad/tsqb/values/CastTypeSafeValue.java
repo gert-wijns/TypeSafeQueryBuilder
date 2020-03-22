@@ -21,7 +21,7 @@ import be.shad.tsqb.query.copy.Copyable;
 
 public class CastTypeSafeValue<T> extends TypeSafeValueImpl<T> {
 
-    private TypeSafeValue<?> value;
+    private final TypeSafeValue<?> value;
 
     /**
      * Copy constructor

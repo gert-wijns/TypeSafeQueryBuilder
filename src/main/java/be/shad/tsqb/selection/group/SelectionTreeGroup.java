@@ -40,7 +40,7 @@ import be.shad.tsqb.selection.parallel.SelectionMerger;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class SelectionTreeGroup extends SelectionTree {
 
-    private TypeSafeQuerySelectionGroup group;
+    private final TypeSafeQuerySelectionGroup group;
 
     private final SelectionTreeGroup parent;
     private final Field parentCollectionField;
@@ -57,7 +57,7 @@ public class SelectionTreeGroup extends SelectionTree {
             ConcreteDtoClassResolver concreteDtoClassResolver,
             TypeSafeQuerySelectionGroup group,
             List<SelectionTreeValue> tupleValues,
-            SelectionTreeGroup parent) throws NoSuchFieldException, SecurityException {
+            SelectionTreeGroup parent) throws SecurityException {
         super(concreteDtoClassResolver, group.getResultClass());
         this.group = group;
         this.parent = parent;
@@ -73,7 +73,7 @@ public class SelectionTreeGroup extends SelectionTree {
 
         int otherFieldsIndex = 0;
         int identityFieldsIndex = 0;
-        List<Field> fields = new ArrayList<Field>(fieldsCount);
+        List<Field> fields = new ArrayList<>(fieldsCount);
         for(SelectionTreeValue value: tupleValues) {
             SelectionTreeField field = createSelectionTreeField(value);
             if (identityPaths.contains(value.propertyPath)) {
@@ -100,7 +100,7 @@ public class SelectionTreeGroup extends SelectionTree {
         }
 
         // set the entire array accessible at once (for this object):
-        AccessibleObject.setAccessible(fields.toArray(new Field[fields.size()]), true);
+        AccessibleObject.setAccessible(fields.toArray(new Field[0]), true);
     }
 
     /**
@@ -165,7 +165,7 @@ public class SelectionTreeGroup extends SelectionTree {
         for(int i=0; i < alias.length-1; i++) {
             try {
                 valueTree = valueTree.getSubtree(alias[i]);
-            } catch (NoSuchFieldException | SecurityException e) {
+            } catch (SecurityException e) {
                 throw new RuntimeException(e);
             }
         }
@@ -205,7 +205,7 @@ public class SelectionTreeGroup extends SelectionTree {
         // populate identity fields:
         if (identityFields.length > 0) {
             SelectionTreeData data = dataArray[getResultIndex()];
-            boolean identityExists = identityFields.length > 0;
+            boolean identityExists = true;
             boolean nullIdentity = true;
             SelectionIdentityTree identity = data.identityTrees.get(parentValue);
             if (identity == null) {
@@ -276,7 +276,7 @@ public class SelectionTreeGroup extends SelectionTree {
     }
 
     private Object setField(SelectionTreeData[] dataArray, SelectionTreeField field, Object[] tuple)
-            throws IllegalArgumentException, IllegalAccessException, InstantiationException {
+            throws IllegalArgumentException, IllegalAccessException {
         Object value = tuple[field.tupleValueIndex];
         if (field.valueTransformer != null) {
             value = field.valueTransformer.convert(value);
@@ -301,7 +301,7 @@ public class SelectionTreeGroup extends SelectionTree {
         final Field field;
         final String mapSelectionKey;
 
-        public SelectionTreeField(SelectionTree valueTree,
+        SelectionTreeField(SelectionTree valueTree,
                 SelectionValueTransformer valueTransformer,
                 Field field, String mapSelectionKey,
                 int tupleValueIndex) {
@@ -320,7 +320,7 @@ public class SelectionTreeGroup extends SelectionTree {
         final SelectionTree subtree;
         final Field field;
 
-        public SubtreeField(SelectionTree subtree, Field field) {
+        SubtreeField(SelectionTree subtree, Field field) {
             this.subtree = subtree;
             this.field = field;
         }

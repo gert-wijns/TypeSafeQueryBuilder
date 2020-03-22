@@ -306,7 +306,7 @@ public class WikiTests extends TypeSafeQueryTest {
         PersonSelector selector = new PersonSelector();
         selector.setMinimumAge(18);
         selector.setMaximumAge(null);
-        selector.setNames(Collections.<String>emptySet());
+        selector.setNames(Collections.emptySet());
 
         Person person = query.from(Person.class);
         query.setDefaultRestrictionPredicate(IGNORE_NULL_OR_EMPTY);

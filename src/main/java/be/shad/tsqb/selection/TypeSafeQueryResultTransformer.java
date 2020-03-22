@@ -16,7 +16,6 @@
 package be.shad.tsqb.selection;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -79,11 +78,8 @@ public class TypeSafeQueryResultTransformer extends BasicTransformerAdapter {
             Iterator<SelectionValueTransformer<?, ?>> valueTransformersIt = transformers.iterator();
             Map<TypeSafeQuerySelectionGroup, List<SelectionTreeValue>> dataByGroup = new HashMap<>();
             for(TypeSafeQuerySelectionProxyData selectionData: selectionDatas) {
-                List<SelectionTreeValue> groupData = dataByGroup.get(selectionData.getGroup());
-                if (groupData == null) {
-                    groupData = new LinkedList<>();
-                    dataByGroup.put(selectionData.getGroup(), groupData);
-                }
+                List<SelectionTreeValue> groupData = dataByGroup.computeIfAbsent(
+                        selectionData.getGroup(), (k) -> new LinkedList<>());
                 String effectivePropertyPath = selectionData.getEffectivePropertyPath();
                 String mapSelectionKey = null;
                 if (Map.class.isAssignableFrom(selectionData.getParent().getPropertyType())) {
@@ -103,7 +99,7 @@ public class TypeSafeQueryResultTransformer extends BasicTransformerAdapter {
 
             // Sort all groups by depth/alias to create groups
             List<TypeSafeQuerySelectionGroup> selectionGroups = new ArrayList<>(dataByGroup.keySet());
-            Collections.sort(selectionGroups, SELECTION_GROUPS_COMPARATOR);
+            selectionGroups.sort(SELECTION_GROUPS_COMPARATOR);
             for(TypeSafeQuerySelectionGroup selectionGroup: selectionGroups) {
                 TypeSafeQuerySelectionGroup parentGroup = selectionGroup.getParent();
                 if (parentGroup!= null && ! dataByGroup.containsKey(parentGroup)) {
@@ -137,7 +133,7 @@ public class TypeSafeQueryResultTransformer extends BasicTransformerAdapter {
                 treeGroupsMap.put(group, tree);
             }
             this.resultArraySize = parentResultIndex + 1;
-        } catch (SecurityException | NoSuchFieldException e) {
+        } catch (SecurityException e) {
             throw new RuntimeException(e);
         }
     }

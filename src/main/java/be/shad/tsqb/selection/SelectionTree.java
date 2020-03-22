@@ -17,7 +17,6 @@ package be.shad.tsqb.selection;
 
 import java.lang.reflect.Field;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -76,20 +75,10 @@ public class SelectionTree {
     }
 
     /**
-     * Gather all fields of this and subtrees (to set the accessible).
-     */
-    protected void collectFields(List<Field> fields) {
-        for(Entry<Field, SelectionTree> subtree: subtrees.entrySet()) {
-            fields.add(subtree.getKey());
-            subtree.getValue().collectFields(fields);
-        }
-    }
-
-    /**
      * Add a property path to the tree, if it wasn't added before.
      * Return the existing subtree otherwise
      */
-    public SelectionTree getSubtree(String property) throws NoSuchFieldException, SecurityException {
+    public SelectionTree getSubtree(String property) throws SecurityException {
         Field field = getField(resultType, property);
         SelectionTree subtree = subtrees.get(field);
         if (subtree == null) {

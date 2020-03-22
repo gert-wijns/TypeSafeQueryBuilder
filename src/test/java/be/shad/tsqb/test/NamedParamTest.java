@@ -16,6 +16,7 @@
 package be.shad.tsqb.test;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Test;
@@ -26,7 +27,7 @@ import be.shad.tsqb.domain.people.Person;
  * Extra named param tests, basic chainables with naming params is tested in the OnGoing...Tests
  */
 public class NamedParamTest extends TypeSafeQueryTest {
-    private String NAMED_PARAM_1 = "NAMED_PARAM_1";
+    private static final String NAMED_PARAM_1 = "NAMED_PARAM_1";
 
     /**
      * The collection should expect a number, because ID is a number.
@@ -68,7 +69,7 @@ public class NamedParamTest extends TypeSafeQueryTest {
     public void testNamedParamCollectionNotAllowedForSingleValuesValidation() {
         Person personProxy = query.from(Person.class);
         query.where(personProxy.getId()).eq().named(NAMED_PARAM_1);
-        query.named().setValue(NAMED_PARAM_1, Arrays.asList(10D));
+        query.named().setValue(NAMED_PARAM_1, Collections.singletonList(10D));
     }
 
     /**
@@ -76,7 +77,7 @@ public class NamedParamTest extends TypeSafeQueryTest {
      */
     @Test(expected=IllegalArgumentException.class)
     public void testNamedValueMustExistValidation() {
-        query.named().setValue(NAMED_PARAM_1, Arrays.asList(10D));
+        query.named().setValue(NAMED_PARAM_1, Collections.singletonList(10D));
     }
 
     /**

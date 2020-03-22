@@ -59,7 +59,7 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     private static final String SELECT_RESULT_GROUP = "g0";
     private List<TypeSafeQueryProxyData> invocationQueue;
     private Map<String, TypeSafeQueryProxy> customAliasedProxies;
-    private TypeSafeNameds namedObjects;
+    private final TypeSafeNameds namedObjects;
     private TypeSafeValue<?> lastSelectedValue;
     private TypeSafeQuerySelectionProxyData lastInvokedSelectionData;
     private RestrictionPredicate restrictionPredicate;
@@ -354,8 +354,7 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     public <T> T selectMapKey(Class<T> keyClass) {
         TypeSafeQuerySelectionGroup resultGroup = new TypeSafeQuerySelectionGroupImpl(
                 MAP_KEY_RESULT_GROUP, keyClass, false, null, null);
-        T proxy = getHelper().createTypeSafeSelectProxy(this, keyClass, resultGroup);
-        return proxy;
+        return getHelper().createTypeSafeSelectProxy(this, keyClass, resultGroup);
     }
 
     /**
@@ -365,15 +364,12 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     private <ID, T extends ID> T doBind(T proxy, final TypeSafeQuerySelectionGroup resultGroup,
             ResultIdentifierBinder<ID> resultIdentifierBinder) {
         if (resultIdentifierBinder != null) {
-            resultIdentifierBinder.bind(new ResultIdentifierBinding() {
-                @Override
-                public void bind(Object value) {
-                    if (lastInvokedSelectionData == null) {
-                        throw new IllegalStateException("Bind was called without calling a getter on the result proxy.");
-                    }
-                    resultGroup.addResultIdentifierPropertyPath(lastInvokedSelectionData.getEffectivePropertyPath());
-                    lastInvokedSelectionData = null;
+            resultIdentifierBinder.bind((value) -> {
+                if (lastInvokedSelectionData == null) {
+                    throw new IllegalStateException("Bind was called without calling a getter on the result proxy.");
                 }
+                resultGroup.addResultIdentifierPropertyPath(lastInvokedSelectionData.getEffectivePropertyPath());
+                lastInvokedSelectionData = null;
             }, proxy);
         }
         return proxy;

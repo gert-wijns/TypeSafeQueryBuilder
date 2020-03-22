@@ -55,8 +55,6 @@ import be.shad.tsqb.query.TypeSafeRootQueryInternal;
 import be.shad.tsqb.query.TypeSafeSubQuery;
 import be.shad.tsqb.restrictions.ContinuedOnGoingNumberRestriction;
 import be.shad.tsqb.restrictions.RestrictionsGroupFactory;
-import be.shad.tsqb.selection.SelectionValueTransformer;
-import be.shad.tsqb.selection.SelectionValueTransformerException;
 import be.shad.tsqb.selection.parallel.MapSelectionMerger;
 import be.shad.tsqb.selection.parallel.SelectPair;
 import be.shad.tsqb.values.CaseTypeSafeValue;
@@ -394,7 +392,7 @@ public class SelectTests extends TypeSafeQueryTest {
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String dateString = "1500-02-08 12:00:00";
         Date date = df.parse(dateString);
-        CaseTypeSafeValue<String> value = new CaseTypeSafeValue<String>(query, String.class);
+        CaseTypeSafeValue<String> value = new CaseTypeSafeValue<>(query, String.class);
         value.is("Test1").when(house.getFloors()).gt(40);
         value.is((String) null).when(house.getName()).startsWith("Castle");
         value.is("Old").when(house.getConstructionDate()).before(date);
@@ -578,12 +576,7 @@ public class SelectTests extends TypeSafeQueryTest {
         genericMapPx.put("person.value", person.getName());
         customMapPx.put("person.object", person);
         sortedMapPx.put("person.transformed", query.select(String.class, person.getName(),
-                new SelectionValueTransformer<String, String>() {
-            @Override
-            public String convert(String name) throws SelectionValueTransformerException {
-                return "###" + name + "###";
-            }
-        }));
+                (name) -> "###" + name + "###"));
 
         // subselect map
         Map<String, Object> merge1 = query.selectMergeValues(dtoPx,
@@ -753,15 +746,12 @@ public class SelectTests extends TypeSafeQueryTest {
         dto.setId(product.getId());
         dto.setValidUntilDate(query.select(Date.class,
                 product.getManyProperties().getProperty1(),
-                new SelectionValueTransformer<String, Date>() {
-            @Override
-            public Date convert(String a) {
-                try {
-                    return DateFormat.getDateInstance().parse(a);
-                } catch (ParseException e) {
-                    throw new RuntimeException(e);
-                }
-            }
+                (a) -> {
+                    try {
+                        return DateFormat.getDateInstance().parse(a);
+                    } catch (ParseException e) {
+                        throw new RuntimeException(e);
+                    }
         }));
 
         validate("select hobj1.id as id, hobj1.manyProperties.property1 as validUntilDate from Product hobj1");
@@ -782,12 +772,7 @@ public class SelectTests extends TypeSafeQueryTest {
         MutablePair<Long, ImmutablePair<Long, Integer>> select = query.select(MutablePair.class);
         select.setLeft(person.getId());
         select.setRight(query.select(ImmutablePair.class, relation.getChild(),
-            new SelectionValueTransformer<Person, ImmutablePair>() {
-                @Override
-                public ImmutablePair<Long, Integer> convert(Person a) {
-                    return new ImmutablePair<Long, Integer>(a.getId(), a.getAge());
-                }
-        }));
+                (a) -> new ImmutablePair<>(a.getId(), a.getAge())));
 
         validate("select hobj1.id as left, hobj3 as right from Person hobj1 join hobj1.childRelations hobj2 join hobj2.child hobj3");
     }

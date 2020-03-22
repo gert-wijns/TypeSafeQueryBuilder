@@ -66,5 +66,5 @@ public enum JoinType {
      * The default join type is <code>Inner</code> when more than the identity fields
      * have been used in the query. And <code>None</code> when only the identity field was used.
      */
-    Default;
+    Default
 }

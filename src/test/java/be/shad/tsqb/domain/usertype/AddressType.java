@@ -110,16 +110,13 @@ public class AddressType implements CompositeUserType {
 
     @Override
     public boolean equals(final Object o1, final Object o2) throws HibernateException {
-        boolean isEqual = false;
         if (o1 == o2) {
-            isEqual = false;
-        }
-        if (null == o1 || null == o2) {
-            isEqual = false;
+            return true;
+        } else if (null == o1 || null == o2) {
+            return false;
         } else {
-            isEqual = o1.equals(o2);
+            return o1.equals(o2);
         }
-        return isEqual;
     }
 
     @Override

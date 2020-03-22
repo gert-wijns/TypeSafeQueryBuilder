@@ -26,8 +26,8 @@ import be.shad.tsqb.test.TypeSafeQueryTest;
 import be.shad.tsqb.values.DirectTypeSafeValue;
 
 public class OnGoingTextRestrictionTest extends TypeSafeQueryTest {
-    private String NAMED_PARAM_1 = "NAMED_PARAM_1";
-    private String NAMED_PARAM_2 = "NAMED_PARAM_2";
+    private static final String NAMED_PARAM_1 = "NAMED_PARAM_1";
+    private static final String NAMED_PARAM_2 = "NAMED_PARAM_2";
 
     @Test
     public void inStringsArrayTest() {
@@ -64,14 +64,14 @@ public class OnGoingTextRestrictionTest extends TypeSafeQueryTest {
     @Test
     public void likeValueTest() {
         Person person = query.from(Person.class);
-        query.where(person.getName()).like(new DirectTypeSafeValue<String>(query, "Jos%h"));
+        query.where(person.getName()).like(new DirectTypeSafeValue<>(query, "Jos%h"));
         validate(" from Person hobj1 where hobj1.name like :np1", "Jos%h");
     }
 
     @Test
     public void notLikeValueTest() {
         Person person = query.from(Person.class);
-        query.where(person.getName()).notLike(new DirectTypeSafeValue<String>(query, "Jos%h"));
+        query.where(person.getName()).notLike(new DirectTypeSafeValue<>(query, "Jos%h"));
         validate(" from Person hobj1 where hobj1.name not like :np1", "Jos%h");
     }
 

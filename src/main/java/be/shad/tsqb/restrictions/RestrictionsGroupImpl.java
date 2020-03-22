@@ -288,7 +288,7 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
     }
 
     private RestrictionChainable add(HqlQueryValue customValue, RestrictionNodeType type) {
-        TypeSafeValue<Object> value = new CustomTypeSafeValue<Object>(query, Object.class, customValue);
+        TypeSafeValue<Object> value = new CustomTypeSafeValue<>(query, Object.class, customValue);
         return add(new RestrictionImpl<>(this, null, value, null, null), type);
     }
 

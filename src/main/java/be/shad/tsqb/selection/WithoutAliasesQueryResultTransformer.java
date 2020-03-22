@@ -29,7 +29,7 @@ public class WithoutAliasesQueryResultTransformer extends BasicTransformerAdapte
     private final SelectionValueTransformer[] transformers;
 
     public WithoutAliasesQueryResultTransformer(List<SelectionValueTransformer<?, ?>> transformers) {
-        this.transformers = transformers.toArray(new SelectionValueTransformer[transformers.size()]);
+        this.transformers = transformers.toArray(new SelectionValueTransformer[0]);
     }
 
     @Override

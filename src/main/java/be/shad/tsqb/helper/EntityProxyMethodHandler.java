@@ -36,7 +36,7 @@ class EntityProxyMethodHandler implements MethodHandler {
         this.data = data;
     }
 
-    public Object invoke(Object self, Method m, Method proceed, Object[] args) throws Throwable {
+    public Object invoke(Object self, Method m, Method proceed, Object[] args) {
         if (m.getReturnType().equals(TypeSafeQueryProxyData.class)) {
             return data;
         }

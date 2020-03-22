@@ -25,8 +25,8 @@ import be.shad.tsqb.values.TypeSafeValue;
  * the proper amount of arguments.
  */
 public class PartialNullIf<VAL> {
-    private TypeSafeQueryInternal query;
-    private TypeSafeValue<VAL> first;
+    private final TypeSafeQueryInternal query;
+    private final TypeSafeValue<VAL> first;
 
     public PartialNullIf(TypeSafeQueryInternal query, TypeSafeValue<VAL> first) {
         this.query = query;
@@ -38,6 +38,6 @@ public class PartialNullIf<VAL> {
     }
 
     public TypeSafeValue<VAL> equalTo(TypeSafeValue<VAL> second) {
-        return new NullIfTypeSafeValue<VAL>(query, first, second);
+        return new NullIfTypeSafeValue<>(query, first, second);
     }
 }

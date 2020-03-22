@@ -27,7 +27,7 @@ import be.shad.tsqb.query.TypeSafeSubQuery;
 
 public class LoadTest extends TypeSafeQueryTest {
 
-    public static final void main(String[] argv) {
+    public static void main(String[] argv) {
         LoadTest loadTest = new LoadTest();
         loadTest.initialize();
         loadTest.loadTest();
