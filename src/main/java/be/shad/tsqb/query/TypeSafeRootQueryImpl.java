@@ -49,6 +49,7 @@ import be.shad.tsqb.values.HqlQueryBuilderParamsImpl;
 import be.shad.tsqb.values.HqlQueryValue;
 import be.shad.tsqb.values.RestrictionTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
+import be.shad.tsqb.values.WrappedTypeSafeValue;
 
 /**
  * Maintains the invocationQueue, provides the entity aliases and buffers the last selected value.
@@ -375,18 +376,26 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
         return proxy;
     }
 
-
     /**
      * {@inheritDoc}
      */
     @Override
     public <T, V> V select(Class<V> transformedClass, T value, SelectionValueTransformer<T, V> transformer) {
+        return selectValue(transformedClass, value, transformer).select();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <T, V> TypeSafeValue<V> selectValue(Class<V> transformedClass, T value, SelectionValueTransformer<T, V> transformer) {
+        getProjections().setTransformerForNextProjection(transformer);
         if (value instanceof TypeSafeQueryProxy) {
             // invocation was not added because it is not a leaf (to support method chaining).
             invocationWasMade(((TypeSafeQueryProxy) value).getTypeSafeProxyData());
+            value = null;
         }
-        getProjections().setTransformerForNextProjection(transformer);
-        return helper.getDummyValue(transformedClass);
+        return new WrappedTypeSafeValue<>(this, null, transformedClass, toValue(value));
     }
 
     /**

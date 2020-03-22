@@ -52,6 +52,9 @@ public class WrappedTypeSafeValue<T> extends TypeSafeValueImpl<T> implements Typ
     @Override
     public HqlQueryValue toHqlQueryValue(HqlQueryBuilderParams params) {
         HqlQueryValue value = this.value.toHqlQueryValue(params);
+        if (function == null) {
+            return value;
+        }
         return new HqlQueryValueImpl(function + "("+value.getHql()+")", value.getParams());
     }
 

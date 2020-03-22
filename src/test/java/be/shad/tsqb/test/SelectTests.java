@@ -49,15 +49,19 @@ import be.shad.tsqb.dto.MapsDto;
 import be.shad.tsqb.dto.PersonDto;
 import be.shad.tsqb.dto.ProductDetailsDto;
 import be.shad.tsqb.dto.StringToPlanningPropertiesTransformer;
+import be.shad.tsqb.dto.TownDetailsDto;
 import be.shad.tsqb.exceptions.SelectException;
 import be.shad.tsqb.query.JoinType;
 import be.shad.tsqb.query.TypeSafeRootQueryInternal;
 import be.shad.tsqb.query.TypeSafeSubQuery;
 import be.shad.tsqb.restrictions.ContinuedOnGoingNumberRestriction;
 import be.shad.tsqb.restrictions.RestrictionsGroupFactory;
+import be.shad.tsqb.selection.SelectionValueTransformer;
+import be.shad.tsqb.selection.SelectionValueTransformerException;
 import be.shad.tsqb.selection.parallel.MapSelectionMerger;
 import be.shad.tsqb.selection.parallel.SelectPair;
 import be.shad.tsqb.values.CaseTypeSafeValue;
+import be.shad.tsqb.values.TypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValueFunctions;
 
 
@@ -681,6 +685,48 @@ public class SelectTests extends TypeSafeQueryTest {
         result.setRight(building.getStyle());
 
         validate("select hobj1.text as left, hobj1.style as right from Building hobj1");
+    }
+    @Test
+    public void selectToValueOfTransformSelectedValue() {
+        Town town = query.from(Town.class);
+        TypeSafeValue<String> toValue = query.toValue(query.select(
+                String.class, town.getId(), Object::toString));
+        TownDetailsDto details = query.select(TownDetailsDto.class);
+        details.setName(toValue.select());
+    }
+
+    @Test
+    public void selectToValueOfTransformSelectedValueObject() {
+        new TestDataCreator(getSessionFactory()).createTestTown();
+
+        Town town = query.from(Town.class);
+        TypeSafeValue<String> toValue = query.toValue(query
+                .select(String.class, town, Town::getName));
+        TownDetailsDto details = query.select(TownDetailsDto.class);
+        details.setName(toValue.select());
+        validate("select hobj1 as name from Town hobj1");
+
+        TownDetailsDto result = (TownDetailsDto) doQueryResult.get(0);
+        assertEquals("TestTown", result.getName());
+    }
+
+    @Test
+    public void selectToValueOfTransformSelectedValueObject2() {
+        new TestDataCreator(getSessionFactory()).createTestTown();
+
+        Town town = query.from(Town.class);
+        CaseTypeSafeValue<Long> townCaseTypeSafeValue = query.caseWhenValue(Long.class);
+        townCaseTypeSafeValue.is(town.getId()).when(town.getName()).eq("Abc");
+        townCaseTypeSafeValue.is(15L).otherwise();
+
+        TypeSafeValue<String> toValue = query.toValue(query.select(String.class,
+                townCaseTypeSafeValue.select(), Object::toString));
+        TownDetailsDto details = query.select(TownDetailsDto.class);
+        details.setName(toValue.select());
+        validate("select (case when (hobj1.name = 'Abc') then hobj1.id else 15 end) as name from Town hobj1");
+
+        TownDetailsDto result = (TownDetailsDto) doQueryResult.get(0);
+        assertEquals("15", result.getName());
     }
 
     @Test

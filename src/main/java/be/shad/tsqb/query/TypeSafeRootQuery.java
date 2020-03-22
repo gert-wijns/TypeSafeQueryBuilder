@@ -186,10 +186,15 @@ public interface TypeSafeRootQuery extends TypeSafeQuery {
     <T, A, B, C> SelectTriplet<A, B, C> selectMergeValues(T resultDto, SelectionMerger3<T, A, B, C> merger);
 
     /**
+     * Delegates to {@link #select(Class, Object, SelectionValueTransformer)} and selects immediately.
+     */
+    <T, V> V select(Class<V> transformedClass, T value, SelectionValueTransformer<T, V> transformer);
+
+    /**
      * Registers the transformer to be used for the selection value
      * when the default result transformer is used.
      */
-    <T, V> V select(Class<V> transformedClass, T value, SelectionValueTransformer<T, V> transformer);
+    <T, V> TypeSafeValue<V> selectValue(Class<V> transformedClass, T value, SelectionValueTransformer<T, V> transformer);
 
     /**
      * @see #distinct(TypeSafeValue)
