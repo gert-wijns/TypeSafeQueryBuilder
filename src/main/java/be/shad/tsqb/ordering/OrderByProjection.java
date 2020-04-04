@@ -32,7 +32,7 @@ import be.shad.tsqb.values.TypeSafeValue;
 public class OrderByProjection implements OrderBy {
     private final TypeSafeQuery query;
     private final String propertyPath;
-    private boolean descending;
+    private final boolean descending;
 
     public OrderByProjection(TypeSafeQuery query, String propertyPath, boolean descending) {
         this.query = query;
@@ -65,7 +65,7 @@ public class OrderByProjection implements OrderBy {
         TypeSafeValue<?> value = query.getProjections().getTypeSafeValue(propertyPath,
                 params.isBuildingForDisplay());
 
-        String hqlString = null;
+        String hqlString;
         if (value instanceof TypeSafeSubQuery<?>) {
             int aliasIndex = 1;
             for(TypeSafeValueProjection projection: query.getProjections().getProjections()) {

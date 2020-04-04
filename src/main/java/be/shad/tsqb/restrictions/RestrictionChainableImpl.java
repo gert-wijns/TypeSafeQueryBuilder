@@ -75,7 +75,7 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable {
      */
     @Override
     public <E extends Enum<E>> OnGoingEnumRestriction<E> and(E value) {
-        return new OnGoingEnumRestrictionImpl<E>(getRestrictionsGroup(), And, value);
+        return new OnGoingEnumRestrictionImpl<>(getRestrictionsGroup(), And, value);
     }
 
     /**
@@ -83,7 +83,7 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable {
      */
     @Override
     public <T> OnGoingObjectRestriction<T> and(TypeSafeValue<T> value) {
-        return new OnGoingObjectRestrictionImpl<T>(getRestrictionsGroup(), And, value);
+        return new OnGoingObjectRestrictionImpl<>(getRestrictionsGroup(), And, value);
     }
 
     /**
@@ -91,7 +91,7 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable {
      */
     @Override
     public <E extends Enum<E>> OnGoingEnumRestriction<E> andEnum(TypeSafeValue<E> value) {
-        return new OnGoingEnumRestrictionImpl<E>(getRestrictionsGroup(), And, value);
+        return new OnGoingEnumRestrictionImpl<>(getRestrictionsGroup(), And, value);
     }
 
     /**
@@ -163,7 +163,7 @@ public abstract class RestrictionChainableImpl implements RestrictionChainable {
      */
     @Override
     public <T> OnGoingObjectRestriction<T> or(TypeSafeValue<T> value) {
-        return new OnGoingObjectRestrictionImpl<T>(getRestrictionsGroup(), Or, value);
+        return new OnGoingObjectRestrictionImpl<>(getRestrictionsGroup(), Or, value);
     }
 
     /**

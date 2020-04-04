@@ -39,7 +39,7 @@ public class OnGoingEnumRestrictionImpl<E extends Enum<E>>
     @Override
     protected OnGoingEnumRestrictionImpl<E> createContinuedOnGoingRestriction(
             RestrictionNodeType restrictionNodeType, TypeSafeValue<E> previousValue) {
-        return new OnGoingEnumRestrictionImpl<E>(group, restrictionNodeType, previousValue);
+        return new OnGoingEnumRestrictionImpl<>(group, restrictionNodeType, previousValue);
     }
 
     @Override

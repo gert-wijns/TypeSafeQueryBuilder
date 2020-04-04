@@ -16,6 +16,7 @@
 package be.shad.tsqb.dao;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -33,12 +34,18 @@ import be.shad.tsqb.helper.TypeSafeQueryHelper;
 import be.shad.tsqb.helper.TypeSafeQueryHelperImpl;
 import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.proxy.TypeSafeQuerySelectionProxy;
+import be.shad.tsqb.query.TypeSafeBaseQuery;
+import be.shad.tsqb.query.TypeSafeDeleteQuery;
+import be.shad.tsqb.query.TypeSafeDeleteQueryImpl;
 import be.shad.tsqb.query.TypeSafeRootQuery;
 import be.shad.tsqb.query.TypeSafeRootQueryImpl;
+import be.shad.tsqb.query.TypeSafeUpdateQuery;
+import be.shad.tsqb.query.TypeSafeUpdateQueryImpl;
 import be.shad.tsqb.selection.ResultEntry;
 import be.shad.tsqb.selection.ResultEntryKeySelector;
 import be.shad.tsqb.values.HqlQueryBuilderParams;
 import be.shad.tsqb.values.HqlQueryBuilderParamsImpl;
+import be.shad.tsqb.values.HqlQueryValue;
 
 public class TypeSafeQueryDaoImpl implements TypeSafeQueryDao {
     private final SessionFactory sessionFactory;
@@ -52,6 +59,54 @@ public class TypeSafeQueryDaoImpl implements TypeSafeQueryDao {
 
     public TypeSafeQueryDaoImpl(SessionFactory sessionFactory) {
         this(sessionFactory, new TypeSafeQueryHelperImpl(sessionFactory));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public TypeSafeDeleteQuery createDeleteQuery() {
+        return new TypeSafeDeleteQueryImpl(typeSafeQueryHelper);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int doDeleteQuery(TypeSafeDeleteQuery query) {
+        return doDeleteQuery(query, null);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int doDeleteQuery(TypeSafeDeleteQuery query, HibernateQueryConfigurer configurer) {
+        return (Integer) doQuery(query, configurer, new HqlQueryBuilderParamsImpl()).getFirstResult();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public TypeSafeUpdateQuery createUpdateQuery() {
+        return new TypeSafeUpdateQueryImpl(typeSafeQueryHelper);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int doUpdateQuery(TypeSafeUpdateQuery query) {
+        return doUpdateQuery(query, null);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int doUpdateQuery(TypeSafeUpdateQuery query, HibernateQueryConfigurer configurer) {
+        return (Integer) doQuery(query, configurer, new HqlQueryBuilderParamsImpl()).getFirstResult();
     }
 
     /**
@@ -109,11 +164,8 @@ public class TypeSafeQueryDaoImpl implements TypeSafeQueryDao {
                 query, configurer, params).getResults();
         Map<Object, List<Object>> map = new HashMap<>();
         for(ResultEntry result: results) {
-            List<Object> values = map.get(result.getKey());
-            if (values == null) {
-                values = new ArrayList<>();
-                map.put(result.getKey(), values);
-            }
+            List<Object> values = map.computeIfAbsent(
+                    result.getKey(), (k) -> new ArrayList<>());
             values.add(result.getValue());
         }
         return (Map) map;
@@ -158,12 +210,13 @@ public class TypeSafeQueryDaoImpl implements TypeSafeQueryDao {
     /**
      * {@inheritDoc}
      */
-    private <T> QueryResult<T> doQuery(TypeSafeRootQuery tsqbQuery, 
-            HibernateQueryConfigurer configurer, HqlQueryBuilderParams params) {
-        HqlQuery hqlQuery = tsqbQuery.toHqlQuery(params);
+    @SuppressWarnings("unchecked")
+    private <T> QueryResult<T> doQuery(TypeSafeBaseQuery tsqbQuery,
+                                       HibernateQueryConfigurer configurer, HqlQueryBuilderParams params) {
+        HqlQueryValue hqlQuery = tsqbQuery.toHqlQueryValue(params);
 
         Session currentSession = sessionFactory.getCurrentSession();
-        Query<Object[]> query = currentSession.createQuery(hqlQuery.getHql(), Object[].class);
+        Query<Object[]> query = (Query<Object[]>) currentSession.createQuery(hqlQuery.getHql());
         int position = 0;
         CollectionNamedParameter chunkedParam = null;
         for(Object param: hqlQuery.getParams()) {
@@ -184,14 +237,17 @@ public class TypeSafeQueryDaoImpl implements TypeSafeQueryDao {
                 query.setParameter(position++, param);
             }
         }
-        if (tsqbQuery.getFirstResult() >= 0) {
-            query.setFirstResult(tsqbQuery.getFirstResult());
-        }
-        if (tsqbQuery.getMaxResults() > 0) {
-            query.setMaxResults(tsqbQuery.getMaxResults());
+        if (hqlQuery instanceof HqlQuery) {
+            TypeSafeRootQuery rootQuery = (TypeSafeRootQuery) tsqbQuery;
+            if (rootQuery.getFirstResult() >= 0) {
+                query.setFirstResult(rootQuery.getFirstResult());
+            }
+            if (rootQuery.getMaxResults() > 0) {
+                query.setMaxResults(rootQuery.getMaxResults());
+            }
         }
 
-        List<T> results = null;
+        List<T> results;
         if (configurer != null) {
             configurer.beforeQuery(currentSession);
             configurer.configureQuery(query);
@@ -223,27 +279,38 @@ public class TypeSafeQueryDaoImpl implements TypeSafeQueryDao {
      * Lists the same query with an updated collection in the named param for the batched named param.
      */
     @SuppressWarnings("unchecked")
-    private <T> List<T> listAll(Query<Object[]> query, HqlQuery hqlQuery, CollectionNamedParameter chunkedParam) {
+    private <T> List<T> listAll(Query<Object[]> query, HqlQueryValue hqlQuery, CollectionNamedParameter chunkedParam) {
+        boolean selectQuery = hqlQuery instanceof HqlQuery;
+        int count = 0;
         List<Object[]> results;
         if (chunkedParam == null) {
-        	results = query.getResultList();
+            if (!selectQuery) {
+                return (List<T>) Collections.singletonList(query.executeUpdate());
+            }
+            results = query.getResultList();
         } else {
-        	results = new LinkedList<>();
-	        int p = chunkedParam.getBatchSize();
+            results = new LinkedList<>();
+            int p = chunkedParam.getBatchSize();
             List<Object> values = new ArrayList<>(p);
             Iterator<?> it = chunkedParam.getValue().iterator();
             while (it.hasNext()) {
                 values.add(it.next());
                 if (values.size() == p || !it.hasNext()) {
                     query.setParameterList(chunkedParam.getName(), values);
-                    results.addAll(query.getResultList());
+                    if (selectQuery) {
+                        results.addAll(query.getResultList());
+                    } else {
+                        count += query.executeUpdate();
+                    }
                     values.clear();
                 }
             }
         }
 
-        if (hqlQuery.getResultTransformer() != null) {
-            return (List<T>) hqlQuery.getResultTransformer().transformList(results);
+        if (!selectQuery) {
+            return (List<T>) Collections.singletonList(count);
+        } else if (((HqlQuery) hqlQuery).getResultTransformer() != null) {
+            return (List<T>) ((HqlQuery) hqlQuery).getResultTransformer().transformList(results);
         } else {
             return (List<T>) results;
         }

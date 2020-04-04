@@ -51,7 +51,7 @@ public class RestrictionImpl<VAL> implements Restriction, RestrictionGuard {
     private final RestrictionsGroupInternal group;
     private final TypeSafeQueryInternal query;
 
-    private RestrictionPredicate predicate;
+    private final RestrictionPredicate predicate;
     private TypeSafeValue<VAL> left;
     private RestrictionOperator operator;
     private TypeSafeValue<VAL> right;
@@ -132,7 +132,7 @@ public class RestrictionImpl<VAL> implements Restriction, RestrictionGuard {
             if (left != null) {
                 value.appendHql(" ");
             }
-            if (right != null && right instanceof OperatorAwareValue) {
+            if (right instanceof OperatorAwareValue) {
                 value.appendHql(((OperatorAwareValue) right).getOperator(operator).getOperator());
             } else {
                 value.appendHql(operator.getOperator());
@@ -214,7 +214,7 @@ public class RestrictionImpl<VAL> implements Restriction, RestrictionGuard {
 
     @Override
     public Copyable copy(CopyContext context) {
-        return new RestrictionImpl<VAL>(context, this);
+        return new RestrictionImpl<>(context, this);
     }
 
     @Override

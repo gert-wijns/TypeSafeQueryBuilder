@@ -19,11 +19,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 import be.shad.tsqb.query.TypeSafeQuery;
-import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.query.TypeSafeQueryScopeValidator;
 import be.shad.tsqb.query.copy.CopyContext;
 import be.shad.tsqb.query.copy.Copyable;
-import be.shad.tsqb.restrictions.DirectValueProvider;
 import be.shad.tsqb.restrictions.RestrictionsGroupImpl;
 import be.shad.tsqb.restrictions.RestrictionsGroupInternal;
 
@@ -31,7 +29,7 @@ import be.shad.tsqb.restrictions.RestrictionsGroupInternal;
  * Represents a case when() then ... (else ...) end.
  */
 public class CaseTypeSafeValue<T> extends TypeSafeValueImpl<T> implements OnGoingCaseWhen<T>, TypeSafeValueContainer {
-    private List<OnGoingCaseImpl<T>> cases = new LinkedList<>();
+    private final List<OnGoingCaseImpl<T>> cases = new LinkedList<>();
 
     /**
      * Copy constructor
@@ -52,7 +50,7 @@ public class CaseTypeSafeValue<T> extends TypeSafeValueImpl<T> implements OnGoin
      */
     @Override
     public OnGoingCase<T> is(TypeSafeValue<T> value) {
-        OnGoingCaseImpl<T> ongoingCase = new OnGoingCaseImpl<T>(
+        OnGoingCaseImpl<T> ongoingCase = new OnGoingCaseImpl<>(
                 new RestrictionsGroupImpl(query, null), value);
         cases.add(ongoingCase);
         return ongoingCase;
@@ -65,12 +63,7 @@ public class CaseTypeSafeValue<T> extends TypeSafeValueImpl<T> implements OnGoin
     public OnGoingCase<T> is(T value) {
         // passing a "null" direct value provider because "null" is allowed in a case when.
         // if value == null and there is a select/invocation value those will be taken instead.
-        return is(query.toValue(value, new DirectValueProvider<T>() {
-            @Override
-            public TypeSafeValue<T> createEmptyDirectValue(TypeSafeQueryInternal query) {
-                return new CustomTypeSafeValue<T>(query, getValueClass(), "null");
-            }
-        }));
+        return is(query.toValue(value, (query) -> new CustomTypeSafeValue<>(query, getValueClass(), "null")));
     }
 
     /**

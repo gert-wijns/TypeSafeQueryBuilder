@@ -29,6 +29,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.proxy.HibernateProxy;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -48,7 +49,7 @@ import be.shad.tsqb.values.HqlQueryValue;
 public class TypeSafeQueryTest {
 
     protected final Logger logger = LogManager.getLogger(getClass());
-    @Rule public TestName name = new TestName();
+    @Rule public final TestName name = new TestName();
 
     private static SessionFactory sessionFactory;
     protected static TypeSafeQueryDao typeSafeQueryDao;
@@ -139,11 +140,13 @@ public class TypeSafeQueryTest {
     }
 
     protected void validate(TypeSafeRootQuery query, HqlQueryValue expected) {
-        HqlQuery hqlQuery = doQuery(query);
+        validate(doQuery(query), expected);
+    }
 
+    protected void validate(HqlQueryValue actual, HqlQueryValue expected) {
         List<Object> actualParams = new LinkedList<>();
-        if (hqlQuery.getParams() != null) {
-            for(Object queryParam: hqlQuery.getParams()) {
+        if (actual.getParams() != null) {
+            for(Object queryParam: actual.getParams()) {
                 if (queryParam instanceof NamedParameter) {
                     actualParams.add(((NamedParameter) queryParam).getValue());
                 } else {
@@ -153,15 +156,18 @@ public class TypeSafeQueryTest {
         }
 
         String expectedHql = String.format("\nExpected:\n%s\n--- params: %s\n", expected.getHql().trim(), expected.getParams());
-        String result = String.format("\nResult:\n%s\n--- params: %s\n", hqlQuery.getHql().trim(), hqlQuery.getParams());
+        String result = String.format("\nResult:\n%s\n--- params: %s\n", actual.getHql().trim(), actual.getParams());
 
-        assertEquals(expectedHql + result, expected.getHql().trim(), hqlQuery.getHql().trim());
+        assertEquals(expectedHql + result, expected.getHql().trim(), actual.getHql().trim());
         assertEquals(expectedHql + result, expected.getParams().size(), actualParams.size());
         Iterator<Object> expectedIt = expected.getParams().iterator();
         Iterator<Object> actualIt = actualParams.iterator();
         for(;expectedIt.hasNext() && actualIt.hasNext();) {
             Object expectedParam = expectedIt.next();
             Object actualParam = actualIt.next();
+            if (actualParam instanceof HibernateProxy) {
+                actualParam = ((HibernateProxy) actualParam).getHibernateLazyInitializer().getIdentifier();
+            }
             if (expectedParam instanceof Collection) {
                 // don't care if the collection has a different order,
                 // as long as the elements are the same:

@@ -41,7 +41,6 @@ import be.shad.tsqb.dto.TownDto;
 import be.shad.tsqb.query.JoinType;
 import be.shad.tsqb.selection.collection.IdentityFieldProvider;
 import be.shad.tsqb.selection.collection.ResultIdentifierBinder;
-import be.shad.tsqb.selection.collection.ResultIdentifierBinding;
 import be.shad.tsqb.selection.parallel.SelectTriplet;
 import be.shad.tsqb.selection.parallel.SelectValue;
 import be.shad.tsqb.selection.parallel.SelectionMerger1;
@@ -74,7 +73,7 @@ public class CollectionSubselectTest extends TypeSafeQueryTest {
         defaultNames.add("JohnyTheKid");
         defaultNames.add("Josh");
         defaultNames.add("Albert");
-    };
+    }
 
     /**
      *
@@ -341,13 +340,10 @@ public class CollectionSubselectTest extends TypeSafeQueryTest {
 
         // we will be grouping by townId and personAge
         ResultIdentifierBinder<SelectTriplet<Long, Integer, Collection<PersonDto>>> identityBinder =
-                new ResultIdentifierBinder<SelectTriplet<Long, Integer, Collection<PersonDto>>>()  {
-            @Override
-            public void bind(ResultIdentifierBinding binding, SelectTriplet<Long, Integer, Collection<PersonDto>> triplet) {
-                binding.bind(triplet.getFirst());
-                binding.bind(triplet.getSecond());
-            }
-        };
+                (binding, triplet) -> {
+                    binding.bind(triplet.getFirst());
+                    binding.bind(triplet.getSecond());
+                };
 
         Town townProxy = query.from(Town.class);
         Person inhabitant = query.join(townProxy.getInhabitants());
@@ -368,8 +364,8 @@ public class CollectionSubselectTest extends TypeSafeQueryTest {
 
         @SuppressWarnings({ "unchecked", "rawtypes" })
         List<SelectTriplet<Long, Integer, Collection<PersonDto>>> results = (List) doQueryResult;
-        assertEquals(5, results.size());
-        if (!(results.get(0) instanceof SelectTriplet)) {
+        assertEquals(5, doQueryResult.size());
+        if (!(doQueryResult.get(0) instanceof SelectTriplet)) {
             fail("Expected to find a SelectTriplet as result.");
         }
         checkValue(results.get(0), townA, johnyTheKidA);

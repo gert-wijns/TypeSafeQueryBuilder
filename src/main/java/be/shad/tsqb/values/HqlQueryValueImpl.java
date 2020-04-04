@@ -27,14 +27,14 @@ import be.shad.tsqb.query.copy.Copyable;
  * convenient methods to append to them.
  */
 public class HqlQueryValueImpl implements HqlQueryValue, Copyable {
-    private List<Object> params = new LinkedList<>();
+    private final List<Object> params = new LinkedList<>();
     private StringBuilder hql;
 
     /**
      * Factory method for shorthand hql query value creation.
      * Use hql(...) + static import to make shorter code.
      */
-    public static final HqlQueryValue hql(String hql, Object... params) {
+    public static HqlQueryValue hql(String hql, Object... params) {
         return new HqlQueryValueImpl(hql, params);
     }
 
@@ -42,7 +42,7 @@ public class HqlQueryValueImpl implements HqlQueryValue, Copyable {
      * Factory method for shorthand hql query value creation.
      * Use hql(...) + static import to make shorter code.
      */
-    public static final HqlQueryValue hql(String hql, Collection<Object> params) {
+    public static HqlQueryValue hql(String hql, Collection<Object> params) {
         return new HqlQueryValueImpl(hql, params);
     }
 
@@ -66,9 +66,7 @@ public class HqlQueryValueImpl implements HqlQueryValue, Copyable {
     public HqlQueryValueImpl(String hql, Collection<Object> params) {
         this(hql);
         if (params != null) {
-            for(Object param: params) {
-                addParam(param);
-            }
+            addParams(params);
         }
     }
 

@@ -36,7 +36,7 @@ public enum RestrictionOperator {
 
     private final String operator;
 
-    private RestrictionOperator(String operator) {
+    RestrictionOperator(String operator) {
         this.operator = operator;
     }
 

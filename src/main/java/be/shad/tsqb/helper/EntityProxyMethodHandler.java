@@ -18,9 +18,14 @@ package be.shad.tsqb.helper;
 import java.lang.reflect.Method;
 import java.util.Collection;
 
-import javassist.util.proxy.MethodHandler;
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
+import be.shad.tsqb.proxy.TypeSafeQueryProxyType;
+import be.shad.tsqb.query.TypeSafeDeleteQuery;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
+import be.shad.tsqb.query.TypeSafeUpdateQuery;
+import be.shad.tsqb.query.TypeSafeUpdateQueryInternal;
+
+import javassist.util.proxy.MethodHandler;
 
 class EntityProxyMethodHandler implements MethodHandler {
     private final TypeSafeQueryInternal query;
@@ -36,14 +41,15 @@ class EntityProxyMethodHandler implements MethodHandler {
         this.data = data;
     }
 
-    public Object invoke(Object self, Method m, Method proceed, Object[] args) throws Throwable {
+    public Object invoke(Object self, Method m, Method proceed, Object[] args) {
         if (m.getReturnType().equals(TypeSafeQueryProxyData.class)) {
             return data;
         }
         if ("toString".equals(m.getName())) {
             return String.format("Proxy of [%s]", data.toString());
         }
-        if (m.getName().startsWith("set")) {
+        boolean setter = m.getName().startsWith("set");
+        if (setter && !(query instanceof TypeSafeUpdateQueryInternal)) {
             throw new IllegalArgumentException("Calling the setter of an entity proxy has no point. "
                     + "If this object was supposed to be used as selection proxy, "
                     + "then use the select(class) instead and set the values there. "
@@ -55,6 +61,30 @@ class EntityProxyMethodHandler implements MethodHandler {
         TypeSafeQueryProxyData child = data.getChild(method2Name);
         if (child == null) {
             child = helper.createChildData(query, data, method2Name);
+        }
+        if ((query instanceof TypeSafeUpdateQuery || query instanceof TypeSafeDeleteQuery)
+                && child.getParent().getParent() != null
+                && child.getParent().getProxyType() == TypeSafeQueryProxyType.EntityType
+                && !child.getParent().getIdentifierPath().equals(child.getPropertyPath())) {
+            // this child is not an ID in an update or delete query, joins are not permitted in this case.
+            throw new IllegalStateException("Attempting to get a non-ID child property of a non root entity. " +
+                    "This is not allowed in a delete/update query. Attempted to get: " + child);
+        }
+        if (setter) {
+            // setter is used to indicate the "update" property part of the statement
+            TypeSafeQueryProxyData property = child;
+            Object value = args[0];
+            if (child.getProxyType() == TypeSafeQueryProxyType.EntityType) {
+                // if the child is an entity, then we're trying to update a foreign key
+                // which means the ID should be set.
+                String identifierPath = child.getIdentifierPath();
+                property = child.getChild(identifierPath);
+                if (property == null) {
+                    property = helper.createChildData(query, child, identifierPath);
+                }
+            }
+            ((TypeSafeUpdateQueryInternal)query).assignUpdateValue(property, query.toValue(value));
+            return null;
         }
         if (query.getActiveMultiJoinType() != null) {
             if (!child.getProxyType().isEntity()) {

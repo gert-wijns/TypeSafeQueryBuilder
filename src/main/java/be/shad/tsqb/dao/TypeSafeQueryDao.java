@@ -19,7 +19,9 @@ import java.util.List;
 import java.util.Map;
 
 import be.shad.tsqb.dao.result.QueryResult;
+import be.shad.tsqb.query.TypeSafeDeleteQuery;
 import be.shad.tsqb.query.TypeSafeRootQuery;
+import be.shad.tsqb.query.TypeSafeUpdateQuery;
 
 public interface TypeSafeQueryDao {
 
@@ -27,6 +29,39 @@ public interface TypeSafeQueryDao {
      * Creates a fresh query instance. This is the starting point to create a new query.
      */
     TypeSafeRootQuery createQuery();
+
+    /**
+     * Creates a new delete query instance.
+     */
+    TypeSafeDeleteQuery createDeleteQuery();
+
+    /**
+     * Delegates to {@link #doDeleteQuery(TypeSafeDeleteQuery, HibernateQueryConfigurer)}
+     */
+    int doDeleteQuery(TypeSafeDeleteQuery query);
+
+    /**
+     * Executes the given delete query.
+     * @return the amount of affected rows.
+     */
+    int doDeleteQuery(TypeSafeDeleteQuery query, HibernateQueryConfigurer configurer);
+
+    /**
+     * Creates a new update query instance.
+     */
+    TypeSafeUpdateQuery createUpdateQuery();
+
+    /**
+     * Delegeates to {@link #doUpdateQuery(TypeSafeUpdateQuery, HibernateQueryConfigurer)}
+     * @return the amount of affeced rows
+     */
+    int doUpdateQuery(TypeSafeUpdateQuery query);
+
+    /**
+     * Executes the given update query.
+     * @return the amount of affected rows.
+     */
+    int doUpdateQuery(TypeSafeUpdateQuery query, HibernateQueryConfigurer configurer);
 
     /**
      * Delegates to {@link #doQuery(TypeSafeRootQuery, HibernateQueryConfigurer)} without configurer.

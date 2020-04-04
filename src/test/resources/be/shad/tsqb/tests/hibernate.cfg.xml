@@ -49,6 +49,8 @@
         <mapping class="be.shad.tsqb.domain.people.Person" />
         <mapping class="be.shad.tsqb.domain.people.PersonProperty" />
         <mapping class="be.shad.tsqb.domain.people.Relation" />
-        
+        <mapping class="be.shad.tsqb.domain.EmbeddedId" />
+        <mapping class="be.shad.tsqb.domain.ObjectWithEmbeddedId" />
+
     </session-factory>
 </hibernate-configuration>

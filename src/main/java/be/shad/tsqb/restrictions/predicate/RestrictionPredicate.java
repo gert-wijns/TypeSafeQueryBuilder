@@ -31,27 +31,27 @@ public interface RestrictionPredicate {
     /**
      * Ignores restrictions which contain direct null values (isNull excluded).
      */
-    public static final RestrictionPredicate IGNORE_NULL = new IgnoreDirectNullPredicate();
+    RestrictionPredicate IGNORE_NULL = new IgnoreDirectNullPredicate();
 
     /**
      * Ignores restrictions which contain direct string values without content.
      */
-    public static final RestrictionPredicate IGNORE_EMPTY_STRING = composite(IGNORE_NULL, new IgnoreDirectEmptyStringPredicate());
+    RestrictionPredicate IGNORE_EMPTY_STRING = composite(IGNORE_NULL, new IgnoreDirectEmptyStringPredicate());
 
     /**
      * Ignores restriction which contains a collection which is null or empty
      */
-    public static final RestrictionPredicate IGNORE_EMPTY_COLLECTION = composite(IGNORE_NULL, new IgnoreEmptyCollectionPredicate());
+    RestrictionPredicate IGNORE_EMPTY_COLLECTION = composite(IGNORE_NULL, new IgnoreEmptyCollectionPredicate());
 
     /**
      * Composite of {@link #IGNORE_NULL}, {@link #IGNORE_EMPTY_STRING}, {@link #IGNORE_EMPTY_COLLECTION}.
      */
-    public static final RestrictionPredicate IGNORE_NULL_OR_EMPTY = composite(IGNORE_NULL,
+    RestrictionPredicate IGNORE_NULL_OR_EMPTY = composite(IGNORE_NULL,
             new IgnoreDirectEmptyStringPredicate(), new IgnoreEmptyCollectionPredicate());
 
     /**
      * @see be.shad.tsqb.restrictions.predicate.IgnoreNeverPredicate
      */
-    public static final RestrictionPredicate IGNORE_NEVER = new IgnoreNeverPredicate();
+    RestrictionPredicate IGNORE_NEVER = new IgnoreNeverPredicate();
 
 }

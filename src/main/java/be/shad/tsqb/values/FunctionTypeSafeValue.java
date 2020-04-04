@@ -27,8 +27,8 @@ import be.shad.tsqb.query.copy.Copyable;
  * Represents a function with a list of values.
  */
 public class FunctionTypeSafeValue<T> extends TypeSafeValueImpl<T> implements TypeSafeValueContainer {
-    private List<TypeSafeValue<?>> values = new LinkedList<>();
-    private String function;
+    private final List<TypeSafeValue<?>> values = new LinkedList<>();
+    private final String function;
 
     /**
      * Copy constructor
@@ -77,9 +77,7 @@ public class FunctionTypeSafeValue<T> extends TypeSafeValueImpl<T> implements Ty
             }
             HqlQueryValue valueHql = value.toHqlQueryValue(parameters);
             coalesce.append(valueHql.getHql());
-            for(Object param: valueHql.getParams()) {
-                params.add(param);
-            }
+            params.addAll(valueHql.getParams());
         }
         String hql = "";
         if (coalesce.length() > 0) {

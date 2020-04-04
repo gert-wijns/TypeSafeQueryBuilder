@@ -33,7 +33,7 @@ public class TypeSafeQueryFrom implements HqlQueryBuilder {
 
     private final TypeSafeQueryHelper helper;
     private final TypeSafeQueryProxyData root;
-    private List<TypeSafeQueryJoin<?>> joins = new LinkedList<>();
+    private final List<TypeSafeQueryJoin<?>> joins = new LinkedList<>();
 
     public TypeSafeQueryFrom(TypeSafeQueryHelper helper,
             TypeSafeQueryProxyData root) {
@@ -53,12 +53,11 @@ public class TypeSafeQueryFrom implements HqlQueryBuilder {
         joins.add(join);
     }
 
-    @Override
-    public void appendTo(HqlQuery query, HqlQueryBuilderParams params) {
+    public HqlQueryValue toHqlQueryValue(HqlQueryBuilderParams params) {
         HqlQueryValueImpl from = new HqlQueryValueImpl();
         from.appendHql(helper.getEntityName(root.getPropertyType()));
         from.appendHql(" ").append(root.getAlias());
-        for(TypeSafeQueryJoin<?> join: joins) {
+        for (TypeSafeQueryJoin<?> join : joins) {
             TypeSafeQueryProxyData data = join.getData();
             if (data.getProxy() == null) {
                 throw new IllegalStateException(format("Data [%s] was added as a join, but does not have a proxy.", data));
@@ -78,6 +77,12 @@ public class TypeSafeQueryFrom implements HqlQueryBuilder {
                 }
             }
         }
+        return from;
+    }
+
+    @Override
+    public void appendTo(HqlQuery query, HqlQueryBuilderParams params) {
+        HqlQueryValue from = toHqlQueryValue(params);
         query.appendFrom(from.getHql());
         query.addParams(from.getParams());
     }
@@ -112,10 +117,10 @@ public class TypeSafeQueryFrom implements HqlQueryBuilder {
     private void appendClassJoin(HqlQueryValueImpl from, TypeSafeQueryJoin<?> join, HqlQueryBuilderParams params) {
         // example: 'left join Product hobj1 on ...'
         TypeSafeQueryProxyData data = join.getData();
-        from.appendHql(new StringBuilder(" ")
-            .append(getJoinTypeString(data.getEffectiveJoinType()))
-            .append(" ").append(helper.getEntityName(data.getPropertyType()))
-            .append(" ").append(data.getAlias()).toString());
+        from.appendHql(" " +
+                getJoinTypeString(data.getEffectiveJoinType()) +
+                " " + helper.getEntityName(data.getPropertyType()) +
+                " " + data.getAlias());
 
         // add the user specified on restrictions, there should at least but some restriction:
         if (!appendAdditionalRestrictions(from, join, " on ", params)) {
@@ -185,11 +190,11 @@ public class TypeSafeQueryFrom implements HqlQueryBuilder {
     private void appendPropertyJoin(HqlQueryValueImpl from, TypeSafeQueryJoin<?> join, HqlQueryBuilderParams params) {
         TypeSafeQueryProxyData data = join.getData();
         // example: 'left join fetch' 'hobj1'.'propertyPath' 'hobj2'
-        from.appendHql(new StringBuilder(" ")
-            .append(getJoinTypeString(data.getEffectiveJoinType()))
-            .append(" ").append(data.getParent().getAlias())
-            .append(".").append(data.getPropertyPath())
-            .append(" ").append(data.getAlias()).toString());
+        from.appendHql(" " +
+                getJoinTypeString(data.getEffectiveJoinType()) +
+                " " + data.getParent().getAlias() +
+                "." + data.getPropertyPath() +
+                " " + data.getAlias());
 
         // append additional "with" restrictions if such exist:
         appendAdditionalRestrictions(from, join, " with ", params);

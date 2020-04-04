@@ -28,7 +28,7 @@ import be.shad.tsqb.restrictions.Restriction;
  */
 public class RestrictionTypeSafeValue extends TypeSafeValueImpl<Boolean> {
 
-    private Restriction restriction;
+    private final Restriction restriction;
 
     public RestrictionTypeSafeValue(CopyContext context, RestrictionTypeSafeValue original) {
         super(context, original);

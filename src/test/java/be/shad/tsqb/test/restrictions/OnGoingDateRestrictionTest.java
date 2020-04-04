@@ -28,11 +28,11 @@ import be.shad.tsqb.test.TypeSafeQueryTest;
 import be.shad.tsqb.values.DirectTypeSafeValue;
 
 public class OnGoingDateRestrictionTest extends TypeSafeQueryTest {
-    private String NAMED_PARAM_1 = "NAMED_PARAM_1";
-    private String NAMED_PARAM_2 = "NAMED_PARAM_2";
-    private String NAMED_PARAM_3 = "NAMED_PARAM_3";
-    private Date date = new Date();
-    private Date date2 = new Date(date.getTime() + TimeUnit.DAYS.toMillis(1));
+    private static final String NAMED_PARAM_1 = "NAMED_PARAM_1";
+    private static final String NAMED_PARAM_2 = "NAMED_PARAM_2";
+    private static final String NAMED_PARAM_3 = "NAMED_PARAM_3";
+    private static final Date date = new Date();
+    private static final Date date2 = new Date(date.getTime() + TimeUnit.DAYS.toMillis(1));
 
     @Test
     public void testBefore() {
@@ -63,7 +63,7 @@ public class OnGoingDateRestrictionTest extends TypeSafeQueryTest {
     @Test
     public void testTypeSafeValueBefore() {
         Building building = query.from(Building.class);
-        query.where(building.getConstructionDate()).before(new DirectTypeSafeValue<Date>(query, date));
+        query.where(building.getConstructionDate()).before(new DirectTypeSafeValue<>(query, date));
         validate(" from Building hobj1 where hobj1.constructionDate < :np1", date);
     }
 
@@ -96,7 +96,7 @@ public class OnGoingDateRestrictionTest extends TypeSafeQueryTest {
     @Test
     public void testTypeSafeValueAfter() {
         Building building = query.from(Building.class);
-        query.where(building.getConstructionDate()).after(new DirectTypeSafeValue<Date>(query, date));
+        query.where(building.getConstructionDate()).after(new DirectTypeSafeValue<>(query, date));
         validate(" from Building hobj1 where hobj1.constructionDate > :np1", date);
     }
 
@@ -148,7 +148,7 @@ public class OnGoingDateRestrictionTest extends TypeSafeQueryTest {
     @Test
     public void testTypeSafeValueNotAfter() {
         Building building = query.from(Building.class);
-        query.where(building.getConstructionDate()).notAfter(new DirectTypeSafeValue<Date>(query, date));
+        query.where(building.getConstructionDate()).notAfter(new DirectTypeSafeValue<>(query, date));
         validate(" from Building hobj1 where hobj1.constructionDate <= :np1", date);
     }
 
@@ -207,7 +207,7 @@ public class OnGoingDateRestrictionTest extends TypeSafeQueryTest {
     @Test
     public void testTypeSafeValueNotBefore() {
         Building building = query.from(Building.class);
-        query.where(building.getConstructionDate()).notBefore(new DirectTypeSafeValue<Date>(query, date));
+        query.where(building.getConstructionDate()).notBefore(new DirectTypeSafeValue<>(query, date));
         validate(" from Building hobj1 where hobj1.constructionDate >= :np1", date);
     }
 

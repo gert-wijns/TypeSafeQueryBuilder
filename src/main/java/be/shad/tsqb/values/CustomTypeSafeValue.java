@@ -49,7 +49,7 @@ public class CustomTypeSafeValue<T> extends TypeSafeValueImpl<T> {
 
     public CustomTypeSafeValue(TypeSafeQuery query,
             Class<T> valueType, HqlQueryValue value) {
-        super((TypeSafeQueryInternal) query, valueType);
+        super(query, valueType);
         this.value = value;
     }
 

@@ -32,17 +32,14 @@ import be.shad.tsqb.values.ProjectionTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
 
 public class TypeSafeQueryOrderBys implements OnGoingOrderBy, HqlQueryBuilder, Copyable {
-    private static final DirectValueProvider<String> PROJECTION_VALUE_PROVIDER = new DirectValueProvider<String>() {
-        @Override
-        public TypeSafeValue<String> createEmptyDirectValue(TypeSafeQueryInternal query) {
-            if (query instanceof TypeSafeRootQueryInternal) {
-                String lastInvokedProjectionPath = ((TypeSafeRootQueryInternal) query).dequeueInvokedProjectionPath();
-                if (lastInvokedProjectionPath != null) {
-                    return new ProjectionTypeSafeValue<>(query, String.class, lastInvokedProjectionPath);
-                }
+    private static final DirectValueProvider<String> PROJECTION_VALUE_PROVIDER = query -> {
+        if (query instanceof TypeSafeRootQueryInternal) {
+            String lastInvokedProjectionPath = ((TypeSafeRootQueryInternal) query).dequeueInvokedProjectionPath();
+            if (lastInvokedProjectionPath != null) {
+                return new ProjectionTypeSafeValue<>(query, String.class, lastInvokedProjectionPath);
             }
-            return null;
         }
+        return null;
     };
 
     private final List<OrderBy> orderBys = new LinkedList<>();
@@ -68,7 +65,7 @@ public class TypeSafeQueryOrderBys implements OnGoingOrderBy, HqlQueryBuilder, C
             throw new IllegalArgumentException("Ordering by a selection proxy "
                     + "is not allowed. This was attempted for proxy: " + val);
         }
-        TypeSafeValue<?> typeSafeValue = null;
+        TypeSafeValue<?> typeSafeValue;
         if (val instanceof TypeSafeValue<?>) {
             typeSafeValue = (TypeSafeValue<?>) val;
         } else {

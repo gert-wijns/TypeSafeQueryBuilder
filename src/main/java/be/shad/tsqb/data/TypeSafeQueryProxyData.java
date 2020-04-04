@@ -110,7 +110,11 @@ public class TypeSafeQueryProxyData {
 
     public String getAlias() {
         if (parent != null && (joinType == null || getEffectiveJoinType() == None)) {
-            return parent.getAlias() + "." + propertyPath;
+            if (parent.getAlias().isEmpty()) {
+                return propertyPath;
+            } else {
+                return parent.getAlias() + "." + propertyPath;
+            }
         }
         return customAlias == null ? alias: customAlias;
     }

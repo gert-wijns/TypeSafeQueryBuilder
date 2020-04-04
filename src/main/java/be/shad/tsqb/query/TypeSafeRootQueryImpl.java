@@ -34,7 +34,6 @@ import be.shad.tsqb.restrictions.Restriction;
 import be.shad.tsqb.restrictions.predicate.RestrictionPredicate;
 import be.shad.tsqb.selection.SelectionValueTransformer;
 import be.shad.tsqb.selection.collection.ResultIdentifierBinder;
-import be.shad.tsqb.selection.collection.ResultIdentifierBinding;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroup;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroupImpl;
 import be.shad.tsqb.selection.parallel.MapSelectionMerger;
@@ -47,8 +46,10 @@ import be.shad.tsqb.selection.parallel.SelectionMerger2;
 import be.shad.tsqb.selection.parallel.SelectionMerger3;
 import be.shad.tsqb.values.HqlQueryBuilderParams;
 import be.shad.tsqb.values.HqlQueryBuilderParamsImpl;
+import be.shad.tsqb.values.HqlQueryValue;
 import be.shad.tsqb.values.RestrictionTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
+import be.shad.tsqb.values.WrappedTypeSafeValue;
 
 /**
  * Maintains the invocationQueue, provides the entity aliases and buffers the last selected value.
@@ -59,7 +60,7 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     private static final String SELECT_RESULT_GROUP = "g0";
     private List<TypeSafeQueryProxyData> invocationQueue;
     private Map<String, TypeSafeQueryProxy> customAliasedProxies;
-    private TypeSafeNameds namedObjects;
+    private final TypeSafeNameds namedObjects;
     private TypeSafeValue<?> lastSelectedValue;
     private TypeSafeQuerySelectionProxyData lastInvokedSelectionData;
     private RestrictionPredicate restrictionPredicate;
@@ -354,8 +355,7 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     public <T> T selectMapKey(Class<T> keyClass) {
         TypeSafeQuerySelectionGroup resultGroup = new TypeSafeQuerySelectionGroupImpl(
                 MAP_KEY_RESULT_GROUP, keyClass, false, null, null);
-        T proxy = getHelper().createTypeSafeSelectProxy(this, keyClass, resultGroup);
-        return proxy;
+        return getHelper().createTypeSafeSelectProxy(this, keyClass, resultGroup);
     }
 
     /**
@@ -365,32 +365,37 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     private <ID, T extends ID> T doBind(T proxy, final TypeSafeQuerySelectionGroup resultGroup,
             ResultIdentifierBinder<ID> resultIdentifierBinder) {
         if (resultIdentifierBinder != null) {
-            resultIdentifierBinder.bind(new ResultIdentifierBinding() {
-                @Override
-                public void bind(Object value) {
-                    if (lastInvokedSelectionData == null) {
-                        throw new IllegalStateException("Bind was called without calling a getter on the result proxy.");
-                    }
-                    resultGroup.addResultIdentifierPropertyPath(lastInvokedSelectionData.getEffectivePropertyPath());
-                    lastInvokedSelectionData = null;
+            resultIdentifierBinder.bind((value) -> {
+                if (lastInvokedSelectionData == null) {
+                    throw new IllegalStateException("Bind was called without calling a getter on the result proxy.");
                 }
+                resultGroup.addResultIdentifierPropertyPath(lastInvokedSelectionData.getEffectivePropertyPath());
+                lastInvokedSelectionData = null;
             }, proxy);
         }
         return proxy;
     }
-
 
     /**
      * {@inheritDoc}
      */
     @Override
     public <T, V> V select(Class<V> transformedClass, T value, SelectionValueTransformer<T, V> transformer) {
+        return selectValue(transformedClass, value, transformer).select();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <T, V> TypeSafeValue<V> selectValue(Class<V> transformedClass, T value, SelectionValueTransformer<T, V> transformer) {
+        getProjections().setTransformerForNextProjection(transformer);
         if (value instanceof TypeSafeQueryProxy) {
             // invocation was not added because it is not a leaf (to support method chaining).
             invocationWasMade(((TypeSafeQueryProxy) value).getTypeSafeProxyData());
+            value = null;
         }
-        getProjections().setTransformerForNextProjection(transformer);
-        return helper.getDummyValue(transformedClass);
+        return new WrappedTypeSafeValue<>(this, null, transformedClass, toValue(value));
     }
 
     /**
@@ -488,6 +493,14 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
     @Override
     public HqlQuery toHqlQuery(HqlQueryBuilderParams params) {
         return super.toHqlQuery(params);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public HqlQueryValue toHqlQueryValue(HqlQueryBuilderParams params) {
+        return toHqlQuery(params);
     }
 
     /**

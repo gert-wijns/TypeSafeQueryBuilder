@@ -88,8 +88,7 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
 
     protected NamedParameterBinderImpl<VAL, CONTINUED, ORIGINAL> createNamedParameterBinder(
             TypeSafeValue<VAL> value, CONTINUED next) {
-        return new NamedParameterBinderImpl<VAL, CONTINUED, ORIGINAL>(
-                group.getQuery(), value, next);
+        return new NamedParameterBinderImpl<>(group.getQuery(), value, next);
     }
 
     /**
@@ -303,7 +302,7 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
     public <T extends VAL> CONTINUED notIn(Collection<T> values, RestrictionPredicate predicate, Integer batchSize) {
         this.predicate = predicate;
         // suppressing warnings because we know T is a kind of VAL, and we won't be changing the collection internally
-        return (CONTINUED) notIn(createCollectionTypeSafeValue((Collection<VAL>) values, batchSize));
+        return notIn(createCollectionTypeSafeValue((Collection<VAL>) values, batchSize));
     }
 
     @Override
@@ -321,7 +320,7 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
     public <T extends VAL> CONTINUED in(Collection<T> values, RestrictionPredicate predicate, Integer batchSize) {
         this.predicate = predicate;
         // suppressing warnings because we know T is a kind of VAL, and we won't be changing the collection internally
-        return (CONTINUED) in(createCollectionTypeSafeValue((Collection<VAL>) values, batchSize));
+        return in(createCollectionTypeSafeValue((Collection<VAL>) values, batchSize));
     }
 
     private TypeSafeValue<VAL> createCollectionTypeSafeValue(Collection<VAL> values, Integer batchSize) {

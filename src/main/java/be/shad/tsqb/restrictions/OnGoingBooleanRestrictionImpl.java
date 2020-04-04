@@ -32,7 +32,7 @@ import be.shad.tsqb.values.TypeSafeValue;
 public class OnGoingBooleanRestrictionImpl
         extends OnGoingRestrictionImpl<Boolean, ContinuedOnGoingBooleanRestriction, OnGoingBooleanRestriction>
         implements OnGoingBooleanRestriction, ContinuedOnGoingBooleanRestriction {
-    private boolean isContinued;
+    private final boolean isContinued;
 
     public OnGoingBooleanRestrictionImpl(RestrictionsGroupInternal group,
             RestrictionNodeType restrictionNodeType, Boolean argument) {

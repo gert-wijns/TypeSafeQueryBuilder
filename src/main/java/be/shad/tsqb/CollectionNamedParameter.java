@@ -23,7 +23,7 @@ import java.util.Collection;
  * to fetch the results in multiple times.
  */
 public class CollectionNamedParameter extends NamedParameter {
-    private Integer batchSize;
+    private final Integer batchSize;
 
     public CollectionNamedParameter(String name, Collection<?> value, Integer batchSize) {
         super(name, value);

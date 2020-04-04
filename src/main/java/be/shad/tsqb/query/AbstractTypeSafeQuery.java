@@ -62,6 +62,8 @@ import be.shad.tsqb.values.TypeSafeValueFunctions;
 import be.shad.tsqb.values.arithmetic.ArithmeticTypeSafeValueFactory;
 import be.shad.tsqb.values.arithmetic.ArithmeticTypeSafeValueFactoryImpl;
 
+import org.hibernate.proxy.HibernateProxy;
+
 /**
  * Collects the data and creates the hqlQuery based on this data.
  */
@@ -274,7 +276,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      * {@inheritDoc}
      */
     public <T> T join(Collection<T> anyCollection, JoinType joinType) {
-        return handleJoin((T) null, joinType, null, false);
+        return handleJoin(null, joinType, null, false);
     }
 
     /**
@@ -282,7 +284,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      */
     @Override
     public <T> T join(Collection<T> anyCollection, JoinType joinType, String name) {
-        return handleJoin((T) null, joinType, name, false);
+        return handleJoin(null, joinType, name, false);
     }
 
     /**
@@ -304,7 +306,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      * {@inheritDoc}
      */
     public <T> T join(Collection<T> anyCollection, JoinType joinType, boolean createAdditionalJoin) {
-        return handleJoin((T) null, joinType, null, createAdditionalJoin);
+        return handleJoin(null, joinType, null, createAdditionalJoin);
     }
 
     /**
@@ -312,7 +314,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
      */
     @Override
     public <T> T join(Collection<T> anyCollection, JoinType joinType, String name, boolean createAdditionalJoin) {
-        return handleJoin((T) null, joinType, name, createAdditionalJoin);
+        return handleJoin(null, joinType, name, createAdditionalJoin);
     }
 
     /**
@@ -360,7 +362,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
             data = ((TypeSafeQueryProxy) obj).getTypeSafeProxyData();
         }
         if (!data.getProxyType().isEntity()) {
-            throw new JoinException(String.format("Attempting to join an object "
+            throw new JoinException(String.format("Attempting to join an object [%s]"
                     + "which does not represent an entity. ", data.getAlias()));
         }
         if (createAdditionalJoin) {
@@ -746,6 +748,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
         return toValue(value, null);
     }
 
+    @SuppressWarnings("unchecked")
     public <VAL> TypeSafeValue<VAL> toValue(VAL value, DirectValueProvider<VAL> provider) {
         if (value instanceof TypeSafeValue<?>) {
             throw new IllegalArgumentException(String.format("The value [%s] is already a type safe value.", value));
@@ -767,14 +770,19 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
             }
             if (value instanceof TypeSafeQueryProxy) {
                 // required when selecting full hibernate objects (for example when using select distinct hobj)
-                return new ReferenceTypeSafeValue<VAL>(this, ((TypeSafeQueryProxy) value).getTypeSafeProxyData());
+                return new ReferenceTypeSafeValue<>(this, ((TypeSafeQueryProxy) value).getTypeSafeProxyData());
             } else if (value instanceof String) {
                 @SuppressWarnings("unchecked")
                 DirectTypeSafeValue<VAL> directValue = (DirectTypeSafeValue<VAL>)
                         new DirectTypeSafeStringValue(this, (String) value);
                 return directValue;
+            } else if (value instanceof HibernateProxy) {
+                return new DirectTypeSafeValue(this, ((HibernateProxy) value)
+                        .getHibernateLazyInitializer().getIdentifier());
+            } else if (helper.isEntity(value.getClass())) {
+                return new DirectTypeSafeValue(this, helper.getIdentifier(value));
             } else {
-                return new DirectTypeSafeValue<VAL>(this, value);
+                return new DirectTypeSafeValue<>(this, value);
             }
         } else if (invocations.size() == 1) {
             // invoked with proxy
@@ -789,7 +797,7 @@ public abstract class AbstractTypeSafeQuery implements TypeSafeQuery, TypeSafeQu
                             data, value));
                 }
             }
-            return new ReferenceTypeSafeValue<VAL>(this, data);
+            return new ReferenceTypeSafeValue<>(this, data);
         } else {
             // invalid call, only expected one invocation
             throw new IllegalStateException(String.format("[%d] invocations were made "

@@ -97,7 +97,7 @@ public class CollectionTypeSafeValue<T> extends TypeSafeValueImpl<T> implements 
             return new HqlQueryValueImpl(sb.toString());
         } else {
             String name = params.createNamedParameter();
-            return new HqlQueryValueImpl(new StringBuilder("(:").append(name).append(")").toString(),
+            return new HqlQueryValueImpl("(:" + name + ")",
                     new CollectionNamedParameter(name, values, batchSize));
         }
     }
@@ -123,14 +123,14 @@ public class CollectionTypeSafeValue<T> extends TypeSafeValueImpl<T> implements 
             return;
         }
 
-        Collection<?> values = null;
+        Collection<?> values;
         if (namedValue instanceof Collection<?>) {
             values = (Collection<?>) namedValue;
         } else {
             values = Collections.singleton(namedValue);
         }
 
-        List<T> namedValues = new LinkedList<T>();
+        List<T> namedValues = new LinkedList<>();
         for(Object value: values) {
             if (value == null) {
                 throw new IllegalArgumentException(String.format("Null value in "

@@ -25,13 +25,13 @@ import org.hibernate.transform.ResultTransformer;
 import be.shad.tsqb.values.HqlQueryValue;
 
 public class HqlQuery implements HqlQueryValue {
-    private StringBuilder select = new StringBuilder();
-    private StringBuilder from = new StringBuilder();
-    private StringBuilder where = new StringBuilder();
-    private StringBuilder groupBy = new StringBuilder();
-    private StringBuilder having = new StringBuilder();
-    private StringBuilder orderBy = new StringBuilder();
-    private List<Object> params = new LinkedList<Object>();
+    private final StringBuilder select = new StringBuilder();
+    private final StringBuilder from = new StringBuilder();
+    private final StringBuilder where = new StringBuilder();
+    private final StringBuilder groupBy = new StringBuilder();
+    private final StringBuilder having = new StringBuilder();
+    private final StringBuilder orderBy = new StringBuilder();
+    private final List<Object> params = new LinkedList<>();
     private ResultTransformer resultTransformer;
 
     public ResultTransformer getResultTransformer() {

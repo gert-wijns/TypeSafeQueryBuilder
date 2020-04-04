@@ -27,7 +27,7 @@ import be.shad.tsqb.query.copy.Copyable;
  * Value representing the 'concat' hql function, with append function to add extra values to concatenate.
  */
 public class ConcatTypeSafeValue extends TypeSafeValueImpl<String> implements TypeSafeValueContainer {
-    private List<TypeSafeValue<?>> values = new LinkedList<>();
+    private final List<TypeSafeValue<?>> values = new LinkedList<>();
 
     public ConcatTypeSafeValue(CopyContext context, TypeSafeValueImpl<String> original) {
         super(context, original);
@@ -88,9 +88,7 @@ public class ConcatTypeSafeValue extends TypeSafeValueImpl<String> implements Ty
             }
             HqlQueryValue valueHql = value.toHqlQueryValue(parameters);
             concat.append(valueHql.getHql());
-            for(Object param: valueHql.getParams()) {
-                params.add(param);
-            }
+            params.addAll(valueHql.getParams());
         }
         String hql = "";
         if (concat.length() > 0) {

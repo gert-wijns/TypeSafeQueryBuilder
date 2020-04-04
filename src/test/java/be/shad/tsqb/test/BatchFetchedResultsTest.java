@@ -107,7 +107,7 @@ public class BatchFetchedResultsTest extends TypeSafeQueryTest {
         Person becky = creator.createTestPerson(town, "Becky");
         Person fred = creator.createTestPerson(town, "Fred");
         Set<String> childNames = new HashSet<>();
-        childNames.add(becky.getName());;
+        childNames.add(becky.getName());
         childNames.add(fred.getName());
 
         // johny has 2 kids, angie and alberta have 1, josh has none
@@ -171,8 +171,8 @@ public class BatchFetchedResultsTest extends TypeSafeQueryTest {
         Town townProxy = query.from(Town.class);
         List<String> values = Arrays.asList("Becky", "Angie");
         NamedParameter namedParam = new NamedParameter("test", values);
-        List<Object> params = Arrays.<Object>asList(namedParam);
-        query.where(townProxy.getName()).in(new CustomTypeSafeValue<String>(
+        List<Object> params = Collections.singletonList(namedParam);
+        query.where(townProxy.getName()).in(new CustomTypeSafeValue<>(
                 query, String.class, ":test", params));
         validate("from Town hobj1 where hobj1.name in :test", values);
     }

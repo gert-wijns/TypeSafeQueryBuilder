@@ -20,7 +20,7 @@ import be.shad.tsqb.values.TypeSafeValue;
 
 public abstract class AbstractDirectValueRestrictionPredicate<T> implements RestrictionPredicate {
 
-    private Class<T> valueClass;
+    private final Class<T> valueClass;
 
     public AbstractDirectValueRestrictionPredicate(Class<T> valueClass) {
         this.valueClass = valueClass;

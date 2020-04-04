@@ -50,7 +50,7 @@ public class GroupingTest extends TypeSafeQueryTest {
 
         query.selectValue(building.getConstructionDate());
         query.setHqlAlias(building, "b");
-        query.groupBy(new CustomTypeSafeValue<Date>(query, Date.class, "b.constructionDate"));
+        query.groupBy(new CustomTypeSafeValue<>(query, Date.class, "b.constructionDate"));
 
         validate("select b.constructionDate from Building b group by b.constructionDate");
     }

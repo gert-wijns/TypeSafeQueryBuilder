@@ -39,7 +39,7 @@ public class TypeSafeValueFunctions {
     }
 
     public <VAL> PartialNullIf<VAL> nullIf(TypeSafeValue<VAL> val) {
-        return new PartialNullIf<VAL>(query, val);
+        return new PartialNullIf<>(query, val);
     }
 
     public <VAL> TypeSafeValue<VAL> distinct(VAL val) {
@@ -113,7 +113,7 @@ public class TypeSafeValueFunctions {
     }
 
     public TypeSafeValue<Long> length(TypeSafeValue<String> val) {
-        return new WrappedTypeSafeValue<Long>(query, "length", Long.class, val);
+        return new WrappedTypeSafeValue<>(query, "length", Long.class, val);
     }
 
     public TypeSafeValue<String> upper(String val) {
@@ -146,6 +146,14 @@ public class TypeSafeValueFunctions {
 
     public TypeSafeValue<String> mins(TypeSafeValue<String> sv) {
         return new WrappedTypeSafeValue<>(query, "min", sv);
+    }
+
+    public TypeSafeValue<String> max(String s) {
+        return maxs(query.toValue(s));
+    }
+
+    public TypeSafeValue<String> maxs(TypeSafeValue<String> sv) {
+        return new WrappedTypeSafeValue<>(query, "max", sv);
     }
 
     public TypeSafeValue<Date> max(Date n) {

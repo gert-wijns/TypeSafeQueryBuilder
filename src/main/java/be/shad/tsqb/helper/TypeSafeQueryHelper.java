@@ -35,6 +35,21 @@ public interface TypeSafeQueryHelper {
     String getEntityName(Class<?> entityClass);
 
     /**
+     * Check if the clazz is representing an entity.
+     */
+    boolean isEntity(Class<?> clazz);
+
+    /**
+     * Uses the hibernate metadata to determine the ID class for the given entityClass.
+     */
+    Class<?> getEntityIdClass(Class<?> entityClass);
+
+    /**
+     * Uses the hibernate metadata to get the ID of the given entity
+     */
+    Object getIdentifier(Object entity);
+
+    /**
      * Uses the type safe query factory and adds method handling to delegate
      * calls to the given query.
      */

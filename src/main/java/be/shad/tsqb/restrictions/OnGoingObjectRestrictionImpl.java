@@ -37,7 +37,7 @@ public class OnGoingObjectRestrictionImpl<VAL>
 
     @Override
     protected ContinuedOnGoingObjectRestriction<VAL> createContinuedOnGoingRestriction(RestrictionNodeType restrictionNodeType, TypeSafeValue<VAL> startValue) {
-        return new OnGoingObjectRestrictionImpl<VAL>(group, restrictionNodeType, startValue);
+        return new OnGoingObjectRestrictionImpl<>(group, restrictionNodeType, startValue);
     }
 
     @Override

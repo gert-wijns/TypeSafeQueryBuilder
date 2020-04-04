@@ -30,7 +30,7 @@ public enum TypeSafeQueryProxyType {
     private final boolean collection;
     private final boolean composite;
 
-    private TypeSafeQueryProxyType(boolean entity, boolean collection, boolean composite) {
+    TypeSafeQueryProxyType(boolean entity, boolean collection, boolean composite) {
         this.entity = entity;
         this.collection = collection;
         this.composite = composite;

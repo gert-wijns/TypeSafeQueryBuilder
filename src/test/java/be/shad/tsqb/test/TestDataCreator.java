@@ -50,7 +50,7 @@ public class TestDataCreator {
         person.setName(name);
         person.setTown(town);
         if (town.getInhabitants() == null) {
-            town.setInhabitants(new HashSet<Person>());
+            town.setInhabitants(new HashSet<>());
         }
         town.getInhabitants().add(person);
         sessionFactory.getCurrentSession().save(person);

@@ -28,7 +28,7 @@ import be.shad.tsqb.values.TypeSafeValueContainer;
 import be.shad.tsqb.values.TypeSafeValueImpl;
 
 public class ArithmeticTypeSafeValueImpl extends TypeSafeValueImpl<Number> implements TypeSafeValueContainer, ArithmeticTypeSafeValue {
-    private OperationTypeSafeValue<Number> combinedValue;
+    private final OperationTypeSafeValue<Number> combinedValue;
 
     public ArithmeticTypeSafeValueImpl(TypeSafeQuery query, TypeSafeValue<Number> firstValue) {
         super(query, firstValue.getValueClass());

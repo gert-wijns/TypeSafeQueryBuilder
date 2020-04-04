@@ -186,10 +186,15 @@ public interface TypeSafeRootQuery extends TypeSafeQuery {
     <T, A, B, C> SelectTriplet<A, B, C> selectMergeValues(T resultDto, SelectionMerger3<T, A, B, C> merger);
 
     /**
+     * Delegates to {@link #select(Class, Object, SelectionValueTransformer)} and selects immediately.
+     */
+    <T, V> V select(Class<V> transformedClass, T value, SelectionValueTransformer<T, V> transformer);
+
+    /**
      * Registers the transformer to be used for the selection value
      * when the default result transformer is used.
      */
-    <T, V> V select(Class<V> transformedClass, T value, SelectionValueTransformer<T, V> transformer);
+    <T, V> TypeSafeValue<V> selectValue(Class<V> transformedClass, T value, SelectionValueTransformer<T, V> transformer);
 
     /**
      * @see #distinct(TypeSafeValue)
@@ -204,22 +209,22 @@ public interface TypeSafeRootQuery extends TypeSafeQuery {
     <VAL> VAL distinct(TypeSafeValue<VAL> value);
 
     /**
-     * Purpose: {@link org.hibernate.Query#setFirstResult}
+     * Purpose: {@link org.hibernate.query.Query#setFirstResult}
      */
     void setFirstResult(int firstResult);
 
     /**
-     * The first result to fetch, default is -1, see {@link org.hibernate.Query#setFirstResult}
+     * The first result to fetch, default is -1, see {@link org.hibernate.query.Query#setFirstResult}
      */
     int getFirstResult();
 
     /**
-     * Purpose: {@link org.hibernate.Query#setMaxResults}
+     * Purpose: {@link org.hibernate.query.Query#setMaxResults}
      */
     void setMaxResults(int maxResults);
 
     /**
-     * The amount of results to fetch, default is -1, see {@link org.hibernate.Query#setMaxResults}
+     * The amount of results to fetch, default is -1, see {@link org.hibernate.query.Query#setMaxResults}
      */
     int getMaxResults();
 
