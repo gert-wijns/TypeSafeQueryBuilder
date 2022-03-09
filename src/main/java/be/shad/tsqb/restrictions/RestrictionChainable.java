@@ -15,6 +15,7 @@
  */
 package be.shad.tsqb.restrictions;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 import be.shad.tsqb.query.TypeSafeSubQuery;
@@ -136,10 +137,22 @@ public interface RestrictionChainable extends RestrictionHolder {
     OnGoingDateRestriction andDate(TypeSafeValue<Date> value);
 
     /**
-     * Restrict a number value. This can be a direct value (an actual string),
+     * Restrict a date value. This can be a direct value (an actual string),
      * or a value of a TypeSafeQueryProxy getter.
      */
     OnGoingDateRestriction and(Date value);
+
+    /**
+     * The general restrict by date method. Anything which represents a number
+     * can be used with this method.
+     */
+    OnGoingLocalDateRestriction andLocalDate(TypeSafeValue<LocalDate> value);
+
+    /**
+     * Restrict a date value. This can be a direct value (an actual string),
+     * or a value of a TypeSafeQueryProxy getter.
+     */
+    OnGoingLocalDateRestriction and(LocalDate value);
 
     /**
      * The general restrict by number method. Anything which represents a number

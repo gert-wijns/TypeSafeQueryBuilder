@@ -11,7 +11,7 @@ import be.shad.tsqb.restrictions.RestrictionOperator;
 
 public class DirectTypeSafeStringValue extends DirectTypeSafeValue<String> implements OperatorAwareValue {
 
-    public final static String EMPTY = "";
+    public static final String EMPTY = "";
 
     private boolean upper;
     private boolean lower;

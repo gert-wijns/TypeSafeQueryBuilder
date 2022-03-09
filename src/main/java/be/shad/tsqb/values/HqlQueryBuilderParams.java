@@ -35,6 +35,10 @@ public interface HqlQueryBuilderParams {
      */
     boolean isCreatingOrderingBy();
 
+    boolean isSelectingCount();
+
+    void setSelectingCount(boolean selectingCount);
+
     /**
      * Mark the start/end of creating the order by hql value.
      */
@@ -53,14 +57,4 @@ public interface HqlQueryBuilderParams {
      * @see #isBuildingForDisplay()
      */
     void setBuildingForDisplay(boolean buildingForDisplay);
-
-    /**
-     * Whether to include the selections made specifically for grouping.
-     */
-    boolean isBuildingMapKeyGroupQuery();
-    
-    /**
-     * Decides whether to include the map key part of the query or not.
-     */
-    void setBuildingMapKeyGroupQuery(boolean buildingMapKeyGroupQuery);
 }

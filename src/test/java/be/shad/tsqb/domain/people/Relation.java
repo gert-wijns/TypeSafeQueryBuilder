@@ -23,9 +23,13 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import be.shad.tsqb.domain.DomainObject;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "Relation")
+@Getter
+@Setter
 public class Relation extends DomainObject {
     private static final long serialVersionUID = 75607517083941564L;
 
@@ -36,21 +40,5 @@ public class Relation extends DomainObject {
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "ChildId", nullable = false)
     private Person child;
-
-    public Person getParent() {
-        return parent;
-    }
-
-    public void setParent(Person parent) {
-        this.parent = parent;
-    }
-
-    public Person getChild() {
-        return child;
-    }
-
-    public void setChild(Person child) {
-        this.child = child;
-    }
 
 }

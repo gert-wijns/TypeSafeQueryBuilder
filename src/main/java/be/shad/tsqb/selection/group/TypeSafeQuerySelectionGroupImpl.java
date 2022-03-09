@@ -15,61 +15,71 @@
  */
 package be.shad.tsqb.selection.group;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 
-import be.shad.tsqb.data.TypeSafeQuerySelectionProxyData;
+import be.shad.tsqb.data.TypeSafeQuerySelectionProxyPropertyData;
+import be.shad.tsqb.helper.SelectionBuilderSpec;
+import be.shad.tsqb.proxy.TypeSafeQuerySelectionProxy;
 import be.shad.tsqb.query.copy.CopyContext;
 import be.shad.tsqb.query.copy.Copyable;
 import be.shad.tsqb.selection.parallel.SelectionMerger;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
-public class TypeSafeQuerySelectionGroupImpl implements TypeSafeQuerySelectionGroup, Copyable {
+@ToString(of = "id")
+@EqualsAndHashCode(of = "id")
+@RequiredArgsConstructor
+public class TypeSafeQuerySelectionGroupImpl<SB, SR> implements TypeSafeQuerySelectionGroupInternal<SB, SR>, Copyable {
+    private final @Getter String id;
+    private final @Getter SelectionBuilderSpec<SB, SR> selectionBuilderSpec;
 
-    private final String aliasPrefix;
-    private final Class<?> resultClass;
-    private final boolean resultGroup;
-    private final SelectionMerger<?, ?> subselectValueMerger;
-    private final TypeSafeQuerySelectionGroup parent;
-    private final String collectionPropertyPath;
-    private final Set<String> resultIdentifierPropertyPaths;
+    private @Getter @Setter TypeSafeQuerySelectionProxy<SB> proxy;
+    private @Getter @Setter boolean resultGroup;
 
-    public TypeSafeQuerySelectionGroupImpl(String aliasPrefix, Class<?> resultClass,
-            boolean resultGroup, SelectionMerger<?, ?> subselectValueMerger,
-            TypeSafeQuerySelectionProxyData parent) {
-        this.aliasPrefix = aliasPrefix;
-        this.resultClass = resultClass;
-        this.resultGroup = resultGroup;
-        this.subselectValueMerger = subselectValueMerger;
-        this.resultIdentifierPropertyPaths = new HashSet<>();
-        if (parent != null) {
-            if (subselectValueMerger == null) {
-                this.collectionPropertyPath = parent.getEffectivePropertyPath();
-            } else {
-                this.collectionPropertyPath = null;
-            }
-            this.parent = parent.getGroup();
-        } else {
-            this.collectionPropertyPath = null;
-            this.parent = null;
-        }
-    }
+    private final @Getter Map<TypeSafeQuerySelectionGroupInternal<?, ?>, SelectionMerger<SR, ?>> mergers = new HashMap<>();
+    private final @Getter Set<String> resultIdentifierPropertyPaths = new HashSet<>();
+    private final LinkedHashMap<String, TypeSafeQuerySelectionProxyPropertyData<?>> children = new LinkedHashMap<>();
 
     /**
      * Copy constructor
      */
-    protected TypeSafeQuerySelectionGroupImpl(CopyContext context, TypeSafeQuerySelectionGroupImpl original) {
-        this.aliasPrefix = original.aliasPrefix;
-        this.resultClass = original.resultClass;
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    protected TypeSafeQuerySelectionGroupImpl(CopyContext context, TypeSafeQuerySelectionGroupImpl<SB, SR> original) {
+        this.id = original.id;
+        this.selectionBuilderSpec = original.selectionBuilderSpec;
         this.resultGroup = original.resultGroup;
-        this.resultIdentifierPropertyPaths = new HashSet<>(original.resultIdentifierPropertyPaths);
-        this.subselectValueMerger = context.getOrOriginal(original.subselectValueMerger);
-        this.collectionPropertyPath = original.collectionPropertyPath;
-        this.parent = context.get(original.parent);
+        this.resultIdentifierPropertyPaths.addAll(original.resultIdentifierPropertyPaths);
+        original.mergers.forEach((sub, merger) -> putMerger((TypeSafeQuerySelectionGroupInternal) context.get(sub), merger));
     }
 
     @Override
-    public Set<String> getResultIdentifierPropertyPaths() {
-        return resultIdentifierPropertyPaths;
+    @SuppressWarnings("unchecked")
+    public <T> TypeSafeQuerySelectionProxyPropertyData<T> getChild(String propertyName) {
+        return (TypeSafeQuerySelectionProxyPropertyData<T>) children.get(propertyName);
+    }
+
+    @Override
+    public void putChild(TypeSafeQuerySelectionProxyPropertyData<?> child) {
+        children.put(child.getPropertyPath(), child);
+    }
+
+    @Override
+    public Collection<TypeSafeQuerySelectionProxyPropertyData<?>> getChildren() {
+        return children.values();
+    }
+
+    @Override
+    public <SUBB, SUBR> void putMerger(TypeSafeQuerySelectionGroupInternal<SUBB, SUBR> sub,
+                                      SelectionMerger<SR, SUBR> merger) {
+        mergers.put(sub, merger);
     }
 
     @Override
@@ -78,58 +88,7 @@ public class TypeSafeQuerySelectionGroupImpl implements TypeSafeQuerySelectionGr
     }
 
     @Override
-    public TypeSafeQuerySelectionGroup getParent() {
-        return parent;
-    }
-
-    @Override
-    public String getCollectionPropertyPath() {
-        return collectionPropertyPath;
-    }
-
-    @Override
-    public String getAliasPrefix() {
-        return aliasPrefix;
-    }
-
-    @Override
-    public Class<?> getResultClass() {
-        return resultClass;
-    }
-
-    @Override
-    public boolean isResultGroup() {
-        return resultGroup;
-    }
-    
-    @Override
-    public boolean isMapKeyGroup() {
-        return !resultGroup && parent == null;
-    }
-
-    @Override
-    public SelectionMerger<?, ?> getSelectionMerger() {
-        return subselectValueMerger;
-    }
-
-    @Override
     public Copyable copy(CopyContext context) {
-        return new TypeSafeQuerySelectionGroupImpl(context, this);
-    }
-
-    @Override
-    public int hashCode() {
-        return aliasPrefix.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return obj instanceof TypeSafeQuerySelectionGroupImpl
-                && aliasPrefix.equals(((TypeSafeQuerySelectionGroupImpl) obj).aliasPrefix);
-    }
-
-    @Override
-    public String toString() {
-        return aliasPrefix + " [" + parent + "]";
+        return new TypeSafeQuerySelectionGroupImpl<>(context, this);
     }
 }

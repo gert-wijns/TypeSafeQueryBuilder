@@ -17,24 +17,13 @@ package be.shad.tsqb.dto;
 
 import java.util.Collection;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class TownDto implements HasId {
 
     private Long id;
     private Collection<PersonDto> inhabitants;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Collection<PersonDto> getInhabitants() {
-        return inhabitants;
-    }
-
-    public void setInhabitants(Collection<PersonDto> inhabitants) {
-        this.inhabitants = inhabitants;
-    }
 }

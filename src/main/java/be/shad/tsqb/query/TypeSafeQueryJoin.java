@@ -16,31 +16,17 @@
 package be.shad.tsqb.query;
 
 import java.util.Collection;
+import java.util.Map;
+
+import be.shad.tsqb.joins.MapJoin;
 
 /**
- * @author Gert
- *
  */
 public interface TypeSafeQueryJoin {
-
-    /**
-     * Delegates to {@link #join(Collection, JoinType)} with {@link JoinType#Inner}
-     */
+    /** Joins the collection with the active join type. */
     <T> T join(Collection<T> anyCollection);
-
-    /**
-     * Delegates to {@link #join(Collection, JoinType, String)} with {@link JoinType#Inner}
-     */
-    <T> T join(Collection<T> anyCollection, String name);
-
-    /**
-     * Delegates to {@link #join(Object, JoinType)} with {@link JoinType#Inner}
-     */
+    /** Joins the reference with the active join type. */
     <T> T join(T anyObject);
-
-    /**
-     * Delegates to {@link #join(Object, JoinType, String)} with {@link JoinType#Inner}
-     */
-    <T> T join(T anyObject, String name);
-
+    /** Joins the element collection with the active join type. */
+    <K, V> MapJoin<K, V> join(Map<K, V> anyMap);
 }

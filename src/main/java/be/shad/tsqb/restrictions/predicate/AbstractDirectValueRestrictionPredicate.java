@@ -17,14 +17,12 @@ package be.shad.tsqb.restrictions.predicate;
 
 import be.shad.tsqb.values.DirectTypeSafeValueWrapper;
 import be.shad.tsqb.values.TypeSafeValue;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public abstract class AbstractDirectValueRestrictionPredicate<T> implements RestrictionPredicate {
 
     private final Class<T> valueClass;
-
-    public AbstractDirectValueRestrictionPredicate(Class<T> valueClass) {
-        this.valueClass = valueClass;
-    }
 
     /**
      * Check if the value is a direct value wrapper, if it is and its wrapped value is not null,

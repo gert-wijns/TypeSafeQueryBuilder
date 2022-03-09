@@ -19,7 +19,6 @@ import java.util.Collection;
 import java.util.Collections;
 
 import be.shad.tsqb.query.TypeSafeQuery;
-import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.query.copy.CopyContext;
 import be.shad.tsqb.query.copy.Copyable;
 

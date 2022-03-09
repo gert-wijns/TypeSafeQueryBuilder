@@ -17,32 +17,13 @@ package be.shad.tsqb.selector;
 
 import java.util.Collection;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class PersonSelector {
     private Collection<String> names;
     private Integer minimumAge;
     private Integer maximumAge;
-
-    public Collection<String> getNames() {
-        return names;
-    }
-
-    public void setNames(Collection<String> names) {
-        this.names = names;
-    }
-
-    public Integer getMinimumAge() {
-        return minimumAge;
-    }
-
-    public void setMinimumAge(Integer minimumAge) {
-        this.minimumAge = minimumAge;
-    }
-
-    public Integer getMaximumAge() {
-        return maximumAge;
-    }
-
-    public void setMaximumAge(Integer maximumAge) {
-        this.maximumAge = maximumAge;
-    }
 }

@@ -16,43 +16,50 @@
 package be.shad.tsqb.selection;
 
 import java.util.IdentityHashMap;
+import java.util.Map;
+
+import be.shad.tsqb.helper.BuildFn;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Data container used during result transformation by the {@link TypeSafeQueryResultTransformer}.
  */
 public class SelectionTreeData {
     // using IdentityHashMap so root so nested collection results are not considered duplicate if they have a different parent
-    public final IdentityHashMap<Object, SelectionIdentityTree> identityTrees = new IdentityHashMap<>();
-    private Object currentValue;
-    private boolean duplicate;
-
-    /**
-     * The value for this data element during the processing of
-     * a result row tuple.
-     */
-    public Object getCurrentValue() {
-        return currentValue;
-    }
-
-    /**
-     * Update during the processing of the result row tuple.
-     * This can be either a newly decorated value or a
-     * value found in the identityTree when applicable.
-     */
-    public void setCurrentValue(Object currentValue) {
-        this.currentValue = currentValue;
-    }
+    public final SelectionIdentityTree identityTree = new SelectionIdentityTree();
+    public final Map<Object, Map<Object, Object>> collectionValues = new IdentityHashMap<>();
+    private @Getter @Setter SelectionTreeResult result;
+    private BuildFn<Object, Object> groupResultTf;
 
     /**
      * When the value already existed, and the current value
      * was updated with contents found in the identityTree,
      * then duplicate is set to true.
      */
-    public boolean isDuplicate() {
-        return duplicate;
+    private @Getter @Setter boolean duplicate;
+
+    public void setGroupResultTf(BuildFn<Object, Object> groupResultTf) {
+        this.groupResultTf = groupResultTf;
     }
 
-    public void setDuplicate(boolean duplicate) {
-        this.duplicate = duplicate;
+    /**
+     * The value for this data element during the processing of
+     * a result row tuple.
+     */
+    public Object getCurrentValue() {
+        return result.getCurrentValue();
+    }
+
+    public Object getBuiltValue() {
+        Object currentValue = result.getCurrentValue();
+        if (currentValue == null || groupResultTf == null) {
+            return currentValue;
+        }
+        Object builtValue = result.getBuiltValue();
+        if (builtValue == null) {
+            result.setBuiltValue(groupResultTf.build(currentValue));
+        }
+        return result.getBuiltValue();
     }
 }

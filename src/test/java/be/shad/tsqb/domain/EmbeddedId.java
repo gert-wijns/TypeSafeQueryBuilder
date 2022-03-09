@@ -19,7 +19,12 @@ import java.io.Serializable;
 
 import javax.persistence.Embeddable;
 
+import lombok.Getter;
+import lombok.Setter;
+
 @Embeddable
+@Getter
+@Setter
 public class EmbeddedId implements Serializable  {
     private static final long serialVersionUID = -1L;
 
@@ -28,14 +33,6 @@ public class EmbeddedId implements Serializable  {
     public EmbeddedId() {}
 
     public EmbeddedId(Long id) {
-        this.id = id;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
         this.id = id;
     }
 

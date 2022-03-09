@@ -32,10 +32,14 @@ import org.hibernate.annotations.Type;
 
 import be.shad.tsqb.domain.usertype.Address;
 import be.shad.tsqb.domain.usertype.TextWrappingObject;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Inheritance(strategy= InheritanceType.JOINED)
 @Table(name = "Building")
+@Getter
+@Setter
 public class Building extends DomainObject {
     private static final long serialVersionUID = -3953945063023583541L;
 
@@ -62,53 +66,4 @@ public class Building extends DomainObject {
     @Type(type="TextWrappingObjectUserType")
     @Column(name = "text")
     private TextWrappingObject text;
-
-    public TextWrappingObject getText() {
-        return text;
-    }
-
-    public void setText(TextWrappingObject text) {
-        this.text = text;
-    }
-
-    public Town getTown() {
-        return town;
-    }
-
-    public void setTown(Town town) {
-        this.town = town;
-    }
-
-    public Style getStyle() {
-        return style;
-    }
-
-    public void setStyle(Style style) {
-        this.style = style;
-    }
-
-    public boolean isOccupied() {
-        return occupied;
-    }
-
-    public void setOccupied(boolean occupied) {
-        this.occupied = occupied;
-    }
-
-    public Address getAddress() {
-        return address;
-    }
-
-    public void setAddress(Address address) {
-        this.address = address;
-    }
-
-    public Date getConstructionDate() {
-        return constructionDate;
-    }
-
-    public void setConstructionDate(Date constructionDate) {
-        this.constructionDate = constructionDate;
-    }
-
 }

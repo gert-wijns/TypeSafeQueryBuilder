@@ -40,8 +40,8 @@ public class OnGoingTextRestrictionImpl
         extends OnGoingRestrictionImpl<String, ContinuedOnGoingTextRestriction, OnGoingTextRestriction>
         implements OnGoingTextRestriction, ContinuedOnGoingTextRestriction {
 
-    private final static String EMPTY = "";
-    private final static String WILDCARD = "%";
+    private static final String EMPTY = "";
+    private static final String WILDCARD = "%";
 
     public OnGoingTextRestrictionImpl(RestrictionsGroupInternal group,
             RestrictionNodeType restrictionNodeType, String argument) {
@@ -82,115 +82,73 @@ public class OnGoingTextRestrictionImpl
         return valuesSet;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ContinuedOnGoingTextRestriction notIn(String[] values) {
         return notIn(toCollection(values));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ContinuedOnGoingTextRestriction notIn(String[] values, RestrictionPredicate predicate) {
         return notIn(toCollection(values), predicate);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ContinuedOnGoingTextRestriction in(String[] values) {
         return in(toCollection(values));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ContinuedOnGoingTextRestriction in(String[] values, RestrictionPredicate predicate) {
         return in(toCollection(values), predicate);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ContinuedOnGoingTextRestriction like(TypeSafeValue<String> value) {
         return addRestrictionAndContinue(startValue, LIKE, value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ContinuedOnGoingTextRestriction like(String value) {
         return like(toValue(value, null));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ContinuedOnGoingTextRestriction notLike(TypeSafeValue<String> value) {
         return addRestrictionAndContinue(startValue, NOT_LIKE, value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ContinuedOnGoingTextRestriction notLike(String value) {
         return notLike(toValue(value, null));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ContinuedOnGoingTextRestriction contains(String value) {
         return contains(value, null);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ContinuedOnGoingTextRestriction startsWith(String value) {
         return startsWith(value, null);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ContinuedOnGoingTextRestriction endsWith(String value) {
         return endsWith(value, null);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public SingleNamedParameterBinder<String, ContinuedOnGoingTextRestriction, OnGoingTextRestriction> contains() {
         DirectTypeSafeValue<String> value = createDirectValue(WILDCARD, WILDCARD);
         return createNamedParameterBinder(value, like(value));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public SingleNamedParameterBinder<String, ContinuedOnGoingTextRestriction, OnGoingTextRestriction> endsWith() {
         DirectTypeSafeValue<String> value = createDirectValue(WILDCARD, EMPTY);
         return createNamedParameterBinder(value, like(value));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public SingleNamedParameterBinder<String, ContinuedOnGoingTextRestriction, OnGoingTextRestriction> startsWith() {
         DirectTypeSafeValue<String> value = createDirectValue(EMPTY, WILDCARD);
@@ -216,6 +174,7 @@ public class OnGoingTextRestrictionImpl
         return toValue(null, predicate);
     }
 
+    @Override
     protected DirectTypeSafeStringValue createDummyDirectValue() {
         return new DirectTypeSafeStringValue(group.getQuery());
     }

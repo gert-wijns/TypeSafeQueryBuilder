@@ -29,12 +29,11 @@ import be.shad.tsqb.hql.HqlQueryBuilder;
 import be.shad.tsqb.joins.TypeSafeQueryJoin;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
 import be.shad.tsqb.proxy.TypeSafeQueryProxyType;
-import be.shad.tsqb.proxy.TypeSafeQuerySelectionProxy;
 import be.shad.tsqb.query.JoinType;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
 import be.shad.tsqb.query.copy.CopyContext;
 import be.shad.tsqb.restrictions.WhereRestrictions;
-import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroup;
+import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroupInternal;
 import be.shad.tsqb.values.HqlQueryBuilderParams;
 import be.shad.tsqb.values.HqlQueryValue;
 import be.shad.tsqb.values.HqlQueryValueImpl;
@@ -46,7 +45,7 @@ public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder {
     private final List<TypeSafeQueryFrom> froms = new ArrayList<>();
     private final Map<TypeSafeQueryProxyData, TypeSafeQueryJoin<?>> joins = new HashMap<>();
     private final Set<TypeSafeQueryProxyData> queryData = new LinkedHashSet<>();
-    private final List<TypeSafeQuerySelectionProxyData> selectionData = new LinkedList<>();
+    private final List<TypeSafeQuerySelectionProxyPropertyData<?>> selectionData = new LinkedList<>();
     private final TypeSafeQueryHelper helper;
     private final TypeSafeQueryInternal query;
 
@@ -86,20 +85,10 @@ public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder {
                 context.put(originalData.getProxy(), copyData.getProxy());
             }
         }
-        for(TypeSafeQuerySelectionProxyData originalData: original.selectionData) {
-            TypeSafeQuerySelectionProxyData copyData;
-            if (originalData.getParent() == null) {
-                copyData = ((TypeSafeQuerySelectionProxy) helper.createTypeSafeSelectProxy(
-                        query.getRootQuery(), originalData.getPropertyType(),
-                        context.get(originalData.getGroup()))).getTypeSafeQuerySelectionProxyData();
-                context.put(originalData.getProxy(), copyData.getProxy());
-            } else {
-                copyData = helper.createTypeSafeSelectSubProxy(query.getRootQuery(),
-                        context.get(originalData.getParent()),
-                        originalData.getPropertyPath(),
-                        originalData.getPropertyType(),
-                        originalData.getProxy() != null);
-            }
+        for(TypeSafeQuerySelectionProxyPropertyData<?> originalData: original.selectionData) {
+            TypeSafeQuerySelectionProxyPropertyData<?> copyData = createSelectionData(
+                    originalData.getPropertyPath(), originalData.getPropertyType(),
+                    context.get(originalData.getGroup()));
             context.put(originalData, copyData);
         }
     }
@@ -111,13 +100,14 @@ public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder {
     /**
      * Create the selection proxy data, store it in the list of created datas and return.
      */
-    public TypeSafeQuerySelectionProxyData createSelectionData(TypeSafeQuerySelectionProxyData parent,
-            String propertyPath, Class<?> propertyType, TypeSafeQuerySelectionGroup group,
-            TypeSafeQuerySelectionProxy proxy) {
-        TypeSafeQuerySelectionProxyData selectionProxyData = new TypeSafeQuerySelectionProxyData(
-                parent, propertyPath, propertyType, group, proxy);
-        selectionData.add(selectionProxyData);
-        return selectionProxyData;
+    public <T> TypeSafeQuerySelectionProxyPropertyData<T> createSelectionData(String propertyPath,
+                                                                              Class<T> propertyType,
+                                                                              TypeSafeQuerySelectionGroupInternal<?, ?> group) {
+        TypeSafeQuerySelectionProxyPropertyData<T> data = new TypeSafeQuerySelectionProxyPropertyData<>(
+                group, propertyType, propertyPath);
+        group.putChild(data);
+        selectionData.add(data);
+        return data;
     }
 
     /**
@@ -207,18 +197,25 @@ public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder {
         }
 
         // check if data was joined before join.
+        return isInFromScope(dataRoot, entityData, join);
+    }
+
+    private boolean isInFromScope(TypeSafeQueryProxyData dataRoot,
+                                  TypeSafeQueryProxyData entityData,
+                                  TypeSafeQueryProxyData join) {
         for(TypeSafeQueryFrom from: froms) {
-            if (dataRoot.equals(from.getRoot())) {
-                if (from.getRoot().equals(entityData)) {
+            if (!dataRoot.equals(from.getRoot())) {
+                continue;
+            }
+            if (from.getRoot().equals(entityData)) {
+                return true;
+            }
+            for(TypeSafeQueryJoin<?> joined: from.getJoins()) {
+                if (joined.getData().equals(entityData)) {
                     return true;
                 }
-                for(TypeSafeQueryJoin<?> joined: from.getJoins()) {
-                    if (joined.getData().equals(entityData)) {
-                        return true;
-                    }
-                    if (joined.getData().equals(join)) {
-                        return false; // found join before data
-                    }
+                if (joined.getData().equals(join)) {
+                    return false; // found join before data
                 }
             }
         }
@@ -248,4 +245,9 @@ public class TypeSafeQueryProxyDataTree implements HqlQueryBuilder {
         }
         return value;
     }
+
+    public List<TypeSafeQuerySelectionProxyPropertyData<?>> getSelectionDatas() {
+        return selectionData;
+    }
+
 }

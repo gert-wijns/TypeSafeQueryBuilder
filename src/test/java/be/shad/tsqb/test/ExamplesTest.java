@@ -476,11 +476,11 @@ public class ExamplesTest extends TypeSafeQueryTest {
         validate(" from Person hobj1, Person hobj2 where hobj1.id = hobj2.id");
     }
 
-    @Test(expected=JoinException.class)
-    public void testJoinCompositeTypeShouldFail() {
-        Town town = query.from(Town.class);
-        query.join(town.getGeographicCoordinate());
-    }
+//    @Test(expected=JoinException.class)
+//    public void testJoinCompositeTypeShouldFail() {
+//        Town town = query.from(Town.class);
+//        query.join(town.getGeographicCoordinate());
+//    }
 
     @Test
     public void testShowcaseSelectOptions() {
@@ -515,7 +515,7 @@ public class ExamplesTest extends TypeSafeQueryTest {
 
         validate("select " +
                  "(select count(*) from Person hobj3 where hobj3.town.id = hobj1.id) as inhabitants, " +
-                 "hobj1.geographicCoordinate.lattitude as nestedDto_lattitude, " +
+                 "hobj1.geographicCoordinate.lattitude as g1__lattitude, " +
                  "upper(hobj1.name) as name, " +
                  "hobj2.propertyValue as lastUfoSpottingDate, " +
                  "'SomeCustomHql' as customString " +

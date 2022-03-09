@@ -1,6 +1,5 @@
 package be.shad.tsqb.query;
 
-
 public interface TypeSafeNameds {
 
     /**
@@ -25,6 +24,11 @@ public interface TypeSafeNameds {
      *                                  or when the proxy class dosn't match the given <code>clazz</code>.
      */
     <T> T get(Class<T> clazz, String name) throws IllegalArgumentException;
+
+    /**
+     * Get the proxy for the given name, unless it doesn't exist.
+     */
+    <T> T getOrNull(Class<T> clazz, String name);
 
     /**
      * Sets the value of a named param.

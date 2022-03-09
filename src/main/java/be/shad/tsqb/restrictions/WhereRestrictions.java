@@ -15,6 +15,7 @@
  */
 package be.shad.tsqb.restrictions;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 import be.shad.tsqb.query.TypeSafeSubQuery;
@@ -102,6 +103,18 @@ public interface WhereRestrictions {
      * or a value of a TypeSafeQueryProxy getter.
      */
     OnGoingDateRestriction where(Date value);
+
+    /**
+     * The general restrict by LocalDate method. Anything which represents a LocalDate
+     * can be used with this method.
+     */
+    OnGoingLocalDateRestriction whereLocalDate(TypeSafeValue<LocalDate> value);
+
+    /**
+     * Restrict a local date value. This can be a direct value (an actual LocalDate),
+     * or a value of a TypeSafeQueryProxy getter.
+     */
+    OnGoingLocalDateRestriction where(LocalDate value);
 
     /**
      * The general restrict by string method. Anything which represents a string

@@ -17,11 +17,14 @@ package be.shad.tsqb.domain.people;
 
 import static javax.persistence.FetchType.LAZY;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -29,9 +32,13 @@ import javax.persistence.Table;
 
 import be.shad.tsqb.domain.DomainObject;
 import be.shad.tsqb.domain.Town;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "Person")
+@Getter
+@Setter
 public class Person extends DomainObject {
     private static final long serialVersionUID = -3748330536304370152L;
 
@@ -73,83 +80,11 @@ public class Person extends DomainObject {
     @Column
     private boolean married;
 
-    public Person getSpouse() {
-        return spouse;
-    }
-
-    public void setSpouse(Person spouse) {
-        this.spouse = spouse;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getNickname() {
-        return nickname;
-    }
-
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
-    }
-
-    public int getAge() {
-        return age;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
-    }
-
-    public Sex getSex() {
-        return sex;
-    }
-
-    public void setSex(Sex sex) {
-        this.sex = sex;
-    }
-
-    public boolean isMarried() {
-        return married;
-    }
-
-    public void setMarried(boolean married) {
-        this.married = married;
-    }
-
-    public Set<Relation> getChildRelations() {
-        return childRelations;
-    }
-
-    public void setChildRelations(Set<Relation> childRelations) {
-        this.childRelations = childRelations;
-    }
-
-    public Set<Relation> getParentRelations() {
-        return parentRelations;
-    }
-
-    public void setParentRelations(Set<Relation> parentRelations) {
-        this.parentRelations = parentRelations;
-    }
-
-    public Set<PersonProperty> getProperties() {
-        return properties;
-    }
-
-    public void setProperties(Set<PersonProperty> properties) {
-        this.properties = properties;
-    }
-
-    public Town getTown() {
-        return town;
-    }
-
-    public void setTown(Town town) {
-        this.town = town;
-    }
+    @ManyToMany(fetch = LAZY)
+    @JoinTable(
+            name = "Person_Town",
+            joinColumns = { @JoinColumn(name = "PersonId") },
+            inverseJoinColumns = { @JoinColumn(name = "TownId")}
+    )
+    private Set<Town> towns = new HashSet<>();
 }

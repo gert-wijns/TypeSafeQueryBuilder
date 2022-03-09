@@ -45,9 +45,6 @@ public class CaseTypeSafeValue<T> extends TypeSafeValueImpl<T> implements OnGoin
         super(query, valueType);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OnGoingCase<T> is(TypeSafeValue<T> value) {
         OnGoingCaseImpl<T> ongoingCase = new OnGoingCaseImpl<>(
@@ -56,19 +53,13 @@ public class CaseTypeSafeValue<T> extends TypeSafeValueImpl<T> implements OnGoin
         return ongoingCase;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OnGoingCase<T> is(T value) {
         // passing a "null" direct value provider because "null" is allowed in a case when.
         // if value == null and there is a select/invocation value those will be taken instead.
-        return is(query.toValue(value, (query) -> new CustomTypeSafeValue<>(query, getValueClass(), "null")));
+        return is(query.toValue(value, query -> new CustomTypeSafeValue<>(query, getValueClass(), "null")));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OnGoingCase<T> isNull() {
         return is((T) null);

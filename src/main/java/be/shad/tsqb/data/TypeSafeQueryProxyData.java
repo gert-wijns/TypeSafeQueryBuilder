@@ -135,6 +135,11 @@ public class TypeSafeQueryProxyData {
         return proxy;
     }
 
+    @SuppressWarnings("unchecked")
+    public <T> T getProxyAs() {
+        return (T) proxy;
+    }
+
     public TypeSafeQueryProxyData getCompositeTypeEntityParent() {
         return compositeTypeEntityParent;
     }
@@ -157,29 +162,31 @@ public class TypeSafeQueryProxyData {
      * Otherwise the default join type is Inner.
      */
     public JoinType getEffectiveJoinType() {
-        if (proxyType.isComposite()) {
+        if (joinType != Default) {
+            return joinType;
+        }
+        if (proxyType.isComposite() || isOnlyIdentityUsed()) {
             return JoinType.None;
         }
-        if (joinType == Default) {
-            if (customAlias == null && !proxyType.isCollection() && children.size() == 1) {
-                // might be worth checking if only an identity relation was used:
-                TypeSafeQueryProxyData child = children.values().iterator().next();
-                if (identifierPath.equals(child.getPropertyPath())) {
-                    return None;
-                }
+        if (getParent() != null && getParent().getParent() != null) {
+            // check the parent join type if the parent is not the root of the query (a FROM proxy)
+            JoinType parentJoinType = getParent().getEffectiveJoinType();
+            switch (parentJoinType) {
+                case LeftFetch:
+                case Left: return childFetched ? JoinType.LeftFetch: JoinType.Left;
+                default:
             }
-            if (getParent() != null && getParent().getParent() != null) {
-                // check the parent join type if the parent is not the root of the query (a FROM proxy)
-                JoinType parentJoinType = getParent().getEffectiveJoinType();
-                switch (parentJoinType) {
-                    case LeftFetch:
-                    case Left: return childFetched ? JoinType.LeftFetch: JoinType.Left;
-                    default:
-                }
-            }
-            return childFetched ? JoinType.Fetch: Inner;
         }
-        return joinType;
+        return childFetched ? JoinType.Fetch: Inner;
+    }
+
+    private boolean isOnlyIdentityUsed() {
+        if (customAlias == null && !proxyType.isCollection() && children.size() == 1) {
+            // might be worth checking if only an identity relation was used:
+            TypeSafeQueryProxyData child = children.values().iterator().next();
+            return identifierPath.equals(child.getPropertyPath());
+        }
+        return false;
     }
 
     public void setJoinType(JoinType joinType) {
@@ -195,10 +202,6 @@ public class TypeSafeQueryProxyData {
                             + "Attempting to set JoinType to [%s] for join on class [%s]",
                             joinType, getPropertyType()));
             }
-        }
-        if (proxy == null && joinType != null) {
-            throw new IllegalStateException("Trying to join on a field "
-                    + "value instead of an entity. " + toString());
         }
         this.joinType = joinType;
         if (parent != null) {

@@ -25,7 +25,7 @@ public abstract class RestrictionChainableDelegatingImpl extends RestrictionChai
 
     protected final RestrictionsGroupInternal group;
 
-    public RestrictionChainableDelegatingImpl(RestrictionsGroupInternal group) {
+    protected RestrictionChainableDelegatingImpl(RestrictionsGroupInternal group) {
         this.group = group;
     }
 
@@ -49,49 +49,31 @@ public abstract class RestrictionChainableDelegatingImpl extends RestrictionChai
         return group;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public RestrictionChainable and(HqlQueryValue restriction) {
         return group.and(restriction);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public RestrictionChainable or(HqlQueryValue restriction) {
         return group.or(restriction);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public RestrictionChainable and(Restriction restriction) {
         return group.and(restriction);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public RestrictionAndChainable and(RestrictionsGroup group) {
         return this.group.and(group);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public RestrictionChainable or(Restriction restriction) {
         return group.or(restriction);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public RestrictionAndChainable or(RestrictionsGroup group) {
         return this.group.or(group);

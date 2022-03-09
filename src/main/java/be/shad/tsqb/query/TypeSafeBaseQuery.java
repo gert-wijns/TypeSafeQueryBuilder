@@ -104,4 +104,5 @@ public interface TypeSafeBaseQuery extends WhereRestrictions, HqlQueryValueBuild
      * @return a formatted string representation of the resulting hql
      */
     String toFormattedString();
+
 }

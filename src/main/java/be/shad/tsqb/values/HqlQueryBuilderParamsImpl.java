@@ -15,12 +15,19 @@
  */
 package be.shad.tsqb.values;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class HqlQueryBuilderParamsImpl implements HqlQueryBuilderParams {
     private int namedParamCount = 1;
     private boolean requiresLiterals;
     private boolean creatingOrderingBy;
     private boolean buildingForDisplay;
-    private boolean buildingMapKeyGroupQuery;
+    private boolean selectingCount;
 
     @Override
     public boolean isRequiresLiterals() {
@@ -31,6 +38,16 @@ public class HqlQueryBuilderParamsImpl implements HqlQueryBuilderParams {
         boolean previous = this.requiresLiterals;
         this.requiresLiterals = requiresLiterals;
         return previous;
+    }
+
+    @Override
+    public boolean isSelectingCount() {
+        return selectingCount;
+    }
+
+    @Override
+    public void setSelectingCount(boolean selectingCount) {
+        this.selectingCount = selectingCount;
     }
 
     @Override
@@ -56,15 +73,6 @@ public class HqlQueryBuilderParamsImpl implements HqlQueryBuilderParams {
     @Override
     public String createNamedParameter() {
         return "np" + namedParamCount++;
-    }
-    
-    public boolean isBuildingMapKeyGroupQuery() {
-        return buildingMapKeyGroupQuery;
-    }
-
-    @Override
-    public void setBuildingMapKeyGroupQuery(boolean buildingMapKeyGroupQuery) {
-        this.buildingMapKeyGroupQuery = buildingMapKeyGroupQuery;
     }
 
 }

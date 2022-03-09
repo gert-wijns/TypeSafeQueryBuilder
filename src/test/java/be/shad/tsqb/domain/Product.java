@@ -21,9 +21,13 @@ import javax.persistence.Table;
 
 import be.shad.tsqb.domain.properties.ManyProperties;
 import be.shad.tsqb.domain.properties.ProductProperties;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "Product")
+@Getter
+@Setter
 public class Product extends DomainObject {
     private static final long serialVersionUID = -6807452894720315681L;
 
@@ -34,29 +38,4 @@ public class Product extends DomainObject {
     private ManyProperties manyProperties;
 
     private String name;
-
-    public ManyProperties getManyProperties() {
-        return manyProperties;
-    }
-
-    public void setManyProperties(ManyProperties manyProperties) {
-        this.manyProperties = manyProperties;
-    }
-
-    public ProductProperties getProductProperties() {
-        return productProperties;
-    }
-
-    public void setProductProperties(ProductProperties productProperties) {
-        this.productProperties = productProperties;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
 }

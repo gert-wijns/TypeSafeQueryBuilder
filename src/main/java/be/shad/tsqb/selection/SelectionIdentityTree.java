@@ -18,17 +18,17 @@ package be.shad.tsqb.selection;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * Nested data structure containing the values matching
  * the identity path.
  */
 public class SelectionIdentityTree {
-    private final Map<Object, SelectionIdentityTree> subtrees;
-    private Object identityValue;
-
-    public SelectionIdentityTree() {
-        this.subtrees = new HashMap<>();
-    }
+    private final Map<Object, SelectionIdentityTree> subtrees = new HashMap<>();
+    // The value associated with the identity path.
+    private @Getter @Setter SelectionTreeResult identityResult;
 
     /**
      * @return the known subtree for the value, or null
@@ -47,17 +47,4 @@ public class SelectionIdentityTree {
         return subtree;
     }
 
-    /**
-     * The value associated with the identity path.
-     */
-    public Object getIdentityValue() {
-        return identityValue;
-    }
-
-    /**
-     * Set the value identified by the identity path.
-     */
-    public void setIdentityValue(Object identityValue) {
-        this.identityValue = identityValue;
-    }
 }

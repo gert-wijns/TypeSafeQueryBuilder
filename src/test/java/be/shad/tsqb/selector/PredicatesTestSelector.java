@@ -19,33 +19,14 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Date;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class PredicatesTestSelector {
     private Collection<Date> constructionDates;
     private String street;
     private BigDecimal price;
-
-    public Collection<Date> getConstructionDates() {
-        return constructionDates;
-    }
-
-    public void setConstructionDates(Collection<Date> constructionDates) {
-        this.constructionDates = constructionDates;
-    }
-
-    public String getStreet() {
-        return street;
-    }
-
-    public void setStreet(String street) {
-        this.street = street;
-    }
-
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
 
 }

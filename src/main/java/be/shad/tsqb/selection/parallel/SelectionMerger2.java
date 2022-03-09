@@ -15,7 +15,6 @@
  */
 package be.shad.tsqb.selection.parallel;
 
-
 public abstract class SelectionMerger2<RESULT, A, B> implements SelectionMerger<RESULT, SelectPair<A, B>> {
 
     /**

@@ -60,223 +60,142 @@ public class OnGoingNumberRestrictionImpl
         return Number.class;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ContinuedOnGoingNumberRestriction lt(Number value) {
         return lt(value, null);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ContinuedOnGoingNumberRestriction lt(TypeSafeValue<Number> value) {
         return addRestrictionAndContinue(startValue, LESS_THAN, value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ContinuedOnGoingNumberRestriction gt(Number value) {
         return gt(value, null);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ContinuedOnGoingNumberRestriction gt(TypeSafeValue<Number> value) {
         return addRestrictionAndContinue(startValue, GREATER_THAN, value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ContinuedOnGoingNumberRestriction lte(Number value) {
         return lte(value, null);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ContinuedOnGoingNumberRestriction lte(TypeSafeValue<Number> value) {
         return addRestrictionAndContinue(startValue, RestrictionOperator.LESS_THAN_EQUAL, value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ContinuedOnGoingNumberRestriction gte(Number value) {
         return gte(value, null);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ContinuedOnGoingNumberRestriction gte(TypeSafeValue<Number> value) {
         return addRestrictionAndContinue(startValue, GREATER_THAN_EQUAL, value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ContinuedOnGoingNumberRestriction ngt(Number value) {
         return lte(value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ContinuedOnGoingNumberRestriction ngt(TypeSafeValue<Number> value) {
         return lte(value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ContinuedOnGoingNumberRestriction nlt(Number value) {
         return gte(value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ContinuedOnGoingNumberRestriction nlt(TypeSafeValue<Number> value) {
         return gte(value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public SingleNamedParameterBinder<Number, ContinuedOnGoingNumberRestriction, OnGoingNumberRestriction> ngt() {
         DirectTypeSafeValue<Number> value = createDummyDirectValue();
         return createNamedParameterBinder(value, ngt(value));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public SingleNamedParameterBinder<Number, ContinuedOnGoingNumberRestriction, OnGoingNumberRestriction> nlt() {
         DirectTypeSafeValue<Number> value = createDummyDirectValue();
         return createNamedParameterBinder(value, nlt(value));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public SingleNamedParameterBinder<Number, ContinuedOnGoingNumberRestriction, OnGoingNumberRestriction> gte() {
         DirectTypeSafeValue<Number> value = createDummyDirectValue();
         return createNamedParameterBinder(value, gte(value));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public SingleNamedParameterBinder<Number, ContinuedOnGoingNumberRestriction, OnGoingNumberRestriction> lte() {
         DirectTypeSafeValue<Number> value = createDummyDirectValue();
         return createNamedParameterBinder(value, lte(value));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public SingleNamedParameterBinder<Number, ContinuedOnGoingNumberRestriction, OnGoingNumberRestriction> gt() {
         DirectTypeSafeValue<Number> value = createDummyDirectValue();
         return createNamedParameterBinder(value, gt(value));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public SingleNamedParameterBinder<Number, ContinuedOnGoingNumberRestriction, OnGoingNumberRestriction> lt() {
         DirectTypeSafeValue<Number> value = createDummyDirectValue();
         return createNamedParameterBinder(value, lt(value));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ContinuedOnGoingNumberRestriction gte(Number value, RestrictionPredicate predicate) {
         return gte(toValue(value, predicate));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ContinuedOnGoingNumberRestriction lte(Number value, RestrictionPredicate predicate) {
         return lte(toValue(value, predicate));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ContinuedOnGoingNumberRestriction gt(Number value, RestrictionPredicate predicate) {
         return gt(toValue(value, predicate));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ContinuedOnGoingNumberRestriction lt(Number value, RestrictionPredicate predicate) {
         return lt(toValue(value, predicate));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ContinuedOnGoingNumberRestriction nlt(Number value, RestrictionPredicate predicate) {
         return nlt(toValue(value, predicate));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ContinuedOnGoingNumberRestriction ngt(Number value, RestrictionPredicate predicate) {
         return ngt(toValue(value, predicate));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ContinuedOnGoingNumberRestriction isZero() {
         return eq(0D);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ContinuedOnGoingNumberRestriction isNegative() {
         return lt(0D);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ContinuedOnGoingNumberRestriction isPositive() {
         return gt(0D);

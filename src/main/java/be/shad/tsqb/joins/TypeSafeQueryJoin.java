@@ -30,13 +30,11 @@ public class TypeSafeQueryJoin<T> extends RestrictionsGroupImpl {
         this.data = data;
     }
 
-    @SuppressWarnings("unchecked")
     public T getProxy() {
-        return (T) data.getProxy();
+        return data.getProxyAs();
     }
 
     public TypeSafeQueryProxyData getData() {
         return data;
     }
-
 }

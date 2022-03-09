@@ -32,11 +32,11 @@ import be.shad.tsqb.values.ProjectionTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
 
 public class TypeSafeQueryOrderBys implements OnGoingOrderBy, HqlQueryBuilder, Copyable {
-    private static final DirectValueProvider<String> PROJECTION_VALUE_PROVIDER = query -> {
-        if (query instanceof TypeSafeRootQueryInternal) {
-            String lastInvokedProjectionPath = ((TypeSafeRootQueryInternal) query).dequeueInvokedProjectionPath();
+    private static final DirectValueProvider<String> PROJECTION_VALUE_PROVIDER = queryIn -> {
+        if (queryIn instanceof TypeSafeRootQueryInternal) {
+            String lastInvokedProjectionPath = ((TypeSafeRootQueryInternal) queryIn).dequeueInvokedProjectionPath();
             if (lastInvokedProjectionPath != null) {
-                return new ProjectionTypeSafeValue<>(query, String.class, lastInvokedProjectionPath);
+                return new ProjectionTypeSafeValue<>(queryIn, String.class, lastInvokedProjectionPath);
             }
         }
         return null;
@@ -83,122 +83,77 @@ public class TypeSafeQueryOrderBys implements OnGoingOrderBy, HqlQueryBuilder, C
         return null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OnGoingOrderBy by(OrderBy orderBy) {
         orderBys.add(orderBy);
         return this;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OnGoingOrderBy desc(Number val) {
         return orderBy(val, true);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OnGoingOrderBy desc(String val) {
         return orderBy(val, true);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OnGoingOrderBy descIgnoreCase(String val) {
         return desc(query.hqlFunction().upper(query.toValue(val, PROJECTION_VALUE_PROVIDER)));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OnGoingOrderBy desc(Enum<?> val) {
         return orderBy(val, true);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OnGoingOrderBy desc(Boolean val) {
         return orderBy(val, true);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OnGoingOrderBy desc(Date val) {
         return orderBy(val, true);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OnGoingOrderBy desc(TypeSafeValue<?> val) {
         return orderBy(val, true);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OnGoingOrderBy asc(Number val) {
         return orderBy(val, false);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OnGoingOrderBy asc(String val) {
         return orderBy(val, false);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OnGoingOrderBy ascIgnoreCase(String val) {
         return asc(query.hqlFunction().upper(query.toValue(val, PROJECTION_VALUE_PROVIDER)));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OnGoingOrderBy asc(Enum<?> val) {
         return orderBy(val, false);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OnGoingOrderBy asc(Boolean val) {
         return orderBy(val, false);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OnGoingOrderBy asc(Date val) {
         return orderBy(val, false);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OnGoingOrderBy asc(TypeSafeValue<?> val) {
         return orderBy(val, false);

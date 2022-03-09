@@ -21,7 +21,7 @@ import be.shad.tsqb.query.TypeSafeRootQuery;
 import be.shad.tsqb.test.TypeSafeQueryTest;
 import be.shad.tsqb.values.HqlQueryValue;
 
-public class TypeSafeQueryCopyTest extends TypeSafeQueryTest {
+public abstract class TypeSafeQueryCopyTest extends TypeSafeQueryTest {
     protected static final String PERSON_OBJ = "PersonProxy";
 
     protected TypeSafeRootQuery copy;

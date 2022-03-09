@@ -15,7 +15,6 @@
  */
 package be.shad.tsqb.restrictions;
 
-
 /**
  * Each where restriction method is implemented so that a whereGroup is created to wrap the chained restriction
  */

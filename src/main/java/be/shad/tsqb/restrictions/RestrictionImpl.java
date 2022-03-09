@@ -129,21 +129,7 @@ public class RestrictionImpl<VAL> implements Restriction, RestrictionGuard {
             value.addParams(hqlQueryValue.getParams());
         }
         if (operator != null) {
-            if (left != null) {
-                value.appendHql(" ");
-            }
-            if (right instanceof OperatorAwareValue) {
-                value.appendHql(((OperatorAwareValue) right).getOperator(operator).getOperator());
-            } else {
-                value.appendHql(operator.getOperator());
-            }
-            if (right != null) {
-                value.appendHql(" ");
-            }
-            if ((operator == EXISTS || operator == NOT_EXISTS)
-                    && right instanceof TypeSafeSubQuery<?>) {
-                addDummySubQuerySelectIfMissing((TypeSafeSubQuery<?>) right);
-            }
+            addOperator(value, operator);
         }
         if (right != null) {
             HqlQueryValue hqlQueryValue;
@@ -160,6 +146,24 @@ public class RestrictionImpl<VAL> implements Restriction, RestrictionGuard {
         return value;
     }
 
+    private void addOperator(HqlQueryValueImpl value, RestrictionOperator operator) {
+        if (left != null) {
+            value.appendHql(" ");
+        }
+        if (right instanceof OperatorAwareValue) {
+            value.appendHql(((OperatorAwareValue) right).getOperator(operator).getOperator());
+        } else {
+            value.appendHql(operator.getOperator());
+        }
+        if (right != null) {
+            value.appendHql(" ");
+        }
+        if ((operator == EXISTS || operator == NOT_EXISTS)
+                && right instanceof TypeSafeSubQuery<?>) {
+            addDummySubQuerySelectIfMissing((TypeSafeSubQuery<?>) right);
+        }
+    }
+
     /**
      * Adds a dummy 'select 1' to subqueries in case of exists/not exists.
      * This is the easiest way to allow validating the user selected value
@@ -172,9 +176,6 @@ public class RestrictionImpl<VAL> implements Restriction, RestrictionGuard {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Restriction getRestriction() {
         return this;
@@ -219,15 +220,15 @@ public class RestrictionImpl<VAL> implements Restriction, RestrictionGuard {
 
     @Override
     public boolean isRestrictionApplicable() {
-        RestrictionPredicate predicate = this.predicate;
-        if (predicate == null) {
-            predicate = query.getDefaultRestrictionPredicate();
+        RestrictionPredicate filter = this.predicate;
+        if (filter == null) {
+            filter = query.getDefaultRestrictionPredicate();
         }
-        if (predicate != null) {
-            if (left != null && !predicate.isValueApplicable(left)) {
+        if (filter != null) {
+            if (left != null && !filter.isValueApplicable(left)) {
                 return false;
             }
-            if (right != null && !predicate.isValueApplicable(right)) {
+            if (right != null && !filter.isValueApplicable(right)) {
                 return false;
             }
         }

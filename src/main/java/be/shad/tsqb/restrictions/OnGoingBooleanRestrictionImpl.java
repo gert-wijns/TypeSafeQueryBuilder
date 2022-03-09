@@ -69,27 +69,20 @@ public class OnGoingBooleanRestrictionImpl
         return Boolean.class;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public RestrictionChainable isFalse() {
         TypeSafeValue<Boolean> falseValue = new DirectTypeSafeValue<>(group.getQuery(), Boolean.FALSE);
         addRestrictionAndContinue(startValue, EQUAL, falseValue);
         return getRestrictionsGroup();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public RestrictionChainable isTrue() {
         TypeSafeValue<Boolean> falseValue = new DirectTypeSafeValue<>(group.getQuery(), Boolean.TRUE);
         addRestrictionAndContinue(startValue, EQUAL, falseValue);
         return getRestrictionsGroup();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ContinuedOnGoingBooleanRestriction isNamed(String alias) {
         DirectTypeSafeValue<Boolean> value = new DirectTypeSafeValue<>(group.getQuery(), Boolean.class);
@@ -109,210 +102,131 @@ public class OnGoingBooleanRestrictionImpl
         return isTrue();
     }
 
-
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public RestrictionChainable andExists(TypeSafeSubQuery<?> subquery) {
         return isAutomaticTrue().andExists(subquery);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public RestrictionChainable orExists(TypeSafeSubQuery<?> subquery) {
         return isAutomaticTrue().orExists(subquery);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public RestrictionChainable and(HqlQueryValue restriction) {
         return isAutomaticTrue().and(restriction);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public RestrictionChainable or(HqlQueryValue restriction) {
         return isAutomaticTrue().or(restriction);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public RestrictionChainable and(Restriction restriction) {
         return isAutomaticTrue().and(restriction);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public RestrictionChainable or(Restriction restriction) {
         return isAutomaticTrue().or(restriction);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public <E extends Enum<E>> OnGoingEnumRestriction<E> andEnum(TypeSafeValue<E> value) {
         return isAutomaticTrue().andEnum(value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public <E extends Enum<E>> OnGoingEnumRestriction<E> and(E value) {
         return isAutomaticTrue().and(value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OnGoingBooleanRestriction andBoolean(TypeSafeValue<Boolean> value) {
         return isAutomaticTrue().andBoolean(value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OnGoingBooleanRestriction and(Boolean value) {
         return isAutomaticTrue().and(value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public <N extends Number> OnGoingNumberRestriction andNumber(TypeSafeValue<N> value) {
         return isAutomaticTrue().andNumber(value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OnGoingNumberRestriction and(Number value) {
         return isAutomaticTrue().and(value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OnGoingDateRestriction andDate(TypeSafeValue<Date> value) {
         return isAutomaticTrue().andDate(value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OnGoingDateRestriction and(Date value) {
         return isAutomaticTrue().and(value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OnGoingTextRestriction andString(TypeSafeValue<String> value) {
         return isAutomaticTrue().andString(value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OnGoingTextRestriction and(String value) {
         return isAutomaticTrue().and(value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OnGoingDateRestriction or(Date value) {
         return isAutomaticTrue().or(value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OnGoingDateRestriction orDate(TypeSafeValue<Date> value) {
         return isAutomaticTrue().orDate(value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OnGoingBooleanRestriction or(Boolean value) {
         return isAutomaticTrue().or(value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OnGoingBooleanRestriction orBoolean(TypeSafeValue<Boolean> value) {
         return isAutomaticTrue().orBoolean(value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OnGoingNumberRestriction orNumber(TypeSafeValue<Number> value) {
         return isAutomaticTrue().orNumber(value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OnGoingNumberRestriction or(Number value) {
         return isAutomaticTrue().or(value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OnGoingTextRestriction orString(TypeSafeValue<String> value) {
         return isAutomaticTrue().orString(value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OnGoingTextRestriction or(String value) {
         return isAutomaticTrue().or(value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public RestrictionAndChainable and(RestrictionsGroup group) {
         return isAutomaticTrue().and(group);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public RestrictionAndChainable or(RestrictionsGroup group) {
         return isAutomaticTrue().or(group);

@@ -17,17 +17,14 @@ package be.shad.tsqb.domain.properties;
 
 import javax.persistence.Embeddable;
 
+import lombok.Getter;
+import lombok.Setter;
+
 @Embeddable
+@Getter
+@Setter
 public class PlanningProperties {
 
     private String algorithm;
-
-    public String getAlgorithm() {
-        return algorithm;
-    }
-
-    public void setAlgorithm(String algorithm) {
-        this.algorithm = algorithm;
-    }
 
 }

@@ -44,6 +44,9 @@ public class TypeSafeQueryGroupBys implements HqlQueryBuilder, Copyable {
 
     @Override
     public void appendTo(HqlQuery query, HqlQueryBuilderParams params) {
+        if (!values.isEmpty() && params.isSelectingCount()) {
+            throw new IllegalArgumentException("Cannot create a selecting count query when group by is used.");
+        }
         for(TypeSafeValue<?> value: values) {
             HqlQueryValue hqlQueryValue = value.toHqlQueryValue(params);
             query.appendGroupBy(hqlQueryValue.getHql());

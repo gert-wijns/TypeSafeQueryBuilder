@@ -21,6 +21,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import be.shad.tsqb.CollectionNamedParameter;
+import be.shad.tsqb.exceptions.TsqbException;
 import be.shad.tsqb.query.TypeSafeQuery;
 import be.shad.tsqb.query.copy.CopyContext;
 import be.shad.tsqb.query.copy.Copyable;
@@ -44,7 +45,7 @@ public class CollectionTypeSafeValue<T> extends TypeSafeValueImpl<T> implements 
             try {
                 values = original.values.getClass().newInstance();
             } catch (InstantiationException | IllegalAccessException e) {
-                throw new RuntimeException("Couldn't create same "
+                throw new TsqbException("Couldn't create same "
                         + "collection as existing collection.", e);
             }
             for(T value: original.values){
@@ -123,18 +124,18 @@ public class CollectionTypeSafeValue<T> extends TypeSafeValueImpl<T> implements 
             return;
         }
 
-        Collection<?> values;
+        Collection<?> valuesIn;
         if (namedValue instanceof Collection<?>) {
-            values = (Collection<?>) namedValue;
+            valuesIn = (Collection<?>) namedValue;
         } else {
-            values = Collections.singleton(namedValue);
+            valuesIn = Collections.singleton(namedValue);
         }
 
         List<T> namedValues = new LinkedList<>();
-        for(Object value: values) {
+        for(Object value: valuesIn) {
             if (value == null) {
                 throw new IllegalArgumentException(String.format("Null value in "
-                        + "collection is not allowed. Collection: %s.", values));
+                        + "collection is not allowed. Collection: %s.", valuesIn));
             }
             if (!getValueClass().isAssignableFrom(value.getClass())) {
                 throw new IllegalArgumentException(String.format("The value must be of type "

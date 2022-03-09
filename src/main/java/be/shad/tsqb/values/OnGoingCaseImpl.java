@@ -52,153 +52,96 @@ public class OnGoingCaseImpl<T> extends RestrictionChainableDelegatingImpl imple
         return value;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public RestrictionChainable when() {
         return getRestrictionsGroup();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public RestrictionChainable when(HqlQueryValue restriction) {
         return and(restriction);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public RestrictionChainable when(RestrictionsGroup group) {
         return and(group.getRestrictions());
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public RestrictionChainable when(Restriction restriction) {
         return and(restriction);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public RestrictionChainable whenExists(TypeSafeSubQuery<?> subquery) {
         return andExists(subquery);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public RestrictionChainable whenNotExists(TypeSafeSubQuery<?> subquery) {
         return andNotExists(subquery);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public <U> OnGoingObjectRestriction<U> when(TypeSafeValue<U> value) {
         return and(value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public <E extends Enum<E>> OnGoingEnumRestriction<E> when(E value) {
         return and(value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public <E extends Enum<E>> OnGoingEnumRestriction<E> whenEnum(TypeSafeValue<E> value) {
         return andEnum(value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OnGoingBooleanRestriction when(Boolean value) {
         return and(value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OnGoingBooleanRestriction whenBoolean(TypeSafeValue<Boolean> value) {
         return andBoolean(value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OnGoingNumberRestriction when(Number value) {
         return and(value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OnGoingTextRestriction when(String value) {
         return and(value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public <N extends Number> OnGoingNumberRestriction whenNumber(TypeSafeValue<N> value) {
         return andNumber(value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OnGoingTextRestriction whenString(TypeSafeValue<String> value) {
         return andString(value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OnGoingDateRestriction when(Date value) {
         return and(value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public OnGoingDateRestriction whenDate(TypeSafeValue<Date> value) {
         return andDate(value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public TypeSafeValue<T> otherwise() {
         return value;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Copyable copy(CopyContext context) {
         return new OnGoingCaseImpl<>(context, this);

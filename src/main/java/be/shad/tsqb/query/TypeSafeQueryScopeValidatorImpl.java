@@ -32,9 +32,6 @@ class TypeSafeQueryScopeValidatorImpl implements TypeSafeQueryScopeValidator {
         this.join = join;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public void validateInScope(TypeSafeValue<?> value) {
         if (value instanceof ReferenceTypeSafeValue<?>) {
             query.validateInScope(((ReferenceTypeSafeValue<?>) value).getData(), join);

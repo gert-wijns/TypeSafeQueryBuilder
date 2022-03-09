@@ -18,7 +18,12 @@ package be.shad.tsqb.domain.properties;
 import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
 
+import lombok.Getter;
+import lombok.Setter;
+
 @Embeddable
+@Getter
+@Setter
 public class ProductProperties {
 
     @Embedded
@@ -26,21 +31,5 @@ public class ProductProperties {
 
     @Embedded
     private SalesProperties sales;
-
-    public PlanningProperties getPlanning() {
-        return planning;
-    }
-
-    public void setPlanning(PlanningProperties planning) {
-        this.planning = planning;
-    }
-
-    public SalesProperties getSales() {
-        return sales;
-    }
-
-    public void setSales(SalesProperties sales) {
-        this.sales = sales;
-    }
 
 }

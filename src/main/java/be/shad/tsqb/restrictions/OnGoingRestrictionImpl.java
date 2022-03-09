@@ -55,13 +55,13 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
     private RestrictionImpl<VAL> restriction;
     private RestrictionPredicate predicate;
 
-    public OnGoingRestrictionImpl(RestrictionsGroupInternal group, RestrictionNodeType restrictionNodeType, VAL argument) {
+    protected OnGoingRestrictionImpl(RestrictionsGroupInternal group, RestrictionNodeType restrictionNodeType, VAL argument) {
         super(group);
         this.restrictionNodeType = restrictionNodeType;
         this.startValue = toValue(argument, null);
     }
 
-    public OnGoingRestrictionImpl(RestrictionsGroupInternal group, RestrictionNodeType restrictionNodeType, TypeSafeValue<VAL> argument) {
+    protected OnGoingRestrictionImpl(RestrictionsGroupInternal group, RestrictionNodeType restrictionNodeType, TypeSafeValue<VAL> argument) {
         super(group);
         this.restrictionNodeType = restrictionNodeType;
         this.startValue = argument;
@@ -91,9 +91,6 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
         return new NamedParameterBinderImpl<>(group.getQuery(), value, next);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public CONTINUED isNull() {
         return addRestrictionAndContinue(startValue, IS_NULL, null);
@@ -125,124 +122,79 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
         return createContinuedOnGoingRestriction(And, leftVal == null ? rightVal: leftVal);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public CONTINUED isNotNull() {
         return addRestrictionAndContinue(startValue, IS_NOT_NULL, null);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public <T extends VAL> CONTINUED in(TypeSafeValue<T> value) {
         return addRestrictionAndContinue(startValue, IN, value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public <T extends VAL> CONTINUED in(Collection<T> values) {
         return in(values, null, null);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public <T extends VAL> CONTINUED in(Collection<T> values, Integer batchSize) {
         return in(values, null, batchSize);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public <T extends VAL> CONTINUED notIn(TypeSafeValue<T> value) {
         return addRestrictionAndContinue(startValue, NOT_IN, value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public <T extends VAL> CONTINUED notIn(Collection<T> values) {
         return notIn(values, null, null);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public <T extends VAL> CONTINUED notIn(Collection<T> values, Integer batchSize) {
         return notIn(values, null, batchSize);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public CONTINUED eq(TypeSafeValue<VAL> value) {
         return addRestrictionAndContinue(startValue, EQUAL, value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public CONTINUED eq(VAL value) {
         return eq(value, null);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public CONTINUED notEq(TypeSafeValue<VAL> value) {
         return addRestrictionAndContinue(startValue, NOT_EQUAL, value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public CONTINUED notEq(VAL value) {
         return notEq(value, null);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public SingleNamedParameterBinder<VAL, CONTINUED, ORIGINAL> eq() {
         DirectTypeSafeValue<VAL> value = createDummyDirectValue();
         return createNamedParameterBinder(value, eq(value));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public SingleNamedParameterBinder<VAL, CONTINUED, ORIGINAL> notEq() {
         DirectTypeSafeValue<VAL> value = createDummyDirectValue();
         return createNamedParameterBinder(value, notEq(value));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public CollectionNamedParameterBinder<VAL, CONTINUED, ORIGINAL> in() {
         CollectionTypeSafeValue<VAL> value = createCollectionValue();
         return createNamedParameterBinder(value, in(value));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public CollectionNamedParameterBinder<VAL, CONTINUED, ORIGINAL> notIn() {
         CollectionTypeSafeValue<VAL> value = createCollectionValue();
@@ -298,7 +250,7 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
     }
 
     @Override
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings("unchecked")
     public <T extends VAL> CONTINUED notIn(Collection<T> values, RestrictionPredicate predicate, Integer batchSize) {
         this.predicate = predicate;
         // suppressing warnings because we know T is a kind of VAL, and we won't be changing the collection internally
@@ -316,7 +268,7 @@ public abstract class OnGoingRestrictionImpl<VAL, CONTINUED extends ContinuedOnG
     }
 
     @Override
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings("unchecked")
     public <T extends VAL> CONTINUED in(Collection<T> values, RestrictionPredicate predicate, Integer batchSize) {
         this.predicate = predicate;
         // suppressing warnings because we know T is a kind of VAL, and we won't be changing the collection internally

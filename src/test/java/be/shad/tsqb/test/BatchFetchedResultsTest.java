@@ -15,6 +15,7 @@
  */
 package be.shad.tsqb.test;
 
+import static java.util.Collections.emptySet;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
@@ -53,7 +54,6 @@ public class BatchFetchedResultsTest extends TypeSafeQueryTest {
     public void testBatchedInQuery() {
         TestDataCreator creator = new TestDataCreator(getSessionFactory());
         Town town = creator.createTestTown();
-
 
         int n = 10;
         List<Long> ids = new ArrayList<>(n);
@@ -158,12 +158,12 @@ public class BatchFetchedResultsTest extends TypeSafeQueryTest {
             }
             resultIds.put(dto.getId(), childIds);
         }
-        assertEquals(resultIds.get(johny.getId()), toIds(becky, fred));
-        assertEquals(resultIds.get(angie.getId()), toIds(becky));
-        assertEquals(resultIds.get(josh.getId()), Collections.emptySet());
-        assertEquals(resultIds.get(alberta.getId()), toIds(fred));
-        assertEquals(resultIds.get(becky.getId()), Collections.emptySet());
-        assertEquals(resultIds.get(fred.getId()), Collections.emptySet());
+        assertEquals(toIds(becky, fred), resultIds.get(johny.getId()));
+        assertEquals(toIds(becky), resultIds.get(angie.getId()));
+        assertEquals(emptySet(), resultIds.get(josh.getId()));
+        assertEquals(toIds(fred), resultIds.get(alberta.getId()));
+        assertEquals(emptySet(), resultIds.get(becky.getId()));
+        assertEquals(emptySet(), resultIds.get(fred.getId()));
     }
 
     @Test

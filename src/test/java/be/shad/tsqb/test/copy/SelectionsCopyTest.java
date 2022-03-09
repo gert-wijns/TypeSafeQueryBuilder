@@ -20,7 +20,6 @@ import org.junit.Test;
 import be.shad.tsqb.domain.people.Person;
 import be.shad.tsqb.dto.PersonDto;
 
-
 public class SelectionsCopyTest extends TypeSafeQueryCopyTest {
 
     @Test

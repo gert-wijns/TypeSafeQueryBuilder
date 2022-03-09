@@ -16,9 +16,12 @@
 package be.shad.tsqb.query;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
-import be.shad.tsqb.dao.TypeSafeQueryDao;
 import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.restrictions.Restriction;
 import be.shad.tsqb.selection.SelectionValueTransformer;
@@ -82,28 +85,73 @@ public interface TypeSafeRootQuery extends TypeSafeQuery {
      * Query builder params affect the resulting hql.
      */
     HqlQuery toHqlQuery(HqlQueryBuilderParams params);
-    
-    /**
-     * Delegates to {@link #selectValue(Object)}.
-     * @deprecated use {@link #selectValue(Object)} instead.
-     */
-    void select(Object value);
+
+    <T> T groupSelectBy(T invocation);
 
     /**
-     * Can be used when not selecting into a result type,
-     * or when selecting a single value in a subquery.
-     * <p>
-     * This is not the preferred way to select when
-     * working with a root query.
-     * <p>
-     * The selects will not receive an alias.
+     * Can be used when:
+     * <ul>
+     *     <li>not selecting into a result type</li>
+     *     <li>when selecting a single value in a subquery</li>
+     *     <li>with a selection proxy (marking it as the main result)</li>
+     * </ul>
      */
-    void selectValue(Object value);
+    <T> void selectValue(T value);
 
     /**
      * Delegates to {@link #select(Class, ResultIdentifierBinder)} with null.
      */
     <T> T select(Class<T> resultClass);
+
+    /**
+     * Determines the resultclass by invoking the supplier to generate an new instance
+     * and then taking that objects class.
+     *
+     * Delegates to {@link #select(Class, ResultIdentifierBinder)}.
+     */
+    <B> B select(Supplier<B> selectionBuilderSupplier);
+
+    /**
+     * Determines the resultclass by invoking the supplier to generate an new instance
+     * and then taking that objects class.
+     *
+     * Delegates to {@link #select(Class, ResultIdentifierBinder)}.
+     */
+    <T> T subBuilder(Supplier<T> selectionBuilderSupplier);
+
+    /**
+     * Delegates to {@link #subCollectionBuilder(Supplier, Consumer, Supplier)} with HashSet::new
+     */
+    <T, V> T subSetBuilder(Supplier<T> selectionBuilderSupplier, Consumer<Set<V>> collectionSetter);
+
+    /**
+     * Delegates to {@link #subCollectionBuilder(Supplier, Consumer, Supplier)} with ArrayList::new
+     */
+    <T, V> T subListBuilder(Supplier<T> selectionBuilderSupplier, Consumer<List<V>> collectionSetter);
+
+    /**
+     * Given a builder and a collection, returns a new builder to select values of a dto which will be put in the collection.
+     * The collection will be created using the given {@code collectionProvider}?
+     *
+     * @param selectionBuilderSupplier a supplier method to create a new selection builder
+     *                                 (example: SelectValue::builder, or SelectDto::new)
+     *
+     * @param collectionSetter a setter method reference on a select proxy
+     *                         (example: selectDto::setProperties),
+     *                         the collection will be set to the given setter during result transformation.
+     *
+     * @param collectionProvider a supplier to create the needed collection during result transformation
+     *                           (example: ArrayList::new)
+     */
+    <T, V, C extends Collection<V>> T subCollectionBuilder(Supplier<T> selectionBuilderSupplier,
+                                                           Consumer<C> collectionSetter,
+                                                           Supplier<C> collectionProvider);
+
+    /**
+     * Creates a new builder which is used to select values into a sub selection dto.
+     * The sub selection dto must still be set onto the main selection dto in order to appear in the result.
+     */
+    <T> T subBuilder(Class<T> selectionBuilderClass);
 
     /**
      * Select the restriction as a case when(restriction) then true else false.
@@ -142,15 +190,32 @@ public interface TypeSafeRootQuery extends TypeSafeQuery {
      * @param resultIdentifierBinder identifier binder in case a collection of this dto will be subselected
      *                               In the usual case, it is most convenient to just subclass IdentityFieldProvider.
      */
-    <ID, T extends ID> T select(Collection<T> collection, Class<T> collectionItemClass, ResultIdentifierBinder<ID> resultIdentifierBinder);
+    <ID, T extends ID> T select(List<T> collection, Class<T> collectionItemClass, ResultIdentifierBinder<ID> resultIdentifierBinder);
 
     /**
-     * Selects an additional dto to be used as map key when using 
-     * {@link TypeSafeQueryDao#doMapByQueryResults(TypeSafeRootQuery, Object)} or
-     * {@link TypeSafeQueryDao#doGroupByQueryResults(TypeSafeRootQuery, Object)}.
+     * Subselect dtos for <code>collectionItemClass</code> into the collection property of a result dto.
+     * <p>
+     * The owner of the collection must be a select proxy. If a resultIdentifierProvider was specified for the
+     * owner of the collection, then that one will be used to decide where to add the item.
+     * If no resultIdentifierProvider was set, then all properties of the owner are checked for equality.
+     *
+     * @param resultIdentifierBinder identifier binder in case a collection of this dto will be subselected
+     *                               In the usual case, it is most convenient to just subclass IdentityFieldProvider.
      */
-    <T> T selectMapKey(Class<T> keyClass);
-    
+    <ID, T extends ID> T select(Set<T> collection, Class<T> collectionItemClass, ResultIdentifierBinder<ID> resultIdentifierBinder);
+
+    /**
+     * Subselect dtos for <code>collectionItemClass</code> into the collection property of a result dto.
+     * <p>
+     * The owner of the collection must be a select proxy. If a resultIdentifierProvider was specified for the
+     * owner of the collection, then that one will be used to decide where to add the item.
+     * If no resultIdentifierProvider was set, then all properties of the owner are checked for equality.
+     *
+     * @param resultIdentifierBinder identifier binder in case a collection of this dto will be subselected
+     *                               In the usual case, it is most convenient to just subclass IdentityFieldProvider.
+     */
+    <ID, T extends ID> T select(Collection<T> collection, Class<T> subselectClass, ResultIdentifierBinder<ID> resultIdentifierBinder);
+
     /**
      * Create an additional proxy to select into, which is merged with the result dto during result transforming.
      */
@@ -228,4 +293,8 @@ public interface TypeSafeRootQuery extends TypeSafeQuery {
      */
     int getMaxResults();
 
+    /**
+     * Converts this query to an sql query with parameters filled in as literals.
+     */
+    String toFormattedSqlQuery();
 }

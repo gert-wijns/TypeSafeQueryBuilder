@@ -15,7 +15,9 @@
  */
 package be.shad.tsqb.query;
 
-public enum JoinType {
+import be.shad.tsqb.joins.JoinParams;
+
+public enum JoinType implements JoinParams {
     /**
      * The entity table(s) is left joined in sql, but its fields are not
      * fetched to create an object.
@@ -66,5 +68,10 @@ public enum JoinType {
      * The default join type is <code>Inner</code> when more than the identity fields
      * have been used in the query. And <code>None</code> when only the identity field was used.
      */
-    Default
+    Default;
+
+    @Override
+    public JoinType getJoinType() {
+        return this;
+    }
 }

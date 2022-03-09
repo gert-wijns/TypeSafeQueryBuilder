@@ -15,13 +15,15 @@
  */
 package be.shad.tsqb.test;
 
+import static java.util.Collections.emptySet;
+import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -29,18 +31,25 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.mutable.MutableInt;
+import org.junit.Assert;
 import org.junit.Test;
 
 import be.shad.tsqb.domain.DomainObject;
+import be.shad.tsqb.domain.GeographicCoordinate;
 import be.shad.tsqb.domain.Town;
 import be.shad.tsqb.domain.people.Person;
 import be.shad.tsqb.domain.people.Relation;
 import be.shad.tsqb.dto.HasId;
 import be.shad.tsqb.dto.PersonDto;
+import be.shad.tsqb.dto.PersonValue;
+import be.shad.tsqb.dto.PersonValue.PersonValueBuilder;
 import be.shad.tsqb.dto.TownDto;
+import be.shad.tsqb.dto.TownValue;
+import be.shad.tsqb.dto.TownValue.TownValueBuilder;
 import be.shad.tsqb.query.JoinType;
 import be.shad.tsqb.selection.collection.IdentityFieldProvider;
 import be.shad.tsqb.selection.collection.ResultIdentifierBinder;
+import be.shad.tsqb.selection.parallel.SelectPair;
 import be.shad.tsqb.selection.parallel.SelectTriplet;
 import be.shad.tsqb.selection.parallel.SelectValue;
 import be.shad.tsqb.selection.parallel.SelectionMerger1;
@@ -94,11 +103,7 @@ public class CollectionSubselectTest extends TypeSafeQueryTest {
         validate("select hobj1.id as id, hobj2.name as g1__name "
                 + "from Town hobj1 join hobj1.inhabitants hobj2");
 
-        assertEquals(1, doQueryResult.size());
-        if (!(doQueryResult.get(0) instanceof Town)) {
-            fail("Expected to find a town as result.");
-        }
-        Town townResult = (Town) doQueryResult.get(0);
+        Town townResult = getSingleQueryResults();
         assertEquals(town.getId(), townResult.getId());
         assertEquals(3, townResult.getInhabitants().size());
 
@@ -144,6 +149,76 @@ public class CollectionSubselectTest extends TypeSafeQueryTest {
         }
     }
 
+    @Test
+    public void testSubSelectIdentity() {
+        Town town = creator.createTestTownWithPeople(Arrays.asList("AA1", "AA2", "AA3", "BA1", "BA2", "BA3"));
+        Town town2 = creator.createTestTownWithPeople(Arrays.asList("AB1", "AB2", "AB3", "BB1", "BB2", "BB3"));
+
+        Town townProxy = query.from(Town.class);
+        Person inhabitant = query.join(townProxy.getInhabitants(), JoinType.Left);
+        query.where(inhabitant.getName()).startsWith("A");
+        query.orderBy().asc(townProxy.getId());
+
+        TownValueBuilder selectTown = query.select(TownValue::builder);
+        PersonValueBuilder selectPerson = query.subListBuilder(PersonValue::builder, selectTown::inhabitants);
+        GeographicCoordinate selectCoordinates = query.subBuilder(GeographicCoordinate::new);
+
+        selectTown.geographicCoordinate(query.groupSelectBy(selectCoordinates));
+        selectCoordinates.setLattitude(townProxy.getGeographicCoordinate().getLattitude());
+        selectCoordinates.setLongitude(townProxy.getGeographicCoordinate().getLongitude());
+        selectPerson.thePersonsName(inhabitant.getName());
+
+        validate("select hobj1.geographicCoordinate.lattitude as g2__lattitude, "
+                + "hobj1.geographicCoordinate.longitude as g2__longitude, "
+                + "hobj2.name as g1__thePersonsName "
+                + "from Town hobj1 left join hobj1.inhabitants hobj2 "
+                + "where hobj2.name like :np1 "
+                + "order by hobj1.id", "A%");
+
+        TownValue townResult = getSingleQueryResults();
+        Assert.assertEquals(Arrays.asList("AA1", "AA2", "AA3", "AB1", "AB2", "AB3"),
+                townResult.getInhabitants().stream()
+                        .map(PersonValue::getThePersonsName)
+                        .sorted()
+                        .collect(toList()));
+    }
+
+    @Test
+    public void testSubSelectIdentityInPair() {
+        Town town = creator.createTestTownWithPeople(Arrays.asList("AA1", "AA2", "AA3", "BA1", "BA2", "BA3"));
+        Town town2 = creator.createTestTownWithPeople(Arrays.asList("AB1", "AB2", "AB3", "BB1", "BB2", "BB3"));
+
+        Town townProxy = query.from(Town.class);
+        Person inhabitant = query.join(townProxy.getInhabitants(), JoinType.Left);
+        query.where(inhabitant.getName()).startsWith("A");
+        query.orderBy().asc(townProxy.getId());
+
+        @SuppressWarnings("unchecked")
+        SelectPair<GeographicCoordinate, List<PersonValue>> selectPx = query.select(SelectPair.class);
+        PersonValueBuilder selectPerson = query.subListBuilder(PersonValue::builder, selectPx::setSecond);
+        GeographicCoordinate selectCoordinates = query.subBuilder(GeographicCoordinate::new);
+
+        selectPx.setFirst(query.groupSelectBy(selectCoordinates));
+        selectCoordinates.setLattitude(townProxy.getGeographicCoordinate().getLattitude());
+        selectCoordinates.setLongitude(townProxy.getGeographicCoordinate().getLongitude());
+        selectPerson.thePersonsName(inhabitant.getName());
+
+        validate("select hobj1.geographicCoordinate.lattitude as g2__lattitude, "
+                + "hobj1.geographicCoordinate.longitude as g2__longitude, "
+                + "hobj2.name as g1__thePersonsName "
+                + "from Town hobj1 left join hobj1.inhabitants hobj2 "
+                + "where hobj2.name like :np1 "
+                + "order by hobj1.id", "A%");
+
+        SelectPair<GeographicCoordinate, List<PersonValue>> townResult = getSingleQueryResults();
+        Assert.assertEquals(Arrays.asList("AA1", "AA2", "AA3", "AB1", "AB2", "AB3"),
+                townResult.getSecond().stream()
+                        .map(PersonValue::getThePersonsName)
+                        .sorted()
+                        .collect(toList()));
+
+    }
+
     /**
      * Test possibility to use merge value on collection value.
      */
@@ -184,6 +259,34 @@ public class CollectionSubselectTest extends TypeSafeQueryTest {
         assertEquals(2, counter.getValue().intValue());
     }
 
+    /**
+     * Test possibility to use merge value on collection value.
+     */
+    @Test
+    public void testCollectionSubselectWithValueObject() {
+        Town town = creator.createTestTownWithPeople(defaultNames);
+
+        Town townProxy = query.from(Town.class);
+        Person inhabitant = query.join(townProxy.getInhabitants());
+        query.where(inhabitant.getName()).startsWith("Jo");
+
+        TownValueBuilder selectTown = query.select(TownValue::builder);
+        PersonValueBuilder selectPerson = query.subSetBuilder(PersonValue::builder, selectTown::inhabitants);
+
+        selectTown.id(query.groupSelectBy(townProxy.getId()));
+        selectPerson.personAge(inhabitant.getAge());
+
+        validate("select hobj1.id as id, hobj2.age as g1__personAge "
+                + "from Town hobj1 join hobj1.inhabitants hobj2 where hobj2.name like :np1", "Jo%");
+
+        assertEquals(1, doQueryResult.size());
+         if (!(doQueryResult.get(0) instanceof TownValue)) {
+            fail("Expected to find a town as result.");
+        }
+        TownValue townResult = (TownValue) doQueryResult.get(0);
+        assertEquals(town.getId(), townResult.getId());
+    }
+
     @Test
     public void testCollectionSubselectWithEmbeddedValue() {
         Town town = creator.createTestTownWithPeople(defaultNames);
@@ -199,7 +302,7 @@ public class CollectionSubselectTest extends TypeSafeQueryTest {
         selectPerson.setId(inhabitant.getId());
         selectTown.getGeographicCoordinate().setLattitude(townProxy.getGeographicCoordinate().getLattitude());
 
-        validate("select hobj1.id as id, hobj2.id as g1__id, hobj1.geographicCoordinate.lattitude as geographicCoordinate_lattitude "
+        validate("select hobj1.id as id, hobj2.id as g1__id, hobj1.geographicCoordinate.lattitude as g2__lattitude "
                 + "from Town hobj1 join hobj1.inhabitants hobj2 where hobj2.name like :np1", "Jo%");
 
         assertEquals(1, doQueryResult.size());
@@ -306,12 +409,74 @@ public class CollectionSubselectTest extends TypeSafeQueryTest {
             }
             resultIds.put(dto.getId(), childIds);
         }
-        assertEquals(resultIds.get(johny.getId()), toIds(becky, fred));
-        assertEquals(resultIds.get(angie.getId()), toIds(becky));
-        assertEquals(resultIds.get(josh.getId()), Collections.emptySet());
-        assertEquals(resultIds.get(alberta.getId()), toIds(fred));
-        assertEquals(resultIds.get(becky.getId()), Collections.emptySet());
-        assertEquals(resultIds.get(fred.getId()), Collections.emptySet());
+        assertEquals(toIds(becky, fred), resultIds.get(johny.getId()));
+        assertEquals(toIds(becky), resultIds.get(angie.getId()));
+        assertEquals(emptySet(), resultIds.get(josh.getId()));
+        assertEquals(toIds(fred), resultIds.get(alberta.getId()));
+        assertEquals(emptySet(), resultIds.get(becky.getId()));
+        assertEquals(emptySet(), resultIds.get(fred.getId()));
+    }
+
+    @Test
+    public void testNestedCollectionsSelectionWithValues() {
+        Town town = creator.createTestTown();
+        Person johny = creator.createTestPerson(town, "Johny");
+        Person angie = creator.createTestPerson(town, "Angie");
+        Person josh = creator.createTestPerson(town, "Josh");
+        Person alberta = creator.createTestPerson(town, "Alberta");
+
+        Person becky = creator.createTestPerson(town, "Becky");
+        Person fred = creator.createTestPerson(town, "Fred");
+
+        // johny has 2 kids, angie and alberta have 1, josh has none
+        creator.addChildRelation(johny, becky);
+        creator.addChildRelation(angie, becky);
+        creator.addChildRelation(johny, fred);
+        creator.addChildRelation(alberta, fred);
+
+        Town townProxy = query.from(Town.class);
+        Person inhabitant = query.join(townProxy.getInhabitants());
+        Relation child = query.join(inhabitant.getChildRelations(), JoinType.Left);
+
+        TownValue.TownValueBuilder selectTown = query.select(TownValue::builder);
+        PersonValue.PersonValueBuilder selectParent = query.subSetBuilder(PersonValue::builder, selectTown::inhabitants);
+        PersonValue.PersonValueBuilder selectChild = query.subListBuilder(PersonValue::builder, selectParent::children);
+
+        selectTown.id(query.groupSelectBy(townProxy.getId()));
+        selectParent.id(query.groupSelectBy(inhabitant.getId()));
+        selectParent.thePersonsName(inhabitant.getName());
+        selectChild.id(child.getChild().getId());
+        selectChild.thePersonsName(child.getChild().getName());
+
+        validate("select hobj1.id as id, hobj2.id as g1__id, hobj2.name as g1__thePersonsName, "
+                + "hobj4.id as g2__id, hobj4.name as g2__thePersonsName "
+                + "from Town hobj1 "
+                + "join hobj1.inhabitants hobj2 "
+                + "left join hobj2.childRelations hobj3 "
+                + "left join hobj3.child hobj4");
+
+        @SuppressWarnings({ "unchecked", "rawtypes" })
+        List<TownValue> results = (List) doQueryResult;
+        assertEquals(1, results.size());
+        TownValue townResult = results.get(0);
+        assertEquals(6, townResult.getInhabitants().size());
+
+        Map<Long, Set<Long>> resultIds = new HashMap<>();
+        for(PersonValue dto: townResult.getInhabitants()) {
+            Set<Long> childIds = new HashSet<>();
+            if (dto.getChildren() != null) {
+                for(PersonValue dtoChild: dto.getChildren()) {
+                    childIds.add(dtoChild.getId());
+                }
+            }
+            resultIds.put(dto.getId(), childIds);
+        }
+        assertEquals(toIds(becky, fred), resultIds.get(johny.getId()));
+        assertEquals(toIds(becky), resultIds.get(angie.getId()));
+        assertEquals(emptySet(), resultIds.get(josh.getId()));
+        assertEquals(toIds(fred), resultIds.get(alberta.getId()));
+        assertEquals(emptySet(), resultIds.get(becky.getId()));
+        assertEquals(emptySet(), resultIds.get(fred.getId()));
     }
 
     private Set<Long> toIds(DomainObject... dtos) {

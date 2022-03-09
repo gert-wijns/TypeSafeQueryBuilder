@@ -24,9 +24,13 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import be.shad.tsqb.domain.DomainObject;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "PersonProperty")
+@Getter
+@Setter
 public class PersonProperty extends DomainObject {
     private static final long serialVersionUID = 3104165712544802569L;
 
@@ -39,29 +43,5 @@ public class PersonProperty extends DomainObject {
 
     @Column
     private String propertyValue;
-
-    public Person getPerson() {
-        return person;
-    }
-
-    public void setPerson(Person person) {
-        this.person = person;
-    }
-
-    public String getPropertyKey() {
-        return propertyKey;
-    }
-
-    public void setPropertyKey(String propertyKey) {
-        this.propertyKey = propertyKey;
-    }
-
-    public String getPropertyValue() {
-        return propertyValue;
-    }
-
-    public void setPropertyValue(String propertyValue) {
-        this.propertyValue = propertyValue;
-    }
 
 }

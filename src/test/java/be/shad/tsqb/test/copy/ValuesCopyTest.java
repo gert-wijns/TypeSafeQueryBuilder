@@ -31,7 +31,6 @@ import be.shad.tsqb.values.DirectTypeSafeStringValue;
 import be.shad.tsqb.values.arithmetic.ArithmeticTypeSafeValue;
 import be.shad.tsqb.values.arithmetic.ArithmeticTypeSafeValueFactory;
 
-
 public class ValuesCopyTest extends TypeSafeQueryCopyTest {
 
     @Test

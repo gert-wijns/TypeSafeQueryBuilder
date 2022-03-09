@@ -17,24 +17,13 @@ package be.shad.tsqb.dto;
 
 import java.util.Date;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class ProductDetailsDto {
     private Long id;
     private Date validUntilDate;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Date getValidUntilDate() {
-        return validUntilDate;
-    }
-
-    public void setValidUntilDate(Date validUntilDate) {
-        this.validUntilDate = validUntilDate;
-    }
 
 }

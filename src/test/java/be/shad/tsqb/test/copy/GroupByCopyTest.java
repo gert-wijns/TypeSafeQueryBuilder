@@ -19,7 +19,6 @@ import org.junit.Test;
 
 import be.shad.tsqb.domain.people.Person;
 
-
 public class GroupByCopyTest extends TypeSafeQueryCopyTest {
 
     /**

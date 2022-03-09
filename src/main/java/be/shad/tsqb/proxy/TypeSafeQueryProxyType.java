@@ -20,6 +20,7 @@ package be.shad.tsqb.proxy;
  */
 public enum TypeSafeQueryProxyType {
     EntityType(true, false, false),
+    EntityMapType(true, false, false),
     EntityCollectionType(true, true, false),
     EntityPropertyType(false, false, false),
     CompositeType(false, false, true),

@@ -15,6 +15,7 @@
  */
 package be.shad.tsqb.test;
 
+import static be.shad.tsqb.joins.JoinParams.defaultJoin;
 import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
@@ -28,13 +29,13 @@ public class NamedJoinTest extends TypeSafeQueryTest {
     @Test(expected=IllegalArgumentException.class)
     public void joinNamedWithBlankNameNotAllowed() {
         Person personProxy = query.from(Person.class);
-        query.join(personProxy.getTown(), "   ");
+        query.join(personProxy.getTown(), defaultJoin().name("   ").build());
     }
 
     @Test
     public void joinNamedTest() {
         Person personProxy = query.from(Person.class);
-        query.join(personProxy.getTown(), "theTown");
+        query.join(personProxy.getTown(), defaultJoin().name("theTown").build());
 
         Town town = query.named().get("theTown");
         assertNotNull(town);

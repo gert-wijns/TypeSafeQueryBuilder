@@ -26,5 +26,4 @@ public interface ResultIdentifierBinding {
      * equal.
      */
     void bind(Object valueOfResultProxyGetter);
-
 }

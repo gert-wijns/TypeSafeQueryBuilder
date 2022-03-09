@@ -15,6 +15,7 @@
  */
 package be.shad.tsqb.test;
 
+import static be.shad.tsqb.joins.JoinParams.defaultJoin;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -50,20 +51,17 @@ import be.shad.tsqb.dto.PersonDto;
 import be.shad.tsqb.dto.ProductDetailsDto;
 import be.shad.tsqb.dto.StringToPlanningPropertiesTransformer;
 import be.shad.tsqb.dto.TownDetailsDto;
+import be.shad.tsqb.dto.ValueDto;
+import be.shad.tsqb.dto.ValueSubDto;
 import be.shad.tsqb.exceptions.SelectException;
-import be.shad.tsqb.query.JoinType;
 import be.shad.tsqb.query.TypeSafeRootQueryInternal;
 import be.shad.tsqb.query.TypeSafeSubQuery;
 import be.shad.tsqb.restrictions.ContinuedOnGoingNumberRestriction;
 import be.shad.tsqb.restrictions.RestrictionsGroupFactory;
-import be.shad.tsqb.selection.SelectionValueTransformer;
-import be.shad.tsqb.selection.SelectionValueTransformerException;
 import be.shad.tsqb.selection.parallel.MapSelectionMerger;
-import be.shad.tsqb.selection.parallel.SelectPair;
 import be.shad.tsqb.values.CaseTypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValue;
 import be.shad.tsqb.values.TypeSafeValueFunctions;
-
 
 public class SelectTests extends TypeSafeQueryTest {
 
@@ -81,12 +79,16 @@ public class SelectTests extends TypeSafeQueryTest {
      */
     @Test
     public void selectProperty() {
+        House houseData = new TestDataCreator(getSessionFactory()).createRandomHouse();
+
         House house = query.from(House.class);
 
         House result = query.select(House.class);
         result.setFloors(house.getFloors());
 
         validate("select hobj1.floors as floors from House hobj1");
+        House actual = getSingleQueryResults();
+        assertEquals(houseData.getFloors(), actual.getFloors());
     }
 
     /**
@@ -143,12 +145,15 @@ public class SelectTests extends TypeSafeQueryTest {
      */
     @Test
     public void selectEnumProperty() {
+        House houseData = new TestDataCreator(getSessionFactory()).createRandomHouse();
+
         House house = query.from(House.class);
 
         House result = query.select(House.class);
         result.setStyle(house.getStyle());
 
         validate("select hobj1.style as style from House hobj1");
+        assertEquals(houseData.getStyle(), ((House) this.doQueryResult.get(0)).getStyle());
     }
 
     /**
@@ -156,6 +161,8 @@ public class SelectTests extends TypeSafeQueryTest {
      */
     @Test
     public void selectEntityAndPropertyOfEntity() {
+        House houseData = new TestDataCreator(getSessionFactory()).createRandomHouse();
+
         House house = query.from(House.class);
 
         @SuppressWarnings("unchecked")
@@ -164,6 +171,9 @@ public class SelectTests extends TypeSafeQueryTest {
         result.setRight(house.getFloors());
 
         validate("select hobj1 as left, hobj1.floors as right from House hobj1");
+        MutablePair<House, Integer> actual = getSingleQueryResults();
+        assertEquals(houseData.getFloors(), actual.getRight().intValue());
+
     }
 
     /**
@@ -171,11 +181,15 @@ public class SelectTests extends TypeSafeQueryTest {
      */
     @Test
     public void selectJoinedEntity() {
+        House houseData = new TestDataCreator(getSessionFactory()).createRandomHouse();
+
         Town town = query.from(Town.class);
         Building building = query.join(town.getBuildings());
 
         query.selectValue(building);
         validate("select hobj2 from Town hobj1 join hobj1.buildings hobj2");
+        Building actual = getSingleQueryResults();
+        assertEquals(houseData.getId(), actual.getId());
     }
 
     /**
@@ -199,16 +213,22 @@ public class SelectTests extends TypeSafeQueryTest {
      */
     @Test
     public void selectJoinedEntityProperty() {
+        House houseData = new TestDataCreator(getSessionFactory()).createRandomHouse();
+
         Town town = query.from(Town.class);
         Building building = query.join(town.getBuildings());
 
         query.selectValue(building.getId());
 
         validate("select hobj2.id from Town hobj1 join hobj1.buildings hobj2");
+        Long actual = getSingleQueryResults();
+        assertEquals(houseData.getId(), actual);
     }
 
     @Test
     public void selectSubQueryValue() {
+        House houseData = new TestDataCreator(getSessionFactory()).createRandomHouse();
+
         House house = query.from(House.class);
 
         TypeSafeSubQuery<String> nameSubQuery = query.subquery(String.class);
@@ -219,10 +239,14 @@ public class SelectTests extends TypeSafeQueryTest {
 
         query.selectValue(nameSubQuery);
         validate("select (select hobj2.name from House hobj2 where hobj1.id = hobj2.id) from House hobj1");
+        String actual = getSingleQueryResults();
+        assertEquals(houseData.getName(), actual);
     }
 
     @Test
     public void selectSubQueryValueAndProperty() {
+        House houseData = new TestDataCreator(getSessionFactory()).createRandomHouse();
+
         House house = query.from(House.class);
 
         TypeSafeSubQuery<String> nameSubQuery = query.subquery(String.class);
@@ -237,6 +261,9 @@ public class SelectTests extends TypeSafeQueryTest {
         result.setRight(nameSubQuery.select());
 
         validate("select hobj1.floors as left, (select hobj2.name from House hobj2 where hobj1.id = hobj2.id) as right from House hobj1");
+        MutablePair<Integer, String> actual = getSingleQueryResults();
+        assertEquals(houseData.getFloors(), actual.getLeft().intValue());
+        assertEquals(houseData.getName(), actual.getRight());
     }
 
     /**
@@ -244,6 +271,8 @@ public class SelectTests extends TypeSafeQueryTest {
      */
     @Test
     public void selectPrimitiveSubQueryValue() {
+        House houseData = new TestDataCreator(getSessionFactory()).createRandomHouse();
+
         House house = query.from(House.class);
 
         TypeSafeSubQuery<Integer> nameSubQuery = query.subquery(Integer.class);
@@ -256,6 +285,8 @@ public class SelectTests extends TypeSafeQueryTest {
         houseResult.setFloors(nameSubQuery.select());
 
         validate("select (select hobj2.floors from House hobj2 where hobj1.id = hobj2.id) as floors from House hobj1");
+        House actual = getSingleQueryResults();
+        assertEquals(houseData.getFloors(), actual.getFloors());
     }
 
     /**
@@ -295,12 +326,15 @@ public class SelectTests extends TypeSafeQueryTest {
      */
     @Test
     public void selectDistinct() {
+        House houseData = new TestDataCreator(getSessionFactory()).createRandomHouse();
         House house = query.from(House.class);
 
         House houseResult = query.select(House.class);
         houseResult.setFloors(query.hqlFunction().distinct(house.getFloors()).select());
 
         validate("select distinct hobj1.floors as floors from House hobj1");
+        House actual = getSingleQueryResults();
+        assertEquals(houseData.getFloors(), actual.getFloors());
     }
 
     /**
@@ -308,6 +342,7 @@ public class SelectTests extends TypeSafeQueryTest {
      */
     @Test
     public void selectCountDistinct() {
+        House houseData = new TestDataCreator(getSessionFactory()).createRandomHouse();
         House house = query.from(House.class);
 
         TypeSafeValueFunctions fun = query.hqlFunction();
@@ -317,6 +352,10 @@ public class SelectTests extends TypeSafeQueryTest {
         dto.setRight(query.groupBy(house.getFloors()).select());
 
         validate("select count(distinct hobj1.floors) as left, hobj1.floors as right from House hobj1 group by hobj1.floors");
+        MutablePair<Long, Integer> actual = getSingleQueryResults();
+        assertEquals(1, actual.getLeft().intValue());
+        assertEquals(houseData.getFloors(), actual.getRight().intValue());
+
     }
 
     /**
@@ -324,6 +363,7 @@ public class SelectTests extends TypeSafeQueryTest {
      */
     @Test
     public void selectDistinctSubquery() {
+        House houseData = new TestDataCreator(getSessionFactory()).createRandomHouse();
         House house = query.from(House.class);
 
         TypeSafeSubQuery<Long> subquery = query.subquery(Long.class);
@@ -336,6 +376,8 @@ public class SelectTests extends TypeSafeQueryTest {
         dto.setValue(query.hqlFunction().distinct(subquery).select());
 
         validate("select distinct (select count(*) from House hobj2 where hobj2.id < hobj1.id) as value from House hobj1");
+        MutableObject<Long> actual = getSingleQueryResults();
+        assertEquals(0, actual.getValue().intValue());
     }
 
     /**
@@ -369,10 +411,13 @@ public class SelectTests extends TypeSafeQueryTest {
 
     @Test
     public void selectDistinctWithoutDto() {
+        House houseData = new TestDataCreator(getSessionFactory()).createRandomHouse();
         House house = query.from(House.class);
         query.selectValue(query.distinct(house.getFloors()));
 
         validate("select distinct hobj1.floors from House hobj1");
+        Integer actual = getSingleQueryResults();
+        assertEquals(houseData.getFloors(), actual.intValue());
     }
 
     /**
@@ -381,12 +426,17 @@ public class SelectTests extends TypeSafeQueryTest {
     @Test
     @SuppressWarnings("unused")
     public void selectCount() {
+        TestDataCreator creator = new TestDataCreator(getSessionFactory());
+        creator.createRandomHouse();
+        creator.createRandomHouse();
         House house = query.from(House.class);
 
         FunctionsDto dto = query.select(FunctionsDto.class);
         dto.setTestCount(query.hqlFunction().count().select());
 
         validate("select count(*) as testCount from House hobj1");
+        FunctionsDto actual = getSingleQueryResults();
+        assertEquals(2, actual.getTestCount().longValue());
     }
 
     @Test
@@ -415,137 +465,6 @@ public class SelectTests extends TypeSafeQueryTest {
                 + "then 'Old' "
                 + "else hobj1.name end) as left "
                 + "from House hobj1");
-    }
-
-    /**
-     * Test map by map key using a map key class
-     */
-    @Test
-    public void selectMapByMapKeyTest() {
-        TestDataCreator creator = new TestDataCreator(getSessionFactory());
-        creator.createTestPerson(creator.createTestTown(), "Josh");
-
-        Person person = query.from(Person.class);
-        PersonDto dtoPx = query.select(PersonDto.class);
-        dtoPx.setThePersonsName(person.getName());
-        
-        @SuppressWarnings("unchecked")
-        SelectPair<String, String> mapKeyPx = query.selectMapKey(SelectPair.class);
-        mapKeyPx.setFirst(person.getName());
-        mapKeyPx.setSecond(person.getNickname());
-        
-        Map<SelectPair<String, String>, PersonDto> result = typeSafeQueryDao
-                .doMapByQueryResults(query, mapKeyPx);
-        SelectPair<String, String> expectedKey = new SelectPair<>();
-        expectedKey.setFirst("Josh");
-        expectedKey.setSecond(null);
-        assertTrue(result.containsKey(expectedKey));
-        assertEquals("Josh", result.get(expectedKey).getThePersonsName());
-    }
-
-    /**
-     * Test map by value directly
-     */
-    @Test
-    public void selectMapByValueTest() {
-        TestDataCreator creator = new TestDataCreator(getSessionFactory());
-        creator.createTestPerson(creator.createTestTown(), "Josh");
-        ((TypeSafeRootQueryInternal) query).getProjections().setIncludeAliases(true);
-
-        Person person = query.from(Person.class);
-        PersonDto dtoPx = query.select(PersonDto.class);
-        dtoPx.setThePersonsName(person.getName());
-        
-        Map<String, PersonDto> result = typeSafeQueryDao
-                .doMapByQueryResults(query, person.getName());
-        assertTrue(result.containsKey("Josh"));
-        assertEquals("Josh", result.get("Josh").getThePersonsName());
-    }
-
-    /**
-     * Test group by map key using a map key class
-     */
-    @Test
-    public void selectGroupByMapKeyTest() {
-        TestDataCreator creator = new TestDataCreator(getSessionFactory());
-        Town town = creator.createTestTown();
-        town.setName("Home");
-        creator.createTestPerson(town, "Josh");
-        creator.createTestPerson(town, "Joan");
-
-        Town town2 = creator.createTestTown();
-        town2.setName("Sea");
-        creator.createTestPerson(town2, "Fish").setAge(1);
-        creator.createTestPerson(town2, "Crab");
-
-        Person person = query.from(Person.class);
-        Town townPx = person.getTown();
-        PersonDto dtoPx = query.select(PersonDto.class);
-        dtoPx.setThePersonsName(person.getName());
-        
-        @SuppressWarnings("unchecked")
-        SelectPair<String, Integer> mapKeyPx = query.selectMapKey(SelectPair.class);
-        mapKeyPx.setFirst(townPx.getName());
-        mapKeyPx.setSecond(person.getAge());
-        
-        Map<SelectPair<String, Integer>, List<PersonDto>> result = typeSafeQueryDao
-                .doGroupByQueryResults(query, mapKeyPx);
-        
-        SelectPair<String, Integer> key1 = new SelectPair<>();
-        key1.setFirst("Home");
-        key1.setSecond(0);
-        assertTrue(result.containsKey(key1));
-        List<PersonDto> list = result.get(key1);
-        assertEquals("Josh", list.get(0).getThePersonsName());
-        assertEquals("Joan", list.get(1).getThePersonsName());
-
-        SelectPair<String, Integer> key2 = new SelectPair<>();
-        key2.setFirst("Sea");
-        key2.setSecond(1);
-        assertTrue(result.containsKey(key2));
-        List<PersonDto> list2 = result.get(key2);
-        assertEquals("Fish", list2.get(0).getThePersonsName());
-        
-        SelectPair<String, Integer> key3 = new SelectPair<>();
-        key3.setFirst("Sea");
-        key3.setSecond(0);
-        assertTrue(result.containsKey(key3));
-        List<PersonDto> list3 = result.get(key3);
-        assertEquals("Crab", list3.get(0).getThePersonsName());
-    }
-
-    /**
-     * Test group by value directly
-     */
-    @Test
-    public void selectGroupByValueTest() {
-        TestDataCreator creator = new TestDataCreator(getSessionFactory());
-        Town town = creator.createTestTown();
-        town.setName("Home");
-        creator.createTestPerson(town, "Josh");
-        creator.createTestPerson(town, "Joan");
-
-        Town town2 = creator.createTestTown();
-        town2.setName("Sea");
-        creator.createTestPerson(town2, "Fish");
-        creator.createTestPerson(town2, "Crab");
-
-        Person person = query.from(Person.class);
-        Town townPx = person.getTown();
-        PersonDto dtoPx = query.select(PersonDto.class);
-        dtoPx.setThePersonsName(person.getName());
-        
-        Map<String, List<PersonDto>> result = typeSafeQueryDao
-                .doGroupByQueryResults(query, townPx.getName());
-        assertTrue(result.containsKey("Home"));
-        List<PersonDto> list = result.get("Home");
-        assertEquals("Josh", list.get(0).getThePersonsName());
-        assertEquals("Joan", list.get(1).getThePersonsName());
-
-        assertTrue(result.containsKey("Sea"));
-        List<PersonDto> list2 = result.get("Sea");
-        assertEquals("Fish", list2.get(0).getThePersonsName());
-        assertEquals("Crab", list2.get(1).getThePersonsName());
     }
     
     /**
@@ -592,10 +511,10 @@ public class SelectTests extends TypeSafeQueryTest {
         });
         merge1.put("person.id", person.getId());
         if (aliases) {
-            validate("select hobj1.name as nestedMaps_genericMap_person_value, "
-                    + "hobj1 as nestedMaps_customMap_person_object, "
-                    + "hobj1.name as sortedMap_person_transformed, "
-                    + "hobj1.id as g1__person_id "
+            validate("select hobj1.name as g2__person_value, "
+                    + "hobj1 as g3__person_object, "
+                    + "hobj1.name as g4__person_transformed, "
+                    + "hobj1.id as g5__person_id "
                     + "from Person hobj1");
         } else {
             validate("select hobj1.name, hobj1, hobj1.name, hobj1.id from Person hobj1");
@@ -643,9 +562,15 @@ public class SelectTests extends TypeSafeQueryTest {
 
     @Test
     public void selectMultiJoinedEntityValues() {
+        TestDataCreator creator = new TestDataCreator(getSessionFactory());
+        Person personData = creator.createTestPerson(creator.createTestTown(), "Bob");
+        String favoriteColor = creator.createPersonProperty(personData, "FavoriteColor").getPropertyValue();
+        String favoriteDish = creator.createPersonProperty(personData, "FavoriteDish").getPropertyValue();
+        creator.createPersonProperty(personData, "FavoriteDance");
+
         Person person = query.from(Person.class);
         PersonProperty property1 = query.join(person.getProperties());
-        PersonProperty property2 = query.join(person.getProperties(), JoinType.Inner, true);
+        PersonProperty property2 = query.join(person.getProperties(), defaultJoin().createAdditionalJoin().build());
 
         query.joinWith(property1).where(property1.getPropertyKey()).eq("FavoriteColor");
         query.joinWith(property2).where(property2.getPropertyKey()).eq("FavoriteDish");
@@ -661,10 +586,16 @@ public class SelectTests extends TypeSafeQueryTest {
                 + "join hobj1.properties hobj2 with hobj2.propertyKey = :np1 "
                 + "join hobj1.properties hobj3 with hobj3.propertyKey = :np2",
                 "FavoriteColor", "FavoriteDish");
+        MutableTriple<Long, String, Object> actual = getSingleQueryResults();
+        assertEquals(personData.getId(), actual.getLeft());
+        assertEquals(favoriteColor, actual.getMiddle());
+        assertEquals(favoriteDish, actual.getRight());
     }
 
     @Test
     public void selectCompositeTypeValues() {
+        House houseData = new TestDataCreator(getSessionFactory()).createRandomHouse();
+
         Building building = query.from(Building.class);
 
         @SuppressWarnings("unchecked")
@@ -673,10 +604,15 @@ public class SelectTests extends TypeSafeQueryTest {
         result.setRight(building.getStyle());
 
         validate("select hobj1.address.number as left, hobj1.style as right from Building hobj1");
+        MutablePair<String, Style> actual = getSingleQueryResults();
+        assertEquals(houseData.getAddress().getNumber(), actual.getLeft());
+        assertEquals(houseData.getStyle(), actual.getRight());
     }
 
     @Test
     public void selectUserTypeValue() {
+        House houseData = new TestDataCreator(getSessionFactory()).createRandomHouse();
+
         Building building = query.from(Building.class);
 
         @SuppressWarnings("unchecked")
@@ -685,7 +621,11 @@ public class SelectTests extends TypeSafeQueryTest {
         result.setRight(building.getStyle());
 
         validate("select hobj1.text as left, hobj1.style as right from Building hobj1");
+        MutablePair<TextWrappingObject, Style> actual = getSingleQueryResults();
+        assertEquals(houseData.getText(), actual.getLeft());
+        assertEquals(houseData.getStyle(), actual.getRight());
     }
+
     @Test
     public void selectToValueOfTransformSelectedValue() {
         Town town = query.from(Town.class);
@@ -706,7 +646,7 @@ public class SelectTests extends TypeSafeQueryTest {
         details.setName(toValue.select());
         validate("select hobj1 as name from Town hobj1");
 
-        TownDetailsDto result = (TownDetailsDto) doQueryResult.get(0);
+        TownDetailsDto result = getSingleQueryResults();
         assertEquals("TestTown", result.getName());
     }
 
@@ -725,12 +665,13 @@ public class SelectTests extends TypeSafeQueryTest {
         details.setName(toValue.select());
         validate("select (case when (hobj1.name = 'Abc') then hobj1.id else 15 end) as name from Town hobj1");
 
-        TownDetailsDto result = (TownDetailsDto) doQueryResult.get(0);
+        TownDetailsDto result = getSingleQueryResults();
         assertEquals("15", result.getName());
     }
 
     @Test
     public void selectComponentTypeValues() {
+        Town townData = new TestDataCreator(getSessionFactory()).createTestTown();
         Town town = query.from(Town.class);
 
         @SuppressWarnings("unchecked")
@@ -739,10 +680,14 @@ public class SelectTests extends TypeSafeQueryTest {
         result.setRight(town.getGeographicCoordinate().getLattitude());
 
         validate("select hobj1.geographicCoordinate.longitude as left, hobj1.geographicCoordinate.lattitude as right from Town hobj1");
+        MutablePair<Double, Double> actual = getSingleQueryResults();
+        assertEquals(townData.getGeographicCoordinate().getLongitude(), actual.getLeft(), 0);
+        assertEquals(townData.getGeographicCoordinate().getLattitude(), actual.getRight(), 0);
     }
 
     @Test
     public void selectNestedComponentTypeValues() {
+        Product productData = new TestDataCreator(getSessionFactory()).createRandomProduct();
         Product product = query.from(Product.class);
 
         @SuppressWarnings("unchecked")
@@ -752,17 +697,27 @@ public class SelectTests extends TypeSafeQueryTest {
         triple.setRight(product.getProductProperties().getSales().isSalesAllowed());
 
         validate("select hobj1.name as left, hobj1.productProperties.planning.algorithm as middle, hobj1.productProperties.sales.salesAllowed as right from Product hobj1");
+        MutableTriple<String, String, Boolean> actual = getSingleQueryResults();
+        assertEquals(productData.getName(), actual.getLeft());
+        assertEquals(productData.getProductProperties().getPlanning().getAlgorithm(), actual.getMiddle());
+        assertEquals(productData.getProductProperties().getSales().isSalesAllowed(), actual.getRight());
+
     }
 
     @Test
     public void selectNestedSelectionPropertyDto() {
+        Product productData = new TestDataCreator(getSessionFactory()).createRandomProduct();
         Product product = query.from(Product.class);
 
         Product productDto = query.select(Product.class);
         productDto.setName(product.getName());
         productDto.getProductProperties().getPlanning().setAlgorithm(product.getName());
 
-        validate("select hobj1.name as name, hobj1.name as productProperties_planning_algorithm from Product hobj1");
+        validate("select hobj1.name as name, hobj1.name as g2__algorithm from Product hobj1");
+
+        Product actual = getSingleQueryResults();
+        assertEquals(productData.getName(), actual.getName());
+        assertEquals(productData.getName(), actual.getProductProperties().getPlanning().getAlgorithm());
     }
 
     /**
@@ -771,6 +726,7 @@ public class SelectTests extends TypeSafeQueryTest {
      */
     @Test
     public void selectSimpleTransformedValue() {
+        Product productData = new TestDataCreator(getSessionFactory()).createRandomProduct();
         Product product = query.from(Product.class);
 
         Product productDto = query.select(Product.class);
@@ -778,14 +734,21 @@ public class SelectTests extends TypeSafeQueryTest {
         productDto.getProductProperties().setPlanning(query.select(PlanningProperties.class,
                 product.getName(), new StringToPlanningPropertiesTransformer()));
 
-        validate("select hobj1.name as name, hobj1.name as productProperties_planning from Product hobj1");
+        validate("select hobj1.name as name, hobj1.name as g1__planning from Product hobj1");
+        Product actual = getSingleQueryResults();
+        assertEquals(productData.getName(), actual.getName());
+        assertEquals(productData.getName(), actual.getProductProperties().getPlanning().getAlgorithm());
     }
 
     /**
      * Select encoded string property into a date field.
      */
     @Test
-    public void selectDateTransformedValue() {
+    public void selectDateTransformedValue() throws ParseException {
+        Product productData = new TestDataCreator(getSessionFactory()).createRandomProduct();
+        productData.getManyProperties().setProperty1(DateFormat.getDateInstance().format(new Date()));
+        getSessionFactory().getCurrentSession().save(productData);
+
         Product product = query.from(Product.class);
 
         ProductDetailsDto dto = query.select(ProductDetailsDto.class);
@@ -801,6 +764,10 @@ public class SelectTests extends TypeSafeQueryTest {
         }));
 
         validate("select hobj1.id as id, hobj1.manyProperties.property1 as validUntilDate from Product hobj1");
+        ProductDetailsDto actual = getSingleQueryResults();
+        assertEquals(productData.getId(), actual.getId());
+        assertEquals(DateFormat.getDateInstance().parse(productData.getManyProperties().getProperty1()),
+                actual.getValidUntilDate());
     }
 
     /**
@@ -809,9 +776,15 @@ public class SelectTests extends TypeSafeQueryTest {
      * Using a proxy as select value to get values from it should be avoided. Only do this
      * if there is no other option! (value on a dto without a default constructor for example)
      */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({ "unchecked" })
     @Test
     public void selectProxyTransformedValue() {
+        TestDataCreator creator = new TestDataCreator(getSessionFactory());
+        Town townData = creator.createTestTown();
+        Person personAData = creator.createTestPerson(townData, "A");
+        Person personBData = creator.createTestPerson(townData, "B");
+        creator.createRelation(personAData, personBData);
+
         Person person = query.from(Person.class);
         Relation relation = query.join(person.getChildRelations());
 
@@ -821,13 +794,18 @@ public class SelectTests extends TypeSafeQueryTest {
                 (a) -> new ImmutablePair<>(a.getId(), a.getAge())));
 
         validate("select hobj1.id as left, hobj3 as right from Person hobj1 join hobj1.childRelations hobj2 join hobj2.child hobj3");
+        MutablePair<Long, ImmutablePair<Long, Integer>> actual = getSingleQueryResults();
+        assertEquals(personAData.getId(), actual.getLeft());
+        assertEquals(personBData.getId(), actual.getRight().getLeft());
+        assertEquals(personBData.getAge(), actual.getRight().getRight().intValue());
+
     }
 
     @Test
     public void selectProxyClassTwiceShouldntFail() {
         TestDataCreator creator = new TestDataCreator(getSessionFactory());
         Town town = creator.createTestTown();
-        creator.createTestPerson(town, "Anonymous");
+        Person personData = creator.createTestPerson(town, "Anonymous");
 
         Person person = query.from(Person.class);
 
@@ -840,5 +818,92 @@ public class SelectTests extends TypeSafeQueryTest {
         personDto.setThePersonsName(person.getName());
 
         validate("select hobj1.age as personAge, hobj1.name as thePersonsName from Person hobj1");
+
+        PersonDto actual = getSingleQueryResults();
+        assertEquals(personData.getAge(), actual.getPersonAge());
+        assertEquals(personData.getName(), actual.getThePersonsName());
+    }
+
+    @Test
+    public void selectBuilderBasic() {
+        TestDataCreator creator = new TestDataCreator(getSessionFactory());
+        Town town = creator.createTestTown();
+        Person testPerson = creator.createTestPerson(town, "Anonymous");
+
+        Person person = query.from(Person.class);
+
+        ValueDto.ValueDtoBuilder builder = query.select(ValueDto::builder);
+        builder.id(person.getId());
+
+        ValueSubDto.ValueSubDtoBuilder<?,?> subValueBuilder = query.selectMergeValues(builder,
+                ValueSubDto.ValueSubDtoBuilder.class,
+                (partialResult, parallelDto) -> partialResult.value(parallelDto.build()));
+        subValueBuilder
+                .id(person.getTown().getId())
+                .quantity(5d);
+
+        validate("select hobj1.id as id, hobj1.town.id as g1__id, 5.0 as g1__quantity from Person hobj1");
+
+        ValueDto actual = getSingleQueryResults();
+
+        assertEquals(testPerson.getId(), actual.getId());
+        assertEquals(town.getId(), actual.getValue().getId());
+        assertEquals(5d, actual.getValue().getQuantity(), 0d);
+    }
+
+    @Test
+    public void selectBuilderAdvanced() {
+        TestDataCreator creator = new TestDataCreator(getSessionFactory());
+        Town town = creator.createTestTown();
+        Person testPerson = creator.createTestPerson(town, "Anonymous");
+
+        Person person = query.from(Person.class);
+
+        ValueDto.ValueDtoBuilder builder = query.select(ValueDto::builder);
+        ValueSubDto.ValueSubDtoBuilder<?, ?> subBuilder = query.subBuilder(ValueSubDto::builder);
+
+        builder.id(person.getId());
+        builder.value(subBuilder
+                    .id(person.getTown().getId())
+                    .quantity(5d)
+                .build());
+
+        validate("select hobj1.id as id, hobj1.town.id as g1__id, 5.0 as g1__quantity from Person hobj1");
+
+        @SuppressWarnings("unchecked")
+        List<ValueDto> valueDtos = (List<ValueDto>) this.doQueryResult;
+
+        assertEquals(testPerson.getId(), valueDtos.get(0).getId());
+        assertEquals(town.getId().longValue(), valueDtos.get(0).getValue().getId().longValue());
+        assertEquals(5d, valueDtos.get(0).getValue().getQuantity(), 0d);
+    }
+
+    @Test
+    public void selectBuilderAdvanced2() {
+        TestDataCreator creator = new TestDataCreator(getSessionFactory());
+        Town town = creator.createTestTown();
+        Person testPerson = creator.createTestPerson(town, "Anonymous");
+
+        Person person = query.from(Person.class);
+
+        ValueDto.ValueDtoBuilder builder = query.select(ValueDto::builder);
+        ValueSubDto.ValueSubDtoBuilder<?, ?> subBuilder = query.subBuilder(ValueSubDto::builder);
+        ValueSubDto.ValueSubDtoBuilder<?, ?> subSubBuilder = query.subBuilder(ValueSubDto::builder);
+        //ValueSubDto.ValueSubDtoBuilder<?,?> subBuilder = query.subSelect(builder, ValueSubDto.ValueSubDtoBuilder.class);
+
+        builder.value(subBuilder
+                .subDto(subSubBuilder
+                        .id(person.getTown().getId())
+                        .quantity(5d)
+                        .build())
+                .build());
+
+        validate("select hobj1.town.id as g2__id, 5.0 as g2__quantity from Person hobj1");
+
+        @SuppressWarnings("unchecked")
+        List<ValueDto> valueDtos = (List<ValueDto>) this.doQueryResult;
+
+        assertEquals(town.getId().longValue(), valueDtos.get(0).getValue().getSubDto().getId().longValue());
+        assertEquals(5d, valueDtos.get(0).getValue().getSubDto().getQuantity(), 0d);
     }
 }

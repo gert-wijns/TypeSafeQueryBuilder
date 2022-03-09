@@ -15,23 +15,18 @@
  */
 package be.shad.tsqb.selection;
 
+import lombok.AllArgsConstructor;
+
 /**
  * Groups data related to a value in the tuple array.
  * The index is saved so the tuple array can be used out of order,
  * so identity fields are used before other fields and
  * objects are created/populated in sequence rather than all at once.
  */
+@AllArgsConstructor
 public class SelectionTreeValue {
     public final int tupleValueIndex;
     public final String propertyPath;
     public final String mapSelectionKey;
     public final SelectionValueTransformer<?, ?> valueTransformer;
-
-    public SelectionTreeValue(int tupleValueIndex, String propertyPath, String mapSelectionKey,
-            SelectionValueTransformer<?, ?> valueTransformer) {
-        this.tupleValueIndex = tupleValueIndex;
-        this.propertyPath = propertyPath;
-        this.mapSelectionKey = mapSelectionKey;
-        this.valueTransformer = valueTransformer;
-    }
 }

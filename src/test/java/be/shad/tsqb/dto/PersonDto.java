@@ -17,51 +17,16 @@ package be.shad.tsqb.dto;
 
 import java.util.List;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class PersonDto implements HasId {
     private Long id;
     private int personAge;
     private String thePersonsName;
     private TownDetailsDto townDetails;
     private List<PersonDto> children;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public int getPersonAge() {
-        return personAge;
-    }
-
-    public void setPersonAge(int personAge) {
-        this.personAge = personAge;
-    }
-
-    public String getThePersonsName() {
-        return thePersonsName;
-    }
-
-    public void setThePersonsName(String thePersonsName) {
-        this.thePersonsName = thePersonsName;
-    }
-
-    public List<PersonDto> getChildren() {
-        return children;
-    }
-
-    public void setChildren(List<PersonDto> children) {
-        this.children = children;
-    }
-
-    public TownDetailsDto getTownDetails() {
-        return townDetails;
-    }
-
-    public void setTownDetails(TownDetailsDto townDetails) {
-        this.townDetails = townDetails;
-    }
 
 }

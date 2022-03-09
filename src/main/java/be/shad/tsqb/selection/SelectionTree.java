@@ -16,11 +16,10 @@
 package be.shad.tsqb.selection;
 
 import java.lang.reflect.Field;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.function.Supplier;
 
-import be.shad.tsqb.helper.ConcreteDtoClassResolver;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Tree of values created once per query.
@@ -30,86 +29,38 @@ import be.shad.tsqb.helper.ConcreteDtoClassResolver;
  * <p>
  * Works together with TypeSafeQueryResultTransformer in order to select nested values fast.
  */
+@RequiredArgsConstructor
 public class SelectionTree {
-    private final LinkedHashMap<Field, SelectionTree> subtrees = new LinkedHashMap<>();
-    private final ConcreteDtoClassResolver concreteDtoClassResolver;
-    private final Class<?> resultType;
-    private final boolean isMap;
-    private int resultIndex;
-
-    public SelectionTree(
-            ConcreteDtoClassResolver concreteDtoClassResolver,
-            Class<?> resultType) {
-        this.concreteDtoClassResolver = concreteDtoClassResolver;
-        this.resultType = concreteDtoClassResolver.getConcreteClass(resultType);
-        this.isMap = Map.class.isAssignableFrom(this.resultType);
-    }
-
-    public boolean isMap() {
-        return isMap;
-    }
-
-    public Class<?> getResultType() {
-        return resultType;
-    }
-
-    /**
-     * Sets the resultIndexes on this and the subtrees
-     * and returns the max resultIndex
-     */
-    public int assignResultIndexes(int parentIndex) {
-        resultIndex = parentIndex+1;
-        int childParentIndex = resultIndex;
-        for(SelectionTree subtree: subtrees.values()) {
-            childParentIndex = subtree.assignResultIndexes(childParentIndex);
-        }
-        return childParentIndex;
-    }
+    private final @Getter Class<?> resultType;
+    private final @Getter boolean isMap;
+    private final Supplier<?> newResultProducer;
 
     /**
      * The result index, used to select one of the data elements
      * in the dataArray durring object creation based on a result tuple.
      */
-    public int getResultIndex() {
-        return resultIndex;
-    }
+    private final @Getter int resultIndex;
 
-    /**
-     * Add a property path to the tree, if it wasn't added before.
-     * Return the existing subtree otherwise
-     */
-    public SelectionTree getSubtree(String property) throws SecurityException {
-        Field field = getField(resultType, property);
-        SelectionTree subtree = subtrees.get(field);
-        if (subtree == null) {
-            field.setAccessible(true);
-            subtree = new SelectionTree(concreteDtoClassResolver, field.getType());
-            subtrees.put(field, subtree);
-        }
-        return subtree;
+    public Object newResultValue() {
+        return newResultProducer.get();
     }
 
     /**
      * Sets the value object to a new value and creates sets its subobjects if they were part of the projections.
      */
-    protected void initialize(SelectionTreeData[] dataArray, Object value) throws IllegalArgumentException, IllegalAccessException, InstantiationException {
-        dataArray[getResultIndex()].setCurrentValue(value);
+    protected SelectionTreeData initialize(SelectionTreeData[] dataArray, Object value) throws IllegalArgumentException {
+        dataArray[getResultIndex()].setResult(new SelectionTreeResult(value));
         dataArray[getResultIndex()].setDuplicate(false);
-        for(Entry<Field, SelectionTree> entry: subtrees.entrySet()) {
-            Field field = entry.getKey();
-            Object object = field.get(value);
-            if (object == null) {
-                object = entry.getValue().getResultType().newInstance();
-                field.set(value, object);
-            }
-            entry.getValue().initialize(dataArray, object);
-        }
+        return dataArray[getResultIndex()];
     }
 
     /**
      * Search for the field on the class or one of its super classes.
      */
     public static Field getField(Class<?> clazz, String name) {
+        if (clazz == null) {
+            throw new IllegalArgumentException("Clazz may not be null");
+        }
         Class<?> current = clazz;
         while (current != null) {
             for(Field field: current.getDeclaredFields()) {

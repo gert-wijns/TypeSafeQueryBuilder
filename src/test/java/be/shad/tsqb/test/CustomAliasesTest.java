@@ -15,12 +15,13 @@
  */
 package be.shad.tsqb.test;
 
+import static be.shad.tsqb.joins.JoinParams.defaultJoin;
+
 import org.junit.Before;
 import org.junit.Test;
 
 import be.shad.tsqb.domain.people.Person;
 import be.shad.tsqb.domain.people.Relation;
-import be.shad.tsqb.query.JoinType;
 
 public class CustomAliasesTest extends TypeSafeQueryTest {
     private static final String PARENT_CUSTOM_ALIAS = "parentAlias";
@@ -76,7 +77,7 @@ public class CustomAliasesTest extends TypeSafeQueryTest {
         Person person = query.getByHqlAlias(PARENT_CUSTOM_ALIAS);
         Relation children = query.join(person.getChildRelations());
 
-        Person otherChild = query.join(children.getChild(), JoinType.Inner, true);
+        Person otherChild = query.join(children.getChild(), defaultJoin().createAdditionalJoin().build());
         query.setHqlAlias(otherChild, CHILD_CUSTOM_ALIAS);
     }
 

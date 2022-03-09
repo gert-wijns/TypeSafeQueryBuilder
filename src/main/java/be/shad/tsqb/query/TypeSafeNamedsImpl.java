@@ -24,9 +24,6 @@ public class TypeSafeNamedsImpl implements TypeSafeNameds, Copyable {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public <NAMED> NAMED name(NAMED object, String name) {
         if (name == null) {
@@ -44,26 +41,31 @@ public class TypeSafeNamedsImpl implements TypeSafeNameds, Copyable {
         return object;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     @SuppressWarnings("unchecked")
     public <T> T get(String name) throws IllegalArgumentException {
         return (T) get(Object.class, name);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public <T> T get(Class<T> clazz, String name) throws IllegalArgumentException {
         return named(clazz, name);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
+    public <T> T getOrNull(Class<T> clazz, String name) {
+        Object object = nameds.get(name);
+        if (object == null) {
+            return null;
+        }
+        if (!clazz.isAssignableFrom(object.getClass())) {
+            throw new IllegalArgumentException(String.format(
+                    "Named object [%s] doesn't have the correct type [%s].",
+                    object, clazz));
+        }
+        return clazz.cast(object);
+    }
+
     @Override
     public void setValue(String name, Object value) {
         named(NamedValueEnabled.class, name).setNamedValue(value);
@@ -73,17 +75,12 @@ public class TypeSafeNamedsImpl implements TypeSafeNameds, Copyable {
      * Get the named value and validates null and assignability.
      */
     private <T> T named(Class<T> clazz, String name) {
-        Object object = nameds.get(name);
-        if(object == null) {
+        T object = getOrNull(clazz, name);
+        if (object == null) {
             throw new IllegalArgumentException(String.format(
                     "No named object found for [%s].", name));
         }
-        if (!clazz.isAssignableFrom(object.getClass())) {
-            throw new IllegalArgumentException(String.format(
-                    "Named object [%s] doesn't have the correct type [%s].",
-                    object, clazz));
-        }
-        return clazz.cast(object);
+        return object;
     }
 
     @Override

@@ -29,6 +29,7 @@ public class LoadTest extends TypeSafeQueryTest {
 
     public static void main(String[] argv) {
         LoadTest loadTest = new LoadTest();
+        initializeClass();
         loadTest.initialize();
         loadTest.loadTest();
     }
@@ -65,7 +66,7 @@ public class LoadTest extends TypeSafeQueryTest {
             last = query.toHqlQuery();
         }
         time = (System.currentTimeMillis() - time);
-        logger.debug(time / (double) n + "ms/query\n" + last.toFormattedString());
+        System.out.println(time / (double) n + "ms/query\n" + last.toFormattedString());
     }
 
 }

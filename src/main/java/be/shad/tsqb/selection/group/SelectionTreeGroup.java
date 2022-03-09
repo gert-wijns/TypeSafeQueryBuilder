@@ -15,7 +15,11 @@
  */
 package be.shad.tsqb.selection.group;
 
-import static java.lang.String.format;
+import static be.shad.tsqb.selection.group.SelectionTreeFieldSetter.SelectionTreeFieldSetterType.COLLECTION;
+import static be.shad.tsqb.selection.group.SelectionTreeFieldSetter.SelectionTreeFieldSetterType.IDENTITY;
+import static be.shad.tsqb.selection.group.SelectionTreeFieldSetter.SelectionTreeFieldSetterType.SINGLE;
+import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.groupingBy;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
@@ -24,14 +28,20 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.Supplier;
 
-import be.shad.tsqb.helper.ConcreteDtoClassResolver;
+import be.shad.tsqb.data.TypeSafeQuerySelectionProxyPropertyData;
+import be.shad.tsqb.result.ResultGroupProjection;
+import be.shad.tsqb.result.ResultMergeProjection;
+import be.shad.tsqb.result.ResultSubProjection;
 import be.shad.tsqb.selection.SelectionIdentityTree;
 import be.shad.tsqb.selection.SelectionTree;
 import be.shad.tsqb.selection.SelectionTreeData;
+import be.shad.tsqb.selection.SelectionTreeResult;
 import be.shad.tsqb.selection.SelectionTreeValue;
-import be.shad.tsqb.selection.SelectionValueTransformer;
+import be.shad.tsqb.selection.group.SelectionTreeFieldSetter.SelectionTreeFieldSetterType;
 import be.shad.tsqb.selection.parallel.SelectionMerger;
 
 /**
@@ -39,182 +49,123 @@ import be.shad.tsqb.selection.parallel.SelectionMerger;
  */
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class SelectionTreeGroup extends SelectionTree {
-
-    private final TypeSafeQuerySelectionGroup group;
-
-    private final SelectionTreeGroup parent;
-    private final Field parentCollectionField;
-    private final Class collectionClass;
-
-    private final SelectionTreeField[] otherFields;
-    private final SelectionTreeField[] identityFields;
+    private static final SelectionTreeResult NULL_RESULT = new SelectionTreeResult(null);
+    private final ResultGroupProjection group;
+    private final SelectionTreeFieldSetter[] identityFields;
+    private final SelectionTreeFieldSetter[] singleFields;
+    private final SelectionTreeFieldSetter[] collectionFIelds;
 
     /**
      * Collects and prepares the fields to set data onto
      * during the {@link #createFromTuple(SelectionTreeData[], Object[])} phase.
      */
     public SelectionTreeGroup(
-            ConcreteDtoClassResolver concreteDtoClassResolver,
-            TypeSafeQuerySelectionGroup group,
-            List<SelectionTreeValue> tupleValues,
-            SelectionTreeGroup parent) throws SecurityException {
-        super(concreteDtoClassResolver, group.getResultClass());
+            Class<?> resultType,
+            Supplier<?> newResultProducer,
+            ResultGroupProjection group,
+            int resultIndex,
+            List<SelectionTreeValue> tupleValues) throws SecurityException {
+        super(resultType, Map.class.isAssignableFrom(resultType), newResultProducer, resultIndex);
         this.group = group;
-        this.parent = parent;
 
-        Set<String> identityPaths = group.getResultIdentifierPropertyPaths();
-        identityFields = new SelectionTreeField[identityPaths.size()];
-        otherFields = new SelectionTreeField[tupleValues.size() - identityFields.length];
+        Set<String> identityPaths = new HashSet<>(group.getGroup().getResultIdentifierPropertyPaths());
 
-        int fieldsCount = tupleValues.size();
-        if (group.getCollectionPropertyPath() != null) {
-            fieldsCount++;
-        }
-
-        int otherFieldsIndex = 0;
-        int identityFieldsIndex = 0;
-        List<Field> fields = new ArrayList<>(fieldsCount);
+        Collection<SelectionTreeFieldSetter> setters = new ArrayList<>(
+                tupleValues.size() + group.getSubProjections().size());
         for(SelectionTreeValue value: tupleValues) {
-            SelectionTreeField field = createSelectionTreeField(value);
-            if (identityPaths.contains(value.propertyPath)) {
-                identityFields[identityFieldsIndex++] = field;
-            } else if (otherFieldsIndex == otherFields.length) {
-                // improve to show which identity field?
-                throwMissingIdentityFields(group, tupleValues);
-            } else {
-                otherFields[otherFieldsIndex++] = field;
-            }
-            if (field.field != null) {
-                fields.add(field.field);
-            }
+            setters.add(createSelectionTreeField(value, identityPaths.remove(value.propertyPath)));
         }
 
-        if (group.getCollectionPropertyPath() != null) {
-            SubtreeField collectionField = getSubtreeField(parent, group.getCollectionPropertyPath());
-            parentCollectionField = collectionField.field;
-            collectionClass = determineCollectionClassToUse(collectionField.field.getType());
-            fields.add(parentCollectionField);
-        } else {
-            parentCollectionField = null;
-            collectionClass = null;
+        for (ResultSubProjection subProjection: group.getSubProjections()) {
+            TypeSafeQuerySelectionProxyPropertyData<Object> subData = subProjection.getData();
+            setters.add(new SubSelectionTreeField<>(
+                    subProjection.getSubGroupIndex(), subData.getCollectionSupplier(),
+                    getPropertyField(subData.getPropertyPath()),
+                    identityPaths.remove(subData.getPropertyPath())));
         }
+        if (!identityPaths.isEmpty()) {
+            throw new IllegalStateException("Identity fields for result type "
+                    + "[" + group.getGroup().getSelectionBuilderSpec().getSelectionBuilderClass() + "] were not selected: "
+                    + identityPaths);
+        }
+
+        Map<SelectionTreeFieldSetterType, List<SelectionTreeFieldSetter>> byType = setters.stream()
+                .collect(groupingBy(SelectionTreeFieldSetter::getType));
+        identityFields = byType.getOrDefault(IDENTITY, emptyList()).toArray(new SelectionTreeFieldSetter[0]);
+        singleFields = byType.getOrDefault(SINGLE, emptyList()).toArray(new SelectionTreeFieldSetter[0]);
+        collectionFIelds = byType.getOrDefault(COLLECTION, emptyList()).toArray(new SelectionTreeFieldSetter[0]);
 
         // set the entire array accessible at once (for this object):
-        AccessibleObject.setAccessible(fields.toArray(new Field[0]), true);
-    }
-
-    /**
-     * Checks which of the needed identity paths were missing and
-     * throws an exception indicating these paths.
-     */
-    private void throwMissingIdentityFields(TypeSafeQuerySelectionGroup group,
-            List<SelectionTreeValue> tupleValues) {
-        Set<String> missingPaths = new HashSet<>(group.getResultIdentifierPropertyPaths());
-        for(SelectionTreeValue tupleValue: tupleValues) {
-            missingPaths.remove(tupleValue.propertyPath);
-        }
-        throw new IllegalStateException("Identity fields for result type "
-                + "[" + group.getResultClass() + "] were not selected: "
-                + missingPaths);
-    }
-
-    /**
-     * Chooses a collection type based on the type.
-     * If the type is a List interface, then use ArrayList.
-     * If the type is a Set interface, then use HashSet.
-     * If the type is not a subtype of Collection (must be something like Object/Serializable), then use HashSet.
-     * Otherwise assume it is a concrete collection type.
-     */
-    private Class determineCollectionClassToUse(Class<?> type) {
-        Class<?> fieldClass = type;
-        if (fieldClass.isInterface()) {
-            if (List.class.isAssignableFrom(fieldClass)) {
-                fieldClass = ArrayList.class;
-            } else {
-                fieldClass = HashSet.class;
-            }
-        } else if (fieldClass.isAssignableFrom(Collection.class)) {
-            // this is the case when the fieldClass is a super class of Collection,
-            // this can happen when using generics to select a collection into
-            fieldClass = HashSet.class;
-        } else if (!Collection.class.isAssignableFrom(fieldClass)) {
-            throw new IllegalArgumentException(format(
-                    "Class [%s] can't be used as collection.",
-                    type));
-        }
-        return fieldClass;
+        AccessibleObject.setAccessible(setters.stream()
+                .map(SelectionTreeFieldSetter::getField)
+                .filter(Objects::nonNull)
+                .toArray(Field[]::new), true);
     }
 
     /**
      * Go down to the node which has the property as value and create a selection field for the value.
      * Going down is for embedded/composite objects, in almost all cases, the valueTree will be 'this'.
      */
-    private SelectionTreeField createSelectionTreeField(SelectionTreeValue value) {
-        SubtreeField subtreeField = getSubtreeField(this, value.propertyPath);
-        return new SelectionTreeField(subtreeField.subtree, value.valueTransformer,
-                subtreeField.field, value.mapSelectionKey, value.tupleValueIndex);
+    private SelectionTreeField createSelectionTreeField(SelectionTreeValue value, boolean identityField) {
+        return new SelectionTreeField(value.valueTransformer, getPropertyField(value.propertyPath),
+                value.mapSelectionKey, value.tupleValueIndex, identityField);
     }
 
     /**
      * Traverses the subtrees by using the nested property path until just before the last path part.
      * Wraps the subtreetree (= owner of the field) and the field into a subtreefield.
      */
-    private static SubtreeField getSubtreeField(SelectionTree root, String propertyPath) {
-        String[] alias = propertyPath.split("\\.");
-        SelectionTree valueTree = root;
-        for(int i=0; i < alias.length-1; i++) {
-            try {
-                valueTree = valueTree.getSubtree(alias[i]);
-            } catch (SecurityException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        if (valueTree.isMap()) {
-            return new SubtreeField(valueTree, null);
-        } else {
-            Field field = getField(valueTree.getResultType(), alias[alias.length-1]);
-            return new SubtreeField(valueTree, field);
-        }
+    private Field getPropertyField(String propertyPath) {
+        return isMap() ? null: getField(getResultType(), propertyPath);
     }
 
     /**
      *
      */
     public void createFromTuple(SelectionTreeData[] dataArray, Object[] tuple)
-            throws IllegalArgumentException, IllegalAccessException, InstantiationException {
+            throws IllegalArgumentException, IllegalAccessException {
         // populate 'new instances' of this and composite/embedded objects
-        Object resultValue = getResultType().newInstance();
-        Object parentValue = null;
-        Collection<Object> collection = null;
-        if (parent != null) {
-            parentValue = dataArray[parent.getResultIndex()].getCurrentValue();
-            if (parentValue == null) {
-                // parent is null while there should be one, so don't consider this result either.
-                return;
-            }
-            if (parentCollectionField != null) {
-                collection = (Collection<Object>) parentCollectionField.get(parentValue);
-                if (collection == null) {
-                    collection = (Collection<Object>) collectionClass.newInstance();
-                    parentCollectionField.set(parentValue, collection);
-                }
-            }
-        }
-        initialize(dataArray, resultValue);
+        Object resultValue = newResultValue();
+        SelectionTreeData data = initialize(dataArray, resultValue);
 
         // populate identity fields:
+        setIdentityFields(data, dataArray, tuple);
+        if (data.getResult() == NULL_RESULT) {
+            return;
+        }
+
+        boolean hasValue = identityFields.length > 0;
+        for(SelectionTreeFieldSetter field: collectionFIelds) {
+            hasValue |= field.setField(data, dataArray, tuple) != null;
+        }
+
+        if (data.isDuplicate()) {
+            return;
+        }
+
+        for (SelectionTreeFieldSetter field: singleFields) {
+            hasValue |= field.setField(data, dataArray, tuple) != null;
+        }
+
+        for (ResultMergeProjection mergeProjection: group.getMergeProjections()) {
+            SelectionTreeData subData = dataArray[mergeProjection.getSubGroupIndex()];
+            ((SelectionMerger) mergeProjection.getMerger()).mergeIntoResult(resultValue,
+                    subData == null ? null: subData.getCurrentValue());
+        }
+
+        if (!hasValue) {
+            dataArray[getResultIndex()].setResult(NULL_RESULT);
+        }
+    }
+
+    private void setIdentityFields(SelectionTreeData data, SelectionTreeData[] dataArray, Object[] tuple)
+            throws IllegalAccessException {
         if (identityFields.length > 0) {
-            SelectionTreeData data = dataArray[getResultIndex()];
             boolean identityExists = true;
             boolean nullIdentity = true;
-            SelectionIdentityTree identity = data.identityTrees.get(parentValue);
-            if (identity == null) {
-                identity = new SelectionIdentityTree();
-                data.identityTrees.put(parentValue, identity);
-                identityExists = false;
-            }
-            for(SelectionTreeField field: identityFields) {
-                Object value = setField(dataArray, field, tuple);
+            SelectionIdentityTree identity = data.identityTree;
+            for(SelectionTreeFieldSetter field: identityFields) {
+                Object value = field.setField(data, dataArray, tuple);
                 if (nullIdentity && value != null) {
                     nullIdentity = false;
                 }
@@ -228,101 +179,20 @@ public class SelectionTreeGroup extends SelectionTree {
             }
 
             if (nullIdentity) {
-                data.setCurrentValue(null);
-                data.setDuplicate(false);
-                return;
-            }
-
-            // check identity, if equal, return existing object
-            if (identityExists) {
-                data.setCurrentValue(identity.getIdentityValue());
+                data.setResult(NULL_RESULT);
+            } else if (identityExists) {
+                // check identity, if equal, return existing object
+                data.setResult(identity.getIdentityResult());
                 data.setDuplicate(true);
-                return;
-            }
-            // remember value for future identity check
-            identity.setIdentityValue(resultValue);
-
-            // object didn't exist, set remaining fields:
-            for(SelectionTreeField field: otherFields) {
-                setField(dataArray, field, tuple);
-            }
-        } else {
-            // object didn't exist, set remaining fields:
-            boolean nullValue = true;
-            for(SelectionTreeField field: otherFields) {
-                Object value = setField(dataArray, field, tuple);
-                if (nullValue && value != null) {
-                    nullValue = false;
-                }
-            }
-            if (nullValue) {
-                SelectionTreeData data = dataArray[getResultIndex()];
-                data.setCurrentValue(null);
-                data.setDuplicate(false);
-                return;
-            }
-        }
-
-        if (parent != null) {
-            SelectionMerger selectionMerger = group.getSelectionMerger();
-            if (selectionMerger != null) {
-                // subselect value merged result dto:
-                selectionMerger.mergeIntoResult(parentValue, resultValue);
             } else {
-                // subselect collection result dto:
-                collection.add(resultValue);
+                // remember value for future identity check
+                identity.setIdentityResult(data.getResult());
             }
         }
     }
 
-    private Object setField(SelectionTreeData[] dataArray, SelectionTreeField field, Object[] tuple)
-            throws IllegalArgumentException, IllegalAccessException {
-        Object value = tuple[field.tupleValueIndex];
-        if (field.valueTransformer != null) {
-            value = field.valueTransformer.convert(value);
-        }
-        Object currentValue = dataArray[field.valueTree.getResultIndex()].getCurrentValue();
-        if (field.mapSelectionKey != null) {
-            ((Map) currentValue).put(field.mapSelectionKey, value);
-        } else {
-            field.field.set(currentValue, value);
-        }
-        return value;
+    public TypeSafeQuerySelectionGroupInternal getGroup() {
+        return group.getGroup();
     }
 
-    public TypeSafeQuerySelectionGroup getGroup() {
-        return group;
-    }
-
-    private final static class SelectionTreeField {
-        final SelectionValueTransformer valueTransformer;
-        final SelectionTree valueTree;
-        final int tupleValueIndex;
-        final Field field;
-        final String mapSelectionKey;
-
-        SelectionTreeField(SelectionTree valueTree,
-                SelectionValueTransformer valueTransformer,
-                Field field, String mapSelectionKey,
-                int tupleValueIndex) {
-            this.valueTree = valueTree;
-            this.valueTransformer = valueTransformer;
-            this.field = field;
-            this.mapSelectionKey = mapSelectionKey;
-            this.tupleValueIndex = tupleValueIndex;
-        }
-    }
-
-    /**
-     * Pair containing a subtree and one of its resultType fields.
-     */
-    private final static class SubtreeField {
-        final SelectionTree subtree;
-        final Field field;
-
-        SubtreeField(SelectionTree subtree, Field field) {
-            this.subtree = subtree;
-            this.field = field;
-        }
-    }
 }

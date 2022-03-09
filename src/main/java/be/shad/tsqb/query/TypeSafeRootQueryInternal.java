@@ -15,7 +15,8 @@
  */
 package be.shad.tsqb.query;
 
-import be.shad.tsqb.data.TypeSafeQuerySelectionProxyData;
+import be.shad.tsqb.data.TypeSafeQuerySelectionProxyPropertyData;
+import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroupInternal;
 import be.shad.tsqb.values.TypeSafeValue;
 
 /**
@@ -37,7 +38,7 @@ public interface TypeSafeRootQueryInternal extends TypeSafeRootQuery, TypeSafeQu
      * that of a basic type. This projection path is used later during order by
      * and is reset when an invocation is queued to remove ambiguity.
      */
-    void queueInvokedSelection(TypeSafeQuerySelectionProxyData lastInvokedSelection);
+    <T> void queueInvokedSelection(TypeSafeQuerySelectionProxyPropertyData<T> lastInvokedSelection);
 
     /**
      * Clears the last invoked selection so no selection is still pending
@@ -59,9 +60,24 @@ public interface TypeSafeRootQueryInternal extends TypeSafeRootQuery, TypeSafeQu
     TypeSafeValue<?> dequeueSelectedValue();
 
     /**
+     * Keep a reference to builderData for select object.
+     * The builder for the same select object may be retrieved via getSelectBuilderOrigin.
+     */
+    <T> void putSelectionProxyData(T select, TypeSafeQuerySelectionGroupInternal<T, ?> builderData);
+
+    /**
+     * Retrieve a previously saved builder for the given select object.
+     */
+    <SB, SR> TypeSafeQuerySelectionGroupInternal<SB, SR> getSelectionProxyData(SB select);
+
+    /**
+     * Allow query to perform some logic upon setting a selection proxy property data.
+     */
+    <V> void handleSetSelectionValue(TypeSafeQuerySelectionProxyPropertyData<V> property, V setterArg);
+
+    /**
      * Unique group name to be used when values are selected
      * into a grouped collection dto.
      */
     String createSelectGroupAlias();
-
 }

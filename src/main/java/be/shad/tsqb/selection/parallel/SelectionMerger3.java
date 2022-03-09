@@ -15,7 +15,6 @@
  */
 package be.shad.tsqb.selection.parallel;
 
-
 /**
  *
  */

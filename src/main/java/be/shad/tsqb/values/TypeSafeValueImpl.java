@@ -44,20 +44,19 @@ public abstract class TypeSafeValueImpl<T> implements TypeSafeValue<T>, Copyable
         this.valueType = original.valueType;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Class<T> getValueClass() {
         return valueType;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public T select() {
         return query.getRootQuery().queueValueSelected(this);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().getName().hashCode();
     }
 
     @Override

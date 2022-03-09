@@ -61,14 +61,14 @@ public class OrderByProjection implements OrderBy {
         String order = descending ? " desc": "";
 
         // look for the projection with the correct alias and append it as order by:
-        TypeSafeRootQueryInternal query = (TypeSafeRootQueryInternal) this.query;
-        TypeSafeValue<?> value = query.getProjections().getTypeSafeValue(propertyPath,
+        TypeSafeRootQueryInternal queryInternal = (TypeSafeRootQueryInternal) this.query;
+        TypeSafeValue<?> value = queryInternal.getProjections().getTypeSafeValue(propertyPath,
                 params.isBuildingForDisplay());
 
         String hqlString;
         if (value instanceof TypeSafeSubQuery<?>) {
             int aliasIndex = 1;
-            for(TypeSafeValueProjection projection: query.getProjections().getProjections()) {
+            for(TypeSafeValueProjection projection: queryInternal.getProjections().getProjections()) {
                 if (propertyPath.equals(projection.getPropertyPath())) {
                     break;
                 }

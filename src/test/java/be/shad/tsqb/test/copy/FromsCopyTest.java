@@ -38,5 +38,4 @@ public class FromsCopyTest extends TypeSafeQueryCopyTest {
         validateChangedCopy(" from Person hobj1 where hobj1.name = :np1", "Test");
     }
 
-
 }

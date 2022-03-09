@@ -17,6 +17,11 @@ package be.shad.tsqb.domain.usertype;
 
 import java.util.Objects;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class TextWrappingObject {
     private String text;
 
@@ -24,14 +29,6 @@ public class TextWrappingObject {
     }
 
     public TextWrappingObject(String text) {
-        this.text = text;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
         this.text = text;
     }
 

@@ -41,27 +41,18 @@ public class NamedParameterBinderImpl<VAL, CONTINUED extends
         this.query = query;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public CONTINUED named(String alias) {
         query.named().name(parameter, alias);
         return chainable;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public CONTINUED named(String alias, VAL value) {
         ((NamedValueEnabled) parameter).setNamedValue(value);
         return named(alias);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public <T extends VAL> CONTINUED named(String alias, Collection<T> value) {
         ((NamedValueEnabled) parameter).setNamedValue(value);

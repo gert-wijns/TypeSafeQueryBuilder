@@ -25,13 +25,16 @@ public class HibernateQueryConfigurerAdapter implements HibernateQueryConfigurer
 
     @Override
     public void beforeQuery(Session session) {
+        // adapter standard empty
     }
 
     @Override
     public void afterQuery(Session session) {
+        // adapter standard empty
     }
 
     @Override
     public <R> void configureQuery(Query<R> query) {
+        // adapter standard empty
     }
 }

@@ -17,7 +17,6 @@ package be.shad.tsqb.values;
 
 import java.util.Collection;
 
-
 public interface HqlQueryValue {
 
     /**

@@ -18,45 +18,18 @@ package be.shad.tsqb.dto;
 import java.util.Map;
 import java.util.SortedMap;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * @author Gert
  *
  */
+@Getter
+@Setter
 public class MapsDto {
     private MapsDto nestedMaps;
     private SortedMap<String, Object> sortedMap;
     private Map<String, Object> genericMap;
     private CustomMap<String, Object> customMap;
-
-    public MapsDto getNestedMaps() {
-        return nestedMaps;
-    }
-
-    public void setNestedMaps(MapsDto nestedMaps) {
-        this.nestedMaps = nestedMaps;
-    }
-
-    public SortedMap<String, Object> getSortedMap() {
-        return sortedMap;
-    }
-
-    public void setSortedMap(SortedMap<String, Object> sortedMap) {
-        this.sortedMap = sortedMap;
-    }
-
-    public Map<String, Object> getGenericMap() {
-        return genericMap;
-    }
-
-    public void setGenericMap(Map<String, Object> genericMap) {
-        this.genericMap = genericMap;
-    }
-
-    public CustomMap<String, Object> getCustomMap() {
-        return customMap;
-    }
-
-    public void setCustomMap(CustomMap<String, Object> customMap) {
-        this.customMap = customMap;
-    }
 }

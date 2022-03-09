@@ -24,8 +24,13 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import lombok.Getter;
+import lombok.Setter;
+
 @Entity
 @Table(name = "ObjectWithEmbeddedId")
+@Getter
+@Setter
 public class ObjectWithEmbeddedId implements Serializable {
     private static final long serialVersionUID = -1L;
 
@@ -36,19 +41,4 @@ public class ObjectWithEmbeddedId implements Serializable {
     @javax.persistence.EmbeddedId
     private EmbeddedId id;
 
-    public ObjectWithEmbeddedId getChild() {
-        return child;
-    }
-
-    public void setChild(ObjectWithEmbeddedId child) {
-        this.child = child;
-    }
-
-    public EmbeddedId getId() {
-        return id;
-    }
-
-    public void setId(EmbeddedId id) {
-        this.id = id;
-    }
 }

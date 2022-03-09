@@ -222,8 +222,8 @@ public class RestrictionChainingTest extends TypeSafeQueryTest {
     @Test
     public void testWhereCustomHql() {
         query.from(House.class);
-        query.where(new HqlQueryValueImpl("hobj1.floors > ?", 10));
-        validate(" from House hobj1 where hobj1.floors > ?", 10);
+        query.where(new HqlQueryValueImpl("hobj1.floors > ?0", 10));
+        validate(" from House hobj1 where hobj1.floors > ?0", 10);
     }
 
 }

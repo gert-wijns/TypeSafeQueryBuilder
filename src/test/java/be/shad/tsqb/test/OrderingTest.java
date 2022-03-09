@@ -90,7 +90,7 @@ public class OrderingTest extends TypeSafeQueryTest {
 
         query.orderBy().desc(dto.getManyProperties().getProperty1());
 
-        validate("select hobj1.name as manyProperties_property1 from Product hobj1 order by hobj1.name desc");
+        validate("select hobj1.name as g1__property1 from Product hobj1 order by hobj1.name desc");
     }
 
     @Test
@@ -117,7 +117,7 @@ public class OrderingTest extends TypeSafeQueryTest {
         dto.getManyProperties().setProperty1(product.getName());
         query.orderBy().descIgnoreCase(dto.getManyProperties().getProperty1());
 
-        validate("select hobj1.name as manyProperties_property1 from Product hobj1 order by upper(hobj1.name) desc");
+        validate("select hobj1.name as g1__property1 from Product hobj1 order by upper(hobj1.name) desc");
     }
 
     @Test

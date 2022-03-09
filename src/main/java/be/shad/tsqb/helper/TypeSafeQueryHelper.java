@@ -17,15 +17,15 @@ package be.shad.tsqb.helper;
 
 import java.util.Collection;
 
+import org.hibernate.query.Query;
+
 import be.shad.tsqb.NamedParameter;
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
-import be.shad.tsqb.data.TypeSafeQuerySelectionProxyData;
 import be.shad.tsqb.query.TypeSafeQueryInternal;
+import be.shad.tsqb.query.TypeSafeRootQuery;
 import be.shad.tsqb.query.TypeSafeRootQueryInternal;
-import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroup;
+import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroupInternal;
 import be.shad.tsqb.values.TypeSafeValue;
-
-import org.hibernate.query.Query;
 
 public interface TypeSafeQueryHelper {
 
@@ -67,15 +67,8 @@ public interface TypeSafeQueryHelper {
      * Uses the type safe query factory and adds method handling to delegate
      * calls to the given query.
      */
-    <T> T createTypeSafeSelectProxy(TypeSafeRootQueryInternal query,
-            Class<T> clazz, TypeSafeQuerySelectionGroup group);
-
-    /**
-     * Creates a selection proxy, adds it to the query dataTree and sets its method listener if not a setter.
-     */
-    TypeSafeQuerySelectionProxyData createTypeSafeSelectSubProxy(TypeSafeRootQueryInternal query,
-            TypeSafeQuerySelectionProxyData parent, String propertyName,
-            Class<?> targetClass, boolean setter);
+    <SB, SR> SB createTypeSafeSelectProxy(TypeSafeRootQueryInternal query,
+            Class<SB> clazz, TypeSafeQuerySelectionGroupInternal<SB, SR> group);
 
     /**
      * Creates a proxy, adds it to the query' dataTree and sets its method listener.
@@ -84,6 +77,7 @@ public interface TypeSafeQueryHelper {
             TypeSafeQueryProxyData parent, String propertyName, Class<?> targetClass);
 
     /**
+     * Detemines the property on the child entity which references the parent entity.
      */
     String getMappedByProperty(TypeSafeQueryProxyData child);
 
@@ -120,4 +114,15 @@ public interface TypeSafeQueryHelper {
      * Set the param on the query based on the kind of named param.
      */
     void bindNamedParameter(Query<Object[]> query, NamedParameter param);
+
+    /**
+     * Creates a builder spec containing all info about the builder class.
+     */
+    <SB, SR> SelectionBuilderSpec<SB, SR> createSelectionBuilderSpec(Class<SB> selectionBuilderClass);
+
+    /**
+     * Transforms the query to the sql query with parameters included (if logged, this query
+     * can just be executed using copy/paste in a db query tool).
+     */
+	String toFormattedSqlQuery(TypeSafeRootQuery query);
 }

@@ -17,8 +17,11 @@ package be.shad.tsqb.query;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.Map;
 
 import be.shad.tsqb.dao.TypeSafeQueryDao;
+import be.shad.tsqb.joins.JoinParams;
+import be.shad.tsqb.joins.MapJoin;
 import be.shad.tsqb.ordering.OnGoingOrderBy;
 import be.shad.tsqb.restrictions.HavingRestrictions;
 import be.shad.tsqb.restrictions.WhereRestrictions;
@@ -72,16 +75,6 @@ public interface TypeSafeQuery extends TypeSafeQueryJoin, TypeSafeBaseQuery, Hav
     TypeSafeQueryJoin join(JoinType joinType);
 
     /**
-     * Delegates to {@link #join(Collection, JoinType)} with {@link JoinType#Inner}
-     */
-    <T> T join(Collection<T> anyCollection);
-
-    /**
-     * Delegates to {@link #join(Collection, JoinType, String)} with {@link JoinType#Inner}
-     */
-    <T> T join(Collection<T> anyCollection, String name);
-
-    /**
      * Delegates to {@link #join(Object, Class, ClassJoinType, String)}
      * <ul>
      * <li><code>ClassJoinType</code> is defaulted to Inner.</li>
@@ -107,72 +100,12 @@ public interface TypeSafeQuery extends TypeSafeQueryJoin, TypeSafeBaseQuery, Hav
      */
     <T> T join(Object parent, Class<T> entityClazz, ClassJoinType joinType, String name);
 
-    /**
-     * Delegates to {@link #join(Object, JoinType)} with {@link JoinType#Inner}
-     */
-    <T> T join(T anyObject);
-
-    /**
-     * Delegates to {@link #join(Object, JoinType, String)} with {@link JoinType#Inner}
-     */
-    <T> T join(T anyObject, String name);
-
-    /**
-     * Delegates to {@link #join(Collection, JoinType, boolean)} with false as create.
-     */
-    <T> T join(Collection<T> anyCollection, JoinType joinType);
-
-    /**
-     * Delegates to {@link #join(Collection, JoinType, String, boolean)} with false as create.
-     */
-    <T> T join(Collection<T> anyCollection, JoinType joinType, String name);
-
-    /**
-     * Delegates to {@link #join(Collection, JoinType, String, boolean)} with false as create.
-     */
-    <T> T join(Collection<T> anyCollection, JoinType joinType, boolean createAdditionalJoin);
-
-    /**
-     * Joins an entity collection, returns a proxy of the joined entity type.
-     * The method calls of the proxy will be captured to assist with the query building.
-     * <p>
-     * The type is fetched from hibernate.
-     *
-     * @param name when name is not null, the created proxy will be named using the given name.
-     *        (Remark: this is not an hql alias! It is a tag by which the proxy can be retrieved from the query)
-     *
-     * @param createAdditionalJoin explicitly force the creation of an additional join.
-     *        this is only useful when the same object relation needs to be joined more than once.
-     *        Otherwise the existing joined proxy is reused instead.
-     */
-    <T> T join(Collection<T> anyCollection, JoinType joinType, String name, boolean createAdditionalJoin);
-
-    /**
-     * Delegates to {@link #join(Object, JoinType, boolean)} with false as create.
-     */
-    <T> T join(T anyObject, JoinType joinType);
-
-    /**
-     * Delegates to {@link #join(Object, JoinType, String, boolean)} with false as create.
-     */
-    <T> T join(T anyObject, JoinType joinType, String name);
-
-    /**
-     * Delegates to {@link #join(Object, JoinType, String, boolean)} with false as create.
-     */
-    <T> T join(T anyObject, JoinType joinType, boolean createAdditionalJoin);
-
-    /**
-     * Joins an entity, returns a proxy of the joined entity type.
-     * The method calls of the proxy will be captured to assist with the query building.
-     * <p>
-     * The type is fetched from hibernate.
-     *
-     * @param createAdditionalJoin explicitly force the creation of an additional join.
-     *        this is only useful when the same object relation needs to be joined more than once.
-     *        Otherwise the existing joined proxy is reused instead.
-     */
-    <T> T join(T anyObject, JoinType joinType, String name, boolean createAdditionalJoin);
+    /** Adds a join for the invoked getter on a from or join proxy. */
+    <T> T join(Collection<T> anyCollection, JoinParams params);
+    /** Adds a join for the invoked getter on a from or join proxy. */
+    <T> T join(T anyObject, JoinParams params);
+    /** Adds a join for the invoked getter on a from or join proxy. */
+    <K, V> MapJoin<K, V> join(Map<K, V> anyMap, JoinParams params);
 
     /**
      * The object must be a TypeSafeQueryProxy, this will be validated at runtime.

@@ -70,9 +70,6 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
         this.parentQuery = context.get(parentQuery);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public TypeSafeQueryInternal getParentQuery() {
         return parentQuery;
@@ -83,18 +80,12 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
         return valueClass;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public T select(T value) {
         getProjections().project(value, null);
         return helper.getDummyValue(valueClass);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public T select(TypeSafeValue<T> value) {
         getProjections().project(value, null).getValueClass();
@@ -158,17 +149,11 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
         return getRootQuery().createEntityAlias();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public RestrictionPredicate getDefaultRestrictionPredicate() {
         return getRootQuery().getDefaultRestrictionPredicate();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void setDefaultRestrictionPredicate(RestrictionPredicate restrictionValuePredicate) {
         getRootQuery().setDefaultRestrictionPredicate(restrictionValuePredicate);
@@ -179,9 +164,6 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
         return getRootQuery().queueValueSelected(this);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Boolean selectBoolean(Restriction restriction) {
         return new RestrictionTypeSafeValue(this, restriction).select();
@@ -203,9 +185,6 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
         return getRootQuery().getByHqlAlias(alias);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean selectExists() {
         CaseTypeSafeValue<Boolean> caseValue = new CaseTypeSafeValue<>(getParentQuery(), Boolean.class);
@@ -214,9 +193,6 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
         return caseValue.select();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean selectNotExists() {
         CaseTypeSafeValue<Boolean> caseValue = new CaseTypeSafeValue<>(getParentQuery(), Boolean.class);
@@ -225,9 +201,6 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
         return caseValue.select();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Long selectCount() {
         getProjections().project(hqlFunction().count(), null);
@@ -235,9 +208,6 @@ public class TypeSafeSubQueryImpl<T> extends AbstractTypeSafeQuery implements Ty
         return helper.getDummyValue(Long.class);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Long selectCountDistinct(T val) {
         getProjections().project(hqlFunction().countDistinct(val).select(), null);

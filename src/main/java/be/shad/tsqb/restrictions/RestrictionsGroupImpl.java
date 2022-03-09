@@ -18,6 +18,7 @@ package be.shad.tsqb.restrictions;
 import static be.shad.tsqb.restrictions.RestrictionNodeType.And;
 import static be.shad.tsqb.restrictions.RestrictionNodeType.Or;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -115,10 +116,9 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
             if (restriction == subRestriction) {
                 return true;
             }
-            if (subRestriction instanceof RestrictionsGroupInternal) {
-                if (((RestrictionsGroupInternal) subRestriction).contains(restriction)) {
-                    return true;
-                }
+            if (subRestriction instanceof RestrictionsGroupInternal
+                    && ((RestrictionsGroupInternal) subRestriction).contains(restriction)) {
+                return true;
             }
         }
         return false;
@@ -139,9 +139,6 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
         return and(restriction);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public RestrictionsGroupImpl getRestrictionsGroup() {
         return this;
@@ -175,32 +172,35 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
     @Override
     public HqlQueryValueImpl toHqlQueryValue(HqlQueryBuilderParams params) {
         HqlQueryValueImpl value = new HqlQueryValueImpl();
-        boolean hasValue = false;
         for(RestrictionNode item: restrictions) {
-            Restriction restriction = item.getRestriction();
-            if (isRestrictionApplicable(restriction)) {
-                HqlQueryValue nextValue = restriction.toHqlQueryValue(params);
-                String nextValueHql = nextValue.getHql();
-                // check length, if a restriction was not applicable or a group
-                // had no applicable restrictions, the hql will be empty:
-                if (nextValueHql.length() > 0) {
-                    if (hasValue) {
-                        if (item.getType() == RestrictionNodeType.And) {
-                            value.appendHql(" and ");
-                        } else if (item.getType() == RestrictionNodeType.Or) {
-                            value.appendHql(" or ");
-                        } // else null, root
-                    }
-                    value.appendHql(nextValue.getHql());
-                    value.addParams(nextValue.getParams());
-                    hasValue = true;
-                }
+            if (isRestrictionApplicable(item.getRestriction())) {
+                addRestrictionToHqlQueryValue(item, value, params);
             }
         }
-        if (!hasValue || !isAddBrackets()) {
+        if (value.isEmpty() || !isAddBrackets()) {
             return value;
         }
         return new HqlQueryValueImpl("(" + value.getHql() + ")", value.getParams());
+    }
+
+    private void addRestrictionToHqlQueryValue(RestrictionNode item,
+                                                  HqlQueryValueImpl value,
+                                                  HqlQueryBuilderParams params) {
+        HqlQueryValue nextValue = item.getRestriction().toHqlQueryValue(params);
+        String nextValueHql = nextValue.getHql();
+        // check length, if a restriction was not applicable or a group
+        // had no applicable restrictions, the hql will be empty:
+        if (nextValueHql.length() > 0) {
+            if (!value.isEmpty()) {
+                if (item.getType() == RestrictionNodeType.And) {
+                    value.appendHql(" and ");
+                } else if (item.getType() == RestrictionNodeType.Or) {
+                    value.appendHql(" or ");
+                } // else null, root
+            }
+            value.appendHql(nextValue.getHql());
+            value.addParams(nextValue.getParams());
+        }
     }
 
     private boolean isRestrictionApplicable(Restriction restriction) {
@@ -232,56 +232,36 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
         return sb.toString();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public RestrictionChainable where() {
         return this;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public RestrictionAndChainable and(Restriction restriction) {
         return add(restriction, RestrictionNodeType.And);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public RestrictionAndChainable and(RestrictionsGroup group) {
         return and(group.getRestrictions());
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public RestrictionAndChainable or(RestrictionsGroup group) {
         return or(group.getRestrictions());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public RestrictionAndChainable or(Restriction restriction) {
         return add(restriction, Or);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public RestrictionChainable and(HqlQueryValue customValue) {
         return add(customValue, And);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public RestrictionChainable or(HqlQueryValue customValue) {
         return add(customValue, Or);
@@ -398,6 +378,22 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
      * Delegate the call to and().
      */
     @Override
+    public OnGoingLocalDateRestriction whereLocalDate(TypeSafeValue<LocalDate> value) {
+        return andLocalDate(value);
+    }
+
+    /**
+     * Delegate the call to and().
+     */
+    @Override
+    public OnGoingLocalDateRestriction where(LocalDate value) {
+        return and(value);
+    }
+
+    /**
+     * Delegate the call to and().
+     */
+    @Override
     public OnGoingTextRestriction whereString(TypeSafeValue<String> value) {
         return andString(value);
     }
@@ -434,9 +430,6 @@ public class RestrictionsGroupImpl extends RestrictionChainableImpl implements R
         return this;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void setBracketsPolicy(RestrictionsGroupBracketsPolicy bracketsPolicy) {
         this.bracketsPolicy = bracketsPolicy;

@@ -77,7 +77,7 @@ public class WikiTests extends TypeSafeQueryTest {
         Map<String, Object> map = maps.getGenericMap();
         // binds person name to the personName key in the resulting map
         map.put("personName", person.getName());
-        validate("select hobj1.name as genericMap_personName from Person hobj1");
+        validate("select hobj1.name as g1__personName from Person hobj1");
     }
 
     @Test
@@ -199,7 +199,6 @@ public class WikiTests extends TypeSafeQueryTest {
         validate("select hobj1.id, hobj1.name from Person hobj1");
     }
 
-
     /**
      *
      */
@@ -286,7 +285,7 @@ public class WikiTests extends TypeSafeQueryTest {
         productDto.setName(product.getName());
         productDto.getProductProperties().getPlanning().setAlgorithm(product.getName());
 
-        validate("select hobj1.name as name, hobj1.name as productProperties_planning_algorithm from Product hobj1");
+        validate("select hobj1.name as name, hobj1.name as g2__algorithm from Product hobj1");
     }
 
     @Test

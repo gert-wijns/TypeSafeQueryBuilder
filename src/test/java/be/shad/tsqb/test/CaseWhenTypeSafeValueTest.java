@@ -7,7 +7,6 @@ import be.shad.tsqb.values.CaseTypeSafeValue;
 
 public class CaseWhenTypeSafeValueTest extends TypeSafeQueryTest {
 
-
     /**
      * Tests TSQB issue 92
      */

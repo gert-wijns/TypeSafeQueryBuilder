@@ -16,6 +16,9 @@
 package be.shad.tsqb.query;
 
 import java.util.Collection;
+import java.util.Map;
+
+import be.shad.tsqb.joins.MapJoin;
 
 /**
  * This class is used to distinguish between direct calls
@@ -44,40 +47,21 @@ final class TypeSafeQueryMultiJoin implements TypeSafeQueryJoin {
         query.resetActiveMultiJoinType();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public <T> T join(Collection<T> anyCollection) {
         validateAndResetMultiJoinType();
         return query.join(anyCollection, joinType);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public <T> T join(Collection<T> anyCollection, String name) {
-        validateAndResetMultiJoinType();
-        return query.join(anyCollection, joinType, name);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public <T> T join(T anyObject) {
         validateAndResetMultiJoinType();
         return query.join(anyObject, joinType);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public <T> T join(T anyObject, String name) {
+    public <K, V> MapJoin<K, V> join(Map<K, V> anyObject) {
         validateAndResetMultiJoinType();
-        return query.join(anyObject, joinType, name);
+        return query.join(anyObject, joinType);
     }
-
 }

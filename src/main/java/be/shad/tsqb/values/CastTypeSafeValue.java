@@ -39,10 +39,10 @@ public class CastTypeSafeValue<T> extends TypeSafeValueImpl<T> {
 
     @Override
     public HqlQueryValue toHqlQueryValue(HqlQueryBuilderParams params) {
-        HqlQueryValue value = this.value.toHqlQueryValue(params);
-        return new HqlQueryValueImpl(String.format("cast(%s as %s)", value.getHql(),
+        HqlQueryValue hqlValue = value.toHqlQueryValue(params);
+        return new HqlQueryValueImpl(String.format("cast(%s as %s)", hqlValue.getHql(),
                 query.getHelper().getResolvedTypeName(getValueClass())),
-                value.getParams());
+                hqlValue.getParams());
     }
 
     @Override

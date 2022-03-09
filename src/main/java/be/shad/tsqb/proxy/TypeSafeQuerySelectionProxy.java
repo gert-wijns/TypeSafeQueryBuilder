@@ -15,7 +15,7 @@
  */
 package be.shad.tsqb.proxy;
 
-import be.shad.tsqb.data.TypeSafeQuerySelectionProxyData;
+import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroupInternal;
 
 /**
  * Marker interface for selection proxies generated
@@ -23,7 +23,7 @@ import be.shad.tsqb.data.TypeSafeQuerySelectionProxyData;
  * <p>
  * This is used by TSQB for validation purposes.
  */
-public interface TypeSafeQuerySelectionProxy {
+public interface TypeSafeQuerySelectionProxy<T> {
 
     /**
      * Retrieve all relevant data of this proxy.
@@ -33,6 +33,6 @@ public interface TypeSafeQuerySelectionProxy {
      * <p>
      * This could in theory be a restriction, but won't be in practice.
      */
-    TypeSafeQuerySelectionProxyData getTypeSafeQuerySelectionProxyData();
+    TypeSafeQuerySelectionGroupInternal<T, ?> getTypeSafeQuerySelectionProxyData();
 
 }

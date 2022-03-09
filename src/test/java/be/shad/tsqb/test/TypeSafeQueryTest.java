@@ -24,13 +24,17 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Supplier;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.metamodel.spi.MetamodelImplementor;
 import org.hibernate.proxy.HibernateProxy;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -46,7 +50,7 @@ import be.shad.tsqb.query.TypeSafeRootQuery;
 import be.shad.tsqb.query.TypeSafeRootQueryInternal;
 import be.shad.tsqb.values.HqlQueryValue;
 
-public class TypeSafeQueryTest {
+public abstract class TypeSafeQueryTest {
 
     protected final Logger logger = LogManager.getLogger(getClass());
     @Rule public final TestName name = new TestName();
@@ -68,7 +72,8 @@ public class TypeSafeQueryTest {
             Configuration config = new Configuration();
             config.configure("be/shad/tsqb/tests/hibernate.cfg.xml");
             sessionFactory = config.buildSessionFactory();
-            helper = new TypeSafeQueryHelperImpl(sessionFactory) {
+            Supplier<Session> sessionSup = () -> sessionFactory.getCurrentSession();
+            helper = new TypeSafeQueryHelperImpl(sessionSup, (MetamodelImplementor) sessionFactory.getMetamodel()) {
                 // trim package for readability:
                 @Override
                 public String getEntityName(Class<?> entityClass) {
@@ -76,7 +81,7 @@ public class TypeSafeQueryTest {
                     return entityName.substring(entityName.lastIndexOf(".")+1);
                 }
             };
-            typeSafeQueryDao = new TypeSafeQueryDaoImpl(sessionFactory, helper);
+            typeSafeQueryDao = new TypeSafeQueryDaoImpl(sessionSup, helper);
         }
     }
 
@@ -131,19 +136,20 @@ public class TypeSafeQueryTest {
         return doQuery(typeSafeQuery, null);
     }
 
-    protected void validate(HqlQueryValue expected) {
-        validate(expected.getHql(), expected.getParams());
+    protected <T> List<T>  validate(HqlQueryValue expected) {
+        return validate(expected.getHql(), expected.getParams());
     }
 
-    protected void validate(String hql, Object... params) {
-        validate(query, hql(hql, params));
+    protected <T> List<T>  validate(String hql, Object... params) {
+        return validate(query, hql(hql, params));
     }
 
-    protected void validate(TypeSafeRootQuery query, HqlQueryValue expected) {
-        validate(doQuery(query), expected);
+    protected <T> List<T>  validate(TypeSafeRootQuery query, HqlQueryValue expected) {
+        return validate(doQuery(query), expected);
     }
 
-    protected void validate(HqlQueryValue actual, HqlQueryValue expected) {
+    @SuppressWarnings("unchecked")
+    protected <T> List<T> validate(HqlQueryValue actual, HqlQueryValue expected) {
         List<Object> actualParams = new LinkedList<>();
         if (actual.getParams() != null) {
             for(Object queryParam: actual.getParams()) {
@@ -162,7 +168,7 @@ public class TypeSafeQueryTest {
         assertEquals(expectedHql + result, expected.getParams().size(), actualParams.size());
         Iterator<Object> expectedIt = expected.getParams().iterator();
         Iterator<Object> actualIt = actualParams.iterator();
-        for(;expectedIt.hasNext() && actualIt.hasNext();) {
+        while(expectedIt.hasNext() && actualIt.hasNext()) {
             Object expectedParam = expectedIt.next();
             Object actualParam = actualIt.next();
             if (actualParam instanceof HibernateProxy) {
@@ -179,6 +185,12 @@ public class TypeSafeQueryTest {
                 assertEquals(expectedHql + result, expectedParam, actualParam);
             }
         }
+        return (List<T>) doQueryResult;
     }
 
+    @SuppressWarnings("unchecked")
+    protected <T> T getSingleQueryResults() {
+        Assert.assertEquals(1, doQueryResult.size());
+        return (T) doQueryResult.get(0);
+    }
 }

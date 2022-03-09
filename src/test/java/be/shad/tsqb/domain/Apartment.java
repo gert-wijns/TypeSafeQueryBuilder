@@ -21,20 +21,17 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+import lombok.Getter;
+import lombok.Setter;
+
 @Entity
 @Table(name = "Apartment")
+@Getter
+@Setter
 public class Apartment extends Building {
     private static final long serialVersionUID = 1759090813125728063L;
 
     @Column
     private BigDecimal revenue;
-
-    public BigDecimal getRevenue() {
-        return revenue;
-    }
-
-    public void setRevenue(BigDecimal revenue) {
-        this.revenue = revenue;
-    }
 
 }

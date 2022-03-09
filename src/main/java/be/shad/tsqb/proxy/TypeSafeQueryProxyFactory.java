@@ -18,6 +18,7 @@ package be.shad.tsqb.proxy;
 import java.util.HashMap;
 import java.util.Map;
 
+import be.shad.tsqb.exceptions.TsqbException;
 import javassist.util.proxy.MethodFilter;
 import javassist.util.proxy.ProxyFactory;
 import be.shad.tsqb.helper.ConcreteDtoClassResolver;
@@ -57,7 +58,7 @@ public final class TypeSafeQueryProxyFactory {
         try {
             return getProxyClass(fromClass, type).newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
-            throw new RuntimeException(e);
+            throw new TsqbException(e);
         }
     }
 

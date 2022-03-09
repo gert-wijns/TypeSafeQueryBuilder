@@ -20,7 +20,6 @@ import org.junit.Test;
 import be.shad.tsqb.domain.people.Person;
 import be.shad.tsqb.selection.parallel.SelectValue;
 
-
 public class OrderByCopyTest extends TypeSafeQueryCopyTest {
 
     /**

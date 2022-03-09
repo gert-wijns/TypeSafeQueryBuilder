@@ -50,7 +50,7 @@ public class WithDataTest extends TypeSafeQueryTest {
         assertEquals(1, doQueryResult.size());
         PersonDto result = (PersonDto) doQueryResult.get(0);
         assertNull(result.getId());
-        assertEquals(result.getThePersonsName(), "Josh");
+        assertEquals("Josh", result.getThePersonsName());
     }
 
 }

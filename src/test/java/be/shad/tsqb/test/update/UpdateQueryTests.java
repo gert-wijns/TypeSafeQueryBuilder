@@ -15,6 +15,8 @@
  */
 package be.shad.tsqb.test.update;
 
+import org.junit.Test;
+
 import be.shad.tsqb.domain.EmbeddedId;
 import be.shad.tsqb.domain.ObjectWithEmbeddedId;
 import be.shad.tsqb.domain.Town;
@@ -28,8 +30,6 @@ import be.shad.tsqb.values.HqlQueryBuilderParamsImpl;
 import be.shad.tsqb.values.HqlQueryValue;
 import be.shad.tsqb.values.HqlQueryValueImpl;
 import be.shad.tsqb.values.TypeSafeValue;
-
-import org.junit.Test;
 
 public class UpdateQueryTests extends TypeSafeQueryTest {
 
@@ -146,7 +146,6 @@ public class UpdateQueryTests extends TypeSafeQueryTest {
         personPx.getTown().setId(1L);
         validateUpdate(query, "update Person set town.id = :np1", 1L);
     }
-
 
     @Test
     public void testAssingCase() {

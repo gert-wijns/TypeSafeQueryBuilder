@@ -15,15 +15,22 @@
  */
 package be.shad.tsqb.query;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
-import be.shad.tsqb.data.TypeSafeQuerySelectionProxyData;
+import be.shad.tsqb.data.TypeSafeQuerySelectionProxyPropertyData;
+import be.shad.tsqb.helper.SelectionBuilderSpec;
 import be.shad.tsqb.helper.TypeSafeQueryHelper;
 import be.shad.tsqb.hql.HqlQuery;
 import be.shad.tsqb.proxy.TypeSafeQueryProxy;
@@ -34,8 +41,8 @@ import be.shad.tsqb.restrictions.Restriction;
 import be.shad.tsqb.restrictions.predicate.RestrictionPredicate;
 import be.shad.tsqb.selection.SelectionValueTransformer;
 import be.shad.tsqb.selection.collection.ResultIdentifierBinder;
-import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroup;
 import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroupImpl;
+import be.shad.tsqb.selection.group.TypeSafeQuerySelectionGroupInternal;
 import be.shad.tsqb.selection.parallel.MapSelectionMerger;
 import be.shad.tsqb.selection.parallel.SelectPair;
 import be.shad.tsqb.selection.parallel.SelectTriplet;
@@ -56,13 +63,14 @@ import be.shad.tsqb.values.WrappedTypeSafeValue;
  */
 public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements TypeSafeRootQuery, TypeSafeRootQueryInternal {
 
-    private static final String MAP_KEY_RESULT_GROUP = "k";
     private static final String SELECT_RESULT_GROUP = "g0";
     private List<TypeSafeQueryProxyData> invocationQueue;
+    private Consumer<TypeSafeQuerySelectionProxyPropertyData<?>> setSelectionValueInterceptor;
+    private IdentityHashMap<Object, TypeSafeQuerySelectionGroupInternal<?, ?>> selectionProxyData;
     private Map<String, TypeSafeQueryProxy> customAliasedProxies;
     private final TypeSafeNameds namedObjects;
     private TypeSafeValue<?> lastSelectedValue;
-    private TypeSafeQuerySelectionProxyData lastInvokedSelectionData;
+    private TypeSafeQuerySelectionProxyPropertyData<?> lastInvokedSelectionData;
     private RestrictionPredicate restrictionPredicate;
     private int entityAliasCount;
     private int selectionGroupAliasCount;
@@ -86,6 +94,7 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
      */
     @Override
     protected void initializeDefaults() {
+        selectionProxyData = new IdentityHashMap<>();
         invocationQueue = new LinkedList<>();
         customAliasedProxies = new HashMap<>();
         entityAliasCount = 1;
@@ -121,94 +130,78 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
         namedObjects = new TypeSafeNamedsImpl();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public int getFirstResult() {
         return firstResult;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void setFirstResult(int firstResult) {
         this.firstResult = firstResult;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public int getMaxResults() {
         return maxResults;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void setMaxResults(int maxResults) {
         this.maxResults = maxResults;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public TypeSafeQueryInternal getParentQuery() {
         return this;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public void queueInvokedSelection(TypeSafeQuerySelectionProxyData lastInvokedSelection) {
+    @SuppressWarnings("unchecked")
+    public <SB, SR> TypeSafeQuerySelectionGroupInternal<SB, SR> getSelectionProxyData(SB select) {
+        if (select instanceof TypeSafeQuerySelectionProxy) {
+            return (TypeSafeQuerySelectionGroupInternal<SB, SR>) ((TypeSafeQuerySelectionProxy<SB>) select)
+                    .getTypeSafeQuerySelectionProxyData();
+        }
+        return (TypeSafeQuerySelectionGroupInternal<SB, SR>) selectionProxyData.get(select);
+    }
+
+    @Override
+    public <T> void putSelectionProxyData(T select, TypeSafeQuerySelectionGroupInternal<T, ?> builderData) {
+        selectionProxyData.put(select, builderData);
+    }
+
+    @Override
+    public <T> void queueInvokedSelection(TypeSafeQuerySelectionProxyPropertyData<T> lastInvokedSelection) {
         this.lastInvokedSelectionData = lastInvokedSelection;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void clearInvokedSelection() {
         this.lastInvokedSelectionData = null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String dequeueInvokedProjectionPath() {
         String lastInvokedProjectionPath = lastInvokedSelectionData != null ?
-                lastInvokedSelectionData.getEffectivePropertyPath(): null;
+                lastInvokedSelectionData.getPropertyPath(): null;
         this.lastInvokedSelectionData = null;
         return lastInvokedProjectionPath;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public void invocationWasMade(TypeSafeQueryProxyData data) {
         invocationQueue.add(data);
         // reset the invoked projection path, the getter was called without reason?
         lastInvokedSelectionData = null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public List<TypeSafeQueryProxyData> dequeueInvocations() {
         List<TypeSafeQueryProxyData> old = invocationQueue;
         invocationQueue = new LinkedList<>();
         return old;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public TypeSafeQueryProxyData dequeueInvocation() {
         List<TypeSafeQueryProxyData> invocations = dequeueInvocations();
@@ -222,9 +215,6 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
         return invocations.get(0);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void setHqlAlias(Object value, String customAlias) {
         TypeSafeQueryProxy current;
@@ -249,144 +239,200 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
         current.getTypeSafeProxyData().setCustomAlias(customAlias);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     @SuppressWarnings("unchecked")
     public <T> T getByHqlAlias(String alias) {
         return (T) customAliasedProxies.get(alias);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String createEntityAlias() {
         return "hobj"+ entityAliasCount++;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String createSelectGroupAlias() {
         return "g" + selectionGroupAliasCount++;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public RestrictionPredicate getDefaultRestrictionPredicate() {
         return restrictionPredicate;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void setDefaultRestrictionPredicate(RestrictionPredicate restrictionPredicate) {
         this.restrictionPredicate = restrictionPredicate;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public void select(Object value) {
-    	selectValue(value);
+    public String toFormattedSqlQuery() {
+        return getHelper().toFormattedSqlQuery(this);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public void selectValue(Object value) {
-        getProjections().project(value, null);
+    public <T> void selectValue(T value) {
+        TypeSafeQuerySelectionGroupInternal<T, ?> selectBuilderOrigin = getSelectionProxyData(value);
+        if (selectBuilderOrigin != null) {
+            selectBuilderOrigin.setResultGroup(true);
+        } else {
+            getProjections().project(value, null);
+        }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public <T> T select(Class<T> resultClass) {
-        return select(resultClass, null);
+        return select(resultClass, (ResultIdentifierBinder<Object>) null);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T select(Supplier<T> selectionBuilderSupplier) {
+        return (T) select(selectionBuilderSupplier.get().getClass(), (ResultIdentifierBinder<Object>) null);
+    }
+
+    @Override
+    public <T> T groupSelectBy(T invocationResult) {
+        setSelectionValueInterceptor = property -> {
+            property.getGroup().addResultIdentifierPropertyPath(property.getPropertyPath());
+        };
+        return invocationResult;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T subBuilder(Supplier<T> selectionBuilderSupplier) {
+        return subBuilder((Class<T>) selectionBuilderSupplier.get().getClass());
+    }
+
+    @Override
+    public <T, V> T subSetBuilder(Supplier<T> selectionBuilderSupplier, Consumer<Set<V>> collection) {
+        return subCollectionBuilder(selectionBuilderSupplier, collection, HashSet::new);
+    }
+
+    @Override
+    public <T, V> T subListBuilder(Supplier<T> selectionBuilderSupplier, Consumer<List<V>> collection){
+        return subCollectionBuilder(selectionBuilderSupplier, collection, ArrayList::new);
+    }
+
+    @Override
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public <T, V, C extends Collection<V>> T subCollectionBuilder(Supplier<T> selectionBuilderSupplier, Consumer<C> col, Supplier<C> sup) {
+        T builder = subBuilder(selectionBuilderSupplier);
+        TypeSafeQuerySelectionProxy<T> proxy = (TypeSafeQuerySelectionProxy<T>) builder;
+        setSelectionValueInterceptor = property -> {
+            property.setCollectionSupplier((Supplier) sup);
+            property.setSubGroup((TypeSafeQuerySelectionGroupInternal) proxy.getTypeSafeQuerySelectionProxyData());
+            setSelectionValueInterceptor = null;
+        };
+        col.accept(null);
+        return builder;
+    }
+
+    @Override
+    public <V> void handleSetSelectionValue(TypeSafeQuerySelectionProxyPropertyData<V> property, V setterArg) {
+        if (setSelectionValueInterceptor != null) {
+            setSelectionValueInterceptor.accept(property);
+        }
+
+        TypeSafeQuerySelectionGroupInternal<?, V> setterArgData = getSelectionProxyData(setterArg);
+        if (setterArgData != null) {
+            property.setSubGroup(setterArgData);
+        }
+        if (property.getSubGroup() == null) {
+            getProjections().project(setterArg, property);
+        } else {
+            clearInvokedSelection();
+        }
+    }
+
+    @Override
+    public <T> T subBuilder(Class<T> selectionBuilderClass) {
+        SelectionBuilderSpec<T, Object> sbs = helper.createSelectionBuilderSpec(selectionBuilderClass);
+        return getHelper().createTypeSafeSelectProxy(this, sbs.getSelectionBuilderClass(),
+                new TypeSafeQuerySelectionGroupImpl<>(createSelectGroupAlias(), sbs));
+    }
+
+    private <P, R> TypeSafeQuerySelectionGroupInternal<P, R> getSelectionGroup(P selectDto) {
+        TypeSafeQuerySelectionGroupInternal<P, R> group = getSelectionProxyData(selectDto);
+        if (group == null) {
+            throw new IllegalArgumentException("SelectDto doesn't have a known matching builder! SelectDto: " + selectDto);
+        }
+        return group;
+    }
+
     @Override
     public Boolean selectBoolean(Restriction restriction) {
         return new RestrictionTypeSafeValue(this, restriction).select();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public <ID, T extends ID> T select(Class<T> resultClass, ResultIdentifierBinder<ID> resultIdentifierBinder) {
-        TypeSafeQuerySelectionGroup resultGroup = new TypeSafeQuerySelectionGroupImpl(
-                SELECT_RESULT_GROUP, resultClass, true, null, null);
+        if (!getProjections().getProjections().isEmpty() && getProjections().getResultClass() == null) {
+            throw new IllegalArgumentException("Attempting to select using resultClass but projections have " +
+                    "already been made without a result class. The projections: " + getProjections());
+        }
+        TypeSafeQuerySelectionGroupInternal<T, ?> resultGroup = new TypeSafeQuerySelectionGroupImpl<>(
+                SELECT_RESULT_GROUP, helper.createSelectionBuilderSpec(resultClass));
+        resultGroup.setResultGroup(true);
         T proxy = helper.createTypeSafeSelectProxy(this, resultClass, resultGroup);
         return doBind(proxy, resultGroup, resultIdentifierBinder);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
+    public <ID, T extends ID> T select(List<T> collection, Class<T> subselectClass, ResultIdentifierBinder<ID> resultIdentifierBinder) {
+        return selectCollection(subselectClass, resultIdentifierBinder, ArrayList::new);
+    }
+
+    @Override
+    public <ID, T extends ID> T select(Set<T> collection, Class<T> subselectClass, ResultIdentifierBinder<ID> resultIdentifierBinder) {
+        return selectCollection(subselectClass, resultIdentifierBinder, HashSet::new);
+    }
+
     @Override
     public <ID, T extends ID> T select(Collection<T> collection, Class<T> subselectClass, ResultIdentifierBinder<ID> resultIdentifierBinder) {
+        return selectCollection(subselectClass, resultIdentifierBinder, ArrayList::new);
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private <ID, T extends ID> T selectCollection(Class<T> subselectClass,
+                                        ResultIdentifierBinder<ID> resultIdentifierBinder,
+                                        Supplier<Collection<T>> collectionSupplier) {
         if (lastInvokedSelectionData == null) {
             throw new IllegalStateException("The collection was not provided by calling a getSomeCollection method on a selection proxy.");
         }
-        TypeSafeQuerySelectionGroup resultGroup = new TypeSafeQuerySelectionGroupImpl(
-            createSelectGroupAlias(), subselectClass, false, null, lastInvokedSelectionData);
+        TypeSafeQuerySelectionGroupInternal<T, ?> resultGroup = new TypeSafeQuerySelectionGroupImpl<>(
+                createSelectGroupAlias(), helper.createSelectionBuilderSpec(subselectClass));
+        lastInvokedSelectionData.setCollectionSupplier((Supplier) collectionSupplier);
         T proxy = getHelper().createTypeSafeSelectProxy(this, subselectClass, resultGroup);
+        lastInvokedSelectionData.setSubGroup((TypeSafeQuerySelectionGroupInternal) resultGroup);
         lastInvokedSelectionData = null;
         return doBind(proxy, resultGroup, resultIdentifierBinder);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public <T> T selectMapKey(Class<T> keyClass) {
-        TypeSafeQuerySelectionGroup resultGroup = new TypeSafeQuerySelectionGroupImpl(
-                MAP_KEY_RESULT_GROUP, keyClass, false, null, null);
-        return getHelper().createTypeSafeSelectProxy(this, keyClass, resultGroup);
     }
 
     /**
      * If the binder is not null, then call it and capture all of the 'bind' calls
      * to use as identity paths.
      */
-    private <ID, T extends ID> T doBind(T proxy, final TypeSafeQuerySelectionGroup resultGroup,
+    private <ID, T extends ID> T doBind(T proxy, final TypeSafeQuerySelectionGroupInternal<T, ?> resultGroup,
             ResultIdentifierBinder<ID> resultIdentifierBinder) {
         if (resultIdentifierBinder != null) {
-            resultIdentifierBinder.bind((value) -> {
+            resultIdentifierBinder.bind(value -> {
                 if (lastInvokedSelectionData == null) {
                     throw new IllegalStateException("Bind was called without calling a getter on the result proxy.");
                 }
-                resultGroup.addResultIdentifierPropertyPath(lastInvokedSelectionData.getEffectivePropertyPath());
+                resultGroup.addResultIdentifierPropertyPath(lastInvokedSelectionData.getPropertyPath());
                 lastInvokedSelectionData = null;
             }, proxy);
         }
         return proxy;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public <T, V> V select(Class<V> transformedClass, T value, SelectionValueTransformer<T, V> transformer) {
         return selectValue(transformedClass, value, transformer).select();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public <T, V> TypeSafeValue<V> selectValue(Class<V> transformedClass, T value, SelectionValueTransformer<T, V> transformer) {
         getProjections().setTransformerForNextProjection(transformer);
@@ -398,34 +444,22 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
         return new WrappedTypeSafeValue<>(this, null, transformedClass, toValue(value));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public <VAL> VAL distinct(VAL value) {
         return distinct(toValue(value));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public <VAL> VAL distinct(TypeSafeValue<VAL> value) {
         return hqlFunction().distinct(value).select();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public <T> T queueValueSelected(TypeSafeValue<T> value) {
         lastSelectedValue = value;
         return helper.getDummyValue(value.getValueClass());
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public TypeSafeValue<?> dequeueSelectedValue() {
         TypeSafeValue<?> value = lastSelectedValue;
@@ -433,79 +467,54 @@ public class TypeSafeRootQueryImpl extends AbstractTypeSafeQuery implements Type
         return value;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public <T, SUB> SUB selectMergeValues(T resultDto, Class<SUB> subselectClass, SelectionMerger<T, SUB> merger) {
-        TypeSafeQuerySelectionProxyData parent = ((TypeSafeQuerySelectionProxy) resultDto).getTypeSafeQuerySelectionProxyData();
-        return getHelper().createTypeSafeSelectProxy(this, subselectClass, new TypeSafeQuerySelectionGroupImpl(
-                createSelectGroupAlias(), subselectClass, false, merger, parent));
+        TypeSafeQuerySelectionGroupImpl<SUB, SUB> childGroup = new TypeSafeQuerySelectionGroupImpl<>(
+                createSelectGroupAlias(), helper.createSelectionBuilderSpec(subselectClass));
+        TypeSafeQuerySelectionGroupInternal<?, T> parentGroup = getSelectionGroup(resultDto);
+        parentGroup.putMerger(childGroup, merger);
+        return getHelper().createTypeSafeSelectProxy(this, subselectClass, childGroup);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public <T, K, V> Map<K, V> selectMergeValues(T resultDto, MapSelectionMerger<T, K, V> merger) {
         return selectMergeValues(resultDto, Map.class, (SelectionMerger) merger);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public <T, A> SelectValue<A> selectMergeValues(T resultDto, SelectionMerger1<T, A> merger) {
         return (SelectValue) selectMergeValues(resultDto, SelectValue.class, (SelectionMerger) merger);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public <T, A, B> SelectPair<A, B> selectMergeValues(T resultDto, SelectionMerger2<T, A, B> merger) {
         return (SelectPair) selectMergeValues(resultDto, SelectPair.class, (SelectionMerger) merger);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public <T, A, B, C> SelectTriplet<A, B, C> selectMergeValues(T resultDto, SelectionMerger3<T, A, B, C> merger) {
         return (SelectTriplet) selectMergeValues(resultDto, SelectTriplet.class, (SelectionMerger) merger);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public HqlQuery toHqlQuery() {
         return toHqlQuery(new HqlQueryBuilderParamsImpl());
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public HqlQuery toHqlQuery(HqlQueryBuilderParams params) {
         return super.toHqlQuery(params);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public HqlQueryValue toHqlQueryValue(HqlQueryBuilderParams params) {
         return toHqlQuery(params);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public TypeSafeNameds named() {
         return namedObjects;

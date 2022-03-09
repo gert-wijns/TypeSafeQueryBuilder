@@ -17,6 +17,7 @@ package be.shad.tsqb.helper;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.Map;
 
 import be.shad.tsqb.data.TypeSafeQueryProxyData;
 import be.shad.tsqb.proxy.TypeSafeQueryProxyType;
@@ -71,20 +72,7 @@ class EntityProxyMethodHandler implements MethodHandler {
                     "This is not allowed in a delete/update query. Attempted to get: " + child);
         }
         if (setter) {
-            // setter is used to indicate the "update" property part of the statement
-            TypeSafeQueryProxyData property = child;
-            Object value = args[0];
-            if (child.getProxyType() == TypeSafeQueryProxyType.EntityType) {
-                // if the child is an entity, then we're trying to update a foreign key
-                // which means the ID should be set.
-                String identifierPath = child.getIdentifierPath();
-                property = child.getChild(identifierPath);
-                if (property == null) {
-                    property = helper.createChildData(query, child, identifierPath);
-                }
-            }
-            ((TypeSafeUpdateQueryInternal)query).assignUpdateValue(property, query.toValue(value));
-            return null;
+            return handleSetterInvocation(child, args[0]);
         }
         if (query.getActiveMultiJoinType() != null) {
             if (!child.getProxyType().isEntity()) {
@@ -95,13 +83,31 @@ class EntityProxyMethodHandler implements MethodHandler {
             // join type override is active, update the child join type:
             child.setJoinType(query.getActiveMultiJoinType());
         }
-        if (!Collection.class.isAssignableFrom(m.getReturnType()) && child.getProxy() != null) {
+        if (!Map.class.isAssignableFrom(m.getReturnType())
+                && !Collection.class.isAssignableFrom(m.getReturnType())
+                && child.getProxy() != null) {
             // return the proxy without adding to the invocation queue to allow method chaining.
             return child.getProxy();
         }
         // remember the method invocation, to be used later...
         query.invocationWasMade(child);
         return helper.getDummyValue(m.getReturnType());
+    }
+
+    private Object handleSetterInvocation(TypeSafeQueryProxyData child, Object value) {
+        // setter is used to indicate the "update" property part of the statement
+        TypeSafeQueryProxyData property = child;
+        if (child.getProxyType() == TypeSafeQueryProxyType.EntityType) {
+            // if the child is an entity, then we're trying to update a foreign key
+            // which means the ID should be set.
+            String identifierPath = child.getIdentifierPath();
+            property = child.getChild(identifierPath);
+            if (property == null) {
+                property = helper.createChildData(query, child, identifierPath);
+            }
+        }
+        ((TypeSafeUpdateQueryInternal)query).assignUpdateValue(property, query.toValue(value));
+        return null;
     }
 
 }

@@ -17,10 +17,17 @@ package be.shad.tsqb.selection.parallel;
 
 import java.util.Objects;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+
 /**
  * Container for two values to be used in the parallel selection.
  * Not suitable for compares/equals and such, suitable for projection binding.
  */
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
 public class SelectPair<A, B> {
     private A first;
     private B second;

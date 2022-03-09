@@ -15,12 +15,14 @@
  */
 package be.shad.tsqb.selection;
 
-import be.shad.tsqb.data.TypeSafeQuerySelectionProxyData;
+import be.shad.tsqb.data.TypeSafeQuerySelectionProxyPropertyData;
 import be.shad.tsqb.query.copy.CopyContext;
 import be.shad.tsqb.query.copy.Copyable;
 import be.shad.tsqb.values.HqlQueryBuilderParams;
 import be.shad.tsqb.values.HqlQueryBuilderParamsImpl;
 import be.shad.tsqb.values.TypeSafeValue;
+import lombok.RequiredArgsConstructor;
+import lombok.Value;
 
 /**
  * Couples a value to a selection alias.
@@ -29,21 +31,13 @@ import be.shad.tsqb.values.TypeSafeValue;
  * <p>
  * The propertyName represents the alias of this value in the select clause.
  */
+@Value
+@RequiredArgsConstructor
 public class TypeSafeValueProjection implements Copyable {
-    private final TypeSafeValue<?> value;
-    private final TypeSafeQuerySelectionProxyData selectionData;
-    private final SelectionValueTransformer<?, ?> transformer;
-    private final String mapSelectionKey;
-
-    public TypeSafeValueProjection(TypeSafeValue<?> value,
-            TypeSafeQuerySelectionProxyData selectionData,
-            SelectionValueTransformer<?, ?> transformer,
-            String mapSelectionKey) {
-        this.selectionData = selectionData;
-        this.transformer = transformer;
-        this.value = value;
-        this.mapSelectionKey = mapSelectionKey;
-    }
+    TypeSafeValue<?> value;
+    TypeSafeQuerySelectionProxyPropertyData<?> selectionData;
+    SelectionValueTransformer<?, ?> transformer;
+    String mapSelectionKey;
 
     /**
      * Copy constructor
@@ -55,34 +49,12 @@ public class TypeSafeValueProjection implements Copyable {
         this.mapSelectionKey = original.mapSelectionKey;
     }
 
-    public SelectionValueTransformer<?, ?> getTransformer() {
-        return transformer;
-    }
-
-    public TypeSafeValue<?> getValue() {
-        return value;
-    }
-
-    public TypeSafeQuerySelectionProxyData getSelectionData() {
-        return selectionData;
-    }
-
-    public String getMapSelectionKey() {
-        return mapSelectionKey;
-    }
-
     public String getAlias() {
-        if (selectionData != null) {
-            return selectionData.getAlias();
-        }
-        return null;
+        return selectionData == null ? null: selectionData.getAlias();
     }
 
     public Object getPropertyPath() {
-        if (selectionData != null) {
-            return selectionData.getEffectivePropertyPath();
-        }
-        return null;
+        return selectionData == null ? null: selectionData.getPropertyPath();
     }
 
     @Override

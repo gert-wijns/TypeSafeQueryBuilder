@@ -20,5 +20,10 @@ public interface ConcreteDtoClassResolver {
      * Resolves the actual class to use when the requested class is an interface.
      * Used to use HashMap when the field is a Map for example.
      */
-    Class<?> getConcreteClass(Class<?> requestedClass);
+    <T> Class<T> getConcreteClass(Class<T> requestedClass);
+
+	/**
+	 * Generate the builder spec which will be used during result transformation.
+	 */
+	<SB, SR> SelectionBuilderSpec<SB, SR> createBuilderSpec(Class<SB> builderClass);
 }

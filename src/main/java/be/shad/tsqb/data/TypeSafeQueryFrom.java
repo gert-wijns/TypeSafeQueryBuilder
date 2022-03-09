@@ -15,8 +15,6 @@
  */
 package be.shad.tsqb.data;
 
-import static java.lang.String.format;
-
 import java.util.LinkedList;
 import java.util.List;
 
@@ -59,9 +57,6 @@ public class TypeSafeQueryFrom implements HqlQueryBuilder {
         from.appendHql(" ").append(root.getAlias());
         for (TypeSafeQueryJoin<?> join : joins) {
             TypeSafeQueryProxyData data = join.getData();
-            if (data.getProxy() == null) {
-                throw new IllegalStateException(format("Data [%s] was added as a join, but does not have a proxy.", data));
-            }
             JoinType effectiveJoinType = data.getEffectiveJoinType();
             if (effectiveJoinType == null) {
                 throw new IllegalArgumentException("The getter for [" + data.getProxy() + "] was called, "

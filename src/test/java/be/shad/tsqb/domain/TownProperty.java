@@ -23,8 +23,13 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import lombok.Getter;
+import lombok.Setter;
+
 @Entity
 @Table(name = "TownProperty")
+@Getter
+@Setter
 public class TownProperty extends DomainObject {
     private static final long serialVersionUID = 3104165712544802569L;
 
@@ -37,29 +42,5 @@ public class TownProperty extends DomainObject {
 
     @Column
     private String propertyValue;
-
-    public Town getTown() {
-        return town;
-    }
-
-    public void setTown(Town town) {
-        this.town = town;
-    }
-
-    public String getPropertyKey() {
-        return propertyKey;
-    }
-
-    public void setPropertyKey(String propertyKey) {
-        this.propertyKey = propertyKey;
-    }
-
-    public String getPropertyValue() {
-        return propertyValue;
-    }
-
-    public void setPropertyValue(String propertyValue) {
-        this.propertyValue = propertyValue;
-    }
 
 }

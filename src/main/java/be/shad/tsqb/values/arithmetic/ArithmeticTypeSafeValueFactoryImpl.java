@@ -48,9 +48,6 @@ public class ArithmeticTypeSafeValueFactoryImpl implements ArithmeticTypeSafeVal
         return value(numberVal);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ArithmeticTypeSafeValue divide(
             TypeSafeValue<? extends Number> numerator,
@@ -58,9 +55,6 @@ public class ArithmeticTypeSafeValueFactoryImpl implements ArithmeticTypeSafeVal
         return value(value(numerator).divide(denominator));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ArithmeticTypeSafeValue add(
             TypeSafeValue<? extends Number> value1,
@@ -72,9 +66,6 @@ public class ArithmeticTypeSafeValueFactoryImpl implements ArithmeticTypeSafeVal
         return wrap(combined);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ArithmeticTypeSafeValue subtract(
             TypeSafeValue<? extends Number> value1,
@@ -86,9 +77,6 @@ public class ArithmeticTypeSafeValueFactoryImpl implements ArithmeticTypeSafeVal
         return wrap(combined);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ArithmeticTypeSafeValue multiply(
             TypeSafeValue<? extends Number> value1,

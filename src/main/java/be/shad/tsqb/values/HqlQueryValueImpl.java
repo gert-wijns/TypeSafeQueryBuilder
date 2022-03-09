@@ -80,6 +80,10 @@ public class HqlQueryValueImpl implements HqlQueryValue, Copyable {
         }
     }
 
+    public boolean isEmpty() {
+        return hql.length() == 0;
+    }
+
     public String getHql() {
         return hql.toString();
     }

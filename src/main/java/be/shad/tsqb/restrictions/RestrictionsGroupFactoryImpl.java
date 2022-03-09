@@ -15,6 +15,7 @@
  */
 package be.shad.tsqb.restrictions;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 import be.shad.tsqb.query.TypeSafeQueryInternal;
@@ -104,6 +105,16 @@ public class RestrictionsGroupFactoryImpl implements RestrictionsGroupFactory {
 
     @Override
     public OnGoingDateRestriction where(Date value) {
+        return createRestrictionsGroup().where(value);
+    }
+
+    @Override
+    public OnGoingLocalDateRestriction whereLocalDate(TypeSafeValue<LocalDate> value) {
+        return createRestrictionsGroup().whereLocalDate(value);
+    }
+
+    @Override
+    public OnGoingLocalDateRestriction where(LocalDate value) {
         return createRestrictionsGroup().where(value);
     }
 
