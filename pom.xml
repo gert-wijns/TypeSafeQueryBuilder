@@ -20,7 +20,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.gert-wijns</groupId>
     <artifactId>TypeSafeQueryBuilder</artifactId>
-    <version>3.4-BRANCH</version>
+    <version>4.0.0</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>Allow writing queries using your hibernate configured entity classes
