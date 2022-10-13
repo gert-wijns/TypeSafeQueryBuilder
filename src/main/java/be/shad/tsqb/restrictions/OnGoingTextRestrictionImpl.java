@@ -109,6 +109,10 @@ public class OnGoingTextRestrictionImpl
 
     @Override
     public ContinuedOnGoingTextRestriction like(String value) {
+        if(value!=null) {
+            value = value.replace('[', '_');
+            value = value.replace(']', '_');
+        }
         return like(toValue(value, null));
     }
 
@@ -119,6 +123,10 @@ public class OnGoingTextRestrictionImpl
 
     @Override
     public ContinuedOnGoingTextRestriction notLike(String value) {
+        if(value!=null) {
+            value = value.replace('[', '_');
+            value = value.replace(']', '_');
+        }
         return notLike(toValue(value, null));
     }
 
